@@ -4,13 +4,13 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-matplotlib
-version             3.1.1
-revision            2
+version             3.1.2
+revision            0
 categories-append   graphics math
 platforms           darwin
 license             {PSF BSD}
 
-python.versions     27 34 35 36 37 38
+python.versions     27 35 36 37 38
 
 maintainers         {reneeotten @reneeotten} openmaintainer
 
@@ -30,9 +30,9 @@ homepage            https://matplotlib.org/
 master_sites        pypi:[string index ${python.rootname} 0]/${python.rootname}
 distname            ${python.rootname}-${version}
 
-checksums           rmd160  af7de250fbfe2ca051d31d7886b14d62396880ce \
-                    sha256  1febd22afe1489b13c6749ea059d392c03261b2950d1d45c17e3aed812080c93 \
-                    size    37793603
+checksums           rmd160  6ee1b9c71753cf81128b5994796f0f3db98f1299 \
+                    sha256  8e8e2c2fe3d873108735c6ee9884e6f36f467df4a143136209cff303b183bada \
+                    size    40909582
 
 if {${name} ne ${subport}} {
     depends_build-append \
@@ -54,7 +54,7 @@ if {${name} ne ${subport}} {
                         patch-v31-setupext.py.diff \
                         patch-v31-jquery-ui.diff
 
-    if {${python.version} in "27 34"} {
+    if {${python.version} eq 27} {
         version         2.2.4
         revision        1
         distname        ${python.rootname}-${version}
@@ -62,7 +62,9 @@ if {${name} ne ${subport}} {
                         sha256  029620799e581802961ac1dcff5cb5d3ee2f602e0db9c0f202a90495b37d2126 \
                         size    36974286
 
-        depends_lib-append  port:py${python.version}-six \
+        depends_lib-append  port:py${python.version}-backports-functools_lru_cache \
+                            port:py${python.version}-six \
+                            port:py${python.version}-subprocess32 \
                             port:py${python.version}-tz
 
         patchfiles          patch-v2-setup.cfg.diff \
@@ -70,11 +72,6 @@ if {${name} ne ${subport}} {
                             patch-v2-qhull.diff \
                             patch-v2-setupext.py.diff \
                             patch-v2-jquery-ui.diff
-    }
-
-    if {${python.version} eq 27} {
-        depends_lib-append  port:py27-backports-functools_lru_cache \
-                            port:py27-subprocess32
     }
 
     if {${python.version} eq 35} {

@@ -2,9 +2,11 @@
 
 PortSystem          1.0
 PortGroup           python 1.0
+PortGroup           github 1.0
 
+github.setup        Rapptz discord.py 1.3.1 v
+github.tarball_from archive
 name                py-discordpy
-version             1.2.4
 license             MIT
 platforms           darwin
 maintainers         {toby @tobypeterson} openmaintainer
@@ -12,13 +14,9 @@ description         API wrapper for Discord written in Python
 long_description    discord.py is an API wrapper for Discord written in Python. \
                     This was written to allow easier writing of bots or chat logs.
 
-homepage            https://github.com/Rapptz/discord.py
-master_sites        pypi:d/discord.py
-distname            discord.py-${version}
-
-checksums           rmd160 7e94c4677315a51032dd6c93739d24172672a0ef \
-                    sha256 3e044d84f0bb275d173e2d958cb4a579e525707f90e3e8a15c59901f79e80663 \
-                    size 606513
+checksums           rmd160 cefe335b330f556b2df48b557e14df5d65773d15 \
+                    sha256 92faf3f3e50db8c2f6549e8855c1333e2813f9769d68acb2c653e78d7f0d700e \
+                    size 1258157
 
 python.versions     37 38
 
@@ -28,7 +26,4 @@ if {${name} ne ${subport}} {
                     port:py${python.version}-websockets
 
     livecheck.type  none
-} else {
-    livecheck.type  pypi
-    livecheck.name  discord.py
 }

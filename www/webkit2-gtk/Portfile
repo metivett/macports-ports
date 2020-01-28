@@ -82,6 +82,11 @@ patchfiles-append   patch-webkit2gtk-macports.diff
 # fix name collision that breaks build with clang-9.0
 patchfiles-append   patch-webkit2gtk-source-javascriptcore-tools-jsdollarvm-handle.diff
 
+# remove a definition from a header that was accidentally left behind in 2.26.2
+# this can be removed in 2.27.x
+# see: https://trac.macports.org/ticket/59704#comment:10
+patchfiles-append   patch-layertreehost-remove-invalidate.diff
+
 # enable Netscape plugin architecture on macOS
 # or can be explicitly disabled with the following addition if preferred
 # configure.args-append -DENABLE_NETSCAPE_PLUGIN_API=OFF
@@ -193,6 +198,9 @@ if {${os.platform} eq "darwin" && ${os.major} <= 16} {
         patchfiles-append       patch-webcore-platform-audio-directconvolver-disable-veclib.diff
     }
 
+    # there is a missing header that manifests on 10.7 and less
+    patchfiles-append patch-webkit2gtk-source-javascriptcore-jit-executableallocator-missingfcntl-h-older-systems.diff
+
     # add dep for newer ruby and spec this for build
     # https://trac.macports.org/ticket/52016
     depends_build-append    port:ruby25
@@ -213,6 +221,12 @@ if {${os.platform} eq "darwin" && ${os.major} <= 16} {
         configure.cxxflags-append -include ${filespath}/snowmath.h
     }
 }
+
+notes-append "
+If you are porting new software to use webkit2gtk on Apple systems,\
+you will likely need to define BUILDING_GTK__ to get the correct\
+behaviour from WebKitAvailability.h.
+"
 
 livecheck.type      regex
 livecheck.url       http://webkitgtk.org/releases/

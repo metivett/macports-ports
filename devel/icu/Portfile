@@ -41,6 +41,7 @@ if {${os.major} >= 11 || ${subport} eq "${name}-bootstrap" || ${subport} eq "${n
     configure.python        /usr/bin/python
 } else {
     depends_build-append    port:python27
+    license_noconflict      python27
     configure.python        ${prefix}/bin/python2.7
 }
 
@@ -51,8 +52,10 @@ subport ${name}-bootstrap {
     configure.cxx_stdlib    libstdc++
     compiler.whitelist      clang llvm-gcc-4.2 gcc-4.2 apple-gcc-4.2
 }
-# Also needed by later clangs.
-if {${os.platform} eq "darwin" && ${os.major} < 12 && ${cxx_stdlib} eq "libc++"} {
+# Also needed by later clangs. 10.8 already has a C++11 compiler if using
+# Xcode 5.x and so doesn't need this, but there's no guarantee that users
+# upgraded from 4.x.
+if {${os.platform} eq "darwin" && ${os.major} <= 12 && ${cxx_stdlib} eq "libc++"} {
     clang_dependency.extra_versions 3.7
 }
 
@@ -120,7 +123,7 @@ subport ${name}-lx {
     revision                0
     # http://userguide.icu-project.org/layoutengine/paragraph
     description             ICU paragraph layout library
-    long_description        ${description}
+    long_description        {*}${description}
 
     depends_build-append    port:pkgconfig
     depends_lib-append      port:icu \
@@ -132,7 +135,7 @@ subport ${name}-lx {
 }
 
 if {${subport} eq ${name}} {
-    revision                0
+    revision                1
 }
 
 if { ${subport} ne "${name}-docs" } {
@@ -145,7 +148,9 @@ if { ${subport} ne "${name}-docs" } {
     } else {
         patchfiles-append   patch-config-mh-darwin.diff
         # https://trac.macports.org/ticket/59391
-        patchfiles-append       max_align_t.patch
+        patchfiles-append   max_align_t.patch
+        # https://trac.macports.org/ticket/59723
+        patchfiles-append   umachine.h.patch
     }
 
     # ICU has three mechanisms to aid other projects in building properly

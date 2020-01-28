@@ -9,6 +9,7 @@ PortGroup           legacysupport 1.0
 
 name                openmpi
 version             4.0.1
+revision            1
 set branch          [join [lrange [split ${version} .] 0 1] .]
 categories          science parallel net
 platforms           darwin
@@ -42,7 +43,7 @@ if {[string first "-devel" $subport] > 0} {
 
     name                openmpi-devel
     version             ${branch}.999-${base}
-    revision            0
+    revision            1
 
     distname            openmpi-v${branch}.x-${base}-${tag}
 
@@ -61,6 +62,8 @@ if {[string first "-devel" $subport] > 0} {
 # As OpenMPI creates compiler wrappers, there are lots of
 # variants for what compiler the user would like to wrap.
 
+# Please update the mpi portgroup whenever clist is changed.
+
 # Sub-ports names and corresponding configure.compiler value
 array set clist {
     clang   {clang}
@@ -68,6 +71,7 @@ array set clist {
     clang60 {macports-clang-6.0}
     clang70 {macports-clang-7.0}
     clang80 {macports-clang-8.0}
+    clang90 {macports-clang-9.0}
     gcc5    {macports-gcc-5}
     gcc6    {macports-gcc-6}
     gcc7    {macports-gcc-7}

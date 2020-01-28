@@ -4,12 +4,12 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                buildbot-worker
-version             2.5.0
+version             2.6.0
 revision            0
 
 maintainers         {ryandesign @ryandesign} {rajdeep @rajdeepbharati} {mojca @mojca} openmaintainer
 description         Buildbot Worker Daemon
-long_description    ${description}
+long_description    {*}${description}
 
 categories-prepend  devel
 platforms           darwin
@@ -20,12 +20,12 @@ master_sites        pypi:[string index ${name} 0]/${name}
 
 license             GPL-2
 
-checksums           rmd160  1789ff5763a44e74b6ce64af00f82fa22adfb878 \
-                    sha256  8330cf314064516648e78d2685b2eaae14fc9481351eb229f1392b38bdc18815 \
-                    size    113411
+checksums           rmd160  3644a5714176ec7c175673db557bb04b4d2f8098 \
+                    sha256  5408760fe1fb8f52ba029f78cdf33d1f050308491546a8702acc703dae132443 \
+                    size    115284
 
 python.default_version \
-                    37
+                    38
 
 depends_build-append \
                     port:py${python.version}-setuptools

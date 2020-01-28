@@ -9,7 +9,7 @@ PortGroup               gpg_verify 1.0
 
 name                    KeePassXC
 categories              security aqua
-maintainers             {yan12125 @yan12125} openmaintainer
+maintainers             nomaintainer
 description             KeePassXC is a cross-platform community-driven port \
                         of the Windows application “Keepass Password Safe”.
 long_description        KeePassXC is a community fork of KeePassX with the \
@@ -66,7 +66,8 @@ depends_lib-append      port:argon2 \
 
 compiler.cxx_standard   2011
 
-patchfiles              patch-no-deployqt.diff
+patchfiles              patch-no-deployqt.diff \
+                        patch-old-mac.diff
 
 # KeePassXC uses -fstack-protector-strong on Clang [1]. That flag is not
 # available until clang 602 [2] or upstream clang 3.5 [3]

@@ -16,15 +16,6 @@ if {${os.platform} eq "darwin" && \
     PortGroup legacysupport 1.0
 }
 
-# devel requires C++11 as of 2017-08-21
-# https://gitlab.kitware.com/cmake/cmake/commit/c1f3eb9f2d628b2911aa17f65012fab0befc4b87
-# release requires C++11 as of 3.10.0
-if {!((${os.platform} eq "darwin" && ${os.major} < 10) || ${build_arch} eq "ppc" || ${build_arch} eq "ppc64")} {
-    depends_lib-append port:libcxx
-    configure.cxx_stdlib libc++
-}
-PortGroup cxx11 1.1
-
 name                cmake
 
 categories          devel
@@ -40,20 +31,30 @@ set base_long_description \
 homepage            https://cmake.org
 platforms           darwin freebsd
 
+# require C++11
+compiler.cxx_standard 2011
+
+platform darwin {
+    if {!((${os.major} < 9) || ${build_arch} eq "ppc" || ${build_arch} eq "ppc64")} {
+        depends_lib-append port:libcxx
+        configure.cxx_stdlib libc++
+    }
+}
+
 dist_subdir         cmake
 
 subport cmake-devel {}
 
-set branch          3.15
+set branch          3.16
 
 if {${subport} eq ${name}} {
 
     # release
 
-    version   ${branch}.5
-    checksums rmd160 f264ed805dc48ae211c212032fc4aeb96318f226 \
-              sha256 fbdd7cef15c0ced06bb13024bfda0ecc0dedbcaaaa6b8a5d368c75255243beb4 \
-              size   9271925
+    version   ${branch}.3
+    checksums rmd160 a5119dc562793fe8ef3f3795953efdf3fd344a3e \
+              sha256 e54f16df9b53dac30fd626415833a6e75b0e47915393843da1825b096ee60668 \
+              size   9111826
     revision  0
 
     master_sites    ${homepage}/files/v${branch}/
@@ -66,10 +67,11 @@ if {${subport} eq ${name}} {
     patchfiles-append \
         patch-Modules-noArchCheck.release.diff \
         patch-CMakeFindFrameworks.cmake.release.diff \
-        patch-Source_CMakeVersionCompute.cmake.release.diff \
         patch-Source_Modules_FindLibUV.cmake.release.diff \
         patch-fix_cxx14_17_checks.release.diff \
-        patch-fix-system-prefix-path.release.diff
+        patch-fix-system-prefix-path.release.diff \
+        patch-cmake-leopard-tiger.release.diff \
+        patch-fix-feature-test.release.diff
 
     livecheck.type  regex
     livecheck.regex ${name}-(\[0-9.\]+)${extract.suffix}
@@ -79,11 +81,11 @@ if {${subport} eq ${name}} {
 
     # devel
 
-    set commit 4523e4b3262e81ed179321c154770b20899041c6
-    version   20191109-[string range ${commit} 0 7]
-    checksums rmd160 baa0403ecc4d89eb7dc2bf74d2696b32eff16140 \
-              sha256 a72635a54d234640d3b8032f91bfa27ddc6d7b27e1b876f372025de6cd28ac07 \
-              size   7085992
+    set commit f45b2c48129ce302d100b0965374bcaacbb74219
+    version   20200121-[string range ${commit} 0 7]
+    checksums rmd160 756f174a64b07040d13a05ed0b43aead52851ad5 \
+              sha256 e37de65f6901561f6f7660e7dae8e0bace43415c963e6dfae0e7b00766182478 \
+              size   7390405
     revision  0
 
     use_bzip2       yes
@@ -101,7 +103,8 @@ if {${subport} eq ${name}} {
         patch-CMakeFindFrameworks.cmake.devel.diff \
         patch-Source_Modules_FindLibUV.cmake.devel.diff \
         patch-fix_cxx14_17_checks.devel.diff \
-        patch-fix-system-prefix-path.devel.diff
+        patch-fix-system-prefix-path.devel.diff \
+        patch-cmake-leopard-tiger.devel.diff
 
     livecheck.type  regex
     livecheck.regex data-clipboard-text=\"(\[0-9a-g\]+)\"
@@ -120,6 +123,13 @@ depends_lib-append  port:curl \
 # allow use of libuv or libuv-devel;
 # system libuv is the default as of 20160830 (g320f5)
 depends_lib-append  path:lib/pkgconfig/libuv.pc:libuv
+
+# configure is just a shell script that passes directly to bootstrap
+configure.cmd       ./bootstrap
+
+# bootstrap takes cmake-style args for the build of the cmake to be installed.
+# the args are passed as usual for cmake, after "--", so we pass them as post_args
+configure.post_args --
 
 configure.env-append \
                     CMAKE_PREFIX_PATH=${prefix} \
@@ -140,14 +150,18 @@ if {${os.platform} eq "darwin" && ${os.major} == 11 && ${configure.cxx_stdlib} e
     compiler.whitelist macports-clang-3.4
 }
 
+# clang 3.4 can't build certain parts of the cmake self-testing infrastructure
+# https://trac.macports.org/ticket/59782
+if {${configure.compiler} eq "macports-clang-3.4"} {
+    configure.post_args-append -DBUILD_TESTING=OFF
+}
+
 platform darwin {
     configure.env-append \
                     CMAKE_OSX_DEPLOYMENT_TARGET=${macosx_deployment_target}
 
-    if {${configure.sdkroot} != ""} {
-        configure.env-append CMAKE_OSX_SYSROOT=${configure.sdkroot}
-    } else {
-        configure.env-append CMAKE_OSX_SYSROOT=/
+    if {${configure.sdkroot} eq ""} {
+        configure.env-append SDKROOT=/
     }
 
     if {${os.arch} eq "i386" && ${os.major} <= 9} {
@@ -174,13 +188,11 @@ configure.args-append --docdir=share/doc/cmake \
                     --no-system-librhash
 
 configure.universal_args
-configure.post_args
 
 # CMake's configure script doesn't recognize `--host`.
 array set merger_host {i386 {} x86_64 {} ppc {} ppc64 {}}
 
 platform darwin 8 {
-    patchfiles-append patch-cmake-3-12-libuv-tiger.diff
     configure.ldflags-append -Wl,-framework -Wl,ApplicationServices
 }
 
@@ -233,7 +245,7 @@ post-destroot {
 # due to the default compiler needing cmake to build.
 if {[info exists cmake_bootstrapping]} {
     set some_variant_disabled 0
-    foreach vname {gui qt4 qt5 docs python34 python35 python36 python37} {
+    foreach vname {gui qt4 qt5 docs python35 python36 python37 python38} {
         if {[variant_isset $vname]} {
             unset ::variations($vname)
             set some_variant_disabled 1
@@ -305,50 +317,46 @@ variant docs description {Build documentation: HTML and manpages} {
         port:py${PYTHON_VERSION_NO_DOT}-sphinxcontrib-websupport
 }
 
-# cmake 3.15 requires Python3X for +docs
-# variant python27 conflicts python34 python35 python36 requires docs \
-#    description {Build documentation using Sphinx from Python 2.7} {}
-
-variant python34 conflicts python35 python36 python37 requires docs \
-    description {Build documentation using Sphinx from Python 3.4} {}
-
-variant python35 conflicts python34 python36 python37 requires docs \
+variant python35 conflicts python36 python37 python38 requires docs \
     description {Build documentation using Sphinx from Python 3.5} {}
 
-variant python36 conflicts python34 python35 python37 requires docs \
+variant python36 conflicts python35 python37 python38 requires docs \
     description {Build documentation using Sphinx from Python 3.6} {}
 
-variant python37 conflicts python34 python35 python36 requires docs \
+variant python37 conflicts python35 python36 python38 requires docs \
     description {Build documentation using Sphinx from Python 3.7} {}
+
+variant python38 conflicts python35 python36 python37 requires docs \
+    description {Build documentation using Sphinx from Python 3.8} {}
 
 if {[variant_isset docs]} {
 
     # default Python is 3.6
-    if {![variant_isset python34] &&
-        ![variant_isset python35] &&
+    if {![variant_isset python35] &&
         ![variant_isset python36] &&
-        ![variant_isset python37]} {
-        default_variants +python36
+        ![variant_isset python37] &&
+        ![variant_isset python38]} {
+        default_variants +python37
     }
 
     # make sure -python36 is not specified alone
-    if {![variant_isset python34] &&
-        ![variant_isset python35] &&
+    if {![variant_isset python35] &&
         ![variant_isset python36] &&
-        ![variant_isset python37]} {
-        ui_error "\n\nYou must select either the +python34, +python35, +python36, or +python37 variant when using variant +docs.\n"
+        ![variant_isset python37] &&
+        ![variant_isset python38]} {
+        ui_error "\n\nYou must select either the +python35, +python36, +python37, or +python38 variant when using variant +docs.\n"
         return -code error "Invalid variant selection"
     }
 
     # determine Python-related variables
-    if {[variant_isset python34]} {
-        set PYTHON_VERSION_WITH_DOT "3.4"
-    } elseif {[variant_isset python35]} {
+    if {[variant_isset python35]} {
         set PYTHON_VERSION_WITH_DOT "3.5"
     } elseif {[variant_isset python36]} {
         set PYTHON_VERSION_WITH_DOT "3.6"
-    } else {
+    } elseif {[variant_isset python37]} {
         set PYTHON_VERSION_WITH_DOT "3.7"
+    } else {
+        set PYTHON_VERSION_WITH_DOT "3.8"
     }
     set PYTHON_VERSION_NO_DOT [join [split ${PYTHON_VERSION_WITH_DOT} "."] ""]
 

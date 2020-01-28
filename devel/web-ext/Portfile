@@ -3,18 +3,18 @@
 PortSystem          1.0
 
 name                web-ext
-version             3.2.0
+version             4.0.0
 revision            0
-checksums           rmd160  ba13c7d3bd0382dc232336945fde09af559ed462 \
-                    sha256  ad9fe38259f02aed73f021d2487858e1c7f5e1efe04026ff6c7515e132bf5f43 \
-                    size    201953
+checksums           rmd160  7c5dfd662ed906668d6d175b94f447a825046116 \
+                    sha256  a2e268eba0bdda3038ab5a56cc91c304c647c3484abeb4800fdffa2a0b37638f \
+                    size    69457
 
 categories          devel
 maintainers         nomaintainer
 license             MPL-2
 description         A command line tool to help build, run, and test web extensions
 
-long_description    ${description}
+long_description    {*}${description}
 
 homepage            https://github.com/mozilla/web-ext
 master_sites        https://registry.npmjs.org/${name}/-
