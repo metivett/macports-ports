@@ -13,15 +13,14 @@ description         GUI Application for FreeDV - an open source digital \
     voice protocol that integrates the modems, codecs, and FEC
 long_description    ${description}
 
-github.setup        drowe67 freedv-gui eaa48f144a32f6fefd3852eb9850294bb9490116
-version             20210214-[string range ${github.version} 0 7]
-checksums           rmd160  b0b20444d3dd5834b4ae333f94fabf2012e72d4b \
-                    sha256  2e670ce28c78c5a6ed4dace35bc74a17b815a190da72b6a65042edd4c6abad75 \
-                    size    9422055
+github.setup        drowe67 freedv-gui 1.8.12 v
+checksums           rmd160  48c2d37179a1feccf285642bc68ddfaa0bd1ba85 \
+                    sha256  600a966210a6fc34a7b4381105474c451cf4e11cce4aeedf99faf4aed6ee5f35 \
+                    size    11291831
 revision            0
 
 # move from commit to version
-epoch               1
+epoch               2
 
 depends_build-append \
     port:pkgconfig
@@ -38,7 +37,7 @@ depends_lib-append \
     port:libao \
     port:codec2 \
     port:lpcnetfreedv \
-    port:speexDSP
+    port:speexdsp
 
 compiler.cxx_standard 2011
 
@@ -53,13 +52,18 @@ configure.args-append \
 patchfiles-append \
     patch-src_cmakelists.txt.diff
 
+# on macOS =< 10.14 we don't need camera/mic permissions
+if {${os.platform} eq "darwin" && ${os.major} < 18} {
+    configure.cxxflags-append -DAPPLE_OLD_XCODE
+}
+
 destroot {
     xinstall -d -m 0755 ${destroot}${applications_dir}/FreeDV.app/Contents
     xinstall -d -m 0755 ${destroot}${applications_dir}/FreeDV.app/Contents/MacOS
     xinstall -d -m 0755 ${destroot}${applications_dir}/FreeDV.app/Contents/Resources
-    xinstall -m 0644 ${worksrcpath}/src/freedv.icns \
+    xinstall -m 0644 ${workpath}/build/src/FreeDV.app/Contents/Resources/freedv.icns \
         ${destroot}${applications_dir}/FreeDV.app/Contents/Resources/FreeDV.icns
-    xinstall -m 0755 ${workpath}/build/src/freedv \
+    xinstall -m 0755 ${workpath}/build/src/FreeDV.app/Contents/MacOS/FreeDV \
         ${destroot}${applications_dir}/FreeDV.app/Contents/MacOS/FreeDV
     xinstall -m 0644 ${filespath}/info.plist \
         ${destroot}${applications_dir}/FreeDV.app/Contents/Info.plist
@@ -67,4 +71,7 @@ destroot {
         ${destroot}${applications_dir}/FreeDV.app/Contents/Info.plist
     ln -s ${applications_dir}/FreeDV.app/Contents/MacOS/FreeDV \
         ${destroot}${prefix}/bin/freedv
+    xinstall -d -m 0755 ${destroot}${prefix}/share/doc/freedv-gui
+    xinstall -m 0644 ${worksrcpath}/USER_MANUAL.pdf \
+        ${destroot}${prefix}/share/doc/freedv-gui
 }

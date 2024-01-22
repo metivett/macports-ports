@@ -4,7 +4,7 @@ PortSystem          1.0
 PortGroup           texlive 1.0
 
 name                texlive-lang-arabic
-version             54568
+version             66115
 revision            0
 
 categories          tex
@@ -13,18 +13,18 @@ license             Copyleft Permissive
 description         TeX Live: Arabic
 long_description    Support for Arabic and Persian.
 
-checksums           texlive-lang-arabic-54568-run.tar.xz \
-                    rmd160  752616a8aecd38cfd0825056fad4a1e427fa98b8 \
-                    sha256  b1b16557ec8cc1204341a73e158aca5620504489a4fda7e05b63a87964cfcd8a \
-                    size    19294784 \
-                    texlive-lang-arabic-54568-doc.tar.xz \
-                    rmd160  7f63695d9a31e26672e215e35d9ae7919d6e9b2c \
-                    sha256  f654fa75e7980eac6998806bf0b847f305f9ceb34d05b5506b406952ec121188 \
-                    size    15681592 \
-                    texlive-lang-arabic-54568-src.tar.xz \
-                    rmd160  24ccf5258deebede48662cb3333b53c763cfebb1 \
-                    sha256  3c67d2266140252eda4d5ea45b2c26a8372dd3782427a6c182e3f6ea7eae821c \
-                    size    259444
+checksums           texlive-lang-arabic-66115-run.tar.xz \
+                    rmd160  30dda6a1b5c93e386930cd2c14e41171f1b1a780 \
+                    sha256  1c9070a39e8e84c0d8adcdbd0e49edf7edbcce10bf3c5b3ca4846b26b6751ab0 \
+                    size    27143512 \
+                    texlive-lang-arabic-66115-doc.tar.xz \
+                    rmd160  605a46f65af201445e5fd5816a34682beb7cefeb \
+                    sha256  2fb50d421925a42960e48195b451700c6d1968e7e0f0f6b9277c6a211e8864be \
+                    size    21752548 \
+                    texlive-lang-arabic-66115-src.tar.xz \
+                    rmd160  5f8fef991ba12785c704abe7921be49baca61472 \
+                    sha256  279968be5e0e1a7435a5279c7b0ca1b097757264492fa2180145fca505d66cba \
+                    size    274424
 
 depends_lib         port:texlive-basic
 

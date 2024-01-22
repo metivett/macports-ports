@@ -2,7 +2,13 @@
 PortSystem          1.0
 
 name                xeyes
-version             1.1.2
+version             1.3.0
+revision            0
+
+checksums           rmd160  18721bc2d650d4dc0fb39aae2bc82960c8a25091 \
+                    sha256  0950c600bf33447e169a539ee6655ef9f36d6cebf2c1be67f7ab55dacb753023 \
+                    size    130444
+
 categories          x11
 license             X11
 platforms           darwin
@@ -13,19 +19,20 @@ long_description    xeyes defies description.
 homepage            https://www.x.org
 master_sites        xorg:individual/app/
 
-checksums           rmd160  799c25abe0f82e45c686dcff5f55d80be3468be0 \
-                    sha256  57bcec0d2d167af9e5d44d0dbd74c6d7c0f0591cd0608952b23c749fdd910553 \
-                    size    133160
-
-use_bzip2           yes
-use_parallel_build  yes
+use_xz              yes
 
 depends_build \
-    port:pkgconfig
+    port:pkgconfig \
+    port:xorg-util-macros
 
 depends_lib \
+    port:xorg-libXext \
+    port:xorg-libXi \
     port:xorg-libXmu \
+    port:xorg-libXt \
     port:xrender
+
+configure.checks.implicit_function_declaration.whitelist-append strchr
 
 livecheck.type      regex
 livecheck.url       https://xorg.freedesktop.org/archive/individual/app/?C=M&O=D

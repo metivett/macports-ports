@@ -2,15 +2,19 @@
 
 PortSystem      1.0
 PortGroup       github 1.0
-PortGroup       qmake5 1.0
+PortGroup       cmake 1.1
+PortGroup       qt6 1.0
 PortGroup       compiler_blacklist_versions 1.0
+PortGroup       boost 1.0
+PortGroup       legacysupport 1.1
 
-github.setup    qbittorrent qBittorrent 4.3.3 release-
+github.setup    qbittorrent qBittorrent 4.6.3 release-
 revision        0
+conflicts       qBittorrent-qt5
 categories      net
 maintainers     {i0ntempest @i0ntempest} openmaintainer
 platforms       darwin
-license         {GPL-2 OpenSSLException}
+license         {GPL-2+ OpenSSLException}
 
 description     The qBittorrent project aims to provide an open-source software alternative to µTorrent.
 long_description \
@@ -22,53 +26,77 @@ long_description \
 
 homepage        https://www.qbittorrent.org
 
-checksums       rmd160  03bdeeb93206be117130ddb407883f138a91e94e \
-                sha256  df00c59a6b037a2ca2d4a5798f053fbe855fc96167bbc674651da2cb591748a5 \
-                size    8044657
+checksums       rmd160  6fcaab209a88f398a0a8a1bfca178302ff85466f \
+                sha256  0ee51935fbc392a73a04c5f763abe5f07f00677bd31af974f97b0a0ff6e6a780 \
+                size    9066929
+
+qt6.blacklist   {< 6.2}
+
+configure.args-append \
+                -DQT6=ON \
+                -DVERBOSE_CONFIGURE=ON \
+                -DWEBUI=OFF \
+                -DGUI=OFF
+
+qt6.depends_build \
+                qttools
+
+qt6.depends_lib qttranslations
 
 depends_build-append \
                 port:pkgconfig
 
 depends_lib-append \
-                port:boost \
                 port:libtorrent-rasterbar \
                 path:lib/libssl.dylib:openssl \
                 port:zlib
 
-compiler.cxx_standard 2017
-compiler.blacklist-append *gcc-3.* *gcc-4.* {clang < 900.0.39.2}
+boost.depends_type  \
+                build
+boost.version   1.81
 
-qt5.min_version 5.9
+configure.cxxflags-append \
+                -std=c++17
 
-qt5.depends_component \
-                qttranslations
+compiler.cxx_standard \
+                2017
+compiler.blacklist-append \
+                *gcc-3.* *gcc-4.* {clang < 900.0.39.2}
 
-configure.args-append \
-                CONFIG+=nogui \
-                CONFIG+=c++17 \
-                CONFIG+=link_pkgconfig \
-                PKGCONFIG+=libtorrent-rasterbar \
-                PKGCONFIG+=openssl \
-                PKGCONFIG+=zlib
+# undefined symbols for std::filesystem on 10.14
+legacysupport.newest_darwin_requires_legacy \
+                18
+legacysupport.use_mp_libcxx \
+                yes
+
+post-patch {
+         # fix the deployment target setting to the MacPorts setting
+         reinplace "s|QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.15|QMAKE_MACOSX_DEPLOYMENT_TARGET = ${macosx_deployment_target}|g" \
+             ${worksrcpath}/macxconf.pri
+}
 
 destroot {
-        if {[variant_isset gui]} {
-            set appname "qbittorrent"
-        } else {
-            set appname "qbittorrent-nox"
-        }
-        reinplace "s|Plugins = PlugIns|Plugins = ${qt_dir}/plugins|g" ${worksrcpath}/src/${appname}.app/Contents/Resources/qt.conf
-        system -W ${worksrcpath}/src "/usr/bin/codesign --sign - ${appname}.app"
-        copy ${worksrcpath}/src/${appname}.app ${destroot}${applications_dir}
-        if {![variant_isset gui]} {
-            ln -s ${applications_dir}/${appname}.app/Contents/MacOS/${appname} ${destroot}${prefix}/bin
-        }
+    if {[variant_isset gui]} {
+        set appname "qbittorrent"
+    } else {
+        set appname "qbittorrent-nox"
+    }
+    reinplace "s|Plugins = PlugIns|Plugins = ${qt6.dir}/plugins|g" ${build.dir}/${appname}.app/Contents/Resources/qt.conf
+    system -W ${build.dir} "/usr/bin/codesign --sign - ${appname}.app"
+    copy ${build.dir}/${appname}.app ${destroot}${applications_dir}
+    if {![variant_isset gui]} {
+        ln -s ${applications_dir}/${appname}.app/Contents/MacOS/${appname} ${destroot}${prefix}/bin
+    }
 }
 
 variant gui description {Enable GUI} {
-                configure.args-delete CONFIG+=nogui
-                qt5.depends_component qtmacextras
+                configure.args-replace -DGUI=OFF -DGUI=ON
+                qt6.depends_lib-append qtsvg
+}
+
+variant webui description {Enable WebUI} {
+                configure.args-replace -DWEBUI=OFF -DWEBUI=ON
 }
 
 default_variants \
-                +gui
+                +gui +webui

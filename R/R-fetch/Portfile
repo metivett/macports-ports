@@ -1,0 +1,29 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran dbosak01 fetch 0.1.4
+revision            0
+categories-append   www
+maintainers         nomaintainer
+license             public-domain
+description         Fetch data from various data sources
+long_description    {*}${description}
+homepage            https://fetch.r-sassy.org
+checksums           rmd160  ed1bc5b0efe7cd17a0d7466b5fce17d9a343da8a \
+                    sha256  9e28436284fa923d769b2ccff92cbc614aee0ab3a6097006bc00470754916a76 \
+                    size    858316
+supported_archs     noarch
+
+depends_lib-append  port:R-crayon \
+                    port:R-haven \
+                    port:R-readr \
+                    port:R-readxl \
+                    port:R-tibble
+
+depends_test-append port:R-knitr \
+                    port:R-rmarkdown \
+                    port:R-testthat
+
+test.run            yes

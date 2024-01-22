@@ -4,7 +4,7 @@ PortSystem          1.0
 PortGroup           github 1.0
 PortGroup           python 1.0
 
-github.setup        certbot certbot 1.12.0 v
+github.setup        certbot certbot 2.8.0 v
 revision            0
 categories          security
 license             Apache-2
@@ -12,27 +12,24 @@ maintainers         {mps @Schamschula} openmaintainer
 description         An ACME Let's Encrypt client that can obtain certs and extensibly \
                     update server configurations.
 long_description    {*}${description}
-platforms           darwin
+supported_archs     noarch
+platforms           {darwin any}
 homepage            https://certbot.eff.org/
 
-checksums           rmd160  cd1a52038d1aba82b5fcc4e672635a85f31a4b56 \
-                    sha256  f8f8d86706de339ac0e720ac1e96a73b631231ac38df1f95abc7f9ec457212e5 \
-                    size    1419871
+checksums           rmd160  087c1bd43b4dce58c242c663edaa764307b3b708 \
+                    sha256  1c3d4d3b21d898280e71892e7ebd8f0fb7cbde8bdcfc199fbd1e1d0848080029 \
+                    size    1344270
 
-variant python27 conflicts python36 python37 python38 python39 description {Use Python 2.7} {
-    depends_lib-append  port:py${python.version}-python2-pythondialog
+variant python38 conflicts python39 python310 python311 description {Use Python 3.8} {}
+variant python39 conflicts python38 python310 python311 description {Use Python 3.9} {}
+variant python310 conflicts python38 python39 python311 description {Use Python 3.10} {}
+variant python311 conflicts python38 python39 python310 description {Use Python 3.11} {}
+
+if {![variant_isset python38] && ![variant_isset python39] && ![variant_isset python310]} {
+    default_variants +python311
 }
 
-variant python36 conflicts python27 python37 python38 python39 description {Use Python 3.6} {}
-variant python37 conflicts python27 python36 python38 python39 description {Use Python 3.7} {}
-variant python38 conflicts python27 python36 python37 python39 description {Use Python 3.8} {}
-variant python39 conflicts python27 python36 python37 python38 description {Use Python 3.9} {}
-
-if {![variant_isset python27] && ![variant_isset python36] && ![variant_isset python37] && ![variant_isset python38]} {
-    default_variants +python39
-}
-
-foreach pv {39 38 37 36 27} {
+foreach pv {311 310 39 38} {
     if {[variant_isset python${pv}]} {
         python.default_version ${pv}
         break
@@ -46,21 +43,10 @@ depends_lib-append  port:py${python.version}-acme \
                     port:py${python.version}-configobj \
                     port:py${python.version}-cryptography \
                     port:py${python.version}-distro \
-                    port:py${python.version}-future \
-                    port:py${python.version}-google-api \
-                    port:py${python.version}-httplib2 \
-                    port:py${python.version}-mock \
-                    port:py${python.version}-oauth2client \
                     port:py${python.version}-openssl \
                     port:py${python.version}-parsedatetime \
-                    port:py${python.version}-psutil \
                     port:py${python.version}-pyrfc3339 \
-                    port:py${python.version}-six \
-                    port:py${python.version}-tz \
-                    port:py${python.version}-zope-component \
-                    port:py${python.version}-zope-deferredimport \
-                    port:py${python.version}-zope-deprecation \
-                    port:py${python.version}-zope-hookable
+                    port:py${python.version}-tz
 
 build.dir           ${worksrcpath}/${name}
 
@@ -68,6 +54,30 @@ post-patch {
     reinplace "s|/etc/|${prefix}/etc/|" ${worksrcpath}/certbot/certbot/compat/misc.py
     reinplace "s|/var/lib/|${prefix}/var/db/|" ${worksrcpath}/certbot/certbot/compat/misc.py
     reinplace "s|/var/log/|${prefix}/var/log/|" ${worksrcpath}/certbot/certbot/compat/misc.py
+}
+
+subport ${name} {
+    variant docs description {Build man pages} {
+        depends_lib-append \
+            port:py${python.version}-repoze.sphinx.autointerface \
+            port:py${python.version}-sphinx \
+            port:py${python.version}-sphinx_rtd_theme
+
+        post-build {
+            set env(doc_path) ${worksrcpath}/${name}/docs
+            set env(python_branch) ${python.branch}
+            exec sh -c {cd $doc_path && sphinx-build-$python_branch -N -b man . _build/man} >@stdout
+        }
+
+        post-destroot {
+            xinstall -d ${destroot}${prefix}/share/man/man1
+            xinstall -d ${destroot}${prefix}/share/man/man7
+            xinstall -m 640 ${worksrcpath}//${name}/docs/_build/man/certbot.1 \
+                ${destroot}${prefix}/share/man/man1/
+            xinstall -m 640 ${worksrcpath}//${name}/docs/_build/man/certbot.7 \
+                ${destroot}${prefix}/share/man/man7/
+        }
+    }
 }
 
 #
@@ -85,8 +95,7 @@ subport ${name}-apache {
     build.dir           ${worksrcpath}/${name}-apache
 
     depends_lib-append  port:mod_perl2 \
-                        port:py${python.version}-python-augeas \
-                        port:py${python.version}-zopeinterface
+                        port:py${python.version}-python-augeas
 }
 
 subport ${name}-nginx {
@@ -121,15 +130,7 @@ subport ${name}-dns-cloudflare {
                         TXT records using the Cloudflare API. \
                         https://certbot-dns-cloudflare.readthedocs.io/
     build.dir           ${worksrcpath}/${name}-dns-cloudflare
-}
-
-subport ${name}-dns-cloudxns {
-    description         The certbot dns_cloudxns plugin for dns-01 challenges
-    long_description    The dns_cloudxns plugin automates the process of completing a \
-                        dns-01 challenge (DNS01) by creating, and subsequently removing, \
-                        TXT records using the CloudXNS API. \
-                        https://certbot-dns-cloudxns.readthedocs.io/
-    build.dir           ${worksrcpath}/${name}-dns-cloudxns
+    depends_lib-append  port:py${python.version}-cloudflare
 }
 
 subport ${name}-dns-digitalocean {
@@ -148,6 +149,7 @@ subport ${name}-dns-dnsimple {
                         TXT records using the DNSimple API. \
                         https://certbot-dns-dnsimple.readthedocs.io/
     build.dir           ${worksrcpath}/${name}-dns-dnsimple
+    depends_lib-append  port:py${python.version}-dns-lexicon
 }
 
 subport ${name}-dns-dnsmadeeasy {
@@ -157,6 +159,7 @@ subport ${name}-dns-dnsmadeeasy {
                         TXT records using the DNS Made Easy API. \
                         https://certbot-dns-dnsmadeeasy.readthedocs.io/
     build.dir           ${worksrcpath}/${name}-dns-dnsmadeeasy
+    depends_lib-append  port:py${python.version}-dns-lexicon
 }
 
 subport ${name}-dns-gehirn {
@@ -166,6 +169,7 @@ subport ${name}-dns-gehirn {
                         TXT records using the Gehirn Infrastracture Service DNS API. \
                         https://certbot-dns-gehirn.readthedocs.io/
     build.dir           ${worksrcpath}/${name}-dns-gehirn
+    depends_lib-append  port:py${python.version}-dns-lexicon
 }
 
 subport ${name}-dns-google {
@@ -184,6 +188,7 @@ subport ${name}-dns-linode {
                         TXT records using the Linode API. \
                         https://certbot-dns-linode.readthedocs.io/
     build.dir           ${worksrcpath}/${name}-dns-linode
+    depends_lib-append  port:py${python.version}-dns-lexicon
 }
 
 subport ${name}-dns-luadns {
@@ -202,6 +207,7 @@ subport ${name}-dns-nsone {
                         TXT records using the NS1 API. \
                         https://certbot-dns-nsone.readthedocs.io/
     build.dir           ${worksrcpath}/${name}-dns-nsone
+    depends_lib-append  port:py${python.version}-dns-lexicon
 }
 
 subport ${name}-dns-ovh {
@@ -211,6 +217,7 @@ subport ${name}-dns-ovh {
                         TXT records using the OVH API. \
                         https://certbot-dns-ovh.readthedocs.io/
     build.dir           ${worksrcpath}/${name}-dns-ovh
+    depends_lib-append  port:py${python.version}-dns-lexicon
 }
 
 subport ${name}-dns-rfc2136 {
@@ -238,4 +245,5 @@ subport ${name}-dns-sakuracloud {
                         TXT records using the Sakura Cloud DNS API. \
                         https://certbot-dns-sakuracloud.readthedocs.io/
     build.dir           ${worksrcpath}/${name}-dns-sakuracloud
+    depends_lib-append  port:py${python.version}-dns-lexicon
 }

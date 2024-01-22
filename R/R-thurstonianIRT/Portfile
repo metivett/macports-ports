@@ -1,0 +1,38 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+# GitHub version is old.
+R.setup             cran paul-buerkner thurstonianIRT 0.12.4
+revision            0
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             GPL-3+
+description         Thurstonian IRT models
+long_description    {*}${description}
+homepage            https://github.com/paul-buerkner/thurstonianIRT
+checksums           rmd160  360a0411c079397f0a2b3a4a3f6699f511f3ba58 \
+                    sha256  4a3fe54654db97af3b53721968497d6232f6daf01093d76179fc131ffb9471bf \
+                    size    66424
+
+depends_lib-append  port:R-BH \
+                    port:R-dplyr \
+                    port:R-lavaan \
+                    port:R-magrittr \
+                    port:R-mvtnorm \
+                    port:R-Rcpp \
+                    port:R-RcppEigen \
+                    port:R-RcppParallel \
+                    port:R-rlang \
+                    port:R-rstan \
+                    port:R-rstantools \
+                    port:R-StanHeaders \
+                    port:R-tibble \
+                    port:R-tidyr
+
+depends_test-append port:R-knitr \
+                    port:R-MplusAutomation \
+                    port:R-rmarkdown \
+                    port:R-testthat
+
+test.run            yes

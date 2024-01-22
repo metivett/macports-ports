@@ -1,0 +1,54 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran dmlc xgboost 1.7.6.1
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             Apache-2
+description         Extreme Gradient Boosting
+long_description    {*}${description}
+checksums           rmd160  23437dd413c82e1216200689742cbf4e1b0c5a69 \
+                    sha256  f23dd6b6ca7a58ef3236d8bdc7b4928591507cf41133fc8053d32ab91b3d3d60 \
+                    size    1086571
+
+depends_build-append \
+                    path:bin/cmake:cmake
+depends_lib-append  port:R-data.table \
+                    port:R-jsonlite
+
+# See:
+# https://github.com/dmlc/xgboost/issues/8946
+# https://github.com/dmlc/xgboost/pull/8964
+patchfiles          patch-unbreak-32-bit.diff \
+                    patch-fix-OpenMP.diff
+
+post-patch {
+    reinplace "s,@OMP_PREFIX@,${prefix}," ${worksrcpath}/configure
+    if {[string match macports-clang* ${configure.compiler}]} {
+        reinplace "s,@OMP@,-lomp," ${worksrcpath}/configure
+        reinplace "s,@INC@,include/libomp," ${worksrcpath}/configure
+        reinplace "s,@LIB@,lib/libomp," ${worksrcpath}/configure
+    } elseif {[string match macports-gcc* ${configure.compiler}]} {
+        reinplace "s,@OMP@,-lgomp," ${worksrcpath}/configure
+        reinplace "s,@INC@,," ${worksrcpath}/configure
+        reinplace "s,@LIB@,lib/libgcc," ${worksrcpath}/configure
+    }
+}
+
+depends_test-append port:R-Ckmeans.1d.dp \
+                    port:R-crayon \
+                    port:R-knitr \
+                    port:R-rmarkdown \
+                    port:R-ggplot2 \
+                    port:R-DiagrammeR \
+                    port:R-vcd \
+                    port:R-testthat \
+                    port:R-lintr \
+                    port:R-igraph \
+                    port:R-float \
+                    port:R-titanic
+
+test.run            yes

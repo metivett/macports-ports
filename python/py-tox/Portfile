@@ -5,13 +5,13 @@ PortGroup           python 1.0
 PortGroup           select 1.0
 
 name                py-tox
-version             3.20.0
+version             4.11.4
 revision            0
 
 categories-append   devel
 maintainers         {gmail.com:pedro.salgado @steenzout} openmaintainer
-platforms           darwin
 supported_archs     noarch
+platforms           {darwin any}
 license             MIT
 
 description         tox: virtualenv-based automation of test activities
@@ -19,19 +19,27 @@ long_description    Tox as is a generic virtualenv management and test command l
 
 homepage            https://tox.readthedocs.io/en/latest/
 
-checksums           rmd160  f7d473ccaa33d766f77458bd67c8d58aa9096478 \
-                    sha256  eb629ddc60e8542fd4a1956b2462e3b8771d49f1ff630cecceacaa0fbfb7605a \
-                    size    307259
+checksums           rmd160  05bf155ca6ce2d233ef21ee96cadcac2e8c91d49 \
+                    sha256  73a7240778fabf305aeb05ab8ea26e575e042ab5a18d71d0ed13e343a51d6ce1 \
+                    size    176168
 
-python.versions     27 35 36 37 38 39
+python.versions     38 39 310 311 312
 
 if {${name} ne ${subport}} {
+    python.pep517   yes
+    python.pep517_backend \
+                    hatch
+
     depends_build-append \
-                    port:py${python.version}-setuptools_scm
+                    port:py${python.version}-hatch-vcs
 
     depends_lib-append \
+                    port:py${python.version}-cachetools \
+                    port:py${python.version}-chardet \
+                    port:py${python.version}-colorama \
                     port:py${python.version}-filelock \
                     port:py${python.version}-packaging \
+                    port:py${python.version}-platformdirs \
                     port:py${python.version}-pluggy \
                     port:py${python.version}-py \
                     port:py${python.version}-setuptools \
@@ -40,9 +48,9 @@ if {${name} ne ${subport}} {
                     port:py${python.version}-virtualenv \
                     port:tox_select
 
-    if {${python.version} ne 38} {
+    if {${python.version} < 311} {
         depends_lib-append \
-                    port:py${python.version}-importlib-metadata
+                    port:py${python.version}-tomli
     }
 
     select.group    tox
@@ -53,5 +61,4 @@ when you execute the commands without a version suffix, e.g. 'tox', run:
 
 port select --set ${select.group} [file tail ${select.file}]
 "
-    livecheck.type  none
 }

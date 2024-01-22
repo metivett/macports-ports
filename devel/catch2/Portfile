@@ -5,24 +5,27 @@ PortGroup           cmake 1.1
 PortGroup           compiler_blacklist_versions 1.0
 PortGroup           github 1.0
 
-github.setup        catchorg catch2 2.12.1 v
+github.setup        catchorg Catch2 3.5.1 v
+name                catch2
 revision            0
+
 categories          devel
-platforms           darwin
-maintainers         {gmail.com:howarth.at.macports @jwhowarth} openmaintainer
 license             Boost-1
+maintainers         {gmail.com:howarth.at.macports @jwhowarth} openmaintainer
 
-description         Catch2
-long_description    A modern, C++-native, header-only, test framework for unit-tests, TDD and BDD \
-                    - using C++11, C++14, C++17 and later.
+description         Catch 2: a modern, C++-native, header-only, test framework for unit-tests
+long_description    ${description}, TDD and BDD - using C++14, C++17 and later.
 
-checksums           rmd160  6c13b0a604105d78c8d2a9700df36474c4e5c327 \
-                    sha256  d801f42072131e95486f464ddd107fc34838bd18c1754fc51d7be7846d71a6a6 \
-                    size    641598
+checksums           rmd160  1a86e7effe9dc43eb7f104f040e130f0b81e6e62 \
+                    sha256  49c3ca7a68f1c8ec71307736bc6ed14fec21631707e1be9af45daf4037e75a08 \
+                    size    1159629
+github.tarball_from archive
 
-compiler.cxx_standard 2011
+compiler.cxx_standard 2014
 
 # Old clangs apparently have trouble with std::is_constructible.
 # https://github.com/catchorg/Catch2/issues/1935
 # https://github.com/catchorg/Catch2/issues/946
 compiler.blacklist-append   {clang < 700}
+
+github.livecheck.regex  {([0-9.]+)}

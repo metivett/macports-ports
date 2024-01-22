@@ -4,11 +4,10 @@ PortSystem          1.0
 
 name                opendkim
 version             2.10.3
-revision            3
+revision            4
 categories          mail
 license             {BSD restrictive/distributable}
 maintainers         nomaintainer
-platforms           darwin
 
 description         OpenDKIM is an implementation of the DKIM (Domain Keys Identified Mail)
 long_description    ${description}

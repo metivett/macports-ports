@@ -3,43 +3,39 @@
 PortSystem          1.0
 PortGroup           golang 1.0
 
-go.setup            github.com/fullstorydev/grpcurl 1.8.0 v
+go.setup            github.com/fullstorydev/grpcurl 1.8.9 v
+go.offline_build    no
+github.tarball_from archive
 revision            0
 
+description         \
+    Like cURL, but for gRPC: Command-line tool for interacting with gRPC \
+    servers.
+
+long_description    \
+    {*}${description} The main purpose for this tool is to invoke RPC methods \
+    on a gRPC server from the command-line. gRPC servers use a binary \
+    encoding on the wire (protocol buffers, or "protobufs" for short). So \
+    they are basically impossible to interact with using regular curl (and \
+    older versions of curl that do not support HTTP/2 are of course \
+    non-starters). This program accepts messages using JSON encoding, which \
+    is much more friendly for both humans and scripts.
+
 categories          devel net
+installs_libs       no
 license             MIT
-
-description         Like cURL, but for gRPC: Command-line tool for \
-                    interacting with gRPC servers
-
-long_description    {*}${description}. The main purpose for this tool is to \
-                    invoke RPC methods on a gRPC server from the \
-                    command-line. gRPC servers use a binary encoding on the \
-                    wire (protocol buffers, or "protobufs" for short). So \
-                    they are basically impossible to interact with using \
-                    regular curl (and older versions of curl that do not \
-                    support HTTP/2 are of course non-starters). This program \
-                    accepts messages using JSON encoding, which is much more \
-                    friendly for both humans and scripts.
-
 maintainers         {gmail.com:herby.gillot @herbygillot} \
                     openmaintainer
 
-checksums           rmd160  6d50cdb49edb8d4757af41a7cc598ee773d430b6 \
-                    sha256  75d8916de92e90074d123e3cc8a75be932ca5a9f8bc53e56114854a41e5a5b3d \
-                    size    134892
+checksums           rmd160  23003ff286a11098920bd974dc63b8486a65119c \
+                    sha256  962fe7d3da7653519d2975e130244af9286db32041b0745613aebf89949a9009 \
+                    size    122084
 
-build.pre_args      -ldflags \"-X 'main.version=${version}'\"
-build.args          ./cmd/grpcurl
-installs_libs       no
-
-# FIXME: This port currently can't be built without allowing go mod to fetch
-# dependencies during the build phase. See
-# https://trac.macports.org/ticket/61192
-build.env-delete    GOPROXY=off GO111MODULE=off
+build.pre_args      -ldflags \"-X 'main.version=${github.tag_prefix}${version}'\"
+build.args          ./cmd/${name}
 
 destroot {
-    xinstall -m 755 ${worksrcpath}/${name} ${destroot}${prefix}/bin/
+    xinstall -m 0755 ${worksrcpath}/${name} ${destroot}${prefix}/bin/
 }
 
-github.livecheck.regex {([0-9.]+)}
+github.livecheck.regex  {([0-9.]+)}

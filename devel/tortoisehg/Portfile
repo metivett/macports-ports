@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
@@ -5,13 +6,17 @@ PortGroup           python 1.0
 PortGroup           app 1.0
 PortGroup           gitlab 1.0
 
+# NB: only update non-patch releases when updating Mercurial as well, as
+# TortoiseHg generally does not retain compatibility
 gitlab.instance     https://foss.heptapod.net
-gitlab.setup        mercurial/tortoisehg thg 5.5.2
+gitlab.setup        mercurial/tortoisehg thg 6.5.1
+revision            0
+checksums           rmd160  2655e2601fef357baf8fa2dc9583f146c5e40a60 \
+                    sha256  d1ba8862cff5748c3ccb9d1ad275fb803e23119c9f1abd61bf49b6d041822e35 \
+                    size    7657421
 
 name                tortoisehg
-
 categories          devel python
-platforms           darwin
 license             GPL-2+
 maintainers         nomaintainer
 supported_archs     noarch
@@ -21,18 +26,12 @@ description         A set of graphical tools for Mercurial
 long_description    A set of graphical tools for the Mercurial distributed \
                     source control management system.
 
-checksums           rmd160  40511f206fd4da0944d54a07ebc9e0cec67029c9 \
-                    sha256  990c45172894595c921f0287f1c1391f8b5ee400274a570d7929a3d90e7d8565 \
-                    size    7486809
-
-# in preparation of a future default change
-patchfiles         patch-python39
-
-python.default_version 38
+# must be same as Mercurial
+python.default_version 311
 
 # we use qt5 only if macOS is 10.12 or later
 # as defined on qt5 port
-if { ${os.major} < 16 } {
+if {${os.platform} eq "darwin" && ${os.major} < 16} {
     set qt_version 4
 } else {
     set qt_version 5
@@ -40,8 +39,15 @@ if { ${os.major} < 16 } {
 
 depends_lib-append  port:mercurial \
                     port:py${python.version}-iniparse \
-                    port:py${python.version}-pyqt${qt_version} \
-                    port:py${python.version}-qscintilla-qt${qt_version}
+                    port:py${python.version}-pyqt${qt_version}
+
+if {${qt_version} == 4} {
+    depends_lib-append \
+                    port:py${python.version}-qscintilla-qt4
+} else {
+    depends_lib-append \
+                    port:py${python.version}-pyqt5-scintilla
+}
 
 depends_build-append port:py${python.version}-sphinx
 
@@ -69,7 +75,7 @@ post-patch {
     reinplace "s|{prefix}|${prefix}|" ${worksrcpath}/tortoisehg/util/config.py
     reinplace "s|{python.prefix}|${python.prefix}|" ${worksrcpath}/tortoisehg/util/config.py
 
-    foreach f [glob -type f \
+    foreach f [glob -types {f x} \
                    ${worksrcpath}/thg \
                    ${worksrcpath}/contrib/hg \
                    ${worksrcpath}/contrib/*.py \
@@ -93,3 +99,7 @@ post-destroot {
 app.name            TortoiseHg
 app.executable      ${python.prefix}/bin/thg
 app.icon            icons/svg/thg_logo.svg
+
+# suppress release candidates
+gitlab.livecheck.regex \
+    (\[0-9.]+)

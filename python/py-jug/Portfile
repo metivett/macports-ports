@@ -5,28 +5,26 @@ PortGroup           python 1.0
 
 name                py-jug
 python.rootname     Jug
-version             2.0.3
+version             2.2.3
 revision            0
-platforms           darwin
 license             MIT
+platforms           {darwin any}
+supported_archs     noarch
 
-python.versions     27 35 36 37 38
+python.versions     37 38 39 310 311
+python.pep517       yes
 
 maintainers         {stromnov @stromnov} openmaintainer
 
 description         A Task Based Parallelization Framework
-long_description    ${description}
+long_description    {*}${description}
 
 homepage            https://jug.readthedocs.io/
 
-checksums           rmd160  4ad7a315de02ae345a0f437d86d6b34df3790be3 \
-                    sha256  3656355c1f9cd1731065c9d589f66d33653cbe5e0879cbe5d8447b51e4ddb4ec \
-                    size    66223
+checksums           rmd160  5c8e83a001baf570ce578781bd80864694ab3c60 \
+                    sha256  0cd26c996092ceac8d563b2b14313db4984c03da0633b741afd87f9d97daf859 \
+                    size    70067
 
 if {${name} ne ${subport}} {
-    depends_lib-append  port:py${python.version}-setuptools \
-                        port:py${python.version}-six \
-                        port:py${python.version}-redis
-
-    livecheck.type      none
+    depends_lib-append  port:py${python.version}-setuptools
 }

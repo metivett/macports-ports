@@ -10,27 +10,28 @@ PortGroup compilers 1.0
 
 name                molden
 
-# This project regularly makes "stealth updates". The version (with date)
-# as well as checksums should be updated each time this happens.
-# See https://trac.macports.org/wiki/PortfileRecipes#stealth-updates
 epoch               1
-version             6.7-20210125131400
+version             7.3
 revision            0
-checksums           rmd160  04cbaee07746fc47663f01a5892831743eafa4fb \
-                    sha256  58ec623ec2fa3fb984e15e2fb2e5e5e23adf5128a5237b771076e13418d8ee04 \
-                    size    5989738
+checksums           rmd160  1695d7b5e027482eb35229ab461d71d90c6372b7 \
+                    sha256  870f4fa6635229791bb09bbbd07f51456b2c90101d73564dc47ed7769b8c07a1 \
+                    size    7151194
 
-set version_number  [lindex [split ${version} -] 0]
-set branch          [join [lrange [split ${version_number} .] 0 1] .]
+set branch          [join [lrange [split ${version} .] 0 1] .]
 categories          science graphics chemistry
-platforms           darwin
 license             Restrictive Noncommercial Nomirror
 maintainers         {ryandesign @ryandesign} openmaintainer
-homepage            http://cheminf.cmbi.ru.nl/molden/
-distname            ${name}${version_number}
+
+# The makefile patch adds -Wno-implicit-function-declaration to three makefiles
+# and it is already present in src/ambfor/makefile. This makes the software
+# potentially incompatible with Apple Silicon.
+supported_archs     i386 ppc ppc64 x86_64
+
+homepage            https://www.theochem.ru.nl/molden/
+master_sites        https://ftp.science.ru.nl/Molden/
+
+distname            ${name}${version}
 worksrcdir          ${name}${branch}
-dist_subdir         ${name}/${version}
-master_sites        ftp://ftp.cmbi.umcn.nl/pub/molgraph/molden/
 
 description         Molecular graphics visualisation tool
 long_description    Molden is a package for displaying Molecular Density from \
@@ -59,7 +60,8 @@ depends_lib-append  port:libGLU \
                     port:xorg-libXmu
 
 post-extract {
-    # Copy "group" permission to "others", which is empty.
+    # Copy "group" permission to "others" which is empty for most items in
+    # the 7.3 distfile.
     fs-traverse item ${worksrcpath} {
         set p [file attributes ${item} -permissions]
         file attributes ${item} -permissions [format {0%o} [expr {(${p} >> 3 & 7) | ${p}}]]
@@ -67,14 +69,24 @@ post-extract {
 }
 
 patchfiles          patch-makefile.diff
+patchfiles-append   docker.patch
 patchfiles-append   implicit.patch
 
+post-patch {
+    # This Makefile declares dependencies on headers in /usr/include. This
+    # doesn't work with recent Xcode versions where there is no /usr/include:
+    # gmake[1]: *** No rule to make target '/usr/include/stdio.h', needed by 'surf.o'.  Stop.
+    reinplace -E {/^[^[:space:]]+\.o: /s, /usr/include/[^[:space:]]+\.h,,g} ${worksrcpath}/src/surf/Makefile
+}
+
 compilers.choose    fc
-compilers.setup     require_fortran -gcc10
-# This should allow gcc10 to work but the port doesn't honor MacPorts flags.
-#compilers.allow_arguments_mismatch  yes
-# The argument mismatch problem has been reported to the developer by email.
+compilers.setup     require_fortran
 minimum_xcodeversions {9 3.1}
+
+pre-configure {
+    # Delete ELF docker executable included in the 7.3 distfile.
+    system -W ${worksrcpath} "${build.cmd} clean"
+}
 
 use_configure       no
 
@@ -102,6 +114,4 @@ post-destroot {
         ${docdir}
 }
 
-livecheck.type      regex
-livecheck.url       http://www.ryandesign.com/macports/version.php/${name}
-livecheck.regex     {^(.+)$}
+livecheck.regex     >${name}(\[0-9.\]+)\\.

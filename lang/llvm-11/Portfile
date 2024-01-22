@@ -1,4 +1,5 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
 PortSystem              1.0
 PortGroup select        1.0
 PortGroup compiler_blacklist_versions 1.0
@@ -14,31 +15,27 @@ set llvm_version        11
 set clang_executable_version 11
 set lldb_executable_version 11
 
-# the the distnames are changing every point release and the 
-# github portgroup can't manage the frequent distname changes easily
-# use this version of the master_sites until it stabilizes
-
-version                 11.0.1
+version                 11.1.0
 master_sites            https://github.com/llvm/llvm-project/releases/download/llvmorg-${version}
 distname                llvm-project-${version}.src
 use_xz                  yes
 
-checksums               rmd160  068b49a6e3a5d1d96347ea03813df96ea30b5b8c \
-                        sha256  af95d00f833dd67114b21c3cfe72dff2e1cdab627651f977b087a837136d653b \
-                        size    84061388
+checksums               rmd160  f566b4b75c8f30418f19069a9a84864ead766401 \
+                        sha256  74d2529159fd118c3eac6f90107b5611bccc6f647fdea104024183e8d5e25831 \
+                        size    84065492
 
 name                    llvm-${llvm_version}
-revision                0
-subport                 clang-${llvm_version} { revision 0 }
-subport                 flang-${llvm_version} { revision 0 }
-subport                 lldb-${llvm_version} { revision 0 }
+revision                4
+subport                 clang-${llvm_version} { revision 7 }
+subport                 flang-${llvm_version} { revision 1 }
+subport                 lldb-${llvm_version} { revision 3 }
 set suffix              mp-${llvm_version}
 set sub_prefix          ${prefix}/libexec/llvm-${llvm_version}
 dist_subdir             llvm
 categories              lang
-platforms               darwin
+platforms               {darwin < 23}
 license                 NCSA
-maintainers             {jeremyhu @jeremyhu} {kencu @kencu}
+maintainers             {jeremyhu @jeremyhu}
 
 if {${subport} eq "llvm-${llvm_version}"} {
     homepage            https://llvm.org/
@@ -67,10 +64,13 @@ if {${subport} eq "llvm-${llvm_version}"} {
                         library to parse C/C++ code.
 
     depends_lib         port:libxml2 port:libomp port:llvm-${llvm_version}
-    depends_run         port:clang_select port:ld64
+    depends_run         port:clang_select port:ld64 port:cctools
     depends_skip_archcheck-append ld64 subversion
 
-    default_variants-append +analyzer
+    # Avoid requiring a bootstrap version of perl5 on 10.6.
+    if {${os.major} >= 11} {
+        default_variants    +analyzer
+    }
 
 } elseif {${subport} eq "flang-${llvm_version}"} {
     homepage            https://flang.llvm.org/
@@ -88,7 +88,7 @@ if {${subport} eq "llvm-${llvm_version}"} {
         if {${os.major} <= 10} {
             depends_run-append  port:gcc8
         } else {
-            depends_run-append  port:gcc10
+            depends_run-append  port:gcc11
         }
     }
 
@@ -98,7 +98,11 @@ if {${subport} eq "llvm-${llvm_version}"} {
     long_description    Lldb is the "LLVM native" debugger.
 
     depends_lib         port:libxml2 port:libomp port:llvm-${llvm_version} port:ncurses
-    depends_build-append port:swig-python port:doxygen
+    depends_build-append port:swig-python path:bin/doxygen:doxygen
+    depends_run-append  port:lldb_select
+
+    select.group        lldb
+    select.file         ${filespath}/mp-${subport}
 }
 
 # for devel version only
@@ -119,6 +123,7 @@ post-extract {
         ln -s ${workpath}/llvm-project/compiler-rt                      ${worksrcpath}/projects/compiler-rt
         ln -s ${workpath}/llvm-project/libcxx                           ${worksrcpath}/projects/libcxx
         ln -s ${workpath}/llvm-project/libcxxabi                        ${worksrcpath}/projects/libcxxabi
+        ln -s ${workpath}/llvm-project/lld                              ${worksrcpath}/projects/lld
         ln -s ${workpath}/llvm-project/clang-tools-extra                ${worksrcpath}/tools/clang/tools/extra
     } elseif {${subport} eq "flang-${llvm_version}"} {
         ln -s ${workpath}/llvm-project/mlir                             ${worksrcpath}/tools/mlir
@@ -135,7 +140,6 @@ patchfiles \
     0003-MacPorts-Only-Don-t-embed-the-deployment-target-in-t.patch \
     0005-Threading-Only-call-pthread_setname_np-on-SnowLeopar.patch \
     0006-Only-call-setpriority-PRIO_DARWIN_THREAD-0-PRIO_DARW.patch \
-    0007-patch-llvm8-tools-dsymutil-symbolmap-use-older-cfname-and-fix-uuid-on-leopard.diff \
     0008-patch-lib-support-unix-path-copyfileclone-on-older-systems.diff
 
 if {${subport} eq "clang-${llvm_version}"} {
@@ -154,7 +158,8 @@ if {${subport} eq "clang-${llvm_version}"} {
         openmp-locations.patch \
         leopard-no-asan.patch \
         5000-patch-compilerrtdarwinutils-find-macosxsdkversion.diff \
-        5002-patch-toolchains-darwin-add-back-pre-10.6-link-libs.diff
+        5002-patch-toolchains-darwin-add-back-pre-10.6-link-libs.diff \
+        patch-clang-fix-include-next-sysroot-cpp-headers.diff
 }
 
 if {${subport} eq "flang-${llvm_version}"} {
@@ -169,14 +174,9 @@ if {${subport} eq "lldb-${llvm_version}"} {
         1004-Default-to-fragile-ObjC-runtime-when-targeting-darwi.patch \
         1005-Fixup-libstdc-header-search-paths-for-older-versions.patch \
         1007-Fix-float.h-to-work-on-Snow-Leopard-and-earlier.patch \
-        openmp-locations.patch
-
-    # https://github.com/llvm/llvm-project/commit/1fdec59bffc11ae37eb51a1b9869f0696bfd5312
-    # remove in lldb-11.0.2
-    patchfiles-append \
-        4000-patch-lldb-D95683.diff
-
-
+        openmp-locations.patch \
+        patch-lldb-stdc-macros-134877.diff \
+        patch-lldb-fix-swig-lvalue-2128646.diff
 }
 
 configure.post_args         ../${worksrcdir}
@@ -295,8 +295,8 @@ if {[lsearch -exact $PortInfo(depends_build) port:cctools] != -1} {
         -DCMAKE_LIBTOOL=${prefix}/bin/libtool
 }
 
-depends_lib-append      port:python39
-set pythonfullpath      ${prefix}/bin/python3.9
+depends_build-append    port:python310
+set pythonfullpath      ${prefix}/bin/python3.10
 configure.args-append   -D_Python3_EXECUTABLE=${pythonfullpath}
 
 platform darwin {
@@ -307,16 +307,19 @@ platform darwin {
     configure.cxx_stdlib libc++
     depends_lib-append port:libcxx
 
-    pre-fetch {
-        if {${os.major} < 11} {
-            # exclude older systems from trying to build this as ppc
-            # otherwise we can use MacPort's base defaults for the rest
-            supported_archs i386 x86_64
+    if {${os.major} < 11} {
+        # exclude older systems from trying to build this as ppc
+        # otherwise we can use MacPort's base defaults for the rest
+        supported_archs i386 x86_64
+        pre-fetch {
             if {![file exists /usr/lib/libc++.dylib]} {
                 ui_error "$name requires a C++11 runtime, which your configuration does not allow"
                 error "unsupported configuration"
             }
         }
+    }
+    if {${subport} eq "flang-${llvm_version}"} {
+        supported_archs arm64 x86_64
     }
 }
 
@@ -328,6 +331,12 @@ variant assertions description "Enable assertions for error detection (has perfo
 platform darwin {
 
     if {${subport} eq "clang-${llvm_version}"} {
+
+        if {${os.major} <= 18} {
+            # on systems that might build i386, we need atomic builtins
+            # https://trac.macports.org/ticket/58712
+            configure.args-append    -DCOMPILER_RT_EXCLUDE_ATOMIC_BUILTIN=OFF
+        }
 
         if {${os.major} == 14} {
             # Building Xray forces build of sanitizer_common, even if
@@ -342,11 +351,6 @@ platform darwin {
             configure.args-append    -DCOMPILER_RT_BUILD_SANITIZERS=OFF
         }
 
-        if {${os.major} <= 10} {
-            # needs thread_local_storage enabled
-            require_active_variants port:libcxx emulated_tls
-        }
-
         if {${os.major} <= 11} {
             # xpc.h available 10.7 but doesn't support nullable features
             # xpc.h works currently on 10.8+
@@ -355,6 +359,10 @@ platform darwin {
         }
 
         if {${os.major} <= 10} {
+            # avoid need for thread_local_storage
+            configure.args-append -DCLANG_ENABLE_CLANGD=OFF
+            configure.args-append -DLLVM_ENABLE_BACKTRACES=OFF
+
             # the directorywatcher code is currently 10.7+
             patchfiles-append 5003-patch-no-directory-watcher-on-snowleopard.diff
 
@@ -369,22 +377,20 @@ platform darwin {
             # TO DO: the blocks functionality can be replaced by libblocksruntime
             # this might be integrated into clang on < 10.6
             patchfiles-append leopard-no-blocks.patch
+
+            # Building Xray forces build of sanitizer_common, even if
+            # COMPILER_RT_BUILD_SANITIZERS=OFF, and this fails on 10.5
+            # due to lack of pthread_getname_np
+            configure.args-append    -DCOMPILER_RT_BUILD_XRAY=OFF
+
+            # on Leopard part of symbols like __udivdi3 in -lgcc_s.1 instead of -lSystem
+            patchfiles-append leopard-link-against-gcc_s.diff
         }
     }
 }
 
 if {${subport} eq "lldb-${llvm_version}"} {
-    if {${os.platform} eq "darwin" && ${os.major} < 17} {
-        depends_build
-        depends_lib
-        depends_run
-        archive_sites
-        known_fail yes
-        pre-fetch {
-            ui_error "${subport} is not supported on this os version at present."
-            return -code error {unsupported platform}
-        }
-    }
+    platforms {darwin >= 17} {darwin < 23}
 }
 
 if {${subport} eq "clang-${llvm_version}"} {
@@ -393,6 +399,7 @@ if {${subport} eq "clang-${llvm_version}"} {
         system "cd ${destroot.dir}/projects/compiler-rt && ${destroot.cmd} ${destroot.pre_args} ${destroot.target} ${destroot.post_args}"
         system "cd ${destroot.dir}/projects/libcxx && ${destroot.cmd} ${destroot.pre_args} ${destroot.target} ${destroot.post_args}"
         system "cd ${destroot.dir}/projects/libcxxabi && ${destroot.cmd} ${destroot.pre_args} ${destroot.target} ${destroot.post_args}"
+        system "cd ${destroot.dir}/projects/lld && ${destroot.cmd} ${destroot.pre_args} ${destroot.target} ${destroot.post_args}"
 
         delete ${destroot}${sub_prefix}/bin/clang
         file rename ${destroot}${sub_prefix}/bin/clang-${clang_executable_version} ${destroot}${sub_prefix}/bin/clang
@@ -434,13 +441,12 @@ if {${subport} eq "lldb-${llvm_version}"} {
 
     build.dir   ${build.dir}/tools/lldb
 
-    post-activate {
-        ui_msg "Please follow the instructions at  https://lldb.llvm.org/resources/build.html#code-signing-on-macos and then codesign lldb-server with:"
-        if {${os.major} >= 13} {
-            ui_msg "   sudo codesign --force --deep --preserve-metadata=identifier,entitlements,resource-rules,requirements,flags,team-identifier --sign <identity> ${sub_prefix}/bin/lldb-server"
-        } else {
-           ui_msg "   sudo codesign --force --deep --preserve-metadata=identifier,entitlements,resource-rules,requirements --sign <identity> ${sub_prefix}/bin/lldb-server"
-        }
+    notes "Please follow the instructions at https://lldb.llvm.org/resources/build.html#code-signing-on-macos and then codesign lldb-server with:\n--------------------\n"
+    notes-append "${sub_prefix}/scripts/lldb/macos-setup-codesign.sh"
+    if {${os.major} >= 13} {
+        notes-append "sudo codesign --force --deep --preserve-metadata=identifier,entitlements,resource-rules,requirements,flags,team-identifier --sign lldb_codesign ${sub_prefix}/bin/lldb-server"
+    } else {
+        notes-append "sudo codesign --force --deep --preserve-metadata=identifier,entitlements,resource-rules,requirements --sign lldb_codesign ${sub_prefix}/bin/lldb-server"
     }
 }
 
@@ -477,19 +483,24 @@ post-destroot {
         ln -s ${prefix}/libexec/ld64/ld ${destroot}${sub_prefix}/bin/ld
     } elseif {${subport} eq "lldb-${llvm_version}"} {
         delete ${destroot}${prefix}/bin/debugserver-${suffix}
+
+        set lldb_scripts_srcdir ${worksrcpath}/tools/lldb/scripts
+        set lldb_scripts_destdir ${destroot}${sub_prefix}/scripts/lldb
+        xinstall -d ${lldb_scripts_destdir}
+        xinstall -m 755 -W ${lldb_scripts_srcdir} \
+            macos-setup-codesign.sh \
+            ${lldb_scripts_destdir}
     }
 }
 
-if {${os.major} < 11} {
-    variant emulated_tls description { enable c11/c++11 thread_local_storage support on older systems using emulated-tls } {
-        # use emulated-tls to support thread_local on systems prior to 10.7
-        patchfiles-append      9000-patch-llvm-7.0-support-emulated-tls.diff
-        if {${subport} eq "clang-${llvm_version}"} {
-            patchfiles-append  9000-patch-clang-7.0-support-emulated-tls.diff
-        }
+variant emulated_tls description { enable c11/c++11 thread_local_storage support on older systems using emulated-tls } {
+    # use emulated-tls to support thread_local on systems prior to 10.7
+    patchfiles-append      9000-patch-llvm-7.0-support-emulated-tls.diff
+    if {${subport} eq "clang-${llvm_version}"} {
+        patchfiles-append  9000-patch-clang-7.0-support-emulated-tls.diff
     }
-    default_variants-append +emulated_tls
 }
+default_variants-append +emulated_tls
 
 if {${subport} eq "llvm-${llvm_version}"} {
     variant polly description {Provide the polly polyhedral optimizer} {}
@@ -521,6 +532,8 @@ if {${subport} eq "llvm-${llvm_version}"} {
                                -DCLANG_ENABLE_ARCMT=ON
 
         depends_run-append port:perl5
+        depends_build-delete    port:python310
+        depends_lib-append      port:python310
 
         post-patch {
             reinplace "s|/usr/bin/env perl|${prefix}/bin/perl5|g" \
@@ -546,63 +559,53 @@ if {${subport} eq "llvm-${llvm_version}"} {
         default_variants-append +defaultlibcxx
     }
 
-    variant libstdcxx description {-stdlib=macports-libstdc++ searches for MacPorts libstdc++} {
+    variant libstdcxx description {-stdlib=libstdc++_macports searches for MacPorts libstdc++} {
 
         patchfiles-append 9001-macports-libstdcxx.diff
+        if {${os.major} < 11} {
+            # see https://trac.macports.org/ticket/61778
+            depends_run-append  port:libstdcxx_clang_fix
+        }
 
         post-patch {
             reinplace "s|@@MACPORTS_GCC_INCLUDE_DIR@@|${prefix}/include/gcc/c++|g" \
                 ${worksrcpath}/tools/clang/lib/Frontend/InitHeaderSearch.cpp \
                 ${worksrcpath}/tools/clang/lib/Driver/ToolChains/Darwin.cpp
-            reinplace "s|@@MACPORTS_HOST_NAME@@|${build_arch}-apple-darwin${os.major}|g" \
+            reinplace "s|@@MACPORTS_HOST_NAME@@|${configure.build_arch}-apple-darwin${os.major}|g" \
                 ${worksrcpath}/tools/clang/lib/Driver/ToolChains/Darwin.cpp
             reinplace "s|@@MACPORTS_libstdc++@@|${prefix}/lib/libgcc/libstdc++.6.dylib|g" \
                 ${worksrcpath}/tools/clang/lib/Driver/ToolChains/Darwin.cpp
 
-            # GCC was built for ${build_arch}-apple-darwin${os.major}
+            # GCC was built for ${configure.build_arch}-apple-darwin${os.major}
             # if GCC was also built universal, it has an extra include directory
-            # if ${build_arch} is 32-bit, there is an extra 64-bit subdirectory
-            # if ${build_arch} is 64-bit, there is an extra 32-bit subdirectory
-            # MacPorts GCC can not compile across platforms
-            switch ${build_arch} {
+            # if ${configure.build_arch} is 32-bit, there is an extra 64-bit subdirectory
+            # if ${configure.build_arch} is 64-bit, there is an extra 32-bit subdirectory
+            # MacPorts GCC cannot compile across platforms
+            switch ${configure.build_arch} {
                 x86_64 {
-                    set gcc_subdirectory_ppc    ""
-                    set gcc_subdirectory_ppc64  "ppc64"
-                    set gcc_subdirectory_i386   "i386"
-                    set gcc_subdirectory_x86_64 ""
+                    reinplace {s|@@MACPORTS_TEST_32_64@@|getTriple().getArch() == llvm::Triple::x86_64 ? "" : "i386"|g} \
+                        ${worksrcpath}/tools/clang/lib/Driver/ToolChains/Darwin.cpp
                 }
                 i386 {
-                    set gcc_subdirectory_ppc    ""
-                    set gcc_subdirectory_ppc64  "ppc64"
-                    set gcc_subdirectory_i386   ""
-                    set gcc_subdirectory_x86_64 "x86_64"
+                    reinplace {s|@@MACPORTS_TEST_32_64@@|getTriple().getArch() == llvm::Triple::x86_64 ? "x86_64" : ""|g} \
+                        ${worksrcpath}/tools/clang/lib/Driver/ToolChains/Darwin.cpp
                 }
                 ppc64 {
-                    set gcc_subdirectory_ppc    "ppc"
-                    set gcc_subdirectory_ppc64  ""
-                    set gcc_subdirectory_i386   ""
-                    set gcc_subdirectory_x86_64 "x86_64"
+                    reinplace {s|@@MACPORTS_TEST_32_64@@|getTriple().getArch() == llvm::Triple::ppc64 ? "" : "ppc"|g} \
+                        ${worksrcpath}/tools/clang/lib/Driver/ToolChains/Darwin.cpp
                 }
                 ppc {
-                    set gcc_subdirectory_ppc    ""
-                    set gcc_subdirectory_ppc64  "ppc64"
-                    set gcc_subdirectory_i386   ""
-                    set gcc_subdirectory_x86_64 "x86_64"
+                    reinplace {s|@@MACPORTS_TEST_32_64@@|getTriple().getArch() == llvm::Triple::ppc64 ? "ppc64" : ""|g} \
+                        ${worksrcpath}/tools/clang/lib/Driver/ToolChains/Darwin.cpp
+                }
+                arm64 {
+                    reinplace {s|@@MACPORTS_TEST_32_64@@|""|g} \
+                        ${worksrcpath}/tools/clang/lib/Driver/ToolChains/Darwin.cpp
                 }
             }
-
-            reinplace "s|@@MACPORTS_GCC_SUBDIRECTORY_x86_64@@|${gcc_subdirectory_x86_64}|g" \
-                ${worksrcpath}/tools/clang/lib/Driver/ToolChains/Darwin.cpp
-            reinplace "s|@@MACPORTS_GCC_SUBDIRECTORY_i386@@|${gcc_subdirectory_i386}|g" \
-                ${worksrcpath}/tools/clang/lib/Driver/ToolChains/Darwin.cpp
-            reinplace "s|@@MACPORTS_GCC_SUBDIRECTORY_ppc64@@|${gcc_subdirectory_ppc64}|g" \
-                ${worksrcpath}/tools/clang/lib/Driver/ToolChains/Darwin.cpp
-            reinplace "s|@@MACPORTS_GCC_SUBDIRECTORY_ppc@@|${gcc_subdirectory_ppc}|g" \
-                ${worksrcpath}/tools/clang/lib/Driver/ToolChains/Darwin.cpp
         }
     }
-    # at present, only the non-arm archs can use this variant
-    if {${build_arch} in "x86_64 i386 ppc64 ppc"} {
+    if { ${cxx_stdlib} eq "libstdc++" } {
         default_variants-append +libstdcxx
     }
 

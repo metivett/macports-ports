@@ -1,0 +1,25 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             bioconductor Bioconductor SPIA 2.54.0
+revision            0
+maintainers         nomaintainer
+license             Restrictive
+description         Signaling Pathway Impact Analysis (SPIA) using combined evidence \
+                    of pathway over-representation and unusual signaling perturbations
+long_description    {*}${description}
+checksums           rmd160  cb80ca34429f20e2ba069c288f9e2efc3fcbbe83 \
+                    sha256  a5ea2bedf20f9f538f1705d65265b24df6d9709c98ab14a0e964577df7a33724 \
+                    size    2566459
+supported_archs     noarch
+
+depends_lib-append  port:R-KEGGgraph
+
+patchfiles          patch-missing-test-deps.diff
+
+depends_test-append port:R-graph \
+                    port:R-Rgraphviz
+
+test.run            yes

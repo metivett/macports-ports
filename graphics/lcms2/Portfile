@@ -4,11 +4,10 @@ PortSystem              1.0
 PortGroup               muniversal 1.0
 
 name                    lcms2
-version                 2.12
+version                 2.16
 revision                0
 worksrcdir              lcms2-${version}
 categories              graphics
-platforms               darwin
 maintainers             nomaintainer
 license                 MIT
 
@@ -21,14 +20,18 @@ long_description        LCMS is the Little Color Management System, a portable \
                         consistent color as images are transferred from \
                         scanners or cameras to monitors and printers.
 
-homepage                http://www.littlecms.com/
+homepage                https://littlecms.com/
 
 master_sites            sourceforge:project/lcms/lcms/${version}/ \
                         ${homepage}
 
-checksums               rmd160  b814c0371f9e7d477440f80188cbe66b5fbbe9d5 \
-                        sha256  18663985e864100455ac3e507625c438c3710354d85e5cbb7cd4043e11fe10f5 \
-                        size    7419126
+checksums           rmd160  e4fe464eccbd6933703f98d3ca95c272c264a891 \
+                    sha256  d873d34ad8b9b4cea010631f1a6228d2087475e4dc5e763eb81acc23d9d45a51 \
+                    size    7632822
+
+# Disable use of obsolete 'register' storage class; causes dependent build errors with newer compilers:
+# lcms2.h: error: ISO C++17 does not allow 'register' storage class specifier [-Wregister]
+patchfiles-append       patch-disable-register.diff
 
 depends_lib             path:include/turbojpeg.h:libjpeg-turbo \
                         port:tiff \
@@ -36,9 +39,6 @@ depends_lib             path:include/turbojpeg.h:libjpeg-turbo \
 
 # the i386 warning causes the universal build to fail
 # https://trac.macports.org/ticket/60656
-if {![info exists universal_possible]} {
-    set universal_possible [expr {${os.universal_supported} && [llength ${configure.universal_archs}] >= 2}]
-}
 if {[vercmp ${xcodeversion} 10.0] >= 0 && ${universal_possible} && [variant_isset universal]} {
     configure.ldflags-append -w
 }
@@ -47,5 +47,5 @@ test.run                yes
 test.target             check
 
 livecheck.type          regex
-livecheck.url           http://www.littlecms.com/tags/
-livecheck.regex         "${name}-(\\d+(?:\\.\\d+)+)"
+livecheck.url           https://littlecms.com/tags/releases
+livecheck.regex         "Little CMS (\\d+(?:\\.\\d+)+)"

@@ -4,22 +4,24 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-s3transfer
-version             0.3.4
+version             0.6.0
 revision            0
-checksums           rmd160  781550aa1cc502991e99d3f2422aa2a5c505b193 \
-                    sha256  7fdddb4f22275cf1d32129e21f056337fd2a80b6ccef1664528145b72c49e6d2 \
-                    size    118954
 
-platforms           darwin
+checksums           rmd160  b095b40cd7260f07f104ff49eebf86527a7ccb50 \
+                    sha256  2ed07d3866f523cc561bf4a00fc5535827981b117dd7876f036b0c1aca42c947 \
+                    size    134871
+
+platforms           {darwin any}
+supported_archs     noarch
 license             Apache-2
-maintainers         nomaintainer
+maintainers         {emcrisostomo @emcrisostomo} openmaintainer
 
 description         An Amazon S3 Transfer Manager
-long_description    ${description}
+long_description    {*}${description}
 
 homepage            https://github.com/boto/${python.rootname}
 
-python.versions     27 35 36 37 38 39
+python.versions     37 38 39 310 311 312
 
 if {${name} ne ${subport}} {
     depends_build-append \
@@ -27,11 +29,6 @@ if {${name} ne ${subport}} {
 
     depends_lib-append \
                     port:py${python.version}-botocore
-
-    if {${python.version} == 27} {
-        depends_lib-append \
-                    port:py${python.version}-futures
-    }
 
     test.run        yes
 

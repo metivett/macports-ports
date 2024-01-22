@@ -1,0 +1,39 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           cmake 1.1
+PortGroup           github 1.0
+PortGroup           legacysupport 1.1
+
+# needed for getline, strndup and clock_gettime
+legacysupport.newest_darwin_requires_legacy 15
+
+github.setup        zmap zmap 4.0.0-RC1 v
+revision            0
+
+categories          net
+license             Apache-2
+maintainers         {@artkiver gmail.com:artkiver} openmaintainer
+
+description         ZMap is a fast network scanner
+long_description    designed for Internet-wide network surveys capable of \
+                    scanning the entire IPv4 address space in 5 minutes from \
+                    a 10GbE connection.
+homepage            https://zmap.io/
+github.tarball_from archive
+
+checksums           rmd160  7550b92a59930fc2e7218726ab13b7b50eec79a7 \
+                    sha256  72094abf3b69480b26624039a48f8250e17fbf859c8a5f1ac09ad43f6bdf6985 \
+                    size    162794
+
+depends_build-append port:byacc \
+                    port:flex \
+                    port:gengetopt \
+                    port:pkgconfig
+
+depends_lib-append  port:gmp \
+                    port:libdnet \
+                    port:libpcap \
+                    port:libunistring \
+                    port:json-c \
+                    port:judy

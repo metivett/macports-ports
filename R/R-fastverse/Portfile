@@ -1,0 +1,40 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran fastverse fastverse 0.3.2
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             GPL-3
+description         Suite of high-performance packages for statistics and data manipulation
+long_description    {*}${description}
+homepage            https://fastverse.github.io/fastverse
+checksums           rmd160  df38c88abf7a8f0ace95994c81470cf29bed2c80 \
+                    sha256  201bd185af082c5db6f0657c54d261cc5632eedd2eb0ed1fcfd026e77e226782 \
+                    size    60820
+# Compiled code has been removed in this version.
+supported_archs     noarch
+
+depends_lib-append  port:R-collapse \
+                    port:R-data.table \
+                    port:R-kit \
+                    port:R-magrittr
+
+depends_test-append port:R-anytime \
+                    port:R-coop \
+                    port:R-fasttime \
+                    port:R-fst \
+                    port:R-fasttime \
+                    port:R-knitr \
+                    port:R-lubridate \
+                    port:R-matrixStats \
+                    port:R-qs \
+                    port:R-Rfast \
+                    port:R-rmarkdown \
+                    port:R-roll \
+                    port:R-xts
+
+# No specific tests in fact, just code from examples.
+test.run            yes

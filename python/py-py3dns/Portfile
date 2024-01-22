@@ -1,0 +1,41 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           python 1.0
+
+name                py-py3dns
+version             4.0.0
+categories-append   devel net
+supported_archs     noarch
+platforms           {darwin any}
+license             Python
+
+python.versions     38 39 310 311
+
+maintainers         nomaintainer
+
+description         Python 3 DNS library
+long_description    This Python 3 module provides an DNS API for looking \
+                    up DNS entries from within Python 3 modules and \
+                    applications. This module is a simple, lightweight \
+                    implementation.
+
+homepage            https://launchpad.net/py3dns
+
+checksums           rmd160  5fc9d29519287dcb9cd7ec182abdbfcaf36aa774 \
+                    sha256  ddfdb691a6b7db3e706cd1e33ffeb5a4f45f28e0b8574ea4b8b74ef2c055330b \
+                    size    33734
+
+# FIXME: https://trac.macports.org/ticket/68821
+
+if {${name} ne ${subport}} {
+    depends_build-append \
+                    port:py${python.version}-setuptools
+
+    python.pep517_backend flit
+
+    test.run        yes
+    python.test_framework
+    test.cmd        ${python.bin}
+    test.target     test.py
+}

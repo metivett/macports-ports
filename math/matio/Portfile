@@ -3,13 +3,12 @@
 PortSystem              1.0
 
 name                    matio
-version                 1.5.19
-revision                1
+version                 1.5.26
+revision                0
 set branch              [join [lrange [split ${version} .] 0 1] .]
 maintainers             {mps @Schamschula} openmaintainer
 license                 LGPL-2.1
 categories              math
-platforms               darwin
 
 description             Matio is a library for working with Matlab save files
 
@@ -20,9 +19,9 @@ long_description        Matio is a library for reading and writing Matlab \
 homepage                http://sourceforge.net/projects/matio
 master_sites            sourceforge:project/matio/matio/${version}/
 
-checksums               rmd160  9ddc8f730b71124e22812ac7c8574d5680c4ae01 \
-                        sha256  a4fa4d248b0414fc72f3d6155f710c470d5628d3c31af834f8d5ccf06b60286f \
-                        size    10108869
+checksums               rmd160  9f038621212c902bd2fc0efcc63de548d6ba1596 \
+                        sha256  8b47c29f58e468dba7a5555371c6a72ad4c6aa8b15f459b2b0b65a303c063933 \
+                        size    10122705
 
 depends_lib             path:lib/libhdf5.dylib:hdf5 \
                         port:zlib
@@ -50,4 +49,4 @@ post-destroot {
 test.run                yes
 test.target             check
 
-livecheck.regex     ${name}-(\\d+\\.\\d+\\.\\d+)${extract.suffix}
+livecheck.regex         ${name}-(\\d+\\.\\d+\\.\\d+)${extract.suffix}

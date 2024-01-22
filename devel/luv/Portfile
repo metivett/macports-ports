@@ -4,7 +4,8 @@ PortSystem          1.0
 PortGroup           github 1.0
 PortGroup           cmake 1.1
 
-github.setup        luvit luv 1.32.0-0
+github.setup        luvit luv 1.45.0-0
+revision            1
 categories          devel
 platforms           darwin
 license             Apache-2
@@ -16,12 +17,17 @@ long_description    libuv bindings for luajit and lua. This library makes \
 
 github.tarball_from releases
 
-checksums           rmd160  4558aa18d2c17f82685d7600294a94a5eef6cbea \
-                    sha256  25a34b2aecf02d1fd32352c855577dcecd20c756dee9eb7ebecd206bf1de26d3 \
-                    size    1372517
+checksums           rmd160  0ac20e8507492a548e1a87b7c80ba42ff9592efd \
+                    sha256  fa6c46fb09f88320afa7f88017efd7b0d2b3a0158c5ba5b6851340b0332a2b81 \
+                    size    1468792
 
 depends_lib         port:libuv \
                     port:lua
+
+# If Lua engine is LuaJIT, prefer lua.h from LUAJIT_INCLUDE_DIR over
+# ${prefix}/include/lua.h provided by port lua.
+# See: https://trac.macports.org/ticket/68126#comment:34
+patchfiles          patch-CMakeLists.txt.diff
 
 configure.args      -DLUA_BUILD_TYPE=System \
                     -DBUILD_MODULE=OFF \
@@ -29,6 +35,14 @@ configure.args      -DLUA_BUILD_TYPE=System \
                     -DWITH_LUA_ENGINE=Lua \
                     -DWITH_SHARED_LIBUV=ON
 
-post-patch {
-    reinplace "/target_link_libraries/ s/luv /&\${LUA_LIBRARIES} /" ${worksrcpath}/CMakeLists.txt
+if {${name} eq ${subport}} {
+    conflicts       luv-luajit
+}
+
+subport luv-luajit {
+    depends_lib-replace port:lua path:lib/libluajit-5.1.2.dylib:luajit
+    configure.args-replace \
+                    -DWITH_LUA_ENGINE=Lua -DWITH_LUA_ENGINE=LuaJIT
+
+    conflicts luv
 }

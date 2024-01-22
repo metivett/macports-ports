@@ -5,7 +5,7 @@ PortGroup           java 1.0
 
 name                NetBeans
 set name_lower      [string tolower ${name}]
-version             12.2
+version             20
 categories          aqua devel java
 license             Apache-2
 maintainers         openmaintainer {amake @amake}
@@ -21,21 +21,21 @@ long_description \
 
 homepage            https://netbeans.apache.org/
 
-platforms           darwin
+platforms           {darwin any}
 
 distname            ${name_lower}-${version}-bin
 master_sites        apache:${name_lower}/${name_lower}/${version}
 
-checksums           rmd160  ab81314fc71f49d4b53c8c62d6f640378f638838 \
-                    sha256  4781cccac635d8c7448f240a4bcea98ef3dbd65911569c35e2f482c1bf662e02 \
-                    size    398020745
+checksums           rmd160  13d14d1150dbc3600d4a72003fcf859a36ea22a2 \
+                    sha256  86c792bac26252a767848c8e06d10b3eba1e323ac674a6b6da1d1591b30bf341 \
+                    size    498235431
 
 worksrcdir          ${name_lower}
 
 use_zip             yes
 use_configure       no
 
-java.version        1.8+
+java.version        1.11+
 
 build {}
 
@@ -50,21 +50,34 @@ destroot {
     copy ${worksrcpath} ${destroot}/${target_dir}
     ln -s ${target_dir}/bin/${name_lower} ${destroot}${prefix}/bin/${name_lower}
 
-    set app ${destroot}${applications_dir}/Apache\ ${name}\ ${version}.app
+    set app "${destroot}${applications_dir}/Apache ${name} ${version}.app"
     xinstall -d ${app}/Contents/MacOS
     ln -s ${target_dir}/bin/${name_lower} ${app}/Contents/MacOS/${name_lower}
 
     xinstall -d ${app}/Contents/Resources
-    # Icon from
-    # https://github.com/apache/incubator-netbeans/blob/master/nb/ide.branding/release/netbeans.icns
-    # Plist from experimental Mac app
-    # https://github.com/rtaneja1/incubator-netbeans/blob/installer-bin-11vc4/nbbuild/installer/binaries/Apache-NetBeans-11.0-bin-macosx.dmg
+
+    # Icon and Plist from official app
     xinstall -m 0644 ${filespath}/Info.plist ${app}/Contents/
     xinstall -m 0644 ${filespath}/${name_lower}.icns ${app}/Contents/Resources/
+
+    reinplace "s|@@VERSION@@|${version}|g" ${app}/Contents/Info.plist
+
+    # rev-upgrade considers these two files to be broken on arm64. They are weirdly constructed; see
+    # https://github.com/apache/netbeans/blob/ba85468772292fd64f188f4022f9d49f77f00b89/profiler/lib.profiler/native/scripts/buildnative-mac.sh#L62-L92
+    #
+    # For some reason removing all architectures but x86_64 fixes the issue.
+    #
+    # TODO: When arm64 support is added to these files, see if this hack is still helpful
+    if {${build_arch} eq "arm64"} {
+        system -W ${destroot}${prefix}/share/java/netbeans/profiler/lib/deployed/jdk15/mac/ \
+            "lipo -thin x86_64 libprofilerinterface.jnilib -o libprofilerinterface.jnilib"
+        system -W ${destroot}${prefix}/share/java/netbeans/profiler/lib/deployed/jdk16/mac/ \
+            "lipo -thin x86_64 libprofilerinterface.jnilib -o libprofilerinterface.jnilib"
+    }
 }
 
 universal_variant   no
 
 livecheck.type      regex
-livecheck.url       https://netbeans.apache.org/download/index.html
-livecheck.regex     {\(NB (\d+(?:\.\d+)*)\)}
+livecheck.url       https://netbeans.apache.org/download/archive/index.html
+livecheck.regex     ${name} (\\d+(?:\\.\\d+)*)

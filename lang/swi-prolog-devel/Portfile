@@ -4,13 +4,12 @@ PortSystem          1.0
 PortGroup           cmake 1.1
 
 name                swi-prolog-devel
-conflicts           swi-prolog swi-prolog-lite
+conflicts           swi-prolog
 epoch               20051223
-version             8.3.19
-revision            1
+version             9.1.21
+revision            0
 
 categories          lang
-platforms           darwin
 universal_variant   no
 license             BSD
 maintainers         {cwi.nl:J.Wielemaker @JanWielemaker} openmaintainer
@@ -32,14 +31,14 @@ master_sites        https://www.swi-prolog.org/download/devel/src/
 distname            swipl-${version}
 dist_subdir         swi-prolog
 
-checksums           rmd160  06ecc58b3b7c3ce361725338cf815b113af48a16 \
-                    sha256  381d38a752f319a578628638c840b6bfd8167644fe0f6e86c7debecfb347e747 \
-                    size    11135612
+checksums           rmd160  81e2a0b86e487f6141c2c7c39bcb531d6f8764f6 \
+                    sha256  8536acab1892edb7db3fa46df439fc19158a8448341af98a33c6359b312ef705 \
+                    size    12191312
 
 depends_build-append \
                     port:pkgconfig
 
-depends_lib-append  port:db53 \
+depends_lib-append  port:db62 \
                     port:gmp \
                     port:gperftools \
                     path:include/turbojpeg.h:libjpeg-turbo \
@@ -47,21 +46,39 @@ depends_lib-append  port:db53 \
                     port:libmcrypt \
                     port:ncurses \
                     port:ossp-uuid \
-                    port:pcre \
+                    port:pcre2 \
                     port:readline \
                     port:Xft2 \
                     port:xorg-libXinerama \
                     port:xorg-libXt \
                     port:xpm \
                     port:libyaml \
-                    port:zlib
+                    port:zlib \
+                    port:python312
+
+compiler.c_standard 2011
+compiler.cxx_standard 2017
+compiler.thread_local_storage yes
 
 configure.cmd       cmake
 cmake.generator     Ninja
 configure.pre_args  -DCMAKE_INSTALL_PREFIX=${prefix} \
                     -DCMAKE_BUILD_TYPE=Release \
                     -DCMAKE_INCLUDE_PATH=${prefix}/include \
-                    -DCMAKE_LIBRARY_PATH=/usr/lib:${prefix}/lib
+                    -DCMAKE_LIBRARY_PATH=/usr/lib:${prefix}/lib \
+                    -DSWIPL_PACKAGES_QT=OFF \
+                    -DCPYTHON_VERSION="3.12\;EXACT"
+
+variant qt5 description {Add Qt5 GUI} {
+    depends_lib-append          port:qt5-qtbase
+    configure.pre_args-delete   -DSWIPL_PACKAGES_QT=OFF
+}
+
+post-destroot {
+    if {[variant_isset qt5]} {
+        move ${destroot}/${prefix}/swipl-win.app ${destroot}${applications_dir}
+    }
+}
 
 test.run            yes
 test.cmd            ctest --output-on-failure

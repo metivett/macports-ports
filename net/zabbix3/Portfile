@@ -3,7 +3,7 @@ PortSystem          1.0
 
 name                zabbix3
 version             3.4.15
-revision            2
+revision            3
 categories          net
 maintainers         {eborisch @eborisch} openmaintainer
 platforms           darwin
@@ -58,7 +58,7 @@ configure.ldflags-append    -lresolv
 
 startupitem.create      yes
 depends_lib-append      port:libiconv \
-                        port:gnutls \
+                        path:lib/pkgconfig/gnutls.pc:gnutls \
                         port:pcre \
                         port:libevent
 

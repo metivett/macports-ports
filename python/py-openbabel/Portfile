@@ -3,60 +3,50 @@
 PortSystem          1.0
 PortGroup           python 1.0
 
-# Keep relevant lines in sync between openbabel and py-openbabel.
-
 name                py-openbabel
-version             2.4.1
+version             3.1.1.1
+revision            0
+
 categories-append   science chemistry devel
 platforms           darwin freebsd
 license             GPL-2
-maintainers         nomaintainer
+maintainers         {reneeotten @reneeotten} openmaintainer
 
-description         Python bindings for the Open Babel library
-
-long_description    Open Babel is a free, open-source version \
-                    of the Babel chemistry file translation program. \
-                    OpenBabel is a project designed to pick up where \
-                    Babel left off, as a cross-platform program and \
-                    library designed to interconvert between many \
-                    file formats used in molecular modeling and \
-                    computational chemistry. This port provides \
+description         Python interface to the Open Babel chemistry library
+long_description    Open Babel is a chemical toolbox designed to speak the many \
+                    languages of chemical data. It’s an open, collaborative project \
+                    allowing anyone to search, convert, analyze, or store data from \
+                    molecular modeling, chemistry, solid-state materials, biochemistry, \
+                    or related areas.  computational chemistry. This port provides the \
                     Python bindings.
 
-homepage            http://openbabel.sourceforge.net/
-master_sites        sourceforge:project/openbabel/openbabel/${version}
-distname            openbabel-${version}
-dist_subdir         openbabel
+homepage            https://openbabel.org
 
-checksums           rmd160  317c15ebbe7f2f86c5ec7d54230487853545cfc4 \
-                    sha256  204136582cdfe51d792000b20202de8950218d617fd9c6e18cee36706a376dfc
+checksums           rmd160  9dd38e8614b7743f1a3d796f126de5c1a3b5f802 \
+                    sha256  bb7f8cad15f3a208f4869d7943cbb14eb7125372eba397588f207f8d19e78373 \
+                    size    82811
 
-python.versions     27
-
-worksrcdir          ${distname}/scripts/python
+python.versions     39 310 311 312
 
 if {${name} ne ${subport}} {
-    depends_build       port:py${python.version}-setuptools \
-                        port:eigen \
-                        port:swig-python
-    
-    depends_lib-append  port:openbabel
-
-    pre-build {
-        foreach ifile {openbabel-python.i stereo.i} {
-            copy ${worksrcpath}/../$ifile ${worksrcpath}
-        }
+    if {${python.version} < 311} {
+        conflicts   py${python.version}-openbabel2
     }
-    
-    build.env-append    OPENBABEL_INSTALL=${prefix} 
-    build.target        build_ext
-    build.args-append   -I${prefix}/include/openbabel-2.0:${prefix}/include/eigen2
-    
+
+    depends_build-append \
+                    port:py${python.version}-setuptools \
+                    path:share/pkgconfig/eigen3.pc:eigen3 \
+                    port:pkgconfig \
+                    port:swig-python
+
+    depends_lib-append \
+                    port:openbabel
+
+    patchfiles      version.patch
+
     post-destroot {
         set docdir ${prefix}/share/doc/${subport}
-        xinstall -m 755 -d ${destroot}${docdir}
-        xinstall -m 644 -W ${worksrcpath} README.rst ${destroot}${docdir}
+        xinstall -d ${destroot}${docdir}
+        xinstall -m 0644 -W ${worksrcpath} README.rst ${destroot}${docdir}
     }
-    
-    livecheck.type      none
 }

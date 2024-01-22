@@ -1,0 +1,31 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran gbm-developers gbm 2.1.9
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             {GPL-2 GPL-3}
+description         Generalized boosted regression models
+long_description    {*}${description}
+checksums           rmd160  f55140ff66d1ffa06bf4340f80970f4907bbb4fc \
+                    sha256  9d88fa1d584afa58189bad47406ee9126390cbc869c041cea0247cf26645ade4 \
+                    size    454992
+
+# splines package is obsolete: https://cran.r-project.org/web/packages/splines/index.html
+patchfiles          patch-no-splines.diff
+
+compiler.cxx_standard 2014
+
+depends_test-append port:R-covr \
+                    port:R-gridExtra \
+                    port:R-knitr \
+                    port:R-pdp \
+                    port:R-RUnit \
+                    port:R-tinytest \
+                    port:R-vip \
+                    port:R-viridis
+
+test.run            yes

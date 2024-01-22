@@ -3,7 +3,7 @@
 PortSystem          1.0
 
 name                fig2dev
-version             3.2.8
+version             3.2.9
 revision            0
 categories          print graphics
 platforms           darwin
@@ -22,13 +22,13 @@ long_description    Fig2dev is a set of tools for creating TeX documents \
                     languages: (E)EPIC macros, LaTeX picture environment, PIC, \
                     PiCTeX, PostScript, and TeXtyl.
 
-homepage            http://xfig.org/
+homepage            https://mcj.sourceforge.net
 master_sites        sourceforge:project/mcj
 use_xz              yes
 
-checksums           rmd160  b59c24b248002aa7d5e606de4078065d4fe6f840 \
-                    sha256  931258ae43950d0931ddcea13ce6554d2cd7fc3c93585aebf74e393bb14fe27d \
-                    size    518984
+checksums           rmd160  b7afc99d61fba9372336e34f5530e587ab5de7cb \
+                    sha256  15e246c8d13cc72de25e08314038ad50ce7d2defa9cf1afc172fd7f5932090b1 \
+                    size    529892
 
 depends_lib         port:ghostscript \
                     port:libpng \
@@ -37,12 +37,6 @@ depends_lib         port:ghostscript \
 depends_run         port:netpbm
 
 variant universal {}
-
-patchfiles          patch-fig2dev-dev-genemf.h.diff
-
-if {${os.platform} eq "darwin" && ${os.major} < 11} {
-    patchfiles-append patch-fig2dev-getline-c.diff
-}
 
 post-destroot {
     set docdir ${destroot}${prefix}/share/doc/${name}

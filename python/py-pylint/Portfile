@@ -5,14 +5,15 @@ PortGroup           python 1.0
 PortGroup           select 1.0
 
 name                py-pylint
-version             2.6.0
-revision            0
+version             3.0.3
+revision            1
+
 categories-append   devel
-platforms           darwin
+platforms           {darwin any}
 license             GPL-2+
 supported_archs     noarch
 
-python.versions     27 35 36 37 38 39
+python.versions     38 39 310 311 312
 
 maintainers         {stromnov @stromnov} openmaintainer
 
@@ -28,50 +29,46 @@ long_description    Pylint is a tool that checks for errors in python code, \
 
 homepage            https://pylint.org
 
-checksums           rmd160  85dca886681a537c1c43e394d032bc7b587ad92d \
-                    sha256  bb4a908c9dadbc3aac18860550e870f58e1a02c9f2c204fdf5693d73be061210 \
-                    size    680289
+checksums           rmd160  0e60dfc7503484315f0f73cc78101c5f11bcec3d \
+                    sha256  58c2398b0301e049609a8429789ec6edf3aabe9b6c5fec916acd18639c16de8b \
+                    size    441807
 
 if {${name} ne ${subport}} {
-    depends_build-append \
-                        port:py${python.version}-pytest-runner
-
-    depends_lib-append  port:py${python.version}-setuptools \
+    depends_lib-append  port:py${python.version}-dill \
+                        port:py${python.version}-platformdirs \
                         port:py${python.version}-astroid \
                         port:py${python.version}-isort \
-                        port:py${python.version}-flake8-mccabe \
-                        port:py${python.version}-toml
+                        port:py${python.version}-tomlkit \
+                        port:py${python.version}-flake8-mccabe
 
-    if {${python.version} eq 27} {
-        version             1.9.4
-        revision            0
-        distname            ${python.rootname}-${version}
-        checksums           rmd160  763a56b52da567df22a09caa965da3e15dccbd9a \
-                            sha256  ee1e85575587c5b58ddafa25e1c1b01691ef172e139fc25585e5d3f02451da93 \
-                            size    519076
+    if {${python.version} < 311} {
+        depends_lib-append \
+                        port:py${python.version}-tomli
+    }
 
-        depends_lib-append  port:py${python.version}-configparser \
-                            port:py${python.version}-backports-functools_lru_cache \
-                            port:py${python.version}-singledispatch \
-                            port:py${python.version}-six
-        depends_lib-delete  port:py${python.version}-toml
+    if {${python.version} < 310} {
+        depends_lib-append \
+                        port:py${python.version}-typing_extensions
     }
 
     depends_run-append  port:pylint_select
 
+    post-patch {
+        reinplace "s|setuptools~=62.6|setuptools|g" ${worksrcpath}/pyproject.toml
+        reinplace "s|wheel~=0.37.1|wheel|g" ${worksrcpath}/pyproject.toml
+    }
+
     post-destroot {
-        xinstall -m 755 -d ${destroot}${prefix}/share/doc/${subport}
+        xinstall -m 0755 -d ${destroot}${prefix}/share/doc/${subport}
         if {[file exists ${worksrcpath}/doc]} {
-            xinstall -m 644 {*}[glob -types f ${worksrcpath}/doc/*] \
+            xinstall -m 0644 {*}[glob -types f ${worksrcpath}/doc/*] \
                 ${destroot}${prefix}/share/doc/${subport}
             if {[file exists ${worksrcpath}/doc/_static]} {
-                xinstall -m 755 -d ${destroot}${prefix}/share/doc/${subport}/_static
-                xinstall -m 644 {*}[glob -types f ${worksrcpath}/doc/_static/*] \
+                xinstall -m 0755 -d ${destroot}${prefix}/share/doc/${subport}/_static
+                xinstall -m 0644 {*}[glob -types f ${worksrcpath}/doc/_static/*] \
                     ${destroot}${prefix}/share/doc/${subport}/_static
             }
         }
-        xinstall -m 644 -W ${worksrcpath} ChangeLog README.rst \
-            ${destroot}${prefix}/share/doc/${subport}
         file delete ${destroot}${python.pkgd}/logilab/__init__.py
     }
 
@@ -84,6 +81,4 @@ when you execute the commands without a version suffix, e.g. 'pylint', run:
 
 port select --set ${select.group} [file tail ${select.file}]
 "
-
-    livecheck.type      none
 }

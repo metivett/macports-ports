@@ -1,0 +1,49 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+
+name                execline
+version             2.9.4.0
+revision            0
+categories          lang
+license             ISC
+maintainers         nomaintainer
+description         non-interactive scripting language
+
+long_description \
+    execline is a (non-interactive) scripting language, like sh - but \
+    its syntax is quite different from a traditional shell syntax. The \
+    execlineb program is meant to be used as an interpreter for a text \
+    file\; the other commands are essentially useful inside an \
+    execlineb script. execline is as powerful as a shell: it features \
+    conditional loops, getopt-style option handling, filename \
+    globbing, and more. Meanwhile, its syntax is far more logic and \
+    predictable than the shell's syntax, and has no security issues.
+
+homepage            https://skarnet.org/software/execline/
+master_sites        ${homepage}
+
+depends_build       port:skalibs
+
+checksums           rmd160  ae6a2b494d4a903bca75b2d20be331e78ddb8802 \
+                    sha256  9ab55d561539dfa76ff4a97906fa995fc4a288e3de5225cb1a9d8fa9e9ebc49b \
+                    size    110097
+
+configure.args      --disable-shared \
+                    --with-lib=${prefix}/lib/skalibs
+
+post-destroot {
+    set docdir ${prefix}/share/doc/${name}
+    xinstall -d ${destroot}${docdir}
+    xinstall -m 0644 -W ${worksrcpath} \
+        AUTHORS \
+        COPYING \
+        NEWS \
+        README \
+        README.macos \
+        ${destroot}${docdir}
+    xinstall -m 0644 {*}[glob ${worksrcpath}/doc/*.html] \
+        ${destroot}${docdir}
+    xinstall -m 0644 {*}[glob ${worksrcpath}/doc/*.txt] \
+        ${destroot}${docdir}
+}

@@ -1,40 +1,66 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:filetype=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
-
-# requires C++11 as of version 2.39.1
-compiler.cxx_standard 2011
+PortGroup           meson 1.0
 
 name                libxmlxx3
 set gname           libxml++
-version             3.2.0
-set branch          [join [lrange [split ${version} .] 0 1] .]
+version             3.2.4
+revision            0
+
 categories          textproc
-license             LGPL
-maintainers         {devans @dbevans} openmaintainer
+license             LGPL-2.1+
+maintainers         {devans @dbevans} {mascguy @mascguy} openmaintainer
+
 description         libxml++ is a C++ interface for working with XML files
 long_description    libxml++ is a C++ interface for working with XML files, using \
                     libxml (gnome-xml) to parse and write the actual XML files. It \
                     has a simple but complete API.
-homepage            http://libxmlplusplus.sourceforge.net
-platforms           darwin
-distname            ${gname}-${version}
-master_sites        gnome:sources/${gname}/${branch}/
+homepage            https://libxmlplusplus.github.io/libxmlplusplus/
 
+set branch          [join [lrange [split ${version} .] 0 1] .]
+master_sites        gnome:sources/${gname}/${branch}/
+distname            ${gname}-${version}
 use_xz              yes
 
-checksums           rmd160  56775fa2110bd52e2e03098096926245c48ca6b7 \
-                    sha256  b786fae7fd7820d356698069a787d107995c3efcbef50d8f4efd3766ab768e4f \
-                    size    974416
+checksums           rmd160  3614be5fa963664c27ad1018e27d4ce6c2e5e804 \
+                    sha256  ba53f5eaca45b79f4ec1b3b28bc8136fce26873cd38f2e381d9355289e432405 \
+                    size    819784
 
-depends_build       port:pkgconfig
+set py_ver          3.11
+set py_ver_nodot    [string map {. {}} ${py_ver}]
+set port_ver_major  [lindex [split ${version} .] 0]
 
-depends_lib         port:libxml2 \
-                    port:glibmm
+patchfiles-append   patch-meson-python3.diff
 
-configure.perl      /usr/bin/perl
+post-patch {
+    reinplace "s|@@PYTHON3@@|python${py_ver}|g" \
+                    meson.build
+}
 
-configure.args      --disable-silent-rules
+depends_build-append  \
+                    port:mm-common \
+                    port:pkgconfig \
+                    port:python${py_ver_nodot} \
+                    port:py${py_ver_nodot}-setuptools
+
+depends_lib-append \
+                    port:glibmm \
+                    port:libxml2
+
+# requires C++11 as of version 2.39.1
+compiler.cxx_standard 2011
+
+if { [string match *clang* ${configure.compiler}] } {
+    # Quiet deprecation warnings
+    configure.cxxflags-append \
+                    -Wno-deprecated-declarations \
+                    -Wno-error=unknown-warning-option \
+                    -Wno-unknown-warning-option
+}
+
+test.run            yes
 
 livecheck.type      gnome
 livecheck.name      ${gname}
+livecheck.regex     "LATEST-IS-(${port_ver_major}\\.\\d*\[02468\](?:\\.\\d+)*)"

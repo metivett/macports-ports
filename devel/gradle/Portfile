@@ -4,7 +4,7 @@ PortSystem          1.0
 PortGroup           java 1.0
 
 name                gradle
-version             6.8.3
+version             8.5
 revision            0
 categories          devel java groovy
 license             Apache-2
@@ -18,15 +18,15 @@ long_description    Gradle is a build system which offers you ease, power and fr
                     of Ant and the convenience of a build-by-convention behavior.
 
 homepage            https://gradle.org/
-platforms           darwin
+platforms           {darwin any}
 supported_archs     noarch
 distname            ${name}-${version}-bin
 master_sites        https://services.gradle.org/distributions
 
 # Update checksums for variant when updating these!
-checksums           rmd160  12a0f6528e7f9775ebe9183c690b06a64ac9653a \
-                    sha256  7faa7198769f872826c8ef4f1450f839ec27f0b4d5d1e51bade63667cbccd205 \
-                    size    107843517
+checksums           rmd160  a95c3ced0db44e156a079fc5632737a1ef28cc0d \
+                    sha256  9d926787066a081739e8200858338b4a69e837c3a821a33aca9db09dd4a41026 \
+                    size    132519731
 
 worksrcdir          ${name}-${version}
 
@@ -62,9 +62,9 @@ destroot {
 variant all description {Install supplemental documentation and source code} {
     distname        ${name}-${version}-all
 
-    checksums       rmd160  36e629b1a1c07d86d0ff2cf62a558b88b7d4cd69 \
-                    sha256  9af5c8e7e2cd1a3b0f694a4ac262b9f38c75262e74a9e8b5101af302a6beadd7 \
-                    size    150631445
+    checksums       rmd160  63323aaaa94d8d75ddd83847d6badbec9c44ace6 \
+                    sha256  c16d517b50dd28b3f5838f0e844b7520b8f1eb610f2f29de7e4e04a1b7c9c79b \
+                    size    218636663
 
     post-destroot {
         xinstall -m 0755 -d ${destroot}${prefix}/share/doc/${name}
@@ -72,6 +72,10 @@ variant all description {Install supplemental documentation and source code} {
             ${worksrcpath}/docs \
             ${destroot}${prefix}/share/doc/${name}
     }
+}
+
+notes {
+  For Bash and Zsh completion support, install port 'gradle-completion'.
 }
 
 livecheck.type  regex

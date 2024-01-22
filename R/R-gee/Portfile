@@ -1,0 +1,19 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran ripley gee 4.13-26
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             GPL-2
+description         Generalized Estimation Equation Solver
+long_description    {*}${description}
+checksums           rmd160  2cde6dbdaea6c3ec9b93c6fc0f6f6a6cda65d6c4 \
+                    sha256  9a8553b5ab51f3aa929ce80597b0b5cecd8a8bdb2ea3c578edd1c608c5c6438c \
+                    size    53763
+
+compilers.setup     require_fortran
+
+test.run            yes

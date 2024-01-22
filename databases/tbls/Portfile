@@ -1,0 +1,36 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           golang 1.0
+
+go.setup            github.com/k1LoW/tbls 1.69.2 v
+github.tarball_from archive
+revision            0
+
+description         CI-Friendly tool for documenting a database, written in Go
+
+long_description    \
+    ${name} documents a database automatically in Github-flavored Markdown, \
+    and can output the schema in Markdown, DOT, PlantUML, SVG/PNG/JPG, JSON, \
+    YAML, and more. It supports many database types and is CI-friendly.
+
+categories          databases
+installs_libs       no
+license             MIT
+maintainers         {gmail.com:herby.gillot @herbygillot} \
+                    openmaintainer
+
+checksums           rmd160  10c881536dad75a3785bda05a819bd82a5676cde \
+                    sha256  f3a4f3aab5b07afa5b30166cc5020b547576a9d119ea93d7172c0357510464cb \
+                    size    4788041
+
+# Allow Go to download dependencies during build time
+go.offline_build no
+
+build.pre_args-append \
+    -ldflags \
+    \"-X ${go.package}/version.Version=${github.tag_prefix}${version}\"
+
+destroot {
+    xinstall -m 0755 ${worksrcpath}/${name} ${destroot}${prefix}/bin/
+}

@@ -1,0 +1,27 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+# GitHub version is old.
+R.setup             cran david-cortes outliertree 1.8.2
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             GPL-3+
+description         Explainable outlier detection through decision tree conditioning
+long_description    {*}${description}
+homepage            https://outliertree.readthedocs.io
+checksums           rmd160  a6414bf06c29f1296a4adc6e0c4a85934160f63c \
+                    sha256  12b00a76f60341a6a739c942c278915a6af3a5fedfee1a6845ce2b9a645a1b08 \
+                    size    630488
+
+depends_lib-append  port:R-Rcpp \
+                    port:R-Rcereal
+
+depends_test-append port:R-data.table \
+                    port:R-kableExtra \
+                    port:R-knitr \
+                    port:R-rmarkdown
+
+test.run            yes

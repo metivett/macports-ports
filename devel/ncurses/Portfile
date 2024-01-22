@@ -2,12 +2,12 @@ PortSystem 1.0
 PortGroup  clang_dependency 1.0
 
 name            ncurses
-version         6.2
+version         6.4
 revision        1
 categories      devel
 platforms       darwin freebsd
 license         MIT
-maintainers     {jmr @jmroot} openmaintainer
+maintainers     {jmr @jmroot}
 description     emulation of curses in System V Release 4.0
 long_description \
     The Ncurses (new curses) library is a free software emulation of    \
@@ -18,22 +18,13 @@ long_description \
 
 homepage        https://invisible-island.net/ncurses/
 master_sites    gnu https://invisible-mirror.net/archives/ncurses/
-checksums       rmd160 bedfe81f33b3e55e44d14126c9c2821d7f222701 \
-                sha256 30306e0c76e0f9f1f0de987cf1c82a5c21e1ce6568b9227f7da5b71cbea86c9d
+checksums       rmd160 a8b6ef8fe778c87ffdd3e0f3199c156c47b8dc39 \
+                sha256 6931283d9ac87c5073f30b6290c4c75f21632bb4fc3603ac8100812bed248159
 
-# hex.diff from https://opensource.apple.com/source/ncurses/ncurses-44/patches.applied/
-patchfiles      hex.diff
+# hex.diff from https://opensource.apple.com/source/ncurses/ncurses-57/patches.applied/
+patchfiles      hex.diff \
+                modules.patch
 
-# This port is used by clang-3.4 to bootstrap libcxx
-subport ${name}-bootstrap {
-    prefix ${prefix}/libexec/libcxx-bootstrap
-    configure.cxx_stdlib    libstdc++
-    compiler.whitelist      clang llvm-gcc-4.2 gcc-4.2 apple-gcc-4.2
-    if {${os.platform} eq "darwin" && ${os.major} >= 18} {
-        # libstdc++ can't be used on Mojave and later
-        known_fail  yes
-    }
-}
 # Also needed by later clangs.
 if {${os.platform} eq "darwin" && ${os.major} < 11 && ${cxx_stdlib} eq "libc++"} {
     clang_dependency.extra_versions 3.7
@@ -49,11 +40,17 @@ configure.args  --enable-widec \
                 --without-debug  \
                 --without-ada \
                 --with-manpage-format=normal \
+                --without-pkg-config \
                 --enable-pc-files \
                 --with-pkg-config-libdir="${prefix}/lib/pkgconfig" \
                 --disable-mixed-case
 
-if {[string match *clang* ${configure.cxx}]} {
+if {${os.platform} eq "darwin" && ${os.major} < 10} {
+    # See: https://trac.macports.org/ticket/62994
+    configure.args-append   gl_cv_func_getcwd_path_max=yes
+}
+
+if {[string match *clang* ${configure.cxx}] && ${configure.cxx_stdlib} ne ""} {
     configure.env-append    CXXLIBS=-stdlib=${configure.cxx_stdlib}
 }
 
@@ -80,9 +77,6 @@ post-destroot {
     ln -s ncurses6-config ${destroot}${prefix}/bin/ncursesw6-config
     reinplace "s|-Wl,-syslibroot,${configure.sdkroot}||" ${destroot}${prefix}/bin/ncurses6-config
     reinplace "s|${archflags}||" ${destroot}${prefix}/bin/ncurses6-config
-
-    # see https://trac.macports.org/ticket/59992
-    xinstall -m 0644 ${filespath}/module.modulemap ${destroot}${prefix}/include
 }
 
 livecheck.regex ${name}-(\[\\d.-\]+)${extract.suffix}

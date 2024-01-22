@@ -4,29 +4,37 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-sh
-version             1.14.1
+version             2.0.6
+revision            0
+
 categories-append   devel
 license             MIT
-platforms           darwin
 supported_archs     noarch
-maintainers         nomaintainer
+platforms           {darwin any}
+maintainers         {toby @tobypeterson} openmaintainer
 
-description         sh (previously pbs) is a full-fledged subprocess interface
-long_description    {*}${description} \
-                    for Python 2.6 - 3.8 that allows you to call any program as \
-                    if it were a function
+description         A full-fledged subprocess interface for Python
+long_description    {*}${description} that allows you to call any program as if it were a function.
 
-homepage            https://amoffat.github.io/sh/
+homepage            https://github.com/amoffat/sh
 
-checksums           rmd160  c7ccba3d3885f6a88e28f32cb084a8479b874d94 \
-                    sha256  39aa9af22f6558a0c5d132881cf43e34828ca03e4ae11114852ca6a55c7c1d8e \
-                    size    63317
+checksums           rmd160  a4a81ba3e9e26b6bd0b51f107b40701341e99206 \
+                    sha256  9b2998f313f201c777e2c0061f0b1367497097ef13388595be147e2a00bf7ba1 \
+                    size    345496
 
-python.versions     27 35 36 37 38 39
+python.versions     37 38 39 310 311 312
+python.pep517       yes
 
 if {${name} ne ${subport}} {
-    depends_build-append \
-                    port:py${python.version}-setuptools
+    if {${python.version} == 37} {
+        version     1.14.3
+        revision    0
+        checksums   rmd160  55f098ede14971549ff2e1f12f23a6c5778b3d60 \
+                    sha256  e4045b6c732d9ce75d571c79f5ac2234edd9ae4f5fa9d59b09705082bdca18c7 \
+                    size    62851
+    } else {
+        python.pep517_backend   poetry
+    }
 
     post-destroot {
         set docdir ${prefix}/share/doc/${subport}

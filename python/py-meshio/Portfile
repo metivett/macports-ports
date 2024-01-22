@@ -4,9 +4,8 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-meshio
-version             4.3.10
+version             5.3.4
 revision            0
-categories          python
 license             MIT
 maintainers         {mps @Schamschula} openmaintainer
 description         There are various mesh formats available for representing \
@@ -18,22 +17,25 @@ long_description    {*}${description} meshio can read and write all of the follo
                     (format versions 2.2, 4.0, and 4.1), OBJ, OFF, PERMAS, PLY, STL, \
                     Tecplot .dat, TetGen .node/.ele, SVG (2D only, output only), SU2, \
                     UGRID, VTK, VTU, WKT (TIN), XDMF.
+supported_archs     noarch
+platforms           {darwin any}
 homepage            https://github.com/nschloe/meshio
-platforms           darwin
 
-checksums           rmd160  090bdbdefd04221161076bd8c8bd2585b7a19adb \
-                    sha256  71bab954d83951f67af53e1b6aeb6c76fbbf6cf7403e9a7fb40db0b5d05c64c4 \
-                    size    471001
+checksums           rmd160  c5ecd5f1239f2068bcb73f54edd16aaf085314be \
+                    sha256  e240692d7ff279c12b13c6e5d7b403629a86ad2b44e9230958b3f00c1ec369f0 \
+                    size    492100
 
-python.versions     37 38 39
-
+python.versions     37 38 39 310 311
 
 if {${name} ne ${subport}} {
     python.pep517   yes
 
-    depends_build-append \
-                    port:py${python.version}-setuptools \
-                    port:py${python.version}-wheel
+    depends_lib-append \
+                    port:py${python.version}-numpy \
+                    port:py${python.version}-rich
 
-    livecheck.type  none
+    if {${python.version} < 38} {
+        depends_lib-append \
+                    port:py${python.version}-importlib-metadata
+    }
 }

@@ -1,0 +1,23 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+# Revert to GitHub once updated there.
+R.setup             cran aadler minimaxApprox 0.2.2
+revision            0
+categories-append   math
+maintainers         nomaintainer
+license             MPL-2
+description         Implementation of Remez algorithm for polynomial and rational function approximation
+long_description    {*}${description}
+checksums           rmd160  f2173d7beb0c5f38d23f45cb2de71ff96a47ff53 \
+                    sha256  c366b9ffbbe331c6366928f44820d82956ff95bbdd91781703c9747376f1d387 \
+                    size    26546
+
+compilers.setup     require_fortran
+
+depends_test-append port:R-covr \
+                    port:R-tinytest
+
+test.run            yes

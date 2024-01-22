@@ -1,0 +1,27 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran cansu.alakus CovRegRF 1.0.5
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             GPL-3+
+description         Covariance Regression with Random Forests
+long_description    {*}${description}
+checksums           rmd160  02f1ee8a9c577b453aa9b9208093dc6d4118ce4e \
+                    sha256  fe601a819f6f6c8708b368cc4e67ccfd6f2045cb74c5cf2ffb4f7116308eaa61 \
+                    size    425659
+
+depends_lib-append  port:R-data.table \
+                    port:R-data.tree \
+                    port:R-DiagrammeR
+
+compilers.setup     require_fortran
+
+depends_test-append port:R-knitr \
+                    port:R-rmarkdown \
+                    port:R-testthat
+
+test.run            yes

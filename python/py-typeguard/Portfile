@@ -1,0 +1,36 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           python 1.0
+
+name                py-typeguard
+version             2.13.3
+platforms           {darwin any}
+supported_archs     noarch
+license             MIT
+maintainers         nomaintainer
+
+description         Run time type checker for Python
+long_description    {*}${description}
+
+homepage            https://github.com/agronholm/typeguard
+
+checksums           rmd160  f5e7cb07b9374a2537a56ace96f02459c2371716 \
+                    sha256  00edaa8da3a133674796cf5ea87d9f4b4c367d77476e185e80251cc13dfbb8c4 \
+                    size    40604
+
+python.versions     37 38 39 310 311 312
+
+if {${name} ne ${subport}} {
+    depends_build-append \
+                    port:py${python.version}-setuptools_scm
+
+    post-destroot {
+        set docdir ${prefix}/share/doc/${subport}
+        xinstall -d ${destroot}${docdir}
+        xinstall -m 0644 -W ${worksrcpath} LICENSE README.rst \
+            ${destroot}${docdir}
+    }
+
+    livecheck.type  none
+}

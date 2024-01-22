@@ -1,0 +1,30 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+# Revert to GitHub once updated there.
+R.setup             cran r-lib textshaping 0.3.7
+revision            0
+categories-append   graphics
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             MIT
+description         Bindings to the HarfBuzz and Fribidi libraries for text shaping
+long_description    {*}${description}
+checksums           rmd160  efe62dd9c498ef79ee81fba067e2775918acbeb4 \
+                    sha256  fa924dbe1fb4138b80d6c26ee42f4203843f1d34f77e2a5e42514e6fcc97ec42 \
+                    size    35100
+
+depends_build-append \
+                    port:pkgconfig
+depends_lib-append  path:lib/pkgconfig/harfbuzz.pc:harfbuzz \
+                    port:freetype \
+                    port:fribidi \
+                    port:R-cpp11 \
+                    port:R-systemfonts
+
+depends_test-append port:R-covr \
+                    port:R-knitr \
+                    port:R-rmarkdown
+
+test.run            yes

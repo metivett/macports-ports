@@ -1,0 +1,28 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran apache nanoarrow 0.3.0.1
+revision            0
+categories-append   devel
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             Apache-2
+description         Interface to the nanoarrow C library
+long_description    {*}${description}
+homepage            https://github.com/apache/arrow-nanoarrow
+checksums           rmd160  7d802de993c84a651ec7cef57de87179f8266242 \
+                    sha256  86218bed818c37fd757ed0afff6e92ded6a838f24e91077dc33efc3cbe3db704 \
+                    size    140769
+
+depends_test-append port:R-arrow \
+                    port:R-bit64 \
+                    port:R-blob \
+                    port:R-hms \
+                    port:R-rlang \
+                    port:R-testthat \
+                    port:R-tibble \
+                    port:R-vctrs \
+                    port:R-withr
+
+test.run            yes

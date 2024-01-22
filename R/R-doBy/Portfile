@@ -1,0 +1,33 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran sorenh doBy 4.6.20
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             GPL-2+
+description         Groupwise statistics, ls-means, linear estimates, utilities
+long_description    {*}${description}
+checksums           rmd160  680b9fbdec777de1e2553545fdd557aa26cf0bbe \
+                    sha256  7a0a7fab5bcdd7e62e42a3d2f2d307519e635d48b626c5673f5344ff7ba2da22 \
+                    size    4515088
+supported_archs     noarch
+
+depends_lib-append  port:R-broom \
+                    port:R-Deriv \
+                    port:R-dplyr \
+                    port:R-ggplot2 \
+                    port:R-magrittr \
+                    port:R-microbenchmark \
+                    port:R-pbkrtest \
+                    port:R-tibble
+
+depends_test-append port:R-geepack \
+                    port:R-knitr \
+                    port:R-lme4 \
+                    port:R-multcomp \
+                    port:R-testthat
+
+test.run            yes

@@ -4,16 +4,15 @@ PortSystem          1.0
 PortGroup           github 1.0
 PortGroup           muniversal 1.0
 
-github.setup        ivmai bdwgc 8.0.4 v
-revision            1
-checksums           rmd160  d0499384c904d234b8f8d95d0d7c51e5445ff41e \
-                    sha256  cee2ec847416809934ea30eb674134aa4b8afe4213de00ef3ff3f920bbfb3f3a \
-                    size    803379
+github.setup        ivmai bdwgc 8.2.4 v
+revision            0
+checksums           rmd160  33219535021bf392a23585ca99f0a5f6561a8cb0 \
+                    sha256  3d0d3cdbe077403d3106bb40f0cbb563413d6efdbb2a7e1cd6886595dec48fc2 \
+                    size    1210929
 
 name                boehmgc
 
 categories          devel
-platforms           darwin
 maintainers         nomaintainer
 license             Permissive
 # boehmgc only uses the MIT and Permissive parts of libatomic_ops, don't
@@ -27,13 +26,10 @@ long_description \
     by a number of programming language implementations that use C as \
     intermediate code.
 
-# needed since we use the github version; also has the benefit of teaching
-# glibtool about -stdlib=libc++.
-use_autoreconf  yes
+github.tarball_from releases
+distname            gc-${version}
 
-# autoreconf needs pkgconfig
 depends_build-append \
-                port:pkgconfig \
                 port:libatomic_ops
 
 configure.args  --enable-cplusplus \

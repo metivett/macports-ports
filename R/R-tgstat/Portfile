@@ -1,0 +1,22 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+# GitHub version lags behind.
+R.setup             cran tanaylab tgstat 2.3.25
+revision            0
+categories-append   math
+maintainers         nomaintainer
+license             GPL-2
+description         Fast and efficient statistical tools from the Tanay lab
+long_description    {*}${description}
+homepage            https://tanaylab.github.io/tgstat
+checksums           rmd160  a8c0a6c1068587cb16354d416a95cb12759f992f \
+                    sha256  c4eeb49984aabdcc4656c54c07da83d131025994160b253ac816214aece00d1e \
+                    size    61334
+
+depends_test-append port:R-knitr \
+                    port:R-rmarkdown
+
+test.run            yes

@@ -1,0 +1,27 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran zjph602xtc PWEXP 0.4.3
+revision            0
+categories-append   math
+maintainers         nomaintainer
+license             MIT
+description         Piece-wise exponential distribution prediction model
+long_description    {*}${description}
+checksums           rmd160  25a14610d7023064768acf48ae2ea95d6e88b254 \
+                    sha256  59088400b99a7bbb4174dc06dfc11eeba96cad96afa1271fe3a2b98a2ad4b65b \
+                    size    614546
+supported_archs     noarch
+
+depends_lib-append  port:R-doSNOW \
+                    port:R-fastmatch \
+                    port:R-foreach \
+                    port:R-segmented
+
+depends_test-append port:R-knitr \
+                    port:R-RColorBrewer \
+                    port:R-rmarkdown
+
+test.run            yes

@@ -4,7 +4,7 @@ PortSystem          1.0
 PortGroup           texlive 1.0
 
 name                texlive-plain-generic
-version             54476
+version             66530
 revision            0
 
 categories          tex
@@ -13,18 +13,18 @@ license             Copyleft Permissive
 description         TeX Live: Plain (La)TeX packages
 long_description    Add-on packages and macros that work with plain TeX, often LaTeX, and occasionally other formats.
 
-checksums           texlive-plain-generic-54476-run.tar.xz \
-                    rmd160  1ae40a301fe20793d7b276ee55ef31613345e158 \
-                    sha256  686389d657ac034a88895f4f9cfa6269ee511c82931f519288fb0bed2fec1376 \
-                    size    24877488 \
-                    texlive-plain-generic-54476-doc.tar.xz \
-                    rmd160  460c112e51c3f31da47fcda3b8528442e3445241 \
-                    sha256  95e7c85c5a3308d3e9342e8f2e51f9ed6184cd14bc68adc628e6545b4ef64b38 \
-                    size    23016724 \
-                    texlive-plain-generic-54476-src.tar.xz \
-                    rmd160  7bdf5405b9920aa1adbd3b215a071535a26c8bae \
-                    sha256  d7302b01f7c1eb2fa1dea6702d505d860882b49bdd2bcbb021e6625cacdef7a0 \
-                    size    205732
+checksums           texlive-plain-generic-66530-run.tar.xz \
+                    rmd160  658ea9b5a3d03f5e6c88cd6f0fac04db625b2050 \
+                    sha256  d1b8812e68186a416965e771cdce4cc18d93de130fc321c7a4e5bb9f7c310aa5 \
+                    size    29893928 \
+                    texlive-plain-generic-66530-doc.tar.xz \
+                    rmd160  7f2441ffa61f258c0b9899c0717e0598d4d081c2 \
+                    sha256  d36f1e4189cc90d2b2bbdcd9d11ec5fb3b8889c9b97b4b010397fdcd5061209c \
+                    size    26038900 \
+                    texlive-plain-generic-66530-src.tar.xz \
+                    rmd160  9ebabaebf8a0ffeda90ae49e372f5a2e2255d582 \
+                    sha256  db0a5ee1280253eb84cd8209f9273b3fde6507e376236373cabffb3c6dc0f5db \
+                    size    1699796
 
 depends_lib         port:texlive-basic
 

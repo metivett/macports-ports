@@ -3,55 +3,67 @@
 PortSystem          1.0
 PortGroup           compiler_blacklist_versions 1.0
 PortGroup           xcode_workaround 1.0
+PortGroup           github 1.0
+PortGroup           legacysupport 1.1
+PortGroup           makefile 1.0
+
+set branch          2.1
+set version_date    2023-12-23T19:06:17Z
+github.setup        LuaJIT LuaJIT c525bcb9024510cad9e170e12b6209aedb330f83
+revision            0
+checksums           rmd160  db4a5de50bfef270d080ae8023b77f879997cbee \
+                    sha256  eb20affc70a9e97a8a0e1e0b10456f220fca7637a198e4a937b5fc827dd1ef95 \
+                    size    1079440
+
+set version_date_s  [clock scan "${version_date}" -format {%Y-%m-%dT%H:%M:%SZ} -timezone :UTC]
+version             ${branch}.${version_date_s}
 
 name                luajit
-version             2.1.0-beta3
-revision            1
 categories          lang
-platforms           darwin
-license             BSD
-
-maintainers         nomaintainer
+license             MIT
+maintainers         {@catap korins.ky:kirill} openmaintainer
 
 description         a Just-In-Time Compiler for Lua
 long_description    LuaJIT is a Just-In-Time Compiler for the Lua programming language.
+homepage            https://luajit.org
+github.tarball_from archive
 
-homepage            http://luajit.org
-master_sites        ${homepage}/download
+conflicts           luajit-openresty
 
-distname            LuaJIT-${version}
-
-checksums           rmd160  5f41b0b6e3bfe1f1e033f7464171d474ca497235 \
-                    sha256  1ad2e34b111c802f9d0cdf019e986909123237a28c746b21295b63c9e785d9c3 \
-                    size    1025180
+patchfiles          powerpc.patch
 
 post-patch {
-    reinplace "s|/usr/local|${prefix}|" ${worksrcpath}/etc/luajit.pc
+    reinplace "s|/usr/local|${prefix}|" ${worksrcpath}/etc/luajit.pc \
+                                        ${worksrcpath}/src/luaconf.h \
+                                        ${worksrcpath}/src/Makefile
+
+    # Remove -march=i686 from CCOPT_x86
+    reinplace -E {s|-march=[a-z0-9_]+||g} ${worksrcpath}/src/Makefile
+
+    # The build process normally expects git and a .git directory to establish
+    # the version but it includes a fallback for a `.relver` file
+    set relver      [open "${worksrcpath}/.relver" w 0644]
+    puts ${relver}  "${version_date_s}"
+    close ${relver}
 }
 
-use_configure       no
-
-compiler.blacklist  {clang < 700} macports-clang-3.3 macports-clang-3.4
+compiler.blacklist  {clang < 700} *gcc-4.2 macports-clang-3.3 macports-clang-3.4
 
 # changes to compiler flags must be made before `CFLAGS=...`
 xcode_workaround.type append_to_compiler_flags
 
-build.target        amalg
-build.args-append   CC="${configure.cc}" \
-                    CFLAGS="${configure.cppflags} ${configure.cflags} [get_canonical_archflags] -DLUAJIT_ENABLE_LUA52COMPAT" \
-                    LDFLAGS="${configure.ldflags} [get_canonical_archflags]" \
-                    PREFIX="${prefix}" \
-                    Q=""
+configure.cflags-append -DLUAJIT_ENABLE_LUA52COMPAT
+makefile.override   CC CFLAGS LDFLAGS PREFIX
 
-destroot.args-append \
-                    PREFIX="${prefix}"
+build.target        amalg
+build.args-append   Q=
 
 post-destroot {
-    ln -s ${prefix}/bin/luajit-${version} ${destroot}${prefix}/bin/luajit
     xinstall -m 755 -d ${destroot}${prefix}/share/doc
     copy ${worksrcpath}/doc/ ${destroot}${prefix}/share/doc/${name}
 }
 
 livecheck.type      regex
-livecheck.url       ${master_sites}.html
-livecheck.regex     {LuaJIT-(\d+(?:\.\d+)*(?:-beta\d+)?).tar.gz}
+livecheck.url       ${github.homepage}/commits/v${branch}.atom
+livecheck.version   ${version_date}
+livecheck.regex     {<updated>([:TZ0-9-]+)</updated>}

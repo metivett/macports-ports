@@ -3,12 +3,12 @@
 PortSystem          1.0
 PortGroup           golang 1.0
 
-go.setup            github.com/restic/restic 0.11.0 v
+go.setup            github.com/restic/restic 0.16.3 v
+go.offline_build    no
+github.tarball_from archive
 revision            0
 
-categories          sysutils
-license             BSD
-maintainers         nomaintainer
+homepage            https://restic.net
 
 description         Fast, secure, efficient backup program.
 
@@ -16,19 +16,19 @@ long_description    Restic is a program that does backups right. Its design \
                     goals are: Easy, Fast, Verifiable, Secure, Efficient and \
                     Free.
 
-homepage            https://restic.net
+categories          sysutils
+installs_libs       no
+license             BSD
+maintainers         {gmail.com:herby.gillot @herbygillot} \
+                    openmaintainer
 
-checksums           ${distname}${extract.suffix} \
-                        rmd160  89c0647a53dcb1333371734ce8c57cb26d91ffb8 \
-                        sha256  3fee12f2bf405e28cc35e8fe8379d9d73345a79ee8347f4928701158495bb266 \
-                        size    23760697
+checksums           rmd160  23b5532d001adbb6392a3e56393c778fa1753adf \
+                    sha256  a94d6c1feb0034fcff3e8b4f2d65c0678f906fc21a1cf2d435341f69e7e7af52 \
+                    size    23985676
 
-# FIXME: This port currently can't be built without allowing go mod to fetch
-# dependencies during the build phase. See
-# https://trac.macports.org/ticket/61192
-build.env-delete    GOPROXY=off GO111MODULE=off
+dist_subdir         ${name}/${version}_${revision}
 
-set pyver           3.9
+set pyver           3.11
 
 variant             docs description {Build the documentation} {
     set pyver_nodot [string map {. {}} ${pyver}]
@@ -72,11 +72,31 @@ test {
 }
 
 destroot {
-    xinstall -m 755 ${worksrcpath}/${name} ${destroot}${prefix}/bin/
+    xinstall -m 0755 ${worksrcpath}/${name} ${destroot}${prefix}/bin/
+
+    set mandir ${prefix}/share/man/man1
+    xinstall -m 0755 -d ${destroot}${mandir}
+    xinstall -m 0644 {*}[glob ${worksrcpath}/doc/man/*.1 ] \
+        ${destroot}${mandir}/
+
+    set bash_compl ${prefix}/share/bash-completion/completions
+    xinstall -m 0755 -d ${destroot}${bash_compl}
+    xinstall -m 0644 ${worksrcpath}/doc/bash-completion.sh \
+        ${destroot}${bash_compl}/${name}
+
+    set fish_compl ${prefix}/share/fish/vendor_completions.d
+    xinstall -m 0755 -d ${destroot}${fish_compl}
+    xinstall -m 0644 ${worksrcpath}/doc/fish-completion.fish \
+        ${destroot}${fish_compl}/${name}.fish
+
+    set zsh_compl ${prefix}/share/zsh/site-functions
+    xinstall -m 0755 -d ${destroot}${zsh_compl}
+    xinstall -m 0644 ${worksrcpath}/doc/zsh-completion.zsh \
+        ${destroot}${zsh_compl}/_${name}
 
     set docdir ${prefix}/share/doc/${name}
-    xinstall -m 755 -d ${destroot}${docdir}
-    xinstall -m 644 -W ${worksrcpath} LICENSE README.md ${destroot}${docdir}
+    xinstall -m 0755 -d ${destroot}${docdir}
+    xinstall -m 0644 -W ${worksrcpath} LICENSE README.md ${destroot}${docdir}
 
     if {[variant_isset docs]} {
         file copy ${worksrcpath}/doc/_build/html ${destroot}${docdir}

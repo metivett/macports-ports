@@ -3,12 +3,14 @@
 PortSystem          1.0
 PortGroup           golang 1.0
 
-go.setup            github.com/derailed/k9s 0.24.2 v
+go.setup            github.com/derailed/k9s 0.31.7 v
+github.tarball_from archive
+revision            0
+
 homepage            https://k9scli.io
 
-categories          sysutils devel
-maintainers         {breun.nl:nils @breun} openmaintainer
-description         K9s
+description         K9s - Kubernetes CLI To Manage Your Clusters In Style
+
 long_description    K9s provides a curses based terminal UI to interact with \
                     your Kubernetes clusters. The aim of this project is to \
                     make it easier to navigate, observe and manage your \
@@ -16,26 +18,50 @@ long_description    K9s provides a curses based terminal UI to interact with \
                     Kubernetes for changes and offers subsequent commands to \
                     interact with observed Kubernetes resources.
 
-platforms           darwin
-supported_archs     x86_64
+categories          sysutils devel
+installs_libs       no
 license             Apache-2
+maintainers         {breun.nl:nils @breun} \
+                    {gmail.com:herby.gillot @herbygillot} \
+                    openmaintainer
 
-checksums           rmd160  dd04ff16073e42b6ace63e3cc9634a189f7b0185 \
-                    sha256  8fd17f788b0b952974716c557a159287d5e38e8eb0b8aa5c177b1d1034a3192a \
-                    size    6181931
-
-# Reproduce the "build" target from the upstream Makefile
-set go_ldflags      "-w -s \
-    -X ${go.package}/cmd.version=v${version} \
-    -X ${go.package}/cmd.commit=unknown \
-    -X ${go.package}/cmd.date=unknown"
-build.args          -ldflags \"${go_ldflags}\" ${go.package}
+checksums           rmd160  ae4d499fffde56bc6a24da3f2e8dff38b1d7732e \
+                    sha256  77b33d2367244a13faf50b8a64e0f85e33c6f3c044233c7a537659a64423c658 \
+                    size    6736122
 
 # FIXME: This port currently can't be built without allowing go mod to fetch
 # dependencies during the build phase. See
 # https://trac.macports.org/ticket/61192
-build.env-delete    GOPROXY=off GO111MODULE=off
+go.offline_build no
+
+build.cmd           make
+build.pre_args-append \
+                    VERSION="${github.tag_prefix}${version}" GIT_REV="" DATE=""
+build.args          build
 
 destroot {
-    xinstall -m 0755 ${worksrcpath}/${name} ${destroot}${prefix}/bin/
+    xinstall -m 0755 ${worksrcpath}/execs/${name} ${destroot}${prefix}/bin/
+
+    xinstall -d ${destroot}${prefix}/share/${name}
+    copy ${worksrcpath}/skins   ${destroot}${prefix}/share/${name}/
+    copy ${worksrcpath}/plugins ${destroot}${prefix}/share/${name}/
+
+    set bash_completion ${prefix}/share/bash-completion/completions
+    xinstall -d ${destroot}${bash_completion}
+    exec ${destroot}${prefix}/bin/${name} completion bash > \
+        ${destroot}${bash_completion}/${name}
+
+    set zsh_completion ${prefix}/share/zsh/site-functions
+    xinstall -d ${destroot}${zsh_completion}
+    exec ${destroot}${prefix}/bin/${name} completion zsh > \
+        ${destroot}${zsh_completion}/_${name}
+
+    set fish_completion ${prefix}/share/fish/vendor_completions.d
+    xinstall -d ${destroot}${fish_completion}
+    exec ${destroot}${prefix}/bin/${name} completion fish > \
+        ${destroot}${fish_completion}/${name}.fish
 }
+
+notes "
+  ${name} skins and plugins can be found in ${prefix}/share/${name}
+"

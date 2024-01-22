@@ -4,7 +4,13 @@ PortSystem  1.0
 PortGroup   compiler_blacklist_versions 1.0
 
 name        xorg-libX11
-version     1.7.0
+version     1.8.7
+revision    0
+
+checksums   rmd160  0dcecfc8cbe853344c47e0f7e5217fbcdd3eb82d \
+            sha256  05f267468e3c851ae2b5c830bcf74251a90f63f04dd7c709ca94dc155b7e99ee \
+            size    1859256
+
 categories  x11 devel
 license     X11
 maintainers {jeremyhu @jeremyhu} openmaintainer
@@ -12,18 +18,14 @@ description X.org libX11
 homepage    https://www.x.org
 platforms   darwin macosx
 long_description libX11 is the main library used by X Window System applications to communicate with the X server.
-master_sites     xorg:individual/lib/
+master_sites xorg:individual/lib/
 
 distname    libX11-${version}
-
-checksums   rmd160  a3df61054babc200de47e0d5dc416461f64f8981 \
-            sha256  36c8f93b6595437c8cfbc9f08618bcb3041cbd303e140a0013f88e4c2977cb54 \
-            size    2409144
 
 # move pragmas outside functions to keep old gcc compilers happy
 patchfiles  patch-xorg-libX11-pragmas-inside-functions.diff
 
-use_bzip2   yes
+use_xz                  yes
 use_parallel_build      yes
 
 depends_build   port:pkgconfig \
@@ -34,7 +36,9 @@ depends_build   port:pkgconfig \
 depends_lib     port:xorg-libXdmcp \
                 port:xorg-libXau \
                 port:xorg-libxcb \
-                port:xorg-xorgproto 
+                port:xorg-xorgproto
+
+configure.checks.implicit_function_declaration.whitelist-append strchr
 
 configure.env-append RAWCPP=${configure.cpp}
 

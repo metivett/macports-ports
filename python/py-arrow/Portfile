@@ -1,37 +1,44 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
-PortGroup           github 1.0
 PortGroup           python 1.0
 
-github.setup        crsmithdev arrow 0.17.0
-revision            0
 name                py-arrow
-platforms           darwin
+version             1.3.0
+revision            1
+
+supported_archs     noarch
+platforms           {darwin any}
 license             Apache-2
 maintainers         nomaintainer
 
 description         Better dates and times for Python
-long_description    {*}${description}
+long_description    Arrow is a Python library that offers a sensible \
+                    and human-friendly approach to creating, manipulating, \
+                    formatting and converting dates, times and timestamps. \
+                    It implements and updates the datetime type, plugging gaps \
+                    in functionality and providing an intelligent module API that \
+                    supports many common creation scenarios.
 
-checksums           rmd160  66860bb00d58a0e9a1a90b82e4e3e07da44092d0 \
-                    sha256  b8df5c61a6bff9266376c10d52154bc1ea0eeb91d6da6b522418b08dba388a84 \
-                    size    97452
+homepage            https://arrow.readthedocs.io
 
-python.versions     37 38 39
+checksums           rmd160  b02880dc427d5e381fee11d9635efa9f88277aee \
+                    sha256  d4540617648cb5f895730f1ad8c82a65f2dad0166f57b75f3ca54759c4d67a85 \
+                    size    131960
+
+compiler.cxx_standard 2011
+
+python.versions     38 39 310 311 312
+python.pep517_backend flit
 
 if {${name} ne ${subport}} {
-    depends_build-append \
-                    port:py${python.version}-setuptools
-
-    depends_lib-append \
-                    port:py${python.version}-dateutil
+    depends_run-append \
+                    port:py${python.version}-dateutil \
+                    port:py${python.version}-types-python-dateutil
 
     post-destroot {
         xinstall -d ${destroot}${prefix}/share/doc/${subport}
         xinstall -m 0644 -W ${worksrcpath} CHANGELOG.rst LICENSE \
             README.rst ${destroot}${prefix}/share/doc/${subport}
     }
-
-    livecheck.type      none
 }

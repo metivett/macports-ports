@@ -4,32 +4,29 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-parso
-version             0.8.1
+version             0.8.3
 revision            0
 categories-append   devel
-platforms           darwin
+platforms           {darwin any}
 license             MIT
 supported_archs     noarch
 
-python.versions     27 35 36 37 38 39
+python.versions     27 35 36 37 38 39 310 311 312
 
 maintainers         {stromnov @stromnov} openmaintainer
 
 description         A Python Parser
-long_description    ${description}
+long_description    {*}${description}
 
 homepage            https://github.com/davidhalter/parso
 
-checksums           rmd160  5cc65102d23646476fab91a6790eda95b65cc918 \
-                    sha256  8519430ad07087d4c997fda3a7918f7cfa27cb58972a8c89c2a0295a1c940e9e \
-                    size    395966
+checksums           rmd160  951ee97bd1a071dde3bd9e19e895e6f8c5fa6eb1 \
+                    sha256  8c07be290bb59f03588915921e29e8a50002acaf2cdc5fa0e0114f91709fafa0 \
+                    size    400064
 
 if {${name} ne ${subport}} {
     depends_build-append \
                         port:py${python.version}-setuptools
-
-    depends_test-append \
-                        port:py${python.version}-pytest
 
     if {${python.version} <= 35} {
         version             0.7.1
@@ -41,9 +38,6 @@ if {${name} ne ${subport}} {
     }
 
     test.run            yes
-    test.cmd            py.test-${python.branch}
-    test.target
-    test.env            PYTHONPATH=${worksrcpath}/build/lib
 
     livecheck.type      none
 }

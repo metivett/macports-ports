@@ -2,12 +2,13 @@
 
 PortSystem          1.0
 
+PortGroup           perl5 1.0
+
 name                littleutils
-version             1.2.3
-revision            2
+version             1.2.6a
+revision            0
 categories          sysutils
 maintainers         {mps @Schamschula} openmaintainer
-platforms           darwin
 license             GPL-3+ ijg permissive
 
 description         littleutils includes various small and useful command-line utilities
@@ -24,15 +25,21 @@ homepage            https://sourceforge.net/projects/littleutils/
 master_sites        sourceforge:project/littleutils/littleutils-source/${version}/
 use_xz              yes
 
-checksums           rmd160  a1eb7ed6c8d6723eabc49b07d0e2ae52f14112b6 \
-                    sha256  fbed0d8a4894322ce590e10820ecb8b535867693c949c8bb3c0a3a68ccc52eee \
-                    size    206996
+platforms           {darwin >= 11}
+
+checksums           rmd160  6c4a765c7f35f800d76260e3085f5a453d91ff22 \
+                    sha256  ddf9dc4aed18dbacd8c950d7bf788f29dedeabb1431f06aa6532fd79274fe8ca \
+                    size    219492
+
+perl5.major         5.34
+
+depends_build       port:gettext
 
 depends_lib         port:bash \
                     port:bzip2 \
                     port:dash \
                     port:file \
-                    port:gettext \
+                    port:gettext-runtime \
                     port:ghostscript \
                     port:gifsicle \
                     port:gzip \
@@ -41,35 +48,40 @@ depends_lib         port:bash \
                     port:lzip \
                     port:lzma \
                     port:lzop \
-                    port:p5.28-cryptx \
+                    port:p${perl5.major}-cryptx \
                     port:p7zip \
-                    port:perl5.28 \
+                    port:perl${perl5.major} \
                     port:pngcrush \
-                    port:poppler \
+                    port:pngquant \
+                    path:lib/pkgconfig/poppler.pc:poppler \
                     port:xz \
                     port:zstd
 
+configure.args      PROGPERL=${perl5.bin}
+
 destroot.target     "install install-extra"
 
-variant python37 conflicts python38 python39 description {Use Python 3.7} {
-    configure.env   PROGPYTHON=${prefix}/bin/python3.7
-    depends_lib-append \
-                    port:python37
+variant python38 conflicts python39 python310 python311 description {Use Python 3.8} {}
+variant python39 conflicts python38 python310 python311 description {Use Python 3.9} {}
+variant python310 conflicts python38 python39 python311 description {Use Python 3.10} {}
+variant python311 conflicts python38 python39 python310 description {Use Python 3.11} {}
+
+if {![variant_isset python38] && ![variant_isset python39] && ![variant_isset python310]} {
+    default_variants +python311
 }
 
-variant python38 conflicts python37 python39 description {Use Python 3.8} {
-    configure.env   PROGPYTHON=${prefix}/bin/python3.8
-    depends_lib-append \
-                    port:python38
-}
-variant python39 conflicts python37 python38 description {Use Python 3.9} {
-    configure.env   PROGPYTHON=${prefix}/bin/python3.9
-    depends_lib-append \
-                    port:python39
+foreach pv {311 310 39 38} {
+    if {[variant_isset python${pv}]} {
+        depends_lib-append \
+                    port:python${pv}
+
+        set python.branch \
+                    [string index ${pv} 0].[string range ${pv} 1 end]
+
+        configure.env \
+                    PROGPYTHON=${prefix}/bin/python${python.branch}
+        break
+    }
 }
 
-if {![variant_isset python37] && ![variant_isset python39]} {
-    default_variants +python38
-}
-
-livecheck.regex     /${name}-(\[0-9.\]+)${extract.suffix}
+livecheck.regex     /${name}-(\[0-9a.\]+)${extract.suffix}

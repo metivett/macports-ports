@@ -1,15 +1,19 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
-PortSystem 1.0
-PortGroup github 1.0
-PortGroup cmake 1.0
+PortSystem              1.0
+PortGroup               github 1.0
+PortGroup               cmake 1.1
 
-github.setup            neovim neovim 0.4.4 v
+github.setup            neovim neovim 0.9.5 v
+revision                0
 categories              editors
-platforms               darwin
 maintainers             {raimue @raimue} \
+                        {l2dy @l2dy} \
+                        {judaew @judaew} \
                         openmaintainer
 license                 Apache-2 Vim GPL-2+
+
+conflicts               neovim-devel
 
 description             Neovim is a aggressively refactored fork of Vim
 
@@ -19,9 +23,10 @@ long_description \
 
 homepage                https://neovim.io
 
-checksums               rmd160  740290555b5f031a87ffb6c99a90a03002c31596 \
-                        sha256  50a2d5ae4b426bb7e0956f8875136f9ba5846cdac4650e83460135253d48d0b9 \
-                        size    9559093
+github.tarball_from     archive
+checksums               rmd160  419fefb665764a319a93b27d4c8b838a90c79081 \
+                        sha256  fe74369fc30a32ec7a086b1013acd0eacd674e7570eb1acc520a66180c9e9719 \
+                        size    11590180
 
 depends_build-append    port:pkgconfig
 
@@ -30,20 +35,32 @@ depends_lib             port:gettext \
                         port:libvterm \
                         port:libtermkey \
                         port:unibilium \
-                        port:jemalloc \
-                        port:msgpack1 \
-                        port:lua \
-                        port:lua-lpeg \
-                        port:lua-mpack \
-                        port:lua-luabitop \
-                        port:luv
+                        port:msgpack \
+                        path:lib/libluajit-5.1.2.dylib:luajit \
+                        port:lua51-lpeg \
+                        port:lua51-mpack \
+                        port:luv-luajit \
+                        port:libiconv \
+                        port:tree-sitter
 
-cmake.out_of_source     yes
+cmake.build_type        Release
 
 configure.args-append   -DUSE_BUNDLED=OFF \
-                        -DPREFER_LUA=ON \
-                        -DLUA_PRG=${prefix}/bin/lua \
-                        -DENABLE_JEMALLOC=ON
+                        -DLUA_PRG=${prefix}/bin/luajit
+
+subport neovim-devel {
+    github.setup    neovim neovim 6fa0f303d7f0823bfc5ba6cc7b4e7a7cd76143ac
+    version         20240101-[string range ${github.version} 0 6]
+    revision        0
+
+    checksums       rmd160  419fefb665764a319a93b27d4c8b838a90c79081 \
+                    sha256  fe74369fc30a32ec7a086b1013acd0eacd674e7570eb1acc520a66180c9e9719 \
+                    size    11590180
+
+    conflicts       neovim
+
+    livecheck.url   ${github.homepage}/commits/nightly.atom
+}
 
 notes {
     If you want to share your existing Vim configuration with Neovim, you can add these symlinks:

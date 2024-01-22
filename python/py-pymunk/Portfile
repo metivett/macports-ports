@@ -4,14 +4,14 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-pymunk
-version             5.6.0
+version             6.5.1
 revision            0
 categories-append   devel
-platforms           darwin
 license             MIT
 supported_archs     i386 x86_64
 
-python.versions     27 35 36 37 38
+python.versions     37 38 39 310 311
+python.pep517       yes
 
 maintainers         {stromnov @stromnov} openmaintainer
 
@@ -19,22 +19,14 @@ description         Python wrapper around the 2d physics library Chipmunk
 long_description    ${description}
 
 homepage            http://www.pymunk.org/
-master_sites        pypi:[string index ${python.rootname} 0]/${python.rootname}
-
-distname            pymunk-${version}
 
 use_zip             yes
 
-checksums           rmd160  bcc7ac3126df50b8aa741e6404b795a73d50bfe3 \
-                    sha256  dba89d3e4eac40cca31468366b371459021ff1f433359297a8c96b1ede11c20b \
-                    size    5498226
+checksums           rmd160  bd0e061e4d7befee641bd06a3f4f7732d3bb3e64 \
+                    sha256  6443bb60906408c82c0fd327c019ff5f7aaddfdf8889e70ce39ddb8c38190e5b \
+                    size    8120352
 
 if {${name} ne ${subport}} {
     depends_build-append \
-                        port:py${python.version}-setuptools \
                         port:py${python.version}-cffi
-
-    patchfiles-append   patch-setup.py.diff
-
-    livecheck.type      none
 }

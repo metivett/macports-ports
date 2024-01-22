@@ -1,10 +1,11 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
+PortGroup           boost 1.0
 
 name                libreoffice
-version             7.1.1.1
-revision            0
+version             7.6.3.2
+revision            1
 categories          office aqua
 license             {LGPL-3 MPL-1.1}
 platforms           macosx
@@ -33,26 +34,32 @@ extract.only        ${main_distfile} \
 master_sites        ${main_uri}:main \
                     ${extern_uri}:opens \
                     ${addons_uri}:dtoa \
+                    ${addons_uri}:nss \
                     ${main_uri}:dicts \
-                    ${main_uri}:translations
+                    ${main_uri}:translations \
+                    ${addons_uri}:libcmis \
+                    ${addons_uri}:skia
 distfiles           ${main_distfile}:main \
                     ${name}-dictionaries-${version}.tar.xz:dicts \
                     ${name}-translations-${version}.tar.xz:translations \
                     dtoa-20180411.tgz:dtoa \
-                    f543e6e2d7275557a839a164941c0a86e5f2c3f2a0042bfc434c88c6dde9e140-opens___.ttf:opens
+                    f543e6e2d7275557a839a164941c0a86e5f2c3f2a0042bfc434c88c6dde9e140-opens___.ttf:opens \
+                    libcmis-0.6.1.tar.xz:libcmis \
+                    skia-m111-a31e897fb3dcbc96b2b40999751611d029bf5404.tar.xz:skia \
+                    nss-3.90-with-nspr-4.35.tar.gz:nss
 
-checksums           libreoffice-7.1.1.1.tar.xz \
-                    rmd160  15cf715de67329f4e4956763d836ee927f513357 \
-                    sha256  5f5fcf6fc492ec40729aa61b01c48c647d5113127a3b5b01e10381c44acf14c0 \
-                    size    243477948 \
-                    libreoffice-dictionaries-7.1.1.1.tar.xz \
-                    rmd160  fdd698927c93be94785ec49f550637f7e9bfe6fc \
-                    sha256  a456bb5feaa7d3eecb118670c976362d2e96170445686a67c897a2942c5d03a5 \
-                    size    47236084 \
-                    libreoffice-translations-7.1.1.1.tar.xz \
-                    rmd160  24aced0a554c6d2ef945b52f0bfd645e5a48b170 \
-                    sha256  fecb4ee40b3246f696a3a8dc476742b66f6f315d2e6eca539fc51a38f5586295 \
-                    size    184552736 \
+checksums           ${name}-${version}.tar.xz \
+                    rmd160  f2e883119a4c172eec6762ef13bf179f562ca7b7 \
+                    sha256  91e94b99a7270c450d8b1f31fa833397fc49cc71260267d8e044a6462ed7e15d \
+                    size    281497724 \
+                    ${name}-dictionaries-${version}.tar.xz \
+                    rmd160  2778c9cd09cdc95dfefc21201fb976a1d7ae9f7d \
+                    sha256  d3e3aa88faaa3806dd196e44ff82a3a5b992fdeac9626126d13a56a81561b88b \
+                    size    53055372 \
+                    ${name}-translations-${version}.tar.xz \
+                    rmd160  99e49e0f2205aebd73f89609dbd09888e3047fdd \
+                    sha256  76d72d9f1f9f3af20fdf6685606137060f8527b5e53eb0a8569e2250756778a2 \
+                    size    216943668 \
                     dtoa-20180411.tgz \
                     rmd160  8d1bba737d8b58c3fb09533f35af2a03e05d9849 \
                     sha256  0082d0684f7db6f62361b76c4b7faba19e0c7ce5cb8e36c4b65fea8281e711b4 \
@@ -60,24 +67,37 @@ checksums           libreoffice-7.1.1.1.tar.xz \
                     f543e6e2d7275557a839a164941c0a86e5f2c3f2a0042bfc434c88c6dde9e140-opens___.ttf \
                     rmd160  b9e2cc0c836faa59eca3bfc0f24e1b790646b112 \
                     sha256  f543e6e2d7275557a839a164941c0a86e5f2c3f2a0042bfc434c88c6dde9e140 \
-                    size    207992
+                    size    207992 \
+                    libcmis-0.6.1.tar.xz \
+                    rmd160  bcfe41a5d7db5507c72662393341225ee0e68d71 \
+                    sha256  d54d19d86153dbc88e2d468f7136269a2cfe71b73227e12fded01d29ac268074 \
+                    size    490296 \
+                    skia-m111-a31e897fb3dcbc96b2b40999751611d029bf5404.tar.xz \
+                    rmd160  b730395b16ba71dfba25ba0af221beb9e4f70fc5 \
+                    sha256  0d08a99ed46cde43b5ad2672b5d8770c8eb85d0d26cb8f1f85fd9befe1e9ceb9 \
+                    size    10693272 \
+                    nss-3.90-with-nspr-4.35.tar.gz \
+                    rmd160  dc93cab2c41c7c8bd7f284689b173e7724085886 \
+                    sha256  f78ab1d911cae8bbc94758fb3bd0f731df4087423a4ff5db271ba65381f6b739 \
+                    size    73739964
 
 depends_build-append \
     port:autoconf \
     port:automake \
     port:bison \
     port:cppunit \
+    port:dragonbox \
     port:flex \
+    port:frozen \
     port:gettext \
+    port:gmake \
+    port:gpatch \
     port:gperf \
-    port:intltool \
+    port:mesa \
     port:pkgconfig \
     port:ucpp \
     port:unixODBC
 depends_lib-append  \
-    port:apr \
-    port:apr-util \
-    port:boost \
     port:box2d \
     port:bzip2 \
     port:clucene \
@@ -86,16 +106,16 @@ depends_lib-append  \
     port:gdbm \
     port:gettext \
     port:graphite2 \
-    port:harfbuzz \
-    port:harfbuzz-icu \
+    path:lib/pkgconfig/harfbuzz.pc:harfbuzz \
+    path:lib/pkgconfig/harfbuzz-icu.pc:harfbuzz-icu \
     port:hunspell \
     port:hyphen \
-    port:icu \
+    path:lib/pkgconfig/icu-uc.pc:icu \
     path:include/turbojpeg.h:libjpeg-turbo \
     port:lcms2 \
     port:libabw \
     port:libcdr-0.1 \
-    port:libcmis \
+    port:libcuckoo \
     port:libe-book \
     port:libepoxy \
     port:libepubgen \
@@ -120,40 +140,43 @@ depends_lib-append  \
     port:libxml2 \
     port:libxslt \
     port:libzmf \
-    port:mdds \
+    port:mdds-2.1 \
     port:mythes \
     port:ncurses \
     port:neon \
     port:nspr \
     port:nss \
-    port:orcus \
+    port:orcus-0.18 \
     port:ossp-uuid \
     port:raptor2 \
     port:readline \
     port:redland \
-    port:serf1 \
     port:sqlite3 \
+    port:webp \
     port:xmlsec \
     port:xz \
     port:zlib
 # Try to keep this in sync with the Python portgroup.
-set pyver 3.8
-set python_version [string index ${pyver} 0][string index ${pyver} end]
+set pyver 3.11
+set python_version [join [split ${pyver} "."] ""]
 depends_run-append \
     port:python${python_version} \
     port:py${python_version}-lxml
 
-if {${os.major} < 14} {
+if {${os.platform} eq "darwin" && ${os.major} < 20} {
+    known_fail yes
+    depends_build
+    depends_lib
+    depends_run
     pre-fetch {
-        ui_error "${name} @${version} requires OS X 10.10 or later."
+        ui_error "Building ${name} @${version} requires macOS 11 or later."
+        ui_error ""
+        ui_error "Consider downloading a version from LibreOffice's website:"
+        ui_error "https://www.libreoffice.org/download/download/"
+        ui_error ""
         return -code error "incompatible OS X version"
     }
 }
-
-patchfiles \
-    patch-configure.diff \
-    patch-ucb_ucp_webdav_webdavprovider_cxx.diff \
-    patch-unpack-sources-fix-for-bsd-find.diff
 
 set product_name LibreOffice
 
@@ -161,9 +184,11 @@ pre-configure {
     system "cd ${worksrcpath} && env NOCONFIGURE=1 ./autogen.sh"
 }
 
-use_xcode           yes
+use_xcode               yes
+compiler.cxx_standard   2017
 # CMS_NO_REGISTER_KEYWORD required for C++17 or newer compiler.
 # PYTHON_CFLAGS and PYTHON_LIBS have to be non-empty
+configure.cxxflags-append -std=gnu++17
 configure.env-append  \
     "LCMS2_CFLAGS=-I${prefix}/include -DCMS_NO_REGISTER_KEYWORD=1" \
     PYTHON=${prefix}/bin/python${pyver} \
@@ -178,23 +203,20 @@ configure.args-append  \
     --disable-ccache \
     --disable-coinmp \
     --disable-epm \
-    --disable-ext-ct2n \
     --disable-ext-numbertext \
     --disable-fetch-external \
     --disable-firebird-sdbc \
     --disable-ldap \
     --disable-lotuswordpro \
     --disable-lpsolve \
-    --disable-neon \
     --disable-odk \
     --disable-online-update \
     --disable-openssl \
     --disable-pdfimport \
     --disable-pdfium \
     --disable-postgresql-sdbc \
-    --disable-qrcodegen \
     --disable-report-builder \
-    --disable-vlc \
+    --disable-zxing \
     --enable-bogus-pkg-config \
     --enable-cups \
     --enable-extension-integration \
@@ -203,19 +225,23 @@ configure.args-append  \
     --enable-readonly-installset \
     --enable-release-build \
     --enable-symbols \
+    --with-boost=[boost::install_area] \
     --with-external-tar=${distpath} \
+    --with-gnu-patch=${prefix}/bin/gpatch \
     --with-myspell-dicts \
     --with-package-version=${version} \
     --with-parallelism=${build.jobs} \
     --with-product-name=${product_name} \
     --with-system-clucene \
+    --with-system-cuckoo \
+    --with-system-dragonbox \
     --with-system-epoxy \
     --with-system-gpgmepp \
+    --with-system-frozen \
     --with-system-headers \
     --with-system-hunspell \
     --with-system-jars \
     --with-system-libabw \
-    --with-system-libcmis \
     --with-system-libebook \
     --with-system-libepubgen \
     --with-system-libexttextcat \
@@ -233,17 +259,23 @@ configure.args-append  \
     --with-theme=colibre \
     --with-tls=nss \
     --with-vendor=MacPorts \
-    --with-webdav=serf \
     --without-doxygen \
     --without-fonts \
     --without-java \
     --without-package-format \
     --without-system-dicts \
+    --without-system-libcmis \
+    --without-system-libfixmath \
     --without-system-sane \
+    --without-webdav \
     \"--with-lang=bg br ca ca-valencia cy cs da de el en-US en-GB es et eu fi fr ga gd gl hr hu id is it ja km lt lv nb nl nn pl pt pt-BR ro ru sk sl sv ta tr uk zh-CN zh-TW\"
+configure.env-append \
+    GNUMAKE=${prefix}/bin/gmake
 
-build.target    build-nocheck
+build.target    build
+build.cmd       ${prefix}/bin/gmake
 
+destroot.keepdirs ${destroot}${applications_dir}/${product_name}.app/Contents/Resources/en.lproj
 destroot {
     copy ${worksrcpath}/instdir/${product_name}.app ${destroot}${applications_dir}
 }

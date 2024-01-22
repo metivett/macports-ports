@@ -4,40 +4,68 @@ PortSystem          1.0
 PortGroup           python 1.0
 PortGroup           github 1.0
 
-github.setup        pipxproject pipx 0.15.5.1
+github.setup        pypa pipx 1.4.2
+revision            0
+checksums           rmd160  0bdc0f6e39dcc688bc44c69336a113c3a6b39d86 \
+                    sha256  69d7bd78a48cece4090a9d88680e4720b7ae7a04c655dfebc3cec7b0b99092da \
+                    size    359349
+
 categories          python sysutils
 license             MIT
-maintainers         {lbschenkel @lbschenkel} openmaintainer
+maintainers         {@mndavidoff alluvialsw.com:md14-macports} openmaintainer
 supported_archs     noarch
-platforms           darwin
+platforms           {darwin any}
 
 description         Execute binaries from Python packages in isolated environments
 long_description    ${description}
 
-checksums           rmd160  c786be7c7375055d69d89cbdb7e36672917bf00c \
-                    sha256  8163804cbcd4f09b400e8c6f0d4ba85d368573bc8eb65535d90b9988959842a2 \
-                    size    357524
-
+github.tarball_from archive
 github.livecheck.regex  {([\d.]+)}
 
-if {![variant_isset python36] && ![variant_isset python37] && ![variant_isset python38]} {
-    default_variants +python38
+if {
+    ![variant_isset python38] &&
+    ![variant_isset python39] &&
+    ![variant_isset python310] &&
+    ![variant_isset python311] &&
+    ![variant_isset python312]
+} {
+    default_variants +python311
 }
 
-variant python36 conflicts python37 python38 description {Use Python 3.6} {}
-variant python37 conflicts python36 python38 description {Use Python 3.7} {}
-variant python38 conflicts python36 python37 description {Use Python 3.8} {}
+variant python38 conflicts python39 python310 python311 python312 description {Use Python 3.8} {}
+variant python39 conflicts python38 python310 python311 python312 description {Use Python 3.9} {}
+variant python310 conflicts python38 python39 python311 python312 description {Use Python 3.10} {}
+variant python311 conflicts python38 python39 python310 python312 description {Use Python 3.11} {}
+variant python312 conflicts python38 python39 python310 python311 description {Use Python 3.12} {}
 
-if {[variant_isset python38]} {
+if {[variant_isset python312]} {
+    python.default_version 312
+} elseif {[variant_isset python311]} {
+    python.default_version 311
+} elseif {[variant_isset python310]} {
+    python.default_version 310
+} elseif {[variant_isset python39]} {
+    python.default_version 39
+} elseif {[variant_isset python38]} {
     python.default_version 38
-} elseif {[variant_isset python37]} {
-    python.default_version 37
-} elseif {[variant_isset python36]} {
-    python.default_version 36
 }
 
-depends_lib-append \
-                    port:py${python.version}-argcomplete \
-                    port:py${python.version}-setuptools \
+python.pep517       yes
+python.pep517_backend hatch
+
+build.env-append    SETUPTOOLS_SCM_PRETEND_VERSION=${version}
+
+depends_build-append \
+                    port:py${python.version}-hatch-vcs \
+                    port:py${python.version}-wheel
+
+depends_lib-append  port:py${python.version}-argcomplete \
                     port:py${python.version}-packaging \
+                    port:py${python.version}-pip \
+                    port:py${python.version}-platformdirs \
                     port:py${python.version}-userpath
+
+if {${python.version} < 311} {
+    depends_run-append \
+                    port:py${python.version}-tomli
+}

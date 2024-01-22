@@ -1,0 +1,24 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran revelle psychTools 2.4.2
+revision            0
+maintainers         nomaintainer
+license             GPL-2+
+description         Tools to accompany the R-psych package for psychological research
+long_description    {*}${description}
+homepage            https://personality-project.org/r/psych
+checksums           rmd160  5edd436047aff0662721134a79229e6ecd8b3ef6 \
+                    sha256  1ab11cda68c580d33fb561d6a229f8285802f05ffa3056299a452149d7dec392 \
+                    size    3107772
+supported_archs     noarch
+
+depends_lib-append  port:R-psych
+
+depends_test-append port:R-GPArotation \
+                    port:R-knitr \
+                    port:R-lavaan
+
+test.run            yes

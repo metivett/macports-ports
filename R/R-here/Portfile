@@ -1,0 +1,34 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             github r-lib here 1.0.1.9007 v
+revision            0
+categories-append   sysutils
+maintainers         nomaintainer
+license             MIT
+description         Simpler way to find your files
+long_description    {*}${description}
+homepage            https://here.r-lib.org
+checksums           rmd160  fbe3abd2697e70efb67f14b06995449a7c20d894 \
+                    sha256  77c614183e3dd8713bc059feb0f2a73bc16ef50f6d148906e1ba76f12ccf6b28 \
+                    size    33750
+supported_archs     noarch
+
+depends_lib-append  port:R-rprojroot
+
+depends_test-append port:R-conflicted \
+                    port:R-covr \
+                    port:R-fs \
+                    port:R-knitr \
+                    port:R-palmerpenguins \
+                    port:R-plyr \
+                    port:R-readr \
+                    port:R-rlang \
+                    port:R-rmarkdown \
+                    port:R-testthat \
+                    port:R-uuid \
+                    port:R-withr
+
+test.run            yes

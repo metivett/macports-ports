@@ -3,54 +3,58 @@
 PortSystem          1.0
 PortGroup           golang 1.0
 
-go.setup            github.com/fortio/fortio 1.14.1 v
+go.setup            github.com/fortio/fortio 1.60.2 v
+go.package          fortio.org/fortio
+github.tarball_from archive
 revision            0
 
 homepage            https://fortio.org
 
-description         Fortio is a load testing library, command line tool, \
-                    advanced echo server and web UI in go (golang).
+description         \
+    Fortio is a load testing library, command line tool, advanced echo server \
+    and web UI in go (golang).
 
-long_description    {*}${description} Allows to specify a set \
-                    query-per-second load and record latency histograms and \
-                    other useful stats. Fortio runs at a specified query per \
-                    second (qps) and records an histogram of execution time \
-                    and calculates percentiles (e.g. p99 ie the response time \
-                    such as 99% of the requests take less than that number \
-                    (in seconds, SI unit)). It can run for a set duration, \
-                    for a fixed number of calls, or until interrupted (at a \
-                    constant target QPS, or max speed/load per \
-                    connection/thread).
+long_description    \
+    {*}${description} Allows to specify a set query-per-second load and \
+    record latency histograms and other useful stats. Fortio runs at a \
+    specified query per second (qps) and records an histogram of execution \
+    time and calculates percentiles (e.g. p99 ie the response time such as \
+    99% of the requests take less than that number (in seconds, SI unit)). It \
+    can run for a set duration, for a fixed number of calls, or until \
+    interrupted (at a constant target QPS, or max speed/load per \
+    connection/thread).
 
-platforms           darwin
 categories          net www
+installs_libs       no
 license             Apache-2
-
 maintainers         {gmail.com:herby.gillot @herbygillot} \
                     openmaintainer
 
-checksums           rmd160  188705fe64ecaccdb73c3949523f1bbb5c00df53 \
-                    sha256  8c97194d2017c071640bafe985d555f6c26f4673d7af423d592eb0248cc94ea3 \
-                    size    262497
+checksums           rmd160  577be3316ce6338b02f1e86fc707b2042085aec4 \
+                    sha256  51c570511fb8a8596754b664331333448277bb8222855620440cff0c2293ed7c \
+                    size    291157
 
 set _ft_share_dir   ${prefix}/share/${name}
 
+# Allow Go to fetch deps at runtime
+go.offline_build no
+
 build.cmd           make
-build.pre_args      GIT_TAG=v${version} \
-                    LIB_DIR=${_ft_share_dir}/ui
+build.pre_args      BUILD_DIR=${gopath} \
+                    GIT_TAG=v${version} \
+                    LIB_DIR=${_ft_share_dir}/ui \
+                    MODE=""
 build.args          official-build
 
-# Allow fetching build dependencies at build time
-# See: http://trac.macports.org/ticket/61192
-build.env-delete    GO111MODULE=off GOPROXY=off
-
-installs_libs       no
-
-
 destroot {
-    xinstall -m 0755 ${worksrcpath}/../fortio.bin ${destroot}${prefix}/bin/${name}
-    xinstall -m 0644 ${worksrcpath}/docs/${name}.1 ${destroot}${prefix}/share/man/man1/
+    xinstall -m 0755 ${gopath}/result/fortio ${destroot}${prefix}/bin/${name}
+
+    xinstall -m 0644 \
+        ${worksrcpath}/docs/${name}.1 \
+        ${destroot}${prefix}/share/man/man1/
 
     file mkdir ${destroot}${_ft_share_dir}
     copy ${worksrcpath}/ui/ ${destroot}${_ft_share_dir}/
 }
+
+github.livecheck.regex {([0-9.]+)}

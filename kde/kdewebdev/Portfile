@@ -7,7 +7,7 @@ name                kdewebdev
 version             4.14.3
 revision            3
 categories          kde kde4
-maintainers         {nicos @NicosPavlov}
+maintainers         nomaintainer
 license             GPL-2+ LGPL-2+ GFDL-1.2
 description         WEB Development package for the K Desktop Environment.
 
@@ -26,7 +26,10 @@ depends_lib-append  port:kdelibs4 \
                     port:kdepimlibs4 \
                     port:ruby
 
-patchfiles-append   patch-tidyx.diff
+pre-configure {
+    move ${worksrcpath}/kimagemapeditor/VERSION ${worksrcpath}/kimagemapeditor/VERSION.txt
+    move ${worksrcpath}/kommander/VERSION ${worksrcpath}/kommander/VERSION.txt
+}
 
 if {![variant_isset docs]} {
     patchfiles-append   patch-CMakeLists.txt.diff

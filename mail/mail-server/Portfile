@@ -4,8 +4,8 @@ PortSystem              1.0
 PortGroup               active_variants 1.1
 
 name                    mail-server
-version                 1.2
-revision                2
+version                 1.5
+revision                1
 categories              mail net
 platforms               darwin
 supported_archs         noarch
@@ -15,12 +15,15 @@ distfiles
 
 description             Mail server configuration
 
-long_description        Mail server working configuration that provides a basic, working,\
-                        easily modifiable mail server. The configuration is built using\
-                        postfix for the MTA, dovecot for the MDA, solr for fast search,\
-                        rspamd for a milter, and clamav for email virus scans. The\
-                        configuration includes a surrogate TLS certificate, DKIM, and\
-                        Apple Push Notification Service (APNS) capability for iOS devices.
+long_description        Mail server working configuration that \
+                        provides a basic, working, easily modifiable \
+                        mail server. The configuration is built using \
+                        postfix for the MTA, dovecot for the MDA, solr \
+                        for fast search, rspamd for a milter, and \
+                        clamav for email virus scans. The \
+                        configuration includes a surrogate TLS \
+                        certificate, DKIM, and Apple Push Notification \
+                        Service (APNS) capability for iOS devices.
 
 homepage                https://www.postfix.org/
 
@@ -32,7 +35,7 @@ set dovecot_required_variants \
 depends_lib-append      port:dcc \
                         port:dovecot \
                         port:dovecot-sieve \
-                        path:lib/libssl.dylib:openssl \
+                        path:bin/openssl:openssl \
                         port:postfix \
                         port:rspamd \
                         port:sf-pwgen
@@ -47,10 +50,10 @@ depends_lib-append      port:apache-solr8 \
 depends_run-append      port:clamav-server
 
 variant initialize_always \
-    description {Always initialize all configuration files. Intended\
-        for development and troubleshooting only. Working deployments\
-        must disable this variant to prevent configuration files\
-        being overwritten at the next upgrade. Existing configuration\
+    description {Always initialize all configuration files. Intended \
+        for development and troubleshooting only. Working deployments \
+        must disable this variant to prevent configuration files \
+        being overwritten at the next upgrade. Existing configuration \
         files are not overwritten by default.} {
     ui_warn \
         "
@@ -62,49 +65,15 @@ variant initialize_always \
 
 variant logrotate \
     description {Use mail-server logrotate configuration.} {
-    depends_lib-append      port:logrotate
+    depends_lib-append  port:logrotate
 }
+
+default_variants-append +logrotate
 
 use_configure           no
 
-pre-build {
-    # require these port dependency variants
-    # MacPorts doesn't support variant dependencies, so do this this by hand
-    # See: https://trac.macports.org/ticket/126
-    # https://lists.macports.org/pipermail/macports-users/2015-September/039201.html
-
-    set required_variants_flag true
-    set required_variants_message ""
-
-    if { [catch {set result [registry_active postfix]}]
-        || [lindex [lindex ${result} 0] 3] \
-            ne "+[join ${postfix_required_variants} +]" } {
-        append required_variants_message "\
-Postfix not installed with required variants. Please install:
-
-    sudo port -pN install postfix +[join ${postfix_required_variants} +]
-
-"
-        set required_variants_flag false
-    }
-    if { [catch {set result [registry_active dovecot]}]
-        || [lindex [lindex ${result} 0] 3] \
-            ne "+[join ${dovecot_required_variants} +]" } {
-        append required_variants_message "\
-Dovecot not installed with required variants. Please install:
-
-    sudo port -pN install dovecot +[join ${dovecot_required_variants} +] \[+apns\]
-
-"
-        set required_variants_flag false
-    }
-    if {${required_variants_flag} ne true} {
-        ui_error ${required_variants_message}
-        # one of these will exit with error if the ports are not installed at all
-        registry_active postfix
-        registry_active dovecot
-    }
-}
+require_active_variants postfix ${postfix_required_variants}
+require_active_variants dovecot ${dovecot_required_variants}
 
 build {}
 
@@ -123,7 +92,7 @@ proc correct_horse_battery_staple {} {
 destroot {
     # configuration design: MacPorts file and/or directory templates installed
     # to *.macports, then edited with local network settings, then in
-    # post-activate copied to actual configuration files if such don't exist 
+    # post-activate copied to actual configuration files if such don't exist
 
     # common
     foreach d [list \
@@ -325,6 +294,25 @@ destroot {
 }
 
 destroot.keepdirs ${destroot}${prefix}/var/log/mail
+
+# Workaround for issue with dovecot version 2.3.17 on macOS 12
+# https://www.mail-archive.com/dovecot@dovecot.org/msg84784.html
+if {${os.platform} eq "darwin" && ${os.major} >= 21} {
+    post-destroot {
+        system -W ${destroot}${prefix}/etc/dovecot/conf.d.macports \
+            "${patch.cmd} ${patch.pre_args} < ${filespath}/patch-10-master.conf.diff"
+    }
+}
+
+pre-activate {
+    # mail-server 1.1 inadvertently installed org.macports.logrotate.plist
+    # into /Library/LaunchDaemons
+    # https://trac.macports.org/ticket/60273
+    # This cleanup hack can be removed after December 2023.
+    if { ![variant_isset "logrotate"] } {
+        delete /Library/LaunchDaemons/org.macports.logrotate.plist
+    }
+}
 
 proc plutil_startup {plcmds label} {
     global prefix startupitem.location
@@ -601,13 +589,14 @@ SOLR_DELETE_DOVECOT
     system -W ${tls_ca_dir} \
         "sh <<TLS_CERTIFICATE_SURROGATE
             # CA encrypted key
-            openssl genrsa -aes256 -out private/ca.key.pem \\
-                -passout file:private/passphrase.txt 4096
+            openssl genpkey -out private/ca.key.pem \\
+                -algorithm EC -pkeyopt ec_paramgen_curve:P-384 -aes256 \\
+                -pass file:private/passphrase.txt
             chmod go-r private/ca.key.pem
 
             # CA certificate
             openssl req -config openssl.cnf \\
-                -new -x509 -days 1460 -sha256 \\
+                -new -x509 -days 1460 -sha384 \\
                 -extensions v3_ca \\
                 -out ca.cert.pem -key private/ca.key.pem \\
                 -passin file:private/passphrase.txt -batch
@@ -620,15 +609,15 @@ SOLR_DELETE_DOVECOT
             ##################
 
             # Intermediate CA encrypted key
-            openssl genrsa -aes256 \\
+            openssl genpkey \\
                 -out intermediate/private/intermediate.key.pem \\
-                -passout file:intermediate/private/passphrase_intermediate.txt \\
-                4096
+                -algorithm EC -pkeyopt ec_paramgen_curve:P-384 -aes256 \\
+                -pass file:intermediate/private/passphrase_intermediate.txt
             chmod go-r intermediate/private/intermediate.key.pem
 
             # Intermediate CA CSR
             openssl req -config intermediate/openssl_intermediate.cnf \\
-                -new -sha256 \\
+                -new -sha384 \\
                 -key intermediate/private/intermediate.key.pem \\
                 -passin file:intermediate/private/passphrase_intermediate.txt \\
                 -out intermediate/intermediate.csr.pem -batch
@@ -639,7 +628,7 @@ SOLR_DELETE_DOVECOT
 
             # Intermediate CA certificate
             openssl ca -config openssl.cnf \\
-                -days 730 -notext -md sha256 -extensions v3_intermediate_ca \\
+                -days 730 -notext -md sha384 -extensions v3_intermediate_ca \\
                 -in intermediate/intermediate.csr.pem \\
                 -out intermediate/intermediate.cert.pem \\
                 -passin file:private/passphrase.txt -batch
@@ -656,21 +645,21 @@ SOLR_DELETE_DOVECOT
             ##################
 
             # Client certificate encrypted key
-            openssl genrsa -aes256 \\
+            openssl genpkey \\
                 -out intermediate/private/${fullhost}.key.pem \\
-                -passout file:intermediate/private/passphrase_client.txt \\
-                4096
+                -algorithm EC -pkeyopt ec_paramgen_curve:P-384 -aes256 \\
+                -pass file:intermediate/private/passphrase_client.txt
             chmod go-r intermediate/private/${fullhost}.key.pem
 
             # Client certificate decrypted key
-            openssl rsa -in intermediate/private/${fullhost}.key.pem \\
+            openssl pkey -in intermediate/private/${fullhost}.key.pem \\
                 -passin file:intermediate/private/passphrase_client.txt \\
                 -out intermediate/private/${fullhost}.key.pem.decrypted
             chmod go-r intermediate/private/${fullhost}.key.pem.decrypted
 
             # Client certificate CSR
             openssl req -config intermediate/openssl_intermediate.cnf \\
-                -new -sha256 \\
+                -new -sha384 \\
                 -key intermediate/private/${fullhost}.key.pem \\
                 -passin file:intermediate/private/passphrase_client.txt \\
                 -out intermediate/${fullhost}.csr.pem -batch
@@ -681,7 +670,7 @@ SOLR_DELETE_DOVECOT
 
             # Client certificate
             openssl ca -config intermediate/openssl_intermediate.cnf \\
-                -days 375 -notext -md sha256 \\
+                -days 375 -notext -md sha384 \\
                 -in intermediate/${fullhost}.csr.pem \\
                 -out intermediate/${fullhost}.cert.pem \\
                 -passin file:intermediate/private/passphrase_intermediate.txt \\
@@ -703,8 +692,8 @@ TLS_CERTIFICATE_SURROGATE
     set certificate_sha1 [exec \
         openssl x509 -noout -fingerprint -sha1 -inform pem \
             -in ${tls_ca_dir}/intermediate/${fullhost}.cert.pem]
-    set certificate_sha1 [strsed ${certificate_sha1} "s|^SHA1 Fingerprint=||"]
-    set certificate_sha1 [strsed ${certificate_sha1} "g|:||"]
+    regsub -nocase "^sha1 Fingerprint=" ${certificate_sha1} "" certificate_sha1
+    set certificate_sha1 [string tolower [strsed ${certificate_sha1} "g|:||"]]
     xinstall -m 0600 \
         ${tls_ca_dir}/intermediate/private/${fullhost}.key.pem.decrypted \
         ${certificates_dir}/private/${fullhost}.${certificate_sha1}.key.pem.decrypted
@@ -821,16 +810,6 @@ in ${prefix}/etc/dovecot/sieve*/*.sieve are compiled with sievec.
     }
 }
 
-pre-fetch {
-    # The way that startupitems values are quoted was changed in 2.6.3.
-    # This port now relies on those changes. See:
-    # https://github.com/macports/macports-base/pull/191
-    if {[vercmp [macports_version] 2.6.3] < 0} {
-        ui_error "${name} @${version} requires MacPorts 2.6.3 or later"
-        return -code error "incompatible MacPorts version"
-    }
-}
-
 startupitem.create      yes
 startupitems \
         name            ${name} \
@@ -869,23 +848,23 @@ if { [variant_isset "logrotate"] } {
         executable      ${prefix}/sbin/logrotate
 }
 
-notes "A mail server is a complex, interdependent set of tools that must\
+notes "A mail server is a complex, interdependent set of tools that must \
 all be configured correctly to provide secure, reliable email.
 
-Users must reconfigure this installation for their own system, network,\
-and security model specifics by editing all necessary files and checking\
+Users must reconfigure this installation for their own system, network, \
+and security model specifics by editing all necessary files and checking \
 file permissions. A subset of these settings are visible in the files:
 
         port contents mail-server
         port file mail-server
 
-Full deployment also requires a working DNS configuration on both the LAN\
-and the internet, including SPF and DKIM records, trusted TLS certificates,\
+Full deployment also requires a working DNS configuration on both the LAN \
+and the internet, including SPF and DKIM records, trusted TLS certificates, \
 port forwarding, possibly a mail replay, and more.
 
 Postfix and dovecot must be installed with these variants:
         sudo port -pN install postfix +[join ${postfix_required_variants} +]
-        sudo port -pN install dovecot +[join ${dovecot_required_variants} +]
+        sudo port -pN install dovecot +[join ${dovecot_required_variants} +] \[+apns]
 
 These are the locations and network settings for the default configuration:
 
@@ -917,7 +896,7 @@ These are the locations and network settings for the default configuration:
     Spam/Ham training (default behavior):
         Move/Copy email to the folders Spam_train or Notspam_train.
 
-The configuration also includes a surrogate TLS certificate and DKIM settings\
+The configuration also includes a surrogate TLS certificate and DKIM settings \
 that must be changed before deployment.
 
     TLS:
@@ -926,17 +905,17 @@ that must be changed before deployment.
     DKIM:
         ${prefix}/var/lib/rspamd/dkim
 
-The ports dns-server provide necessary DNS service on the LAN; variant\
+The ports dns-server provide necessary DNS service on the LAN; variant \
 +logrotate provides log rotation capabilities:
 
         sudo port install dns-server
         sudo port install mail-server +logrotate
 
-This port assume indepedent installation and management of DNS and\
-log rotation; mail-server includes example logrotate configuration files\
+This port assume indepedent installation and management of DNS and \
+log rotation; mail-server includes example logrotate configuration files \
 and a logroate launchdaemon.
 
-The port's launch daemon controls launching for each of the dependendent\
+The port's launch daemon controls launching for each of the dependendent \
 services. These may be controlled independently, e.g.
 
         sudo port load clamav-server
@@ -952,6 +931,16 @@ and if installed independently,
         sudo port load dns-server
         sudo port load logrotate
 
+TLS certificate updates must be included in mail-server dovecot's \
+conf.d/10-ssl.conf, postfix's master.cf, and, if installed, \
+calendar-contacts-server's proxy nginx.conf. Instructions are \
+included as comments in:
+
+    sudo vi ${prefix}/etc/dovecot/conf.d/10-ssl.conf
+    sudo vi ${prefix}/etc/postfix/main.cf
+    sudo vi \\
+        ${prefix}/var/calendarserver/Library/CalendarServer/etc/nginx.conf
+
     References:
         * http://www.postfix.org/documentation.html
         * https://wiki.dovecot.org/
@@ -960,8 +949,8 @@ and if installed independently,
         * _The Book of Postfix_, by Patrick Koetter and Ralf Hildebrandt
 
     Known issues:
-        * The Postfix service does not reliably start after reboot,\
-          presumably due to an issue with launchd. A workaround\
+        * The Postfix service does not reliably start after reboot, \
+          presumably due to an issue with launchd. A workaround \
           after rebooting is to issue the commands:
 
           sudo port unload postfix ; sleep 5 ; sudo port load postfix"
@@ -972,8 +961,8 @@ if { [variant_isset "initialize_always"] } {
         notes-append ""
     }
     notes-append \
-        "The variant +initialize_always is set, which initializes\
-        all configuration files. Please disable this variant for\
+        "The variant +initialize_always is set, which initializes \
+        all configuration files. Please disable this variant for \
         working deployments."
 }
 

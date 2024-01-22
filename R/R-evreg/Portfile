@@ -1,0 +1,24 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran tdenoeux evreg 1.0.3
+revision            0
+categories-append   math
+maintainers         nomaintainer
+license             GPL-3
+description         Evidential neural network for regression
+long_description    {*}${description}
+checksums           rmd160  ff79541c575e1aa7b8d5fbf8c933983eda27065f \
+                    sha256  5c6b852f4fa04b221db56f50cb0e7d5611d53034dc93c02dc771494472d06c29 \
+                    size    240124
+supported_archs     noarch
+
+depends_lib-append  port:R-evclust
+
+depends_test-append port:R-ggplot2 \
+                    port:R-knitr \
+                    port:R-rmarkdown
+
+test.run            yes

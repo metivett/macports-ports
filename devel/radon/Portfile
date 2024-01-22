@@ -1,29 +1,35 @@
-# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=portfile:et:sw=4:ts=4:sts=4
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
-PortGroup           github 1.0
 PortGroup           python 1.0
 
-github.setup        rubik radon 2.1.1 v
-python.default_version 36
-maintainers         {g5pw @g5pw} openmaintainer
+name                radon
+version             6.0.1
+revision            0
 
 categories          devel python
+supported_archs     noarch
+platforms           {darwin any}
+license             MIT
+maintainers         nomaintainer
+
 description         Radon is a tool for Python that computes various metrics \
                     from the source code.
 long_description    {*}${description}
 
-license             MIT
-platforms           darwin
+homepage            https://github.com/rubik/radon
 
-depends_build       port:py${python.version}-setuptools
+checksums           rmd160  a3158dda9f9988091a0969a9a8ea93b2b1c2973b \
+                    sha256  d1ac0053943a893878940fedc8b19ace70386fc9c9bf0a09229a44125ebf45b5 \
+                    size    1874992
+
+python.default_version 311
+python.pep517_backend poetry
 
 depends_lib-append  port:py${python.version}-colorama \
-                    port:py${python.version}-baker \
-                    port:py${python.version}-flake8 \
-                    port:py${python.version}-flake8-polyfill \
-                    port:py${python.version}-mando \
-                    port:py${python.version}-pathfinder
+                    port:py${python.version}-future \
+                    port:py${python.version}-mando
 
-checksums           rmd160  4f1624bf063512c0f0830fb551c486ed96dea7d8 \
-                    sha256  5555d29980a54a37543cb0f3b1350bbaed0392284fe826541da926feb80550bf
+test.run            yes
+
+depends_test-append port:py${python.version}-pytest-mock

@@ -1,38 +1,70 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=Portfile:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
+PortGroup           github 1.0
 PortGroup           python 1.0
+PortGroup           select 1.0
 
+github.setup        tmux-python tmuxp 1.34.0 v
 name                py-tmuxp
-version             1.7.0
+revision            0
+
 categories-append   devel
 license             MIT
-platforms           darwin
 supported_archs     noarch
+platforms           {darwin any}
 
-maintainers         {@egorenar posteo.net:egorenar-dev} openmaintainer
+maintainers         {@egorenar posteo.net:egorenar-dev} \
+                    {@judaew judaew} openmaintainer
 
 description         tmux session manager.
-long_description    ${description}
+long_description    {*}${description}
 
-homepage            https://github.com/tmux-python/tmuxp/
-master_sites        pypi:t/${python.rootname}/
-distname            ${python.rootname}-${version}
-python.versions     27 36 37 38 39
+python.versions     39 310 311 312
+python.pep517       yes
+python.pep517_backend poetry
 
 if {${name} ne ${subport}} {
-    depends_build-append    port:py${python.version}-setuptools
-    depends_lib-append      port:py${python.version}-setuptools \
-                            port:py${python.version}-colorama \
-                            port:py${python.version}-click \
-                            port:py${python.version}-kaptan \
-                            port:py${python.version}-libtmux
+    depends_lib-append \
+                    port:py${python.version}-click \
+                    port:py${python.version}-colorama \
+                    port:py${python.version}-kaptan \
+                    port:py${python.version}-libtmux
 
-    checksums           rmd160  715d342dee4abe5fd4036c3465bca1ae1060c3f8 \
-                        sha256  e5135d07a8944170e39ea8b96b09123c54648cca94537b4953d8f15e5a537da2 \
-                        size    91387
+    depends_run-append \
+                    port:tmuxp_select
+
+    checksums       rmd160  1ebb1988ca9188193c15beb49109c7d07896eda3 \
+                    sha256  72ce6634b2e537ec084ad27ed19cb6e5bdab2aa1b37f1fbb9354c7208729377d \
+                    size    868260
+
+    select.group    tmuxp
+    select.file     ${worksrcpath}/py${python.version}-tmuxp
+
+    post-extract {
+        copy -force ${filespath}/tmuxp ${worksrcpath}/py${python.version}-tmuxp
+    }
+
+    post-patch {
+        reinplace \
+            "s,@PYTHON_BRANCH@,${python.branch},g" \
+             ${worksrcpath}/${subport}
+    }
+
+    post-destroot {
+        xinstall -d ${destroot}${prefix}/share/examples/${subport}
+        xinstall -m 0644 {*}[glob ${worksrcpath}/examples/*] \
+            ${destroot}${prefix}/share/examples/${subport}
+    }
+
+    notes "
+To make the Python ${python.branch} version of tmuxp the one that is run when\
+you execute the commands without a version suffix, e.g. 'tmuxp', run:
+
+port select --set ${select.group} [file tail ${select.file}]
+"
 
     livecheck.type      none
-} else {
-    livecheck.type  pypi
 }
+
+github.livecheck.regex  "(\\d+(?:\\.\\d+)+)"

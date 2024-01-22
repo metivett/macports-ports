@@ -3,10 +3,10 @@
 PortSystem          1.0
 
 name                npm6
-version             6.14.11
-revision            1
+version             6.14.18
+revision            0
 categories          devel
-platforms           darwin
+platforms           any
 supported_archs     noarch
 license             MIT
 maintainers         {ciserlohn @ci42} openmaintainer
@@ -15,7 +15,7 @@ long_description    npm is a package manager for node. \
                     You can use it to install and publish your node programs. \
                     It manages dependencies and does other cool stuff.
 
-conflicts           npm3 npm4 npm5 npm7
+conflicts           npm3 npm4 npm5 npm7 npm8 npm9 npm10
 
 homepage            https://www.npmjs.com/
 
@@ -25,19 +25,20 @@ distname            npm-${version}
 
 extract.suffix      .tgz
 
-# Please keep the sha1 - users can use it to validate sha values published on npmjs.org for the package
-checksums           sha1    e0b5598d7b9a42d275e61d8bd28cd7eee0074a3b \
-                    rmd160  e772ab0ba54c1e2df086c73c391e6f6307d233e8 \
-                    sha256  13ed5653ba2ac2b7bb65852ea2e8b2e247738850f6c07c69c22394cb22db56e0 \
-                    size    5942611
+# Please keep the sha1 - users can use it to validate sha values
+# published on npmjs.org for the package
+checksums           sha1    5cd431567f0961e1fe63d46738cf37f74f7999eb \
+                    rmd160  debaabcf3cee605447b13c0ac03ea78c43a969e3 \
+                    sha256  c9b15f277e2a0b1b57e05bad04504296a27024555d56c2aa967f862e957ad2ed \
+                    size    4849875
 
 worksrcdir          "package"
 
-depends_lib         path:bin/node:nodejs15
+depends_lib         path:bin/node:nodejs16
 
 platform darwin {
     if {${os.major} < 13} {
-        depends_lib-replace path:bin/node:nodejs15 path:bin/node:nodejs8
+        depends_lib-replace path:bin/node:nodejs16 path:bin/node:nodejs14
     }
 }
 

@@ -6,14 +6,13 @@ PortGroup           github           1.0
 
 name                py-scikit-hep-hepunits
 
-github.setup        scikit-hep hepunits 2.0.1 v
+github.setup        scikit-hep hepunits 2.3.2 v
 revision            0
 fetch.type          git
 
-platforms           darwin
-supported_archs     x86_64
-
 license             BSD
+platforms           {darwin any}
+supported_archs     noarch
 
 maintainers         {jonesc @cjones051073} openmaintainer
 
@@ -21,18 +20,14 @@ description         Collects the most commonly used units and constants in the H
 long_description    {*}${description}
 
 # Supported python versions
-python.versions     36 37 38 39
+python.versions     37 38 39 310 311 312
+python.pep517       yes
+python.pep517_backend   hatch
 
 if {${name} ne ${subport}} {
-
     depends_build-append \
-        port:py${python.version}-setuptools \
-        port:py${python.version}-setuptools_scm \
-        port:py${python.version}-toml
+        port:py${python.version}-hatch-vcs
 
     depends_test-append \
         port:py${python.version}-pytest
-
-    livecheck.type none 
-
 }

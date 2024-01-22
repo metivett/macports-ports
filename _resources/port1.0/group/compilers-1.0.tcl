@@ -50,6 +50,7 @@
 #   ensure Fortran code accepts "calls to external procedures with mismatches between the calls and the procedure definition"
 #   the use of this option is "strongly discouraged" as the code should be made to be "standard-conforming"
 #   see https://gcc.gnu.org/onlinedocs/gfortran/Fortran-Dialect-Options.html
+# compilers.add_gcc_rpath_support: enforce adding -rpath,${prefix}/lib/libgcc
 #
 # The compilers.gcc_default variable may be useful for setting a default compiler variant
 # even in ports that do not use this PortGroup's automatic creation of variants.
@@ -76,26 +77,40 @@ default compilers.clear_archflags no
 options compilers.allow_arguments_mismatch
 default compilers.allow_arguments_mismatch no
 
-# also set a default gcc version
-# should be the same as gcc_compilers.tcl
-if {${os.major} < 10} {
+options compilers.add_gcc_rpath_support
+default compilers.add_gcc_rpath_support yes
+
+# Set a default gcc version
+if {${os.major} < 10 && ${os.platform} eq "darwin" } {
     # see https://trac.macports.org/ticket/57135
     set compilers.gcc_default gcc7
-} elseif {${os.major} < 11} {
-    set compilers.gcc_default gcc8
 } else {
-    # Currently only gcc-devel works on arm machines
-    if { ${os.major} >= 20 && ${os.arch} eq "arm" } {
-        set compilers.gcc_default gccdevel
-    } else {
-        set compilers.gcc_default gcc10
-    }
+    set compilers.gcc_default gcc13
 }
 
 set compilers.list {cc cxx cpp objc fc f77 f90}
 
 # build database of gcc compiler attributes
-set gcc_versions {4.4 4.5 4.6 4.7 4.8 4.9 5 6 7 8 9 10 devel}
+# Should match those in compilers/gcc_compilers.tcl
+if { ${os.arch} eq "arm" || ${os.platform} ne "darwin" } {
+    set gcc_versions {10 11 12 13 devel}
+} else {
+    set gcc_versions [list]
+    if { ${os.major} < 15 } {
+        lappend gcc_versions 5 6 7 8 9
+    }
+    if { ${os.major} >= 10 } {
+        lappend gcc_versions 10 11 12 13 devel
+    }
+}
+# GCC version providing the primary runtime
+# Note settings here *must* match those in the lang/libgcc port.
+if { ${os.major} < 10 && ${os.platform} eq "darwin" } {
+    set gcc_main_version 7
+} else {
+    set gcc_main_version 13
+}
+ui_debug "GCC versions for Darwin ${os.major} ${os.arch} - ${gcc_versions}"
 foreach ver ${gcc_versions} {
     # Remove dot from version if present
     set ver_nodot [string map {. {}} ${ver}]
@@ -109,12 +124,16 @@ foreach ver ${gcc_versions} {
         set cdb(gcc$ver_nodot,dependsa) gcc-devel
     } else {
         set cdb(gcc$ver_nodot,depends)  port:gcc$ver_nodot
-        if {[vercmp ${ver} 4.6] < 0} {
+        if {[vercmp ${ver} < 4.6]} {
             set cdb(gcc$ver_nodot,dependsl) "path:share/doc/libgcc/README:libgcc port:libgcc45"
-        } elseif {[vercmp ${ver} 7] < 0} {
+        } elseif {[vercmp ${ver} < 7]} {
             set cdb(gcc$ver_nodot,dependsl) "path:share/doc/libgcc/README:libgcc port:libgcc6"
-        } else {
+        } elseif {[vercmp ${ver} < ${gcc_main_version}]}  {
             set cdb(gcc$ver_nodot,dependsl) "path:share/doc/libgcc/README:libgcc port:libgcc${ver_nodot}"
+        } else {
+            # Do not depend directly on primary runtime port, as implied by libgcc
+            # and doing so prevents libgcc-devel being used as an alternative.
+            set cdb(gcc$ver_nodot,dependsl) "path:share/doc/libgcc/README:libgcc"
         }
         set cdb(gcc$ver_nodot,dependsa) gcc$ver_nodot
     }
@@ -129,10 +148,53 @@ foreach ver ${gcc_versions} {
     set cdb(gcc$ver_nodot,fc)       ${prefix}/bin/gfortran-mp-$ver
     set cdb(gcc$ver_nodot,f77)      ${prefix}/bin/gfortran-mp-$ver
     set cdb(gcc$ver_nodot,f90)      ${prefix}/bin/gfortran-mp-$ver
-    set cdb(gcc$ver_nodot,cxx_stdlib) libstdc++
+    # The devel port, and starting with version 10, GCC will support using -stdlib=libc++,
+    # so use it for improved compatibility with clang builds
+    if { ${build_arch} ni [list ppc ppc64] } {
+        if { $ver eq "devel" || [vercmp ${ver} >= 10]} {
+            set cdb(gcc$ver_nodot,cxx_stdlib) libc++
+        } else {
+            set cdb(gcc$ver_nodot,cxx_stdlib) libstdc++
+        }
+    } else {
+        set cdb(gcc$ver_nodot,cxx_stdlib) libstdc++
+    }
 }
 
-set clang_versions {3.3 3.4 3.7 5.0 6.0 7.0 8.0 9.0 10 11}
+# build database of clang compiler attributes
+# Should match those in compilers/clang_compilers.tcl
+# Also do not forget to add support of new llvm into cctools
+set clang_versions [list]
+if { ${os.arch} ne "arm" && ${os.platform} eq "darwin" } {
+    if {${os.major} < 16} {
+        if {${os.major} < 9} {
+            lappend clang_versions 3.3
+        }
+        lappend clang_versions 3.4
+        if {${os.major} >= 9} {
+            lappend clang_versions 3.7
+        }
+    }
+    if { ${os.major} >= 9 && ${os.major} < 20 } {
+        lappend clang_versions 5.0 6.0 7.0
+    }
+    if { ${os.major} >= 9 } {
+        if { ${os.major} < 20 } {
+            lappend clang_versions 8.0
+        }
+        lappend clang_versions 9.0 10
+    }
+}
+if { ${os.major} >= 9 || ${os.platform} ne "darwin" } {
+    lappend clang_versions 11
+    if { ${os.major} >= 11 || ${os.platform} ne "darwin"} {
+        lappend clang_versions 12 13 14 15 16 17
+    }
+    if { ${os.major} >= 14 } {
+        lappend clang_versions devel
+    }
+}
+ui_debug "Clang versions for Darwin ${os.major} ${os.arch} - ${clang_versions}"
 foreach ver ${clang_versions} {
     # Remove dot from version if present
     set ver_nodot [string map {. {}} ${ver}]
@@ -216,8 +278,9 @@ proc compilers.setup_variants {variants} {
     global compilers.my_fortran_variants compilers.list
     global compilers.variants_conflict
     global compilers.clear_archflags
+    global build_arch
 
-    set compilers.my_fortran_variants {}
+    set compilers.my_fortran_variants [list]
     foreach variant $variants {
         if {$cdb($variant,f77) ne ""} {
             lappend compilers.my_fortran_variants $variant
@@ -281,9 +344,31 @@ proc compilers.setup_variants {variants} {
             # see https://trac.macports.org/ticket/59199 for setting configure.cxx_stdlib
             # see https://trac.macports.org/ticket/59329 for compilers.is_fortran_only
             if {![compilers.is_fortran_only] && $cdb($variant,cxx_stdlib) ne ""} {
+                set mystdlib $cdb($variant,cxx_stdlib)
                 append body "
-                    configure.cxx_stdlib $cdb($variant,cxx_stdlib)
+                    configure.cxx_stdlib ${mystdlib}
                 "
+                set set_stdlib no
+                if { ${build_arch} ni [list ppc ppc64] } {
+                    # If variant is gcc10+ pass -stdlib option to correctly handle libc++ versus libstdc++
+                    if {[string match gcc* $variant]} {
+                        if { [regexp {gcc(.*)} ${variant} -> gcc_v] } {
+                            if { ${gcc_v} >= 10 || ${gcc_v} == "devel" } {
+                                set set_stdlib yes
+                            }
+                        }
+                    }
+                    # Always set with clang
+                    if {[string match clang* $variant]} {
+                        set set_stdlib yes
+                    }
+                }
+                if { ${set_stdlib} eq "yes" } {
+                    append body "
+                        configure.cxxflags-append -stdlib=${mystdlib}
+                        configure.ldflags-append  -stdlib=${mystdlib}
+                    "
+                }
             }
 
             variant ${variant} description \
@@ -473,7 +558,7 @@ proc compilers.choose {args} {
     }
 
     # zero out the variable before and append args
-    set compilers.list {}
+    set compilers.list [list]
     foreach v $args {
         lappend compilers.list $v
     }
@@ -578,10 +663,11 @@ proc compilers.action_enforce_some_f {ports} {
 proc compilers.setup {args} {
     global cdb compilers.variants compilers.clang_variants compilers.gcc_variants \
         compilers.my_fortran_variants compilers.require_fortran compilers.default_fortran \
-        compilers.setup_done compilers.list compilers.gcc_default compiler.blacklist
+        compilers.setup_done compilers.list compilers.gcc_default compiler.blacklist \
+        os.major os.arch
 
     if {!${compilers.setup_done}} {
-        set add_list {}
+        set add_list [list]
         set remove_list ${compilers.variants}
 
         # if we are only setting fortran compilers, then we are in "only
@@ -631,9 +717,15 @@ proc compilers.setup {args} {
                 }
                 default {
                     if {[info exists cdb($v,variant)] == 0} {
-                        return -code error "no such compiler: $v"
+                        # If removing an already not available compiler just warn, otherwise hard error
+                        if { ${mode} eq "add" } {
+                            return -code error "Compiler ${v} not available for Darwin${os.major} ${os.arch}"
+                        } else {
+                            ui_debug "Compiler ${v} not available for Darwin${os.major} ${os.arch}"
+                        }
+                    } else {
+                        set ${mode}_list [${mode}_from_list [set ${mode}_list] $cdb($v,variant)]
                     }
-                    set ${mode}_list [${mode}_from_list [set ${mode}_list] $cdb($v,variant)]
                 }
             }
         }
@@ -654,7 +746,7 @@ proc compilers.setup {args} {
         }
 
         # remove duplicates
-        set duplicates {}
+        set duplicates [list]
         foreach foo $remove_list {
             if {$foo in $add_list} {
                 lappend duplicates $foo
@@ -714,21 +806,33 @@ pre-configure {
     compilers.action_enforce_c ${compilers.required_c}
     compilers.action_enforce_f ${compilers.required_f}
     compilers.action_enforce_some_f ${compilers.required_some_f}
+    if {${compilers.add_gcc_rpath_support}} {
+        compilers::add_gcc_rpath_support
+    }
 }
 
 namespace eval compilers {
 }
 
+proc compilers::get_current_gcc_version {} {
+    global compilers.gcc_default
+    if {[fortran_variant_name] eq "gfortran"} {
+        set fortran_compiler    ${compilers.gcc_default}
+    } else {
+        set fortran_compiler    [fortran_variant_name]
+    }
+    if { [regexp {gcc(.*)} ${fortran_compiler} -> gcc_v] } {
+        return ${gcc_v}
+    }
+    ui_debug "compilers PG: GCC version reports being UNKNOWN to MacPorts"
+    return UNKNOWN
+}
+
 proc compilers::add_fortran_legacy_support {} {
-    global compilers.allow_arguments_mismatch \
-           compilers.gcc_default
+    global compilers.allow_arguments_mismatch
     if {${compilers.allow_arguments_mismatch}} {
-        if {[fortran_variant_name] eq "gfortran"} {
-            set fortran_compiler    ${compilers.gcc_default}
-        } else {
-            set fortran_compiler    [fortran_variant_name]
-        }
-        if {${fortran_compiler} in "gcc10 gccdevel"} {
+        set gcc_v [compilers::get_current_gcc_version]
+        if { ${gcc_v} >= 10 || ${gcc_v} == "devel" } {
             configure.fflags-delete     -fallow-argument-mismatch
             configure.fcflags-delete    -fallow-argument-mismatch
             configure.f90flags-delete   -fallow-argument-mismatch
@@ -740,6 +844,18 @@ proc compilers::add_fortran_legacy_support {} {
 }
 
 port::register_callback compilers::add_fortran_legacy_support
+
+proc compilers::add_gcc_rpath_support {} {
+    global prefix os.platform os.major
+    set gcc_v [compilers::get_current_gcc_version]
+    if { ${gcc_v} >= 10 || ${gcc_v} == "devel" } {
+        if {${os.platform} eq "darwin" && ${os.major} > 8} {
+            ui_debug "compilers PG: RPATH added to ldflags as GCC version is ${gcc_v}"
+            configure.ldflags-delete  -Wl,-rpath,${prefix}/lib/libgcc
+            configure.ldflags-append  -Wl,-rpath,${prefix}/lib/libgcc
+        }
+    }
+}
 
 proc compilers::fortran_legacy_support_proc {option action args} {
     if {$action ne  "set"} return

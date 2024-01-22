@@ -1,0 +1,32 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           python 1.0
+
+name                py-exceptiongroup
+version             1.2.0
+epoch               1
+revision            0
+
+categories-append   devel
+supported_archs     noarch
+platforms           {darwin any}
+license             MIT
+maintainers         {@catap korins.ky:kirill} openmaintainer
+
+description         Backport of PEP 654 (exception groups)
+long_description    {*}${description}
+
+homepage            https://pypi.org/project/exceptiongroup
+
+checksums           rmd160  7915388db7d7f68b0bf867a46a463f86e5023777 \
+                    sha256  91f5c769735f051a4290d52edd0858999b57e5876e9f85937691bd4c9fa3ed68 \
+                    size    26264
+
+python.pep517       yes
+python.versions     37 38 39 310 311 312
+
+if {${name} ne ${subport}} {
+    depends_build-append \
+                    port:py${python.version}-flit_scm
+}

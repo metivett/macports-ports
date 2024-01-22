@@ -4,39 +4,48 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-pywavelets
-python.rootname     PyWavelets
-version             1.1.1
+version             1.5.0
 revision            0
 categories-append   science math
-platforms           darwin
 license             MIT
 
-python.versions     27 35 36 37 38 39
+python.versions     38 39 310 311 312
+python.pep517_backend   meson
 
 maintainers         {stromnov @stromnov} openmaintainer
 
 description         PyWavelets is a Python wavelet transforms module
-long_description    ${description}.
+long_description    {*}${description}.
 
 homepage            https://github.com/PyWavelets/pywt
 
-checksums           rmd160  94307a23c70a7cbdb0821365b6b09b763b2eb920 \
-                    sha256  1a64b40f6acb4ffbaccce0545d7fc641744f95351f62e4c6aaa40549326008c9 \
-                    size    4578294
+checksums           md5 6af08b6f004d04d9ee3464a1ee7b7f39 \
+                    rmd160 c45feb627bf1ffec3118f77f7ca3a7232b23b1ed \
+                    sha256 d9e25c7cabef7ccd53f5fead26ab22152fe4cb937bad7411b5d506e2b5de38f6 \
+                    size   3937269
 
 if {${name} ne ${subport}} {
-    if {${python.version} < 36} {
-        version             1.0.3
-        revision            0
-        distname            PyWavelets-${version}
-        checksums           rmd160  0bff37693009f39baae82d90f4412a2c04886e56 \
-                            sha256  a12c7a6258c0015d2c75d88b87393ee015494551f049009e8b63eafed2d78efc \
-                            size    4552777
-    }
+    if {${python.version} == 38} {
+        version     1.4.1
+        revision    1
+        checksums   md5 6e487b2c3418fc0a1acf3be53bfbb0c3 \
+                    rmd160 955989b2760cf43fdec3895c4046c256c0c04996 \
+                    sha256 6437af3ddf083118c26d8f97ab43b0724b956c9f958e9ea788659f6a2834ba93
+        python.rootname         PyWavelets
+        python.pep517_backend   setuptools
+        depends_build-append \
+                        port:py${python.version}-cython-compat
+        set compat_path [string replace ${python.pkgd} 0 [string length ${python.prefix}]-1 ${prefix}/lib/py${python.version}-cython-compat]
+        build.env-append    PYTHONPATH=${compat_path}
+        patchfiles      pyproject.toml-1.4.1.diff
+    } else {
+        patchfiles      patch-pyproject.toml.diff
 
-    depends_build-append \
-                        port:py${python.version}-setuptools \
+        depends_build-append \
                         port:py${python.version}-cython
+        # Wants to run just 'cython'
+        build.env-append    PATH=${python.prefix}/bin:$::env(PATH)
+    }
 
     depends_lib-append  port:py${python.version}-numpy
 

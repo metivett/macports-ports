@@ -1,0 +1,39 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran r-lib roxygen2 7.3.0 v
+revision            0
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             MIT
+description         In-line documentation for R
+long_description    {*}${description}
+homepage            https://roxygen2.r-lib.org
+checksums           rmd160  8e4dfc1440f47b8aa93540cc6e48cfc3255962bd \
+                    sha256  f8dc21ebef71b073221f2d1cc3591f02b97dfb8ec814cd6ed09671962cad7f17 \
+                    size    293925
+
+depends_lib-append  port:R-brew \
+                    port:R-cli \
+                    port:R-commonmark \
+                    port:R-cpp11 \
+                    port:R-desc \
+                    port:R-knitr \
+                    port:R-pkgload \
+                    port:R-purrr \
+                    port:R-R6 \
+                    port:R-rlang \
+                    port:R-stringi \
+                    port:R-stringr \
+                    port:R-withr \
+                    port:R-xml2
+
+depends_test-append port:R-covr \
+                    port:R-R.methodsS3 \
+                    port:R-R.oo \
+                    port:R-rmarkdown \
+                    port:R-testthat \
+                    port:R-yaml
+
+test.run            yes

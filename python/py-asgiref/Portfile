@@ -4,8 +4,14 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-asgiref
-version             3.3.1
-platforms           darwin
+version             3.7.2
+
+checksums           rmd160  4d3c5eff9dc994b06c5c6d94d6d70541a0d98825 \
+                    sha256  9e0ce3aa93a819ba5b45120216b23878cf6e8525eb3848653452b4192b92afed \
+                    size    33393
+
+platforms           {darwin any}
+supported_archs     noarch
 license             BSD
 maintainers         nomaintainer
 
@@ -14,13 +20,4 @@ long_description    {*}${description}
 
 homepage            https://asgi.readthedocs.io/en/latest
 
-checksums           rmd160  c2b244709cc5c0b6a35b88228efcda8ad2336a50 \
-                    sha256  7162a3cb30ab0609f1a4c95938fd73e8604f63bdba516a7f7d64b83ff09478f0 \
-                    size    27197
-
-python.versions     38 39
-
-if {${name} ne ${subport}} {
-    depends_build-append \
-                    port:py${python.version}-setuptools
-}
+python.versions     37 38 39 310 311

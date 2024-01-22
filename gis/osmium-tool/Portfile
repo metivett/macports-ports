@@ -1,0 +1,44 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           cmake 1.1
+PortGroup           github 1.0
+PortGroup           boost 1.0
+
+github.setup        osmcode osmium-tool 1.15.0 v
+github.tarball_from archive
+revision            0
+
+categories          gis
+maintainers         {@frankdean fdsd.co.uk:frank.dean} openmaintainer
+
+license             GPL-3+ MIT BSD Boost-1
+
+description         A command line tool for working with OpenStreetMap
+
+long_description    A multipurpose command line tool for working with \
+                    OpenStreetMap data based on the Osmium library
+
+checksums           rmd160  f376ec33bce1d509c2ef99f1d33a7999f9cff1ec \
+                    sha256  0b3be2f07d60dfb93f65d6a9f1af1fc9cf6ef68e5a460997d841c93079c3377b \
+                    size    490366
+
+compiler.cxx_standard 2014
+
+depends_lib-append  port:bzip2 \
+                    port:expat \
+                    port:lz4 \
+                    port:zlib
+
+depends_build-append \
+                    port:libosmium \
+                    port:pandoc \
+                    port:protozero \
+                    port:rapidjson
+
+post-patch {
+    file delete -force ${worksrcpath}/include/rapidjson
+}
+
+test.run            yes
+test.cmd            ctest --output-on-failure

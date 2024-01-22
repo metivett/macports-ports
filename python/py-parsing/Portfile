@@ -4,11 +4,15 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-parsing
-version             2.4.7
+python.rootname     pyparsing
+version             3.1.1
+revision            0
+epoch               2
+
 categories-append   lang
-platforms           darwin
+platforms           {darwin any}
 supported_archs     noarch
-maintainers         {snc @nerdling} openmaintainer
+maintainers         {reneeotten @reneeotten} openmaintainer
 license             MIT
 
 description         alternative approach to creating parsers in python
@@ -20,20 +24,37 @@ long_description    The parsing module is an alternative approach to creating \
                     code uses to construct the grammar directly in Python code.
 
 homepage            https://github.com/pyparsing/pyparsing/
-master_sites        pypi:p/pyparsing
-distname            pyparsing-${version}
 
-checksums           rmd160  2dbbca645985bb7f4b4d7a36b6ba3958302adfb9 \
-                    sha256  c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1 \
-                    size    649718
+checksums           rmd160  e940832a430965c7026176ee0316345be43b3bb3 \
+                    sha256  ede28a1a32462f5a9705e07aea48001a08f7cf81a021585011deba701581a0db \
+                    size    884814
 
-python.versions     27 35 36 37 38 39
+python.versions     27 35 36 37 38 39 310 311 312
 
 if {${name} ne ${subport}} {
-    depends_build-append \
+    if {${python.version} <= 35} {
+        version     2.4.7
+        checksums   rmd160  2dbbca645985bb7f4b4d7a36b6ba3958302adfb9 \
+                    sha256  c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1 \
+                    size    649718
+        depends_build-append \
                     port:py${python.version}-setuptools
+    } else {
+        python.pep517   yes
+        python.pep517_backend   flit
+    }
+    if {${python.version} == 36} {
+        # break circular dependency with py36-build
+        python.add_dependencies no
+        depends_build-append   port:py-bootstrap-modules
+        depends_lib-append     port:python${python.version}
+        build.env-append    PYTHONPATH=${prefix}/share/py-bootstrap-modules
+        build.args      --skip-dependency-check
+        destroot.env-append PYTHONPATH=${prefix}/share/py-bootstrap-modules
+    }
+
+    test.run        yes
+    python.test_framework unittest
 
     livecheck.type  none
-} else {
-    livecheck.name  pyparsing
 }

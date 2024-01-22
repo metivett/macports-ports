@@ -4,7 +4,8 @@ PortSystem          1.0
 
 name                miniupnpc
 epoch               2
-version             2.1
+version             2.2.5
+revision            0
 categories          net
 platforms           darwin freebsd
 license             BSD
@@ -13,28 +14,23 @@ description         Lightweight client for UPnP protocol
 long_description    ${description}
 
 homepage            http://miniupnp.free.fr/
-master_sites        http://miniupnp.free.fr/files/download.php?file=${distname}${extract.suffix}&dummy=
+master_sites        http://miniupnp.free.fr/files/
 
-checksums           rmd160  5f5eb86988f8e5ac5c9542525ac9cfa4350ad61e \
-                    sha256  e19fb5e01ea5a707e2a8cb96f537fbd9f3a913d53d804a3265e3aeab3d2064c6 \
-                    size    91914
+checksums           rmd160  3ca0165c8985081b85d823524398430501f89523 \
+                    sha256  38acd5f4602f7cf8bcdc1ec30b2d58db2e9912e5d9f5350dd99b06bfdffb517c \
+                    size    103654
 
+variant universal   {}
 use_configure       no
-
-variant universal {}
-
-pre-build {
-    build.args      INSTALLPREFIX=${prefix} CC="${configure.cc} ${configure.cflags} [get_canonical_archflags cc]"
-}
-
+build.env           PREFIX=${prefix} \
+                    CC=${configure.cc} \
+                    "CFLAGS=${configure.cflags} [get_canonical_archflags cc]" \
+                    "LDFLAGS=${configure.cflags} [get_canonical_archflags ld]"
+destroot.env        PREFIX=${prefix}
 test.run            yes
 
-pre-destroot {
-    destroot.args   INSTALLPREFIX=${prefix} CC="${configure.cc} ${configure.cflags} [get_canonical_archflags cc]"
-}
-
 variant debug description {Build MiniUPnP client with DEBUG options, thus dumping SOAP calls} {
-    configure.cflags-append -DDEBUG
+    build.env-append CPPFLAGS=-DDEBUG
 }
 
 livecheck.type      regex

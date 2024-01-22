@@ -2,11 +2,12 @@
 
 PortSystem          1.0
 PortGroup           github 1.0
+PortGroup           compiler_blacklist_versions 1.0
 
-github.setup        mirror mingw-w64 8.0.0 v
+github.setup        mingw-w64 mingw-w64 11.0.1 v
+revision            0
 set mingw_name      w64-mingw32
 
-platforms           darwin
 license             ZPL-2.1
 categories          cross devel
 maintainers         {mojca @mojca} openmaintainer
@@ -15,31 +16,35 @@ description         GCC cross-compiler for Windows 64 & 32 bits
 long_description    Mingw-w64 is an advancement of the original mingw.org project, \
                     created to support the GCC compiler on Windows systems.
 
-homepage            http://mingw-w64.sourceforge.net/
+homepage            https://mingw-w64.sourceforge.net/
 
-checksums           rmd160  57d14e00f273b49aa01d811b0662c24d605d94cf \
-                    sha256  c0cbeb28f9d66956563971c76c7b80a15dcdfd922e2745cdb3f0cb71a9a969ea \
-                    size    12797664
+checksums           rmd160  124722990dd68875683a9ce8d20eaa75d2ef544b \
+                    sha256  493cb0bde1e470a281c7a633fcc1158de3b8919f687020c60a936e7b2512398d \
+                    size    13919536
 
 # needs an out-of-source build
 configure.dir       ${workpath}/build
 build.dir           ${configure.dir}
 post-extract {      file mkdir "${build.dir}" }
 
-# create six subports:
+# create eight subports:
 # - i686-w64-mingw32-headers
 # - i686-w64-mingw32-crt
 # - i686-w64-mingw32-winpthreads
+# - i686-w64-mingw32-widl
 # - x86_64-w64-mingw32-headers
 # - x86_64-w64-mingw32-crt
 # - x86_64-w64-mingw32-winpthreads
+# - x86_64-w64-mingw32-widl
 foreach arch {i686 x86_64} {
-    foreach component {crt headers winpthreads} {
+    foreach component {crt headers winpthreads widl} {
         subport ${arch}-${mingw_name}-${component} {
             set mingw_arch      ${arch}
             set mingw_comp      ${component}
             if {${component} eq "winpthreads"} {
                 set mingw_dir   mingw-w64-libraries/${component}
+            } elseif {${component} eq "widl"} {
+                set mingw_dir   mingw-w64-tools/${component}
             } else {
                 set mingw_dir   mingw-w64-${component}
             }
@@ -51,12 +56,22 @@ if {${subport} ne ${name}} {
     set mingw_target            ${mingw_arch}-${mingw_name}
 
     configure.cmd               ${worksrcpath}/${mingw_dir}/configure
-    configure.pre_args-replace  --prefix=${prefix} --prefix=${prefix}/${mingw_target}
+
+    if {${mingw_comp} ne "widl"} {
+        configure.pre_args-replace  --prefix=${prefix} --prefix=${prefix}/${mingw_target}
+    }
     configure.args-append       --host=${mingw_target}
 
-    # *-headers subports
-    if {${mingw_comp} eq "headers"} {
+    # *-widl subports
+    if {${mingw_comp} eq "widl"} {
+        # Need a compiler that supports __builtin_ms_va_list
+        compiler.blacklist-append   {*gcc-[3-4].*} {clang < 800} {macports-clang-3.*}
+
+        configure.args-append       --program-prefix="${mingw_target}-"
+    # *-headers subports'
+    } elseif {${mingw_comp} eq "headers"} {
         supported_archs         noarch
+        platforms               any
         configure.args-append   --enable-secure-api
 
         # winpthreads install three files which conflict with placeholders provided by "headers"
@@ -82,6 +97,9 @@ if {${subport} ne ${name}} {
         # but in fact it's GCC that needs CRT at runtime, not the other way around.
         if {${mingw_comp} eq "crt"} {
             depends_build-append    bin:${mingw_target}-gcc:${mingw_target}-gcc-bootstrap
+
+            # Resolves "Too many open files in system"
+            use_parallel_build  no
         # *-winpthreads
         } else {
             # winpthreads needs at least stage 2 compiler (or the final one)
@@ -133,16 +151,14 @@ if {${subport} ne ${name}} {
     destroot.violate_mtree  yes
     livecheck.type          none
 } else {
-    description             "GCC cross-compiler for Windows 64 & 32 bits (meta port)"
+    PortGroup               stub 1.0
+
+    supported_archs         noarch
+    platforms               any
+    description             "GCC cross-compiler toolchain for Windows 64 & 32 bits (meta port)"
 
     depends_run             port:i686-${mingw_name}-gcc \
-                            port:x86_64-${mingw_name}-gcc
-    distfiles
-    use_configure           no
-    build                   {}
-    destroot {
-        xinstall -d -m 755 "${destroot}${prefix}/share/doc/${name}"
-        system "echo $name is a stub port > ${destroot}${prefix}/share/doc/${name}/README"
-    }
-    supported_archs         noarch
+                            port:i686-${mingw_name}-widl \
+                            port:x86_64-${mingw_name}-gcc \
+                            port:x86_64-${mingw_name}-widl
 }

@@ -1,0 +1,48 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran snlab-ch manynet 0.3.0
+revision            0
+categories-append   math
+maintainers         nomaintainer
+license             MIT
+description         Many ways to make, manipulate and map myriad networks
+long_description    {*}${description}
+homepage            https://snlab-ch.github.io/manynet
+checksums           rmd160  dc6a03f47b9bf561c1db4663675daf63dc0f6da1 \
+                    sha256  683115433383be6da6c5a885da4a342cf8e99b512e2309f967abf067555de8d6 \
+                    size    1233473
+supported_archs     noarch
+
+depends_lib-append  port:R-dplyr \
+                    port:R-ggplot2 \
+                    port:R-ggraph \
+                    port:R-igraph \
+                    port:R-network \
+                    port:R-tidygraph
+
+# R-concaveman needs V8: https://github.com/joelgombin/concaveman/issues/18
+patchfiles          patch-remove-unavailable-suggests.diff
+
+depends_test-append port:R-BiocManager \
+                    port:R-gganimate \
+                    port:R-ggforce \
+                    port:R-graphlayouts \
+                    port:R-knitr \
+                    port:R-migraph \
+                    port:R-minMSE \
+                    port:R-multiplex \
+                    port:R-patchwork \
+                    port:R-png \
+                    port:R-readxl \
+                    port:R-Rgraphviz \
+                    port:R-rmarkdown \
+                    port:R-roxygen2 \
+                    port:R-RSiena \
+                    port:R-testthat \
+                    port:R-xml2
+
+# One test fails: https://github.com/snlab-ch/manynet/issues/20
+test.run            yes

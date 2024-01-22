@@ -2,12 +2,12 @@
 
 PortSystem          1.0
 PortGroup           cmake 1.1
+PortGroup           openssl 1.0
 
 name                zeek
-version             3.2.4
+version             6.0.2
 revision            0
 categories          net security
-platforms           darwin
 maintainers         {mps @Schamschula} openmaintainer
 license             BSD
 
@@ -19,70 +19,99 @@ long_description    {*}${description} Zeek is the new name for the long-establis
                     also often appears in the documentation and distributions.
 
 homepage            https://www.zeek.org/
-master_sites        https://old.zeek.org/downloads/
+master_sites        https://download.zeek.org/
 
+checksums           rmd160  173f7866eebe781182cb6bb040ad5a23e9c7823d \
+                    sha256  2421989adcee6a29f48a8f7272f719edbe954d66c2e86e3a52e79cae177f887c \
+                    size    60175209
 
-checksums           rmd160  57cbe2beb92c8fa3459b102368da3e6d9ab12854 \
-                    sha256  d5a984d383c0cc337e18d3d65b969e8566ab8a6fc38e9c6d39ba4a101027be85 \
-                    size    28530627
+openssl.branch      3
+
+subport ${name} {
+    conflicts   ${name}-devel
+}
+
+subport ${name}-devel {
+    conflicts   ${name}
+
+    version         6.1.0
+    revision        0
+
+    checksums       rmd160  71d8174f619eefdb745e8fc93f6cdbaaac604d37 \
+                    sha256  fb756f4b97809755b5dec38927c49477ff06aa647dfcd2b88025b1be1b6a358e \
+                    size    61619680
+}
 
 depends_build-append \
-                    port:libgeoip \
-                    port:pkgconfig \
+                    port:flex \
                     port:swig \
                     port:swig-python
 
-
-# use the system-provided flex
 depends_lib-append  port:bison \
                     port:curl \
                     port:libmagic \
+                    port:libmaxminddb \
                     port:libpcap \
-                    path:lib/libssl.dylib:openssl \
                     port:perl5 \
                     port:readline \
                     port:zlib
 
-variant universal {}
+configure.args-append \
+                    -DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=OFF \
+                    -DZEEK_ETC_INSTALL_DIR=${prefix}/etc/zeek \
+                    -DZEEK_LOG_DIR=${prefix}/var/log/zeek \
+                    -DZEEK_SPOOL_DIR=${prefix}/var/spool
 
-compiler.cxx_standard 2017
+variant universal   {}
 
+compiler.cxx_standard   2017
 
-platform darwin {
-    # see https://trac.macports.org/ticket/60252
-    if {${os.major} < 18} {
-        pre-fetch {
-            ui_error "${name} @${version} requires at least macOS 10.14 Mojave"
-            return -code error "incompatible macOS version"
-        }
-        known_fail  yes
-    }
-}
+# see https://trac.macports.org/ticket/60252
+platforms {darwin >= 19}
 
-configure.args      -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
+configure.args-append \
+                    -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
 
-variant python37 conflicts python38 description {Build using Python 3.7} {
-    configure.args-append \
-                    -DPYTHON_EXECUTABLE=${prefix}/bin/python3.7 \
-                    -DPYTHON_CONFIG=${prefix}/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/config-3.7m-darwin/python-config
-    depends_lib-append  \
-                    port:python37
-}
-
-variant python38 conflicts python37 description {Build using Python 3.8} {
+variant python38 conflicts python311 python39 python310 description {Build using Python 3.8} {
     configure.args-append \
                     -DPYTHON_EXECUTABLE=${prefix}/bin/python3.8 \
-                    -DPYTHON_CONFIG=${prefix}/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/config-3.8-darwin/python-config
+                    -DPYTHON_CONFIG=${frameworks_dir}/Python.framework/Versions/3.8/lib/python3.8/config-3.8-darwin/python-config.py
     depends_lib-append  \
                     port:python38
 }
 
-if {![variant_isset python37] && ![variant_isset python38]} {
+variant python39 conflicts python311 python38 python310 description {Build using Python 3.9} {
+    configure.args-append \
+                    -DPYTHON_EXECUTABLE=${prefix}/bin/python3.9 \
+                    -DPYTHON_CONFIG=${frameworks_dir}/Python.framework/Versions/3.9/lib/python3.9/config-3.9-darwin/python-config.py
+    depends_lib-append  \
+                    port:python39
+}
+
+variant python310 conflicts python311 python38 python39 description {Build using Python 3.10} {
+    configure.args-append \
+                    -DPYTHON_EXECUTABLE=${prefix}/bin/python3.10 \
+                    -DPYTHON_CONFIG=${frameworks_dir}/Python.framework/Versions/3.10/lib/python3.10/config-3.10-darwin/python-config.py
+    depends_lib-append  \
+                    port:python310
+}
+
+variant python311 conflicts python38 python39 python310 description {Build using Python 3.11} {
+    configure.args-append \
+                    -DPYTHON_EXECUTABLE=${prefix}/bin/python3.11 \
+                    -DPYTHON_CONFIG=${frameworks_dir}/Python.framework/Versions/3.11/lib/python3.11/config-3.11m-darwin/python-config.py
+    depends_lib-append  \
+                    port:python311
+}
+
+if {![variant_isset python38] && ![variant_isset python39] && ![variant_isset python310] } {
     default_variants \
-                    +python38
+                    +python311
 }
 
 post-destroot {
+    delete {*}[glob ${destroot}${prefix}/etc/zeek/*.cfg]
+
     xinstall -d ${destroot}${prefix}/share/examples/${name}
     copy ${worksrcpath}/auxil/zeekctl/etc/node.cfg ${destroot}${prefix}/share/examples/${name}/
     copy ${worksrcpath}/auxil/zeekctl/etc/networks.cfg ${destroot}${prefix}/share/examples/${name}/
@@ -100,12 +129,11 @@ post-destroot {
         ${destroot}${prefix}/var/spool/${name}
 }
 
-pre-activate {
-    # we have switched to the bundled caf library
-    if {![catch {set installed [lindex [registry_active caf] 0]}]} {
-        registry_deactivate_composite caf "" [list ports_nodepcheck 1]
-    }
-}
+startupitem.create      yes
+startupitem.netchange   yes
+startupitem.start       "${prefix}/bin/zeekctl start"
+startupitem.stop        "${prefix}/bin/zeekctl stop"
+startupitem.restart     "${prefix}/bin/zeekctl restart"
 
 post-activate {
     if {![file exists ${prefix}/etc/zeek/node.cfg]} {
@@ -118,12 +146,6 @@ post-activate {
         copy ${prefix}/share/examples/${name}/zeekctl.cfg.in ${prefix}/etc/zeek/zeekctl.cfg
     }
 }
-
-startupitem.create      yes
-startupitem.netchange   yes
-startupitem.start       "${prefix}/bin/zeekctl start"
-startupitem.stop        "${prefix}/bin/zeekctl stop"
-startupitem.restart     "${prefix}/bin/zeekctl restart"
 
 # This doesn't work due to error: error: AF_UNIX path too long
 # To manual test:
@@ -166,5 +188,9 @@ ${prefix}/logs -> ${prefix}/var/log/zeek
 "
 
 livecheck.type      regex
-livecheck.url       ${master_sites}
-livecheck.regex     ${name}-(\[0-9a-z.\]+)${extract.suffix}
+livecheck.url       https://zeek.org/get-zeek/
+if {${subport} eq ${name}} {
+    livecheck.regex     org/${name}-(6\.0\.\[0-9a-z.\]+)${extract.suffix}
+} else {
+    livecheck.regex     org/${name}-(\[0-9a-z.\]+)${extract.suffix}
+}

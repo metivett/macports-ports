@@ -2,15 +2,15 @@
 
 PortSystem          1.0
 PortGroup           python 1.0
-PortGroup           active_variants 1.1
 PortGroup           github 1.0
+PortGroup           boost 1.0
 
-github.setup        schrodinger pymol-open-source 2.4.0 v
+github.setup        schrodinger pymol-open-source 2.5.0 v
+revision            6
 name                pymol
-revision            1
+conflicts           pymol-devel
 
 categories          science chemistry
-platforms           darwin
 universal_variant   no
 license             PSF
 maintainers         {gmail.com:howarth.at.macports @jwhowarth} openmaintainer
@@ -22,39 +22,56 @@ long_description    PyMOL is a molecular graphics system with an embedded Python
 
 homepage            https://www.pymol.org/
 
-checksums           rmd160  e7a962473732172b370e6c7a880384e7a1ffa62e \
-                    sha256  b0af15082c44c92c285cab341506da50407619f5dee09d98fdf2802e356219fd \
-                    size    10552074
+checksums           rmd160  6432d47616aee1e5d9d40cc2a74425b33159d7a0 \
+                    sha256  67c5aa944ce9ac2e3babd42e7e2b78ed11719283a2c0a063e100cfe24665c0d3 \
+                    size    10471287
+
+subport pymol-devel {
+    github.setup    schrodinger pymol-open-source c3e298356a13f93fce939f86
+    version         20231221-[string range ${github.version} 0 7]
+    conflicts       pymol
+    revision        0
+    maintainers     {reneeotten @reneeotten} openmaintainer
+    checksums       rmd160  d655dc14ce12a7f8505f1907d36bf3f9f452678a \
+                    sha256  b7cbb27f01a9410867a07fac06f814cd8a5d07665be82c11a5b0239451462e98 \
+                    size    10494853
+}
+
+variant python38 conflicts python39 python310 python311 python312 description {Use Python 3.8} {}
+variant python39 conflicts python38 python310 python311 python312 description {Use Python 3.9} {}
+variant python310 conflicts python38 python39 python311 python312 description {Use Python 3.10} {}
+variant python311 conflicts python38 python39 python310 python312 description {Use Python 3.11} {}
+variant python312 conflicts python38 python39 python310 python311 description {Use Python 3.12} {}
+
+if {![variant_isset python38] && ![variant_isset python39] && ![variant_isset python310] && ![variant_isset python311]} {
+    default_variants +python312
+}
+
+foreach pv {312 311 310 39 38} {
+    if {[variant_isset python${pv}]} {
+        python.default_version ${pv}
+        break
+    }
+}
+
+python.link_binaries no
+python.pep517   no
+
+boost.depends_type build
 
 compiler.cxx_standard 2011
 
-variant python27 conflicts python35 python36 python37 python38 description {Use Python 2.7} {}
-variant python35 conflicts python27 python36 python37 python38 description {Use Python 3.5} {}
-variant python36 conflicts python27 python35 python37 python38 description {Use Python 3.6} {}
-variant python37 conflicts python27 python35 python36 python38 description {Use Python 3.7} {}
-variant python38 conflicts python27 python35 python36 python37 description {Use Python 3.8} {}
-
-if {[variant_isset python27]} {
-    python.default_version 27
-} elseif {[variant_isset python35]} {
-    python.default_version 35
-} elseif {[variant_isset python36]} {
-    python.default_version 36
-} elseif {[variant_isset python37]} {
-    python.default_version 37
-} elseif {[variant_isset python38]} {
-    python.default_version 38
-} else {
-    if {[variant_isset x11]} {
-        # The APBS Tools plugin requires pdb2pqr, which can't be run under python3 yet
-        default_variants +python27
-        python.default_version 27
-    } else {
-        default_variants +python38
-        python.default_version 38
-    }
+variant vtkm description {Use VTK-m for isosurface generation} {
+    depends_lib-append  port:vtk-m
+    build.args-append   --use-vtkm 1.7
 }
-python.link_binaries no
+
+variant openmp description {Enable OpenMP support} {
+    build.args-append   --use-openmp yes
+
+    compiler.openmp_version 4.0
+    patchfiles-append   patch-openmp.diff
+}
 
 depends_lib-append  port:freetype \
                     port:glew \
@@ -62,54 +79,35 @@ depends_lib-append  port:freetype \
                     port:libpng \
                     port:libGLU \
                     port:libxml2 \
-                    port:msgpack \
+                    port:msgpack-cpp \
                     port:mmtf-cpp \
                     port:netcdf \
-                    port:py${python.version}-numpy \
-                    port:py${python.version}-pyqt5
+                    port:py${python.version}-numpy
 
-variant x11 {
-    depends_lib-delete  port:py${python.version}-pyqt5
-
-    depends_lib-append  port:freeglut \
-                        port:mesa \
-                        port:py${python.version}-pmw \
-                        port:py${python.version}-tkinter \
-                        port:tcl \
-                        port:tk
-
-    require_active_variants tcl "" corefoundation
-    require_active_variants tk "" quartz
-
-    build.args-append   --glut --no-osx-frameworks
-}
+depends_run-append  port:py${python.version}-pyqt5
 
 patchfiles          pymol_shell.diff \
-                    pmg_tk_platform.patch \
-                    apbs-psize.patch  \
-                    python_string_split.patch \
-                    pdb2pqr.patch \
-                    setup.py.diff
+                    setup.py.diff \
+                    patch-boost-include.diff
+
+# two fixes for PyMOL v2.5.0 (can be removed upon next update):
+# 1. fix for build on 10.13 and below;
+# see: https://github.com/schrodinger/pymol-open-source/issues/193
+# 2. fix for build with VTK-M 1.6
+if {${subport} != "pymol-devel"} {
+    patchfiles-append   patch-layer1_Wizard.cpp.diff \
+                        patch-vtkm.diff
+}
 
 post-patch {
-    reinplace  "s|@PREFIX@|${prefix}|g" ${worksrcpath}/setup.py ${worksrcpath}/modules/pmg_tk/startup/apbs_tools.py
+    reinplace  "s|@PREFIX@|${prefix}|g" ${worksrcpath}/setup.py
+    reinplace  "s|@@BOOST_INC_DIR@@|[boost::include_dir]|g" ${worksrcpath}/setup.py
     reinplace  "s|@@PYTHON_PKGDIR@@|${python.pkgd}|g" ${worksrcpath}/setup/pymol_macports
     reinplace  "s|@@PYTHON_BINARY@@|${python.bin}|g" ${worksrcpath}/setup/pymol_macports
     reinplace  "s|cxx + ' ' + cxxflags|'${configure.cxx} ' + cxxflags|g" ${worksrcpath}/monkeypatch_distutils.py
 }
 
-
 post-destroot {
      file copy ${worksrcpath}/setup/pymol_macports ${destroot}${prefix}/bin/pymol
      file attributes ${destroot}${prefix}/bin/pymol -permissions a+x
-     if {![variant_isset x11]} {
-          file delete ${destroot}${python.pkgd}/pmg_tk/startup/apbs_tools.py
-     } else {
-          reinplace {s|options\.gui = 'pmg_qt'|options.gui = 'pmg_tk'|g} ${destroot}${python.pkgd}/pymol/invocation.py
-     }
 }
-
-test.run            yes
-test.dir            ${worksrcpath}/test
-test.cmd            ${python.bin}
-test.target         run

@@ -1,31 +1,44 @@
-PortSystem          1.0
-PortGroup           github 1.0
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
-github.setup        lefcha imapfilter 2.6.16 v
+PortSystem          1.0
+PortGroup           github      1.0
+PortGroup           lua         1.0
+PortGroup           makefile    1.0
+
+github.setup        lefcha imapfilter 2.8.2 v
+github.tarball_from archive
 revision            0
-categories          mail
-platforms           darwin
-maintainers         nomaintainer
-license             BSD
+
 description         IMAP message processor/filter
+
 long_description    IMAPFilter connects to remote IMAP mail servers and \
                     processes messages according to defined filters (rules). \
                     It is intended to be executed before a user accesses \
                     his/her mailboxes.
 
-checksums           rmd160  778107487879311a8c063fd02531ddd07e7143be \
-                    sha256  ab29d17c37c37b1d66461bb8320d4d218fa7579eb88898f26bc5abdbabb4d9e1 \
-                    size    59674
+categories          mail
+installs_libs       no
+license             BSD
+maintainers         nomaintainer
 
-depends_lib         port:lua path:lib/libssl.dylib:openssl port:pcre port:libiconv
+checksums           rmd160  1dbc2b245bb2c8c3734bd0bad0846ac12135cc4c \
+                    sha256  cfdf84598dcccc8a54597448f7cdc7efc450282e23a865ddf59819ec99ac944d \
+                    size    58622
 
-worksrcdir          ${workpath}/imapfilter-${version}/src
-use_configure       no
+depends_lib-append  path:lib/libssl.dylib:openssl \
+                    port:libiconv   \
+                    port:lua        \
+                    port:pcre2
 
-build.args          PREFIX="${prefix}" \
-                    CC="${configure.cc}" \
-                    MYLDFLAGS="${configure.ldflags} [get_canonical_archflags ld]" \
-                    MYCFLAGS="${configure.cflags} [get_canonical_archflags cc]" \
+build.dir           ${worksrcpath}/src
+
+build.args-append   MYLDFLAGS="\$LDFLAGS" \
+                    MYCFLAGS="\$CFLAGS" \
                     MYLIBS="-liconv" \
-                    INCDIRS="${configure.cppflags}"
-destroot.args       PREFIX="${prefix}" MANDIR="${prefix}/share/man"
+                    INCDIRS="\$CPPFLAGS" \
+                    LIBLUA=-llua${lua.version}
+
+makefile.override   PREFIX
+
+destroot.args-append \
+                    MANDIR="${prefix}/share/man"

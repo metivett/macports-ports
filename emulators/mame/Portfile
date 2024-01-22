@@ -13,14 +13,12 @@ PortSystem          1.0
 
 PortGroup           github 1.0
 PortGroup           compiler_blacklist_versions 1.0
+PortGroup           conflicts_build 1.0
 
 name                mame
 categories          emulators
-platforms           darwin
 license             GPL-2+
-
-maintainers         {@mascguy} \
-                    openmaintainer
+maintainers         {mascguy @mascguy} openmaintainer
 
 description         Multiple Arcade Machine Emulator
 long_description    \
@@ -30,6 +28,13 @@ long_description    \
     hardware and how it functions. The source code to MAME serves as this \
     documentation.
 homepage            https://www.mamedev.org
+
+# For now, disable macOS 10.13 and earlier, until build fixed
+platforms           {darwin >= 18}
+
+# Non-versioned lua port causes build failures
+conflicts_build-append \
+                    lua
 
 #------------------------------------------------------------------------------
 # Versions, Patches, and Checksums
@@ -46,35 +51,60 @@ if {[info exists mame.override.os.major]} {
         ${os.major}
 }
 
-# Mame versions > 0.226 require C++ 2017, and specifically aligned allocation
-# support. That's only supported by MacOS system libc++ from 10.13 onward.
-# However, once MacPorts provides a custom libc++ for all ports, Mame will
-# support older MacOS releases.
-#
-# NOTE: Due to our current MacPorts build infrastructure for macOS 10.13 -
-# which uses Xcode 9.4.1, rather than Xcode 10.1 - we must revert to 0.226.
-# Not exactly ideal, but far better than forcing users to build from source.
-if {${g_mame_os_major} >= 18} {
-    set g_mame_latest yes
+# Developer-only override, allowing easy testing of desired behavior:
+# - mame.override.fallback=yes - Force use of fallback release
+# - mame.override.fallback=no  - Force use of latest release
+if {[info exists mame.override.fallback]} {
+    if {[string is boolean -strict ${mame.override.fallback}]} {
+        ui_msg "mame.override.fallback specified: ${mame.override.fallback}"
+        set g_mame_fallback \
+            [string is true -strict ${mame.override.fallback}]
+    } else {
+        error "mame.override.fallback must be specified as a valid boolean value"
+    }
 } else {
-    set g_mame_latest no
+    # Mame versions > 0.226 require C++ 2017, and specifically aligned allocation
+    # support. That's only supported by MacOS system libc++ from 10.13 onward.
+    # However, once MacPorts provides a custom libc++ for all ports, Mame will
+    # support older MacOS releases.
+    #
+    # NOTE: Due to our current MacPorts build infrastructure for macOS 10.13 -
+    # which uses Xcode 9.4.1, rather than Xcode 10.1 - we must revert to 0.226.
+    # Not exactly ideal, but far better than forcing users to build from source.
+
+    if {${os.platform} eq "darwin" && ${g_mame_os_major} < 18} {
+        set g_mame_fallback yes
+    } else {
+        set g_mame_fallback no
+    }
 }
+
+set g_mame_latest \
+    [expr { !${g_mame_fallback} }]
 
 if {${g_mame_latest}} {
     set g_mame_release \
-                    "0227"
+                    "0260"
 
-    revision        2
+    revision        1
+    epoch           1
 
-    checksums       \
-                    rmd160  862df6a449329fe5b16e6d46a030fe157c3a8eb3 \
-                    sha256  95dbce00a4f05a35f66ef966fe9efad1e4e78ce62e0eba3f7031dfa6737829a5 \
-                    size    195226157
+    # Mame 0.240+: Disable PDF generation, which is problematic. (And not desired.)
+    patchfiles-append \
+                    mame-patch-0240-dist.mak-disable-pdf.diff
+
+    # Mame 0.260: Patch for post-release issues. Remove for next release
+    patchfiles-append \
+                    mame-patch-0260-post-release-fixes.diff
+
+    checksums       rmd160  2fa138546072c9285e5f305f7d56221bc303a169 \
+                    sha256  104ca8daab3ce7bb9637e19f1dc60a08ac6856db730ab544275567addb9541cd \
+                    size    205251800
 } else {
     set g_mame_release \
                     "0226"
 
-    revision        5
+    revision        8
 
     # Mame 0.226: Fix errors during translation build phase.
     # Merged into Mame releases from 0.227 onward. Tracked by issue:
@@ -88,8 +118,12 @@ if {${g_mame_latest}} {
     patchfiles-append \
                     mame-patch-0226-src-posixfile-build-error.diff
 
-    checksums       \
-                    rmd160  b9e4ae321b7673790d374c63bbe966d1502d6738 \
+    # Mame 0.226: Fix build issue due to breaking asio API change.
+    # Latest Mame releases already updated; only an issue with older versions.
+    patchfiles-append \
+                    mame-patch-0226-asio-server_ws_impl.diff
+
+    checksums       rmd160  b9e4ae321b7673790d374c63bbe966d1502d6738 \
                     sha256  7c4c9ec232ba988e65fd29665c9b8e40b5ac3aa9f561eeb107cebbf08ba94baf \
                     size    196379874
 }
@@ -109,6 +143,18 @@ github.tarball_from archive
 # Note: Version declaration must occur after 'github.setup', as the latter
 # sets our version whether we want it or not.
 version             ${g_mame_version_string}
+
+if {!${g_mame_latest}} {
+    # Disable livecheck for older version
+    livecheck.type  none
+}
+
+#------------------------------------------------------------------------------
+# Python Version
+#------------------------------------------------------------------------------
+
+set g_mame_pyver_major     3
+set g_mame_pyver_minor     11
 
 #------------------------------------------------------------------------------
 # Port-Specific Globals
@@ -130,6 +176,12 @@ set g_mame_python_info_dict \
         ver_minor "" \
         py_bin "" \
         sphinx_bin "" \
+    ]
+
+# Configure build targets.
+set g_mame_config_targets_list \
+    [list \
+        "generate" \
     ]
 
 # Documentation build targets.
@@ -183,6 +235,7 @@ set g_mame_build_args_dist_list \
 
 depends_build-append \
                     port:asio \
+                    port:gettext \
                     port:gmake \
                     port:pkgconfig
 
@@ -193,7 +246,6 @@ depends_lib-append  \
                     port:libiconv \
                     port:libsdl2 \
                     port:libutf8proc \
-                    port:lua \
                     port:portaudio \
                     port:portmidi \
                     port:pugixml \
@@ -202,7 +254,7 @@ depends_lib-append  \
 
 # Note: Port 'coreutils' needed for 'grealpath', used in launcher script.
 depends_run-append  \
-                    port:coreutils
+                    path:libexec/coreutils/libstdbuf.so:coreutils
 
 #------------------------------------------------------------------------------
 # Build Options
@@ -235,6 +287,10 @@ if {${g_mame_latest}} {
                     2014
 }
 
+# Ensure local project headers take priority over others
+configure.cflags \
+                    -isystem${prefix}/include
+
 # Note: Compiler optimization level is controlled by makefile variable 'OPTIMIZE', below.
 configure.cxxflags-delete \
                     -O1 -O2 -O3 -Os
@@ -252,33 +308,37 @@ if {${g_mame_os_major} >= 11} {
 }
 
 if {[tbool configure.ccache]} {
-    configure.cc    ccache \
-                    ${configure.cc}
-    configure.cxx   ccache \
-                    ${configure.cxx}
+    configure.cc-prepend \
+                    ${prefix}/bin/ccache
+    configure.cxx-prepend \
+                    ${prefix}/bin/ccache
+}
+
+# Metal renderer now requires Big Sur or later
+if {${g_mame_latest} && (${g_mame_os_major} < 20)} {
+    configure.cxxflags-append \
+                    -DBGFX_CONFIG_RENDERER_METAL=0
 }
 
 build.args-append   \
                     ARCHOPTS="${configure.cxxflags}" \
                     CC="${configure.cc}" \
                     CXX="${configure.cxx}" \
-                    OVERRIDE_CC="${configure.cc}" \
-                    OVERRIDE_CXX="${configure.cxx}" \
-                    CFLAGS="-isystem${prefix}/include" \
-                    LDOPTS="-L${prefix}/lib" \
+                    CFLAGS="${configure.cflags}" \
+                    LDOPTS="${configure.ldflags}" \
                     PRECOMPILE=1 \
                     TESTS=0 \
                     BENCHMARKS=0 \
                     DEBUG=0 \
                     OPTIMIZE=2 \
                     NOWERROR=1 \
+                    DEPRECATED=0 \
                     VERBOSE=1 \
                     USE_LIBSDL=1 \
                     USE_SYSTEM_LIB_ASIO=1 \
                     USE_SYSTEM_LIB_EXPAT=1 \
                     USE_SYSTEM_LIB_FLAC=1 \
                     USE_SYSTEM_LIB_JPEG=1 \
-                    USE_SYSTEM_LIB_LUA=1 \
                     USE_SYSTEM_LIB_PORTAUDIO=1 \
                     USE_SYSTEM_LIB_PORTMIDI=1 \
                     USE_SYSTEM_LIB_PUGIXML=1 \
@@ -344,12 +404,13 @@ if {[info exists mame.override.build.gmake.args]} {
 
 proc mame_arch_setup {p_arch_64} {
     global executable
+    global g_mame_latest
 
     # Architecture setup - 64-bit vs 32-bit
-    if {${p_arch_64}} {
-        set executable "mame64"
-    } else {
-        set executable "mame"
+    set executable "mame"
+    # Starting with release 0.229, executable no longer has suffix '64' for 64-bit build
+    if {${p_arch_64} && !${g_mame_latest}} {
+        set executable "${executable}64"
     }
 
     # Remember to append a 'd' suffix for debug builds
@@ -576,38 +637,27 @@ variant tools \
     mame_variant_tools_setup
 }
 
-variant python37 \
-        description {Use python 3.7 for build} \
-        conflicts python38 python39 {
-    mame_variant_python_setup 3 7
-}
-
-variant python38 \
-        description {Use python 3.8 for build} \
-        conflicts python37 python39 {
-    mame_variant_python_setup 3 8
-}
-
-variant python39 \
-        description {Use python 3.9 for build} \
-        conflicts python37 python38 {
-    mame_variant_python_setup 3 9
-}
-
 default_variants-append \
     +tools
 
-# Ensure one python* variant is selected by default, if not specified by user
-if {![variant_isset python37] && ![variant_isset python38] && ![variant_isset python39]} {
-    default_variants-append \
-        +python38
-}
+# Python variants eliminated; setup via default Python version
+mame_variant_python_setup \
+    ${g_mame_pyver_major} \
+    ${g_mame_pyver_minor}
 
 #------------------------------------------------------------------------------
 # Phases
 #------------------------------------------------------------------------------
 
-pre-build {
+proc pre_config {} {
+    global build.args
+    global g_mame_python_info_dict
+    global g_mame_build_arch_64
+    global g_mame_build_args_docs_list
+    global g_mame_build_args_bgfx_list
+    global g_mame_build_args_dist_list
+    global g_mame_build_targets_bgfx_list
+
     # Main - update build args
     # Note: These need to be set first, as they're also used below
     set py_bin [dict get ${g_mame_python_info_dict} py_bin]
@@ -666,10 +716,30 @@ pre-build {
     unset build_targets_bgfx
     unset bgfx_target
 
-    ui_debug "Phase pre-build: g_mame_build_args_docs_list: ${g_mame_build_args_docs_list}"
-    ui_debug "Phase pre-build: g_mame_build_args_bgfx_list: ${g_mame_build_args_bgfx_list}"
-    ui_debug "Phase pre-build: g_mame_build_targets_bgfx_list: ${g_mame_build_targets_bgfx_list}"
-    ui_debug "Phase pre-build: g_mame_build_args_dist_list: ${g_mame_build_args_dist_list}"
+    ui_debug "Phase pre-configure: g_mame_build_args_docs_list: ${g_mame_build_args_docs_list}"
+    ui_debug "Phase pre-configure: g_mame_build_args_bgfx_list: ${g_mame_build_args_bgfx_list}"
+    ui_debug "Phase pre-configure: g_mame_build_targets_bgfx_list: ${g_mame_build_targets_bgfx_list}"
+    ui_debug "Phase pre-configure: g_mame_build_args_dist_list: ${g_mame_build_args_dist_list}"
+}
+
+pre-configure {
+    pre_config
+}
+
+configure {
+    # Configure; iterate over targets
+    foreach target ${g_mame_config_targets_list} {
+        ui_msg "Building config target: ${target}"
+        mame_build_run \
+            ${worksrcpath} \
+            "makefile" \
+            ${target} \
+            ${build.args}
+    }
+}
+
+pre-build {
+    pre_config
 }
 
 # Override the standard build phase, to work with separate makefiles and targets
@@ -894,28 +964,20 @@ post-destroot {
 #------------------------------------------------------------------------------
 
 notes {
-    Mame is launched via command 'mame'.
-
-    If a blank screen is encountered, press ESC to exit, and then re-launch\
-    with an alternative video option.
-
-    Examples:
+    * Mame is launched via command 'mame'.
+    * If a blank screen is encountered, press ESC to exit, and then re-launch\
+    with an alternative video option. For example:
         mame -video accel
         mame -video opengl
-
-    If you're new to Mame, our tutorial will quickly walk you through the\
+    * If you're new to Mame, our tutorial will quickly walk you through the\
     process of setting up a new game:
-
-    https://trac.macports.org/wiki/howto/Mame
+        https://trac.macports.org/wiki/howto/Mame
 }
 
 if {[variant_isset tools]} {
     notes-append {
-    --------------------------------------------------------------------------
-    Mame tools are installed. Each has a prefix of 'mame-', to avoid\
-    conflicts with system tools.
-
-    Examples:
+    * Mame tools are also installed. Each has a prefix of 'mame-', to avoid\
+    conflicts with system tools. For example:
         mame-imgtool
         mame-split
     }

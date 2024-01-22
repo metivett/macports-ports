@@ -1,0 +1,23 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             github mjwoods RNetCDF 2.9-1 v
+revision            0
+maintainers         nomaintainer
+license             GPL-2+
+description         Interface to NetCDF file formats
+long_description    {*}${description}
+checksums           rmd160  474bd391fcfad5d1c1fcba905531a1f6a1cb325b \
+                    sha256  ac5938595a47a662ff80a7fc261b6ccc83d427d8edaf1c27ca545b3d7646d7e5 \
+                    size    159395
+
+depends_lib-append  port:netcdf \
+                    port:udunits2
+
+depends_test-append port:R-bit64 \
+                    port:R-pbdMPI \
+                    port:R-Rmpi
+
+test.run            yes

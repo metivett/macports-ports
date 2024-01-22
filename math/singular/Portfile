@@ -1,12 +1,20 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
+PortGroup           github 1.0
+PortGroup           legacysupport 1.1
+PortGroup           compiler_blacklist_versions 1.0
 
+# clock_gettime
+legacysupport.newest_darwin_requires_legacy 15
+
+github.setup        Singular Singular 4-3-2p10 Release-
 name                singular
-version             4.2.0p1
+revision            0
+version             [string map {- .} ${github.version}]
 categories          math
 platforms           darwin
-maintainers         nomaintainer
+maintainers         {@catap korins.ky:kirill} openmaintainer
 license             {GPL-2 GPL-3}
 description         the Singular computer algebra system
 long_description \
@@ -14,12 +22,19 @@ long_description \
     special emphasis on commutative and non-commutative algebra, algebraic \
     geometry, and singularity theory.
 homepage            https://www.singular.uni-kl.de/
-set distfolder      [regsub {([^\.]+)\.([^\.]+)\.([^\.]+)p.*} ${version} {\1-\2-\3}]
-master_sites        ftp://jim.mathematik.uni-kl.de/pub/Math/Singular/SOURCES/${distfolder}
 
-checksums           rmd160  a6c6b9a3e31de858f50f814f50d6a4e526f9ae14 \
-                    sha256  4fe2ef33c6922e27726851a40a43aedeceaca55e4235a9d9c9faf4bac0f4ebe3 \
-                    size    14155171
+checksums           rmd160  95b404d9a59a5f4ce25f07e7513b403aea48037f \
+                    sha256  2f686b9c1752999a12dddfadc3fc282cc0ac7fdafcb053ac58aa5ebe54ad327f \
+                    size    13762803
+
+# clang: error: unknown argument: '-fno-delete-null-pointer-checks'
+# https://trac.macports.org/ticket/65804
+compiler.blacklist-append {clang < 700} *gcc-4.*
+
+depends_build-append \
+                    port:autoconf \
+                    port:automake \
+                    port:libtool
 
 depends_lib-append  port:cddlib \
                     port:flint \
@@ -29,6 +44,10 @@ depends_lib-append  port:cddlib \
                     port:ntl \
                     port:readline
 
+configure.cmd       ./autogen.sh && ./configure
 configure.args      --enable-gfanlib \
                     --with-ntl=${prefix} \
                     --with-flint=${prefix}
+
+test.run            yes
+test.target         check

@@ -4,10 +4,10 @@ PortSystem              1.0
 PortGroup               cmake 1.1
 PortGroup               conflicts_build 1.0
 PortGroup               github 1.0
-PortGroup               qt5 1.0
+PortGroup               qt6 1.0
 
-github.setup            Sigil-Ebook Sigil 1.4.3
-revision                1
+github.setup            Sigil-Ebook Sigil 2.0.2
+revision                0
 name                    sigil
 platforms               darwin
 categories              editors
@@ -19,13 +19,14 @@ description             Sigil, the ePub editor
 long_description        Sigil is a multi-platform WYSIWYG ebook editor. It is \
                         designed to edit books in ePub format
 
-checksums               rmd160  894a58de4771c8fc1ddc16435a3db2c29c0d5cb4 \
-                        sha256  70e64cbaecf658b6b550a86f6e9680f058d3f5ba6c06d38463680a7bd470e286 \
-                        size    24117076
+checksums               rmd160  5eb63ae3f40625a9be3a48ab19f5349b6126ae49 \
+                        sha256  2099419113a14f245fb91ea9c448970728a83a0de35783d1f38781b91fcbcc99 \
+                        size    26685299
 
-qt5.depends_component   qttools qtwebengine
-qt5.min_version         5.12
+qt6.depends_build       qttools
+qt6.depends_lib         qt5compat qtwebengine
 
+depends_build-append    port:pkgconfig
 depends_lib-append      port:hunspell \
                         port:minizip \
                         port:pcre \
@@ -37,11 +38,13 @@ compiler.cxx_standard   2011
 
 configure.args          -DCMAKE_BUILD_WITH_INSTALL_RPATH=OFF \
                         -DSYSTEM_LIBS_REQUIRED=ON \
-                        -DUSE_SYSTEM_LIBS=ON
+                        -DUSE_SYSTEM_LIBS=ON \
+                        -DUSE_QT6=1 \
+                        -DCMAKE_OSX_DEPLOYMENT_TARGET=${macosx_deployment_target}
 
 pre-configure {
-    if {![variant_isset python39] && ![variant_isset python38] && ![variant_isset python37]} {
-        ui_error "Sigil requires Python, please use a Python variant."
+    if {![variant_isset python312] && ![variant_isset python311] && ![variant_isset python310] && ![variant_isset python39] && ![variant_isset python38]} {
+        ui_error "${name} requires Python, please use a Python variant."
         return -code error
     }
 }
@@ -52,6 +55,11 @@ destroot {
 
 proc python-depends {python_branch} {
     global frameworks_dir env
+    post-patch {
+        reinplace "s|Python3 3\\.8 COMPONENTS Interpreter Development|Python3 ${::python_branch} COMPONENTS Interpreter Development|g" ${worksrcpath}/CMakeLists.txt
+        reinplace "s|PythonInterp 3\\.8|PythonInterp ${::python_branch}|g" ${worksrcpath}/CMakeLists.txt
+        reinplace "s|PythonLibs 3\\.8|PythonLibs ${::python_branch}|g" ${worksrcpath}/CMakeLists.txt
+    }
     set python_version [string map {. ""} ${python_branch}]
     depends_lib-append  port:python${python_version} \
                         port:py${python_version}-chardet \
@@ -62,32 +70,35 @@ proc python-depends {python_branch} {
                         port:py${python_version}-Pillow \
                         port:py${python_version}-regex \
                         port:py${python_version}-six
-    configure.env-append PATH=${frameworks_dir}/Python.framework/Versions/${python_branch}/bin:$env(PATH)
+    configure.env-append \
+                        PATH=${frameworks_dir}/Python.framework/Versions/${python_branch}/bin:$env(PATH)
 }
 
-variant python39 conflicts python37 python38 description {Use Python 3.9 during build} {
-    post-patch {
-        reinplace {s|PythonInterp 3\.8|PythonInterp 3.9|g} ${worksrcpath}/CMakeLists.txt
-        reinplace {s|PythonLibs 3\.8|PythonLibs 3.9|g} ${worksrcpath}/CMakeLists.txt
-    }
-    set python_branch 3.9
-    python-depends ${python_branch}
+variant python312 conflicts python38 python39 python310 python311 description {Build with Python 3.12} {
+    set ::python_branch 3.12
+    python-depends ${::python_branch}
 }
 
-variant python38 conflicts python37 python39 description {Use Python 3.8 during build} {
-    set python_branch 3.8
-    python-depends ${python_branch}
+variant python311 conflicts python38 python39 python310 python312 description {Build with Python 3.11} {
+    set ::python_branch 3.11
+    python-depends ${::python_branch}
 }
 
-variant python37 conflicts python38 python39 description {Use Python 3.7 during build} {
-    post-patch {
-        reinplace {s|PythonInterp 3\.8|PythonInterp 3.7|g} ${worksrcpath}/CMakeLists.txt
-        reinplace {s|PythonLibs 3\.8|PythonLibs 3.7|g} ${worksrcpath}/CMakeLists.txt
-    }
-    set python_branch 3.7
-    python-depends ${python_branch}
+variant python310 conflicts python38 python39 python311 python312 description {Build with Python 3.10} {
+    set ::python_branch 3.10
+    python-depends ${::python_branch}
 }
 
-if {![variant_isset python37] && ![variant_isset python38]} {
-    default_variants +python39
+variant python39 conflicts python38 python310 python311 python312 description {Build with Python 3.9} {
+    set ::python_branch 3.9
+    python-depends ${::python_branch}
+}
+
+variant python38 conflicts python39 python310 python311 python312 description {Build with Python 3.8} {
+    set ::python_branch 3.8
+    python-depends ${::python_branch}
+}
+
+if {![variant_isset python38] && ![variant_isset python39] && ![variant_isset python310] && ![variant_isset python311]} {
+    default_variants +python312
 }

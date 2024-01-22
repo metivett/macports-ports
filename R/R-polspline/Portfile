@@ -1,0 +1,19 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran clk polspline 1.1.24
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             GPL-2+
+description         Polynomial spline routines
+long_description    {*}${description}
+checksums           rmd160  2446788f2d57a87d3036eb8471d2003834c3ec80 \
+                    sha256  6641c3666727841d291e3bbeda548ca422e4f04e7ba92e806486ca741c3a5455 \
+                    size    264949
+
+compilers.setup     require_fortran
+
+test.run            yes

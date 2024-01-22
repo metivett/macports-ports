@@ -1,0 +1,27 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             bioconductor const-ae sparseMatrixStats 1.14.0
+revision            0
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             MIT
+description         Summary statistics for rows and columns of sparse matrices
+long_description    {*}${description}
+homepage            https://github.com/const-ae/sparseMatrixStats
+checksums           rmd160  f5a2452cf6975340a04c65b8cd6c115f825e2e05 \
+                    sha256  39b1f8dd13df7222e5de6bd1fa0ea1bb931577d10551757c445776a120ef5264 \
+                    size    703089
+
+depends_lib-append  port:R-MatrixGenerics \
+                    port:R-matrixStats \
+                    port:R-Rcpp
+
+depends_test-append port:R-bench \
+                    port:R-BiocStyle \
+                    port:R-knitr \
+                    port:R-rmarkdown \
+                    port:R-testthat
+
+test.run            yes

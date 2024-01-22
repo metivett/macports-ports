@@ -3,37 +3,35 @@
 PortSystem          1.0
 PortGroup           compiler_blacklist_versions 1.0
 PortGroup           conflicts_build             1.0
+PortGroup           perl5                       1.0
 
 name                notmuch
-version             0.31.2
+version             0.38.2
 revision            0
-platform darwin 20 {
-    revision        1
-}
+checksums           rmd160  163e403fb525e04839239063ec44b06ed8c3f5ec \
+                    sha256  5282ebe4742b03ee00fc3ab835969f94d229279db7232112bdc5009d861e947e \
+                    size    805268
 
 categories          mail
 platforms           darwin
 license             GPL-3+
 maintainers         {seichter.de:macports @rseichter} openmaintainer
-description         The mail indexer
+description         Fast, global-search and tag-based email system
 long_description    \"Not much mail\" is what Notmuch thinks about your email \
                     collection, even if you receive 12000 messages per month or have on the \
-                    order of millions of messages that you’ve been saving for decades. \
-                    Regardless, Notmuch will be able to quickly search all of it. It’s just \
+                    order of millions of messages that you've been saving for decades. \
+                    Regardless, Notmuch will be able to quickly search all of it. It's just \
                     plain not much mail.
 
 homepage            https://notmuchmail.org
 master_sites        ${homepage}/releases/
 use_xz              yes
-checksums           rmd160  566a65c82b23946bc2bde8a3505384555041097d \
-                    sha256  1456b63e04637094eefe7e6f9a45812ed419392a0322fe8b0f452dd06a4cfbef \
-                    size    713388
 
-set python_branch   3.8
+set python_branch   3.11
 set python_version  [string map {. {}} ${python_branch}]
 
 depends_build       port:bash-completion \
-                    port:doxygen \
+                    path:bin/doxygen:doxygen \
                     port:pkgconfig \
                     port:python${python_version} \
                     port:py${python_version}-cffi \
@@ -52,16 +50,31 @@ depends_lib         port:gmime3 \
                     port:xapian-core \
                     port:zlib
 
-conflicts_build     ${name} xcbuild
+conflicts_build     xcbuild
 
 configure.args      --with-docs \
                     --without-desktop \
                     --without-emacs \
                     --without-ruby
 
+# Ensure headers are searched against the work area first, before those in
+# ${prefix}/include. Fixes build failures caused by referencing the previous
+# version's headers, during an update.
+# https://nmbug.notmuchmail.org/nmweb/show/7851CAB5-4556-4931-A0A2-37003E56C927%40ryandesign.com
+configure.cppflags-replace \
+                    -I${prefix}/include \
+                    -isystem${prefix}/include
+
+# Ensure libraries built in the work area are found first, before those in
+# ${prefix}/lib. -L${prefix}/lib still gets added later in the build command
+# by the build system to find MacPorts libraries.
+# https://nmbug.notmuchmail.org/nmweb/show/7851CAB5-4556-4931-A0A2-37003E56C927%40ryandesign.com
+configure.ldflags-delete \
+                    -L${prefix}/lib
+
 configure.python    ${prefix}/bin/python${python_branch}
 
-if {[string match *clang* ${configure.cxx}]} {
+if {[string match *clang* ${configure.cxx}] && ${configure.cxx_stdlib} ne ""} {
     configure.ldflags-append -stdlib=${configure.cxx_stdlib}
 }
 
@@ -81,6 +94,24 @@ variant emacs description {EMACS support} {
     configure.args-append   --with-emacs
 }
 
+variant mutt description {Include Mutt integration} {
+    depends_build-append    bin:pod2man:perl5
+    depends_lib-append      port:perl5 \
+                            port:p${perl5.major}-mailtools \
+                            port:p${perl5.major}-mail-box \
+                            port:p${perl5.major}-mail-message \
+                            port:p${perl5.major}-term-readline-gnu \
+                            port:p${perl5.major}-string-shellquote \
+                            port:p${perl5.major}-mime-types \
+                            port:p${perl5.major}-object-realize-later
+}
+
 livecheck.type      regex
 livecheck.url       [lindex ${master_sites} 0]
 livecheck.regex     ${name}-(\[0-9.\]+)${extract.suffix}
+
+post-destroot {
+    if {[variant_isset mutt]} {
+        system -W ${worksrcpath}/contrib/notmuch-mutt "make DESTDIR=${destroot} prefix=${prefix} V=1 PERL_ABSOLUTE=${prefix}/bin/perl install"
+    }
+}

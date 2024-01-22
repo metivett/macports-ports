@@ -1,34 +1,30 @@
-PortSystem 1.0
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
-name             ucblogo
-version          6.0
-revision         1
-categories       lang
-maintainers      nomaintainer
-platforms        darwin
-description      Berkeley Logo
-long_description \
-    Berkeley Logo is a free Logo interpreter.
-homepage         https://people.eecs.berkeley.edu/~bh/logo.html
+PortSystem          1.0
+PortGroup           github 1.0
 
-# Note that license has changed to GPL-3 in 6.1
-license          GPL-2
+name                ucblogo
+github.setup        jrincayc ${name}-code 6.2.4 version_
+revision            0
+checksums           rmd160  5303357c24c8173a8353d6cb5fe2a8485bc741da \
+                    sha256  668889ab9bfa7e9415e63ac154baba5afaed989df5bc74201b54fcb011df9d06 \
+                    size    1790027
 
-master_sites     ftp://ftp.cs.berkeley.edu/pub/ucblogo/
-checksums        rmd160 7cd9ec8eeff00fb3440f5036d57a9b29383ab310 \
-                 sha256 c659e989e9284efc0f904ebd7de24b559c2d7434a98bb9c92c23e6c11b49cef3 \
-                 size   6694879
+github.tarball_from releases
+distname            ${name}-${version}
 
-fetch.use_epsv   no
+categories          lang
+maintainers         nomaintainer
+description         Berkeley Logo
+long_description    Berkeley Logo is a free Logo interpreter.
+homepage            https://people.eecs.berkeley.edu/~bh/logo.html
+license             GPL-3
 
-patchfiles       patch-makefile.in
-post-patch {
-	file delete -force "${worksrcpath}/csls/CVS"
-}
+depends_lib         port:ncurses
 
-configure.args   --cache-file=/dev/null --without-x
+configure.args      --cache-file=/dev/null \
+                    --disable-docs \
+                    --disable-x11 \
+                    ac_cv_path_WX_CONFIG_PATH=no
 
-build.target
-
-livecheck.type   regex
-livecheck.regex  The current version is (\[^,\]+),
+github.livecheck.regex {([0-9.]+)}

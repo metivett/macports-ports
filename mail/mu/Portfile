@@ -3,17 +3,20 @@
 PortSystem          1.0
 PortGroup           elisp 1.0
 PortGroup           github 1.0
+PortGroup           meson 1.0
+PortGroup           compiler_blacklist_versions 1.0
 
-github.setup        djcb mu 1.4.15
-checksums           rmd160  b32d18cdb03e1764927c05f1e6b54c6cf0fcea73 \
-                    sha256  0e8785a9c91416fcdb0bf3e43d3c0ca53398d00b7aa1721466763081137f3703 \
-                    size    2309860
+github.setup        djcb mu 1.10.7 v
+github.tarball_from archive
+checksums           rmd160  abe7446735554a25419269776c6859035e9ff136 \
+                    sha256  11b70d632764ad5b6d08e30649e1b61e3398a9034d9e1f4e893042a6f40dba38 \
+                    size    768281
 revision            0
+
 platforms           darwin
 categories          mail
 license             GPL-3
 maintainers         {ra1nb0w @ra1nb0w} openmaintainer
-
 description         Command-line tools to index and search email (aka maildir-utils)
 long_description \
    mu is a set of command-line tools for Linux/Unix that enable you to \
@@ -24,7 +27,10 @@ long_description \
 homepage            https://www.djcbsoftware.nl/code/mu/
 
 compiler.c_standard   1999
-compiler.cxx_standard 2014
+compiler.cxx_standard 2017
+
+# https://trac.macports.org/ticket/63364
+compiler.blacklist {clang < 900}
 
 depends_build-append \
     port:pkgconfig
@@ -33,24 +39,16 @@ depends_lib-append \
     port:gmime3 \
     port:xapian-core
 
-use_autoreconf  yes
-configure.args  \
-    --disable-silent-rules \
-    --with-gui=none \
-    --disable-mu4e \
-    --disable-webkit \
-    --disable-guile
-
 variant emacs description {Build with emacs bindings} {
     depends_lib-append     path:${emacs_binary}:${emacs_binary_provider}
     configure.env-append   EMACS=${emacs_binary}
     build.env-append       ELCFLAGS=-Q
-    configure.args-replace --disable-mu4e --enable-mu4e
+    configure.args-append -Demacs=${emacs_binary}
 }
 
 variant guile description {Build with Guile/Scheme bindings} {
     depends_lib-append     port:guile
-    configure.args-replace --disable-guile --enable-guile
+    configure.args-append -Dguile=enabled
 }
 
 # disable "-rc" versions for livecheck

@@ -7,66 +7,30 @@ PortGroup               compiler_blacklist_versions 1.0
 
 name                    owncloud-client
 categories              www aqua
-maintainers             {mps @Schamschula} openmaintainer
+maintainers             nomaintainer
 license                 GPL-2+
 description             Desktop Syncing Client for ownCloud
-long_description \
-    The ownCloud Desktop Client is a tool to synchronize files from ownCloud \
-    Server with your computer.
-platforms               darwin
+long_description        The ownCloud Desktop Client is a tool to synchronize files from \
+                        ownCloud Server with your computer.
 homepage                https://owncloud.org/
 
-if {${os.platform} eq "darwin"} {
-    if {${os.major} < 16} {
-        version             2.6.3
-        set build_id        14058
-        set version_id      14058
+# Check https://download.owncloud.com/desktop/ownCloud/stable/
+# to find the build_id in the source tarball:
+# ownCloud-${version}.${build_id}.tar.xz
+set build_id            9215
+version                 3.0.0.${build_id}
+revision                0
 
-        master_sites        https://download.owncloud.com/desktop/stable
-        distname            owncloudclient-${version}.${build_id}
+master_sites            https://download.owncloud.com/desktop/ownCloud/stable/${version}/source/
+distname                ownCloud-${version}
 
-        use_xz              yes
+checksums               rmd160  7ca54988dc9bf6f237996deb519f8f235abfb3a6 \
+                        sha256  70e4458b2304117d632902485b87aa140930205a1770fd7c3d94e7e998b5cbe5 \
+                        size    5676836
 
-        checksums           rmd160  effe036ca72c8714b80947430b4aa9bdea7dff2f \
-                            sha256  e3d38de31e041f0e1836b2b74acfc1fc76eea4955968952a65643cbf36a493f5 \
-                            size    21246672
+qt5.min_version         5.13
 
-        patchfiles-append   patch-use-system-sqlite.diff
-
-        qt5.min_version     5.6
-    } else {
-        PortGroup           github 1.0
-
-        # Check https://github.com/owncloud/client/tags
-        # to find the build_id in the source tarball:
-        # ownCloud-${version}.${build_id}.tar.xz
-        github.setup        owncloud client 2.7.6 v
-        set build_id        3261
-        version             ${version}.${build_id}
-        revision            0
-
-        checksums           rmd160  df616953970baacf4301bd9764687efc525bfaa2 \
-                            sha256  7be321674b39e462ad0dfc2796f0b201fe3d181916824a2f6aca4456e601c60f \
-                            size    19232966
-
-        depends_build-append \
-                            port:kde-extra-cmake-modules
-
-        patchfiles-append   patch-CMakeLists.txt.diff
-
-        qt5.min_version     5.13
-
-        configure.args-append \
-                            -DKDE_INSTALL_BUNDLEDIR:PATH=${applications_dir}
-    }
-
-    if {${os.major} < 13} {
-        # Finder extension does not compile on 10.8
-        configure.pre_args-append   -DBUILD_SHELL_INTEGRATION=OFF
-    }
-
-    use_xcode               yes
-}
+use_xz                  yes
 
 compiler.cpath
 compiler.library_path
@@ -75,25 +39,67 @@ compiler.library_path
 compiler.blacklist-append {clang < 602} macports-clang-3.4 macports-clang-3.3
 compiler.fallback-append macports-clang-5.0
 
-depends_build-append    port:doxygen
+depends_build-append    path:bin/doxygen:doxygen
 
 depends_lib-append      port:qtkeychain
 
-qt5.depends_component   qtmacextras qtwebkit
 qt5.depends_build_component \
                         qttools
 
-patchfiles-append       patch-add-xcodeflags.diff
+configure.args-append   -DMIRALL_VERSION_BUILD=${build_id}
 
-cmake.install_prefix    ${applications_dir}
+if {${os.platform} eq "darwin"} {
+    qt5.depends_component   qtmacextras qtwebkit
 
-# This should match LIB_INSTALL_DIR in CMakeLists.txt
-configure.args-append   -DCMAKE_INSTALL_NAME_DIR=${applications_dir}/owncloud.app/Contents/MacOS \
-                        -DXCODEFLAGS="-IDECustomDerivedDataLocation=${workpath}/DerivedData" \
-                        -DMIRALL_VERSION_BUILD=${build_id}
+    cmake.install_prefix    ${applications_dir}
+    
+    patchfiles-append       patch-add-xcodeflags.diff
 
+    use_xcode               yes
 
-post-destroot {
-    ln -s ${applications_dir}/owncloud.app/Contents/MacOS/owncloudcmd \
-        ${destroot}${prefix}/bin/owncloudcmd
+    # This should match LIB_INSTALL_DIR in CMakeLists.txt
+    configure.args-append   -DCMAKE_INSTALL_NAME_DIR=${applications_dir}/owncloud.app/Contents/MacOS \
+                            -DXCODEFLAGS="-IDECustomDerivedDataLocation=${workpath}/DerivedData" \
+                            -DKDE_INSTALL_BUNDLEDIR:PATH=${applications_dir}
+
+    if {${os.major} < 16} {
+        version             2.6.3
+        set build_id        14058
+        revision            0
+
+        master_sites        {}
+        distname            owncloudclient-${version}.${build_id}
+
+        checksums           rmd160  effe036ca72c8714b80947430b4aa9bdea7dff2f \
+                            sha256  e3d38de31e041f0e1836b2b74acfc1fc76eea4955968952a65643cbf36a493f5 \
+                            size    21246672
+
+        patchfiles-append   patch-use-system-sqlite.diff
+
+        qt5.min_version     5.6
+
+        livecheck.type      none
+    } else {
+        depends_build-append \
+                            port:kde-extra-cmake-modules
+
+        patchfiles-append   patch-CMakeLists.txt.diff
+    }
+    
+    if {${os.major} < 13} {
+        # Finder extension does not compile on 10.8
+        configure.pre_args-append \
+                            -DBUILD_SHELL_INTEGRATION=OFF
+    }
+    
+    post-destroot {
+        ln -s ${applications_dir}/owncloud.app/Contents/MacOS/owncloudcmd \
+            ${destroot}${prefix}/bin/owncloudcmd
+    }
+} else {
+    qt5.depends_component   qtwebkit
 }
+
+livecheck.type      regex
+livecheck.url       https://download.owncloud.com/desktop/ownCloud/stable/
+livecheck.regex     {\/(2(\.\d+)*)\/}

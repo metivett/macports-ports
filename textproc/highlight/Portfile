@@ -2,15 +2,18 @@
 
 PortSystem          1.0
 
+PortGroup           boost 1.0
+PortGroup           lua 1.0
+PortGroup           makefile 1.0
+
 name                highlight
-version             3.61
+version             4.10
 revision            0
-checksums           rmd160  473c963b81ee470cce75caf30443d46cb51fc777 \
-                    sha256  b3d0b1fafffd01d45a96e8ac0e981d18814e7482df3f9e0b499c6be9e0d1a970 \
-                    size    1412539
+checksums           rmd160  8c61b63aef891855602a82129171b433c7665d78 \
+                    sha256  4389a022367ceafb55a6cf7774c5d82d320ec2df4339bae4aab058c511338ad0 \
+                    size    1498745
 
 categories          textproc devel
-platforms           darwin
 license             GPL-3
 maintainers         {i0ntempest @i0ntempest} openmaintainer
 description         converts source code to formatted text with syntax highlighting
@@ -20,32 +23,27 @@ homepage            http://www.andre-simon.de
 master_sites        ${homepage}/zip/
 use_bzip2           yes
 
-depends_build       port:boost \
-                    port:cctools \
+boost.depends_type  build
+
+depends_build       port:cctools \
                     port:pkgconfig
-depends_lib         port:lua
 
-patchfiles          patch-makefile.diff
-
-use_configure       no
+post-patch {
+    reinplace "s|/etc/highlight/|${prefix}/etc/highlight/|g" ${worksrcpath}/man/highlight.1
+    reinplace "s|/usr/share/|${prefix}/share/|g" ${worksrcpath}/man/highlight.1
+}
 
 build.target        cli lib
 
 compiler.cxx_standard   2011
-if {[string match *clang* ${configure.cxx}]} {
-    configure.ldflags-append -stdlib=${configure.cxx_stdlib}
-}
 configure.cxxflags-append -std=c++11
 
-use_parallel_build  no
-
 # Yes, this project's makefile uses CFLAGS to compile its C++ code.
-build.args          CXX="${configure.cxx}" \
-                    CFLAGS="${configure.cxxflags} [get_canonical_archflags cxx]" \
-                    LDFLAGS="${configure.ldflags} [get_canonical_archflags ld]" \
-                    PREFIX="${prefix}"
+build.args          CFLAGS="\$CPPFLAGS \$CXXFLAGS" \
+                    LDFLAGS="\$LDFLAGS \$CXXFLAGS" \
+                    LUA_PKG_NAME=lua${lua.version}
 
-destroot.args       PREFIX="${prefix}"
+makefile.override   PREFIX
 
 post-destroot {
     file rename ${destroot}${prefix}/etc/highlight/filetypes.conf \

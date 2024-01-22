@@ -10,13 +10,12 @@ PortGroup           meson 1.0
 # implicit function declarations are not allowed (Xcode 12+).
 PortGroup           muniversal 1.0
 
-github.setup        xkbcommon libxkbcommon 1.0.3 xkbcommon-
-checksums           rmd160  5667e388f01abe2f7d1e35e283b18bb8955595f1 \
-                    sha256  a2202f851e072b84e64a395212cbd976ee18a8ee602008b0bad02a13247dbc52 \
-                    size    432944
+github.setup        xkbcommon libxkbcommon 1.5.0 xkbcommon-
+checksums           rmd160  14b0f6183d581d19cb95cfa23e1f005961725101 \
+                    sha256  560f11c4bbbca10f495f3ef7d3a6aa4ca62b4f8fb0b52e7d459d18a26e46e017 \
+                    size    472700
 
 categories          devel
-platforms           darwin
 maintainers         {ryandesign @ryandesign} openmaintainer
 license             MIT
 
@@ -32,11 +31,15 @@ homepage            https://xkbcommon.org
 master_sites        ${homepage}/download/
 use_xz              yes
 
+# https://trac.macports.org/ticket/67349
+patchfiles          patch-libxkbcommon-mesonbuild-linkages.diff
+
 depends_build-append \
                     port:bison \
                     port:pkgconfig \
-                    port:xkeyboard-config \
                     port:xorg-util-macros
+
+compiler.c_standard 2011
 
 configure.args      -Ddefault_library=both \
                     -Denable-docs=false \
@@ -44,18 +47,23 @@ configure.args      -Ddefault_library=both \
                     -Denable-x11=false
 
 if {${subport} eq ${name}} {
-    revision        0
+    revision        1
+
+    depends_lib-append \
+                    port:libxml2 \
+                    port:xkeyboard-config
 }
 
 subport ${name}-x11 {
-    revision        0
+    revision        1
 
     PortGroup       legacysupport 1.0
 
     # strnlen
     legacysupport.newest_darwin_requires_legacy 10
 
-    depends_lib     port:${name} \
+    depends_lib-append \
+                    port:${name} \
                     port:xorg-libxcb
 
     configure.args-replace \

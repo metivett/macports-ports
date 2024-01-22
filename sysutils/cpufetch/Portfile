@@ -1,0 +1,42 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           github 1.0
+PortGroup           makefile 1.0
+
+github.setup        Dr-Noob cpufetch 1.04 v
+revision            0
+categories          sysutils
+license             GPL-2
+maintainers         {mps @Schamschula} openmaintainer
+description         cpufetch is a command-line tool written in C that displays the CPU \
+                    information in a clean and beautiful way
+long_description    {*}${description}
+
+checksums           rmd160  c18046739ad065992da3b5b4e842144954364f23 \
+                    sha256  7cb864f3aaeca899d722beca5e3a2c11fd32460109e4ec0c0b7eea0524030298 \
+                    size    2780046
+
+use_configure       no
+
+# https://trac.macports.org/ticket/66630
+# https://github.com/Dr-Noob/cpufetch/issues/167
+platform powerpc {
+    # Hack for Rosetta to build for ppc:
+    if {${os.platform} eq "darwin" && ${os.major} == 10} {
+        patchfiles-append \
+                    patch-rosetta.diff
+    }
+    # clang: warning: not using the clang compiler for the 'powerpc' architecture
+    compiler.blacklist-append clang
+    # Fix for gcc-4.2
+    post-patch {
+        # cc1: error: unrecognized command line option "-Wno-language-extension-token"
+        reinplace "s,-Wno-language-extension-token,," ${worksrcpath}/Makefile
+    }
+}
+
+destroot {
+    xinstall -m 0755 ${worksrcpath}/cpufetch    ${destroot}${prefix}/bin
+    xinstall -m 0644 ${worksrcpath}/cpufetch.1  ${destroot}${prefix}/share/man/man1
+}

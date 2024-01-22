@@ -1,10 +1,12 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
+PortGroup           github 1.0
 PortGroup           python 1.0
+PortGroup           compiler_blacklist_versions 1.0
 
 name                py-pikepdf
-version             2.5.2
+github.setup        pikepdf pikepdf 8.11.2 v
 revision            0
 categories-append   graphics
 license             MPL-2
@@ -12,15 +14,12 @@ maintainers         {mps @Schamschula} openmaintainer
 description         pikepdf is based on QPDF, a powerful PDF manipulation and repair \
                     library.
 long_description    {*}${description}
-platforms           darwin
 
-homepage            https://github.com/pikepdf/pikepdf
+python.versions     38 39 310 311 312
 
-python.versions     37 38 39
-
-checksums           rmd160  f10f6a6baffb09062494a783c8fb6ceb46b86620 \
-                    sha256  8fc3e97b24dafbd4b1ac057c8f144c18467ce55d342a1a8c42688890ead58ef3 \
-                    size    2377882
+checksums           rmd160  0e2d9c14a9753c911c2429b06faa10c77e48caea \
+                    sha256  0b60240539b7c8ab628261c75e0d5372c6500a6a3b531626d6e1f9d28f67939f \
+                    size    2925311
 
 if {${name} ne ${subport}} {
     depends_build-append \
@@ -30,11 +29,17 @@ if {${name} ne ${subport}} {
                     port:py${python.version}-wheel
 
     depends_lib-append  \
+                    port:py${python.version}-deprecation \
+                    port:py${python.version}-lxml \
+                    port:py${python.version}-packaging \
+                    port:py${python.version}-Pillow \
                     port:py${python.version}-pybind11 \
                     port:qpdf
 
     compiler.cxx_standard \
-                    2014
-
-    livecheck.type  none
+                    2017
+    # error: no matching constructor for initialization of 'match_replace'
+    compiler.blacklist-append {clang < 900}
 }
+
+github.livecheck.regex  {(\d\.\d+(\.\d+))}

@@ -4,25 +4,25 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-uncompyle6
-version             3.7.4
+version             3.9.0
 revision            0
 
 categories-append   devel
-platforms           darwin
 supported_archs     noarch
+platforms           {darwin any}
 license             GPL-3+
 maintainers         {reneeotten @reneeotten} openmaintainer
 
 description         Python cross-version byte-code decompiler
-long_description    ${description}
+long_description    {*}${description}
 
 homepage            https://github.com/rocky/python-uncompyle6/
 
-checksums           rmd160  5b3eb3edff065c151ab240f7691d49a10ee78a2e \
-                    sha256  af8330861bf940e7a3ae0f06d129b8e645191a36bf73ca15ff51997a837d41f8 \
-                    size    2381166
+checksums           rmd160  b77f6f5110d30e4366d0b0ee6425b68dd41d0e6d \
+                    sha256  1e6a902de60ea5c3f7d2af7e2745006b4e4b9bdede888a07f8441c9938f2ee7d \
+                    size    2569924
 
-python.versions     27 35 36 37 38
+python.versions     37 38 39 310
 
 if {${name} ne ${subport}} {
     post-patch {
@@ -52,6 +52,4 @@ if {${name} ne ${subport}} {
         xinstall -m 0644 -W ${worksrcpath} COPYING ChangeLog HISTORY.md \
            README README.rst ${destroot}${docdir}
     }
-
-    livecheck.type  none
 }

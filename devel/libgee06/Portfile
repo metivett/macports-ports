@@ -6,6 +6,7 @@ PortGroup           gobject_introspection 1.0
 name                libgee06
 set gname           libgee
 version             0.6.8
+revision            1
 license             LGPL-2.1+
 set branch          [join [lrange [split ${version} .] 0 1] .]
 categories          devel
@@ -28,7 +29,7 @@ checksums           rmd160  a7c60103f2b81037144e7f2acd496ee53c7982aa \
                     sha256  a61f8d796173d41f6144a030d4bd22461f0bb3fa18a3ebe02341b315feebf5d3
 
 depends_build       port:pkgconfig \
-                    port:vala
+                    path:bin/vala:vala
 
 gobject_introspection yes
 

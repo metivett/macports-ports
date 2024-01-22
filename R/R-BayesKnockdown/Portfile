@@ -1,0 +1,19 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             bioconductor Bioconductor BayesKnockdown 1.28.0
+revision            0
+maintainers         nomaintainer
+license             GPL-3
+description         Posterior probabilities for edges from knockdown data
+long_description    {*}${description}
+checksums           rmd160  a8d33e78796ffaf4214308899281148691c8d731 \
+                    sha256  88869bc99b67d947642bcf38110e2ab13e65ea9965bdbb37585e34ea1e692fab \
+                    size    116534
+supported_archs     noarch
+
+depends_lib-append  port:R-Biobase
+
+test.run            yes

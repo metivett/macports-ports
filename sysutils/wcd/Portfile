@@ -3,7 +3,7 @@
 PortSystem          1.0
 
 name                wcd
-version             6.0.3
+version             6.0.5
 revision            0
 categories          sysutils
 maintainers         {mps @Schamschula} openmaintainer
@@ -12,7 +12,7 @@ license             GPL-2
 
 description         Wcd is a command-line program to change directory fast.
 
-long_description    Wcd is a command-line program to change directory fast. It \
+long_description    {*}${description} It \
                     saves time typing at the keyboard. One needs to type only \
                     a part of a directory name and wcd will jump to it. Wcd \
                     has a fast selection method in case of multiple matches \
@@ -20,21 +20,23 @@ long_description    Wcd is a command-line program to change directory fast. It \
                     includes a full screen interactive directory tree browser \
                     with speed search.
 
-homepage            http://waterlan.home.xs4all.nl/
-master_sites        ${homepage}wcd
+homepage            https://waterlan.home.xs4all.nl/wcd.html
+master_sites        https://waterlan.home.xs4all.nl/wcd/
 
-checksums           rmd160  e55585f8c21a04c290e498fca94b1c2f06dc39ce \
-                    sha256  0a7be2018577c7ab34436740a13c9d5deaf850fd4217666ab8a133b6bc4e8471 \
-                    size    813763
+checksums           rmd160  1696f80aa97c1bee9b8aefb86203731a92158b57 \
+                    sha256  f2970e01a52886d330604490fdbedd7373faff0910ff2e14889435677f563763 \
+                    size    1130436
 
-depends_lib         port:gettext \
+depends_build       port:gettext
+
+depends_lib         port:gettext-runtime \
                     port:ncurses
 
 patchfiles          patch-src-Makefile.diff
 
 use_configure       no
 
-variant universal {}
+variant universal   {}
 
 build.args          PREFIX=${prefix} \
                     INCPREFIX=${prefix} \
@@ -42,7 +44,7 @@ build.args          PREFIX=${prefix} \
                     EXT= \
                     docsubdir=${name}
 
-destroot.args  {*}${build.args}
+destroot.args       {*}${build.args}
 
 livecheck.type      regex
 livecheck.regex     ${name}-(\[0-9.\]+)${extract.suffix}

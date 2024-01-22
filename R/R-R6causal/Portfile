@@ -1,0 +1,31 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran juha.karvanen R6causal 0.8.2
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             AGPL-3
+description         R6 class for structural causal models
+long_description    {*}${description}
+checksums           rmd160  39eb9a336a810b4af22dcb36bcd68757038c1067 \
+                    sha256  177464a2ff05ed1bf416003600630a193d65f32ffa7ecc8b81920c15b5ba03f4 \
+                    size    302944
+supported_archs     noarch
+
+depends_lib-append  port:R-causaleffect \
+                    port:R-cfid \
+                    port:R-data.table \
+                    port:R-dosearch \
+                    port:R-glue \
+                    port:R-igraph \
+                    port:R-R6
+
+depends_test-append port:R-knitr \
+                    port:R-qgraph \
+                    port:R-rmarkdown \
+                    port:R-sqldf
+
+test.run            yes

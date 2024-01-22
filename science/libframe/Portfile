@@ -2,10 +2,15 @@
 
 PortSystem      1.0
 PortGroup       cmake 1.0
+PortGroup       gitlab 1.0
+
+gitlab.instance https://git.ligo.org
+gitlab.setup    virgo/virgoapp Fr 8r41p3 v
 
 name            libframe
-version         8.40.1
+version         [string map {r . p .} ${gitlab.version}]
 categories      science
+license         lgpl-2.1+
 platforms       darwin
 maintainers     {aronnax @lpsinger} openmaintainer
 
@@ -16,16 +21,6 @@ long_description \
   Library is a software dedicated to the frame manipulation \
   including file input/output.
 
-homepage        http://lappweb.in2p3.fr/virgo/FrameL/
-master_sites    https://software.igwn.org/lscsoft/source/
-
-distname        framel-${version}
-use_xz          yes
-
-checksums       rmd160  fd36b12a26d1a008bc2c581aba7f41f1efe87810 \
-                sha256  ea4afcdf839f8eb49edc2d3190b5aebb08871146e426b644887f7efbae30a6b9 \
-                size    1436728
-
-livecheck.type  regex
-livecheck.url   ${master_sites}
-livecheck.regex {framel-(\d+(?:\.\d+)*(-\d)*).tar.gz}
+checksums       rmd160  ce5345359325819061c23556e1ee44ea353d03a8 \
+                sha256  99423cdd764e35d838b02fd846c7f0590d3d495fed0e909092f684bf01108d51 \
+                size    1115040

@@ -4,40 +4,29 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-terminado
-version             0.9.2
+version             0.18.0
 revision            0
 categories-append   devel
-platforms           darwin
+supported_archs     noarch
+platforms           {darwin any}
 license             BSD
 
-python.versions     27 35 36 37 38 39
+python.versions     37 38 39 310 311 312
+python.pep517       yes
+python.pep517_backend hatch
 
 maintainers         {stromnov @stromnov} openmaintainer
 
-description         Terminals served by tornado websockets.
-long_description    ${description}
+description         A Tornado websocket backend for the Xterm.js Javascript terminal emulator library
+long_description    {*}${description}
 
-homepage            https://github.com/takluyver/terminado
+homepage            https://github.com/jupyter/terminado
 
-checksums           rmd160  e3cd1fce1909c49cc6e491a91c6d441ae39fcad9 \
-                    sha256  89e6d94b19e4bc9dce0ffd908dfaf55cc78a9bf735934e915a4a96f65ac9704c \
-                    size    13692
+checksums           rmd160  ab1e752e7ed778a2ae4d198aa2983e7d0d6b4c60 \
+                    sha256  1ea08a89b835dd1b8c0c900d92848147cef2537243361b2e3f4dc15df9b6fded \
+                    size    32250
 
 if {${name} ne ${subport}} {
     depends_lib-append  port:py${python.version}-ptyprocess \
                         port:py${python.version}-tornado
-
-    if {${python.version} <= 35} {
-        version             0.8.3
-        revision            0
-        distname            ${python.rootname}-${version}
-        checksums           rmd160  560debcbd40f868b5cb8aaed91f63abcc507f0ac \
-                            sha256  4804a774f802306a7d9af7322193c5390f1da0abb429e082a10ef1d46e6fb2c2 \
-                            size    21165
-    } else {
-        depends_build-append \
-                            port:py${python.version}-setuptools
-    }
-
-    livecheck.type      none
 }

@@ -51,7 +51,10 @@
 # etc. file in the upstream source code. The go2port tool (install via MacPorts)
 # can be used to generate a skeleton portfile with precomputed go.vendors.
 
-options go.package go.domain go.author go.project go.version go.tag_prefix go.tag_suffix
+PortGroup legacysupport    1.1
+PortGroup compiler_wrapper 1.0
+
+options go.package go.domain go.author go.project go.version go.tag_prefix go.tag_suffix go.offline_build
 
 proc go.setup {go_package go_version {go_tag_prefix ""} {go_tag_suffix ""}} {
     global go.package go.domain go.author go.project go.version go.tag_prefix go.tag_suffix
@@ -67,19 +70,36 @@ proc go.setup {go_package go_version {go_tag_prefix ""} {go_tag_suffix ""}} {
     # It is assumed in this portgroup that go.{domain,author,project} will
     # remain consistent with the distfile; this is needed when moving the source
     # into the GOPATH in the post-extract block later on.
-    lassign [go._translate_package_id ${go_package}] go.domain go.author go.project
+    lassign [go._translate_package_id ${go_package}] go.domain go.author go.project subproject
+
+    if {${subproject} ne ""} {
+        ui_error "go.setup cannot handle subprojects yet"
+        error "unhandled subproject"
+    }
 
     switch ${go.domain} {
         github.com {
             uplevel "PortGroup github 1.0"
             github.setup ${go.author} ${go.project} ${go_version} ${go_tag_prefix} ${go_tag_suffix}
         }
+        gitlab.com {
+            uplevel "PortGroup gitlab 1.0"
+            gitlab.setup ${go.author} ${go.project} ${go_version} ${go_tag_prefix} ${go_tag_suffix}
+        }
         bitbucket.org {
             uplevel "PortGroup bitbucket 1.0"
             bitbucket.setup ${go.author} ${go.project} ${go_version} ${go_tag_prefix}
         }
+        git.sr.ht {
+            uplevel "PortGroup sourcehut 1.0"
+            sourcehut.setup ${go.author} ${go.project} ${go_version} ${go_tag_prefix} ${go_tag_suffix}
+        }
+        gitea.com {
+            uplevel "PortGroup gitea 1.0"
+            gitea.setup ${go.author} ${go.project} ${go_version} ${go_tag_prefix} ${go_tag_suffix}
+        }
         default {
-            if {!([info exists PortInfo(name)] && (${PortInfo(name)} ne ${go.project}))} {
+            if {![info exists PortInfo(name)]} {
                 name    ${go.project}
             }
             version     ${go.version}
@@ -93,6 +113,8 @@ proc go._translate_package_id {package_id} {
     set domain [lindex ${parts} 0]
     set author [lindex ${parts} 1]
     set project [lindex ${parts} 2]
+    # possibly empty
+    set subproject [lindex ${parts} 3]
 
     switch ${domain} {
         golang.org {
@@ -112,8 +134,12 @@ proc go._translate_package_id {package_id} {
                 set project [go._strip_gopkg_version ${project}]
             }
         }
+        git.sr.ht {
+            # Strip leading ~ from author name
+            set author [string trim ${author} ~]
+        }
     }
-    return [list ${domain} ${author} ${project}]
+    return [list ${domain} ${author} ${project} ${subproject}]
 }
 
 proc go._strip_gopkg_version {str} {
@@ -124,12 +150,15 @@ options go.bin go.vendors
 
 default go.bin          {${prefix}/bin/go}
 default go.vendors      {}
+default go.offline_build \
+                        true
 
 platforms               darwin freebsd linux
-supported_archs         i386 x86_64
+supported_archs         arm64 i386 x86_64
 set goos                ${os.platform}
 
-switch ${build_arch} {
+switch ${configure.build_arch} {
+    arm64   { set goarch arm64 }
     i386    { set goarch 386 }
     x86_64  { set goarch amd64 }
     default { set goarch {} }
@@ -145,15 +174,69 @@ default depends_build   port:go
 set gopath              ${workpath}/gopath
 default worksrcdir      {gopath/src/${go.package}}
 
-default build.cmd   {${go.bin} build}
+set go_env {GOPATH=${gopath} GOARCH=${goarch} GOOS=${goos} GOPROXY=off GO111MODULE=off \
+                CC=${configure.cc} CXX=${configure.cxx} FC=${configure.fc} \
+                OBJC=${configure.objc} OBJCXX=${configure.objcxx} }
+
+default build.cmd     {${go.bin} build}
 default build.args      ""
 default build.target    ""
-default build.env   {GOPATH=${gopath} GOARCH=${goarch} GOOS=${goos} CC=${configure.cc} GOPROXY=off GO111MODULE=off}
+default build.env     ${go_env}
 
-default test.cmd    {${go.bin} test}
+default test.cmd      {${go.bin} test}
 default test.args       ""
 default test.target     ""
-default test.env    {GOPATH=${gopath} GOARCH=${goarch} GOOS=${goos} CC=${configure.cc} GOPROXY=off GO111MODULE=off}
+default test.env      ${go_env}
+
+default configure.env ${go_env}
+
+proc go.append_env {} {
+    global configure.cc configure.cxx configure.ldflags configure.cflags configure.cxxflags configure.cppflags
+    global os.major build.env workpath
+    global go.offline_build
+    # Create a wrapper scripts around compiler commands to enforce use of MacPorts flags
+    # and to aid use of MacPorts legacysupport library as required.
+    if { ${os.major} <= [option legacysupport.newest_darwin_requires_legacy] } {
+        # Note, go annoyingly uses CC for both building and linking, and thus in order to get it to correctly
+        # link to the legacy support library, the ldflags need to be added to the cc and ccx wrappers.
+        # To then prevent 'clang linker input unused' errors we must append -Wno-error at the end.
+        # Also remove '-static' from compilation options as this is not supported on older systems.
+        compwrap.compiler_args_forward \$\{\@\//-static/\}
+        compwrap.compiler_pre_flags-append    ${configure.ldflags}
+        compwrap.compiler_post_flags-append   -Wno-error
+    }
+    post-extract {
+        build.env-append \
+            "CC=[compwrap::wrap_compiler cc]" \
+            "CXX=[compwrap::wrap_compiler cxx]" \
+            "OBJC=[compwrap::wrap_compiler objc]" \
+            "OBJCXX=[compwrap::wrap_compiler objcxx]" \
+            "FC=[compwrap::wrap_compiler fc]" \
+            "F90=[compwrap::wrap_compiler f90]" \
+            "F77=[compwrap::wrap_compiler f77]"
+        if { ${os.major} <= [option legacysupport.newest_darwin_requires_legacy] } {
+            build.env-append \
+                "GO_EXTLINK_ENABLED=1" \
+                "BOOT_GO_LDFLAGS=-extldflags='${configure.ldflags}'" \
+                "CGO_CFLAGS=${configure.cflags} [get_canonical_archflags cc]" \
+                "CGO_CXXFLAGS=${configure.cxxflags} [get_canonical_archflags cxx]" \
+                "CGO_LDFLAGS=${configure.cflags} ${configure.ldflags} [get_canonical_archflags ld]" \
+                "GO_LDFLAGS=-extldflags='${configure.ldflags} [get_canonical_archflags ld]'"
+        }
+        configure.env-append ${build.env}
+        test.env-append      ${build.env}
+    }
+
+    if { ! ${go.offline_build} } {
+        ui_debug "Disabling offline building for Go"
+
+        configure.env-delete \
+                            GO111MODULE=off GOPROXY=off
+        build.env-delete    GO111MODULE=off GOPROXY=off
+        test.env-delete     GO111MODULE=off GOPROXY=off
+    }
+}
+port::register_callback go.append_env
 
 # go.vendors name1 ver1 name2 ver2...
 # When a go.sum, Gopkg.lock, glide.lock, etc. is present use go2port to generate values
@@ -176,6 +259,10 @@ proc handle_set_go_vendors {vendors_str} {
         set checksum_types $portchecksum::checksum_types
     }
     set num_tokens [llength ${vendors_str}]
+    if {$num_tokens > 0} {
+        # portgroups like github may set this - can't be used with multiple distfiles
+        extract.rename  no
+    }
     for {set ix 0} {${ix} < ${num_tokens}} {incr ix} {
         # Get the Go package ID
         set vpackage [lindex ${vendors_str} ${ix}]
@@ -201,7 +288,7 @@ proc handle_set_go_vendors {vendors_str} {
                 incr ix
 
                 # Split up the package ID
-                lassign [go._translate_package_id ${vresolved}] vdomain vauthor vproject
+                lassign [go._translate_package_id ${vresolved}] vdomain vauthor vproject vsubproject
 
                 if {[string match v* ${vversion}]} {
                     set sha1_short {}
@@ -216,17 +303,46 @@ proc handle_set_go_vendors {vendors_str} {
 
                 switch ${vdomain} {
                     github.com {
-                        set distfile ${vauthor}-${vproject}-${vversion}.tar.gz
-                        set master_site https://github.com/${vauthor}/${vproject}/tarball/${vversion}
+                        if {${vsubproject} eq ""} {
+                            set distfile ${vauthor}-${vproject}-${vversion}.tar.gz
+                            set master_site https://codeload.github.com/${vauthor}/${vproject}/legacy.tar.gz/${vversion}?dummy=
+                        } else {
+                            set distfile ${vauthor}-${vproject}-${vsubproject}-${vversion}.tar.gz
+                            set master_site https://codeload.github.com/${vauthor}/${vproject}/legacy.tar.gz/${vsubproject}/${vversion}?dummy=
+                        }
                     }
                     bitbucket.org {
+                        if {${vsubproject} ne ""} {
+                            ui_error "go.vendors can't handle subprojects from ${vdomain} yet"
+                            error "unsupported dependency domain"
+                        }
                         set distfile ${vversion}.tar.gz
                         set master_site https://bitbucket.org/${vauthor}/${vproject}/get
                     }
                     gitlab.com -
                     salsa.debian.org {
+                        if {${vsubproject} ne ""} {
+                            ui_error "go.vendors can't handle subprojects from ${vdomain} yet"
+                            error "unsupported dependency domain"
+                        }
                         set distfile ${vproject}-${vversion}.tar.gz
                         set master_site https://${vdomain}/${vauthor}/${vproject}/-/archive/${vversion}
+                    }
+                    git.sr.ht {
+                        if {${vsubproject} ne ""} {
+                            ui_error "go.vendors can't handle subprojects from ${vdomain} yet"
+                            error "unsupported dependency domain"
+                        }
+                        set distfile ${vversion}.tar.gz
+                        set master_site https://${vdomain}/~${vauthor}/${vproject}/archive
+                    }
+                    go.googlesource.com {
+                        if {${vsubproject} ne ""} {
+                            ui_error "go.vendors can't handle subprojects from ${vdomain} yet"
+                            error "unsupported dependency domain"
+                        }
+                        set distfile ${vversion}.tar.gz
+                        set master_site https://${vdomain}/${vauthor}/+archive/refs/tags
                     }
                     default {
                         ui_error "go.vendors can't handle dependencies from ${vdomain}"
@@ -280,6 +396,8 @@ post-extract {
         if {[file exists [glob -nocomplain ${workpath}/${go.author}-${go.project}-*]]} {
             # GitHub and Bitbucket follow this path
             move [glob ${workpath}/${go.author}-${go.project}-*] ${worksrcpath}
+        } elseif  {[file exists ${workpath}/${go.project}]} {
+            move ${workpath}/${go.project} ${worksrcpath}
         } else {
             # GitLab follows this path
             move [glob ${workpath}/${go.project}-*] ${worksrcpath}
@@ -288,14 +406,37 @@ post-extract {
     }
 
     foreach vlist ${go.vendors_internal} {
-        lassign ${vlist} sha1_short vpackage vresolved
+        lassign ${vlist} sha1_short vpackage vresolved vversion
+        ui_debug "Processing vendored dependency (sha1_short: ${sha1_short}, vpackage: ${vpackage}, vresolved: ${vresolved}, vversion: ${vversion})"
 
         file mkdir ${gopath}/src/[file dirname ${vpackage}]
-        if {${sha1_short} ne ""} {
+
+        # Next is a big bag of heuristics to try to move the extracted
+        # dependencies into the gopath. We have to try to accommodate all naming
+        # schemes used by the various "forges" (GitHub, Gitlab, etc.).
+
+        lassign [go._translate_package_id ${vresolved}] _ vauthor vproject
+        set gitlab_workdir ${vproject}-${vversion}
+
+        if {[file exists ${workpath}/${gitlab_workdir}]} {
+            move ${workpath}/${gitlab_workdir} ${gopath}/src/${vpackage}
+        } elseif {${sha1_short} ne ""} {
             move [glob ${workpath}/*-${sha1_short}*] ${gopath}/src/${vpackage}
         } else {
-            lassign [go._translate_package_id ${vresolved}] _ vauthor vproject
-            move [glob ${workpath}/${vauthor}-${vproject}-*] ${gopath}/src/${vpackage}
+            # In some cases, this can match multiple folders, e.g.,
+            # gopkg.in/src-d/go-git.v4 and gopkg.in/src-d/go-git-fixtures.v3.
+            # We want the one that does not have any dashes in the wildcard of
+            # our glob expression, so use regex to identify that.
+            set candidates [glob ${workpath}/${vauthor}-${vproject}-*]
+            foreach candidate $candidates {
+                if {[regexp -nocase "^[quotemeta $workpath]/[quotemeta $vauthor]-[quotemeta $vproject]-\[^-\]*$" $candidate]} {
+                    ui_debug "Choosing $candidate for ${workpath}/${vauthor}-${vproject}-*"
+                    move $candidate ${gopath}/src/${vpackage}
+                    break
+                } else {
+                    ui_debug "Rejecting $candidate for ${workpath}/${vauthor}-${vproject}-* because it contains dashes in the wildcard match"
+                }
+            }
         }
     }
 }

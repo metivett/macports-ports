@@ -1,0 +1,16 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran easystats insight 0.19.7
+revision            0
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             GPL-3
+description         Easy access to model information for various model objects
+long_description    {*}${description}
+homepage            https://easystats.github.io/insight
+checksums           rmd160  97815439e7e7821bdd7b0ccd2a7b251a632fcd8f \
+                    sha256  41a54c13a3f04108c79469cf35c41161f37e2d89e6d70791eb13fd5fc0e71f06 \
+                    size    942564
+supported_archs     noarch

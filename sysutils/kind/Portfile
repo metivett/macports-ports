@@ -3,7 +3,9 @@
 PortSystem          1.0
 PortGroup           golang 1.0
 
-go.setup            github.com/kubernetes-sigs/kind 0.10.0 v
+go.setup            github.com/kubernetes-sigs/kind 0.20.0 v
+github.tarball_from archive
+revision            0
 
 homepage            https://kind.sigs.k8s.io
 
@@ -15,24 +17,25 @@ long_description    {*}${description} kind was primarily designed for testing \
                     or CI.
 
 categories          sysutils
+installs_libs       no
 license             Apache-2
-
 maintainers         {gmail.com:herby.gillot @herbygillot} \
                     openmaintainer
 
 build.cmd           make
 build.target        build
 
-installs_libs       no
-
-checksums           rmd160  5a69f04b09d41625adee8d5a13dc10e1394dae69 \
-                    sha256  5212b21157b6244829c211c54e306b32ce2f3b0370606ecafca892c722f516f7 \
-                    size    1850177
+checksums           rmd160  dad23cf2ec2373e11427c9b3b121591fa452d3bf \
+                    sha256  6795c3478a298973e010349b87740fa1732e18989856db0deed54b153330365c \
+                    size    2009007
 
 # Allowing go to fetch dependencies during build time for now.
 # See: https://trac.macports.org/ticket/61192
-build.env-delete    GOPROXY=off GO111MODULE=off
+go.offline_build no
 
 destroot {
     xinstall -m 0755 ${worksrcpath}/bin/${name} ${destroot}${prefix}/bin/
 }
+
+github.livecheck.regex \
+                    {([0-9.]+)}

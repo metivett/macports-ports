@@ -4,22 +4,23 @@ PortSystem          1.0
 PortGroup           python 1.0
 PortGroup           github 1.0
 
-github.setup        ReFirmLabs binwalk 2.2.0 v
-revision            0
+github.setup        ReFirmLabs binwalk 2.3.4 v
+github.tarball_from archive
+revision            1
 
 categories          cross
-platforms           darwin
+platforms           {darwin any}
 license             MIT
 supported_archs     noarch
 maintainers         {stromnov @stromnov} openmaintainer
 description         Binwalk is a fast, easy to use tool for analyzing, reverse engineering, and extracting firmware images
-long_description    ${description}
+long_description    {*}${description}
 
-checksums           rmd160  68677d4d97ba5dbcd765c17cd37689c270161112 \
-                    sha256  a88a2f81563278e9f341a9adc2adaa4b620d1d1a7c7e00e00f8da8ba5674e425 \
-                    size    39595170
+checksums           rmd160  837c0c083bcdbf1feac208f60fb74fe4467433f0 \
+                    sha256  60416bfec2390cec76742ce942737df3e6585c933c2467932f59c21e002ba7a9 \
+                    size    39723471
 
-python.default_version  37
+python.default_version  311
 
 depends_lib-append  port:py${python.default_version}-setuptools \
-    port:py${python.default_version}-pylzma
+                    port:py${python.default_version}-pylzma

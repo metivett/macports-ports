@@ -5,18 +5,17 @@ PortGroup               github 1.0
 PortGroup               makefile 1.0
 PortGroup               legacysupport 1.0
 
-github.setup            jarun nnn 3.5 v
+github.setup            jarun nnn 4.9 v
 revision                0
 categories              sysutils
 license                 BSD
 maintainers             {mcalhoun @MarcusCalhoun-Lopez} openmaintainer
-platforms               darwin
 description             tiny, lightning fast, feature-packed file manager
 long_description        ${name} is a tiny, lightning fast, feature-packed file manager.
 
-checksums               rmd160  5a97bc64cbea24d98a060412509a1ee45297fe3a \
-                        sha256  649e95b80bf2602e5e76b54d4eee8bb389da50c0b371d1b25955f1acef7e9abb \
-                        size    206040
+checksums               rmd160  8a274e3a7f63e64fff19754a8f30a8d74ebfb5b6 \
+                        sha256  30d1f1d643d6b7b0ebf52ed120c85198cbc3bc8192dbca97a99812a7f0314a21 \
+                        size    255205
 
 installs_libs           no
 
@@ -30,3 +29,28 @@ compiler.c_standard     2011
 
 build.args-append       CFLAGS_OPTIMIZATION="" \
                         O_PCRE=1
+
+post-destroot {
+    set bash_completion ${prefix}/share/bash-completion/completions
+    xinstall -d ${destroot}${bash_completion}
+    xinstall -m 0644 ${worksrcpath}/misc/auto-completion/bash/nnn-completion.bash \
+        ${destroot}${bash_completion}/nnn.bash
+
+    set zsh_completion ${prefix}/share/zsh/site-functions
+    xinstall -d ${destroot}${zsh_completion}
+    xinstall -m 0644 ${worksrcpath}/misc/auto-completion/zsh/_nnn \
+        ${destroot}${zsh_completion}/_nnn
+
+    set fish_completion ${prefix}/share/fish/vendor_completions.d
+    xinstall -d ${destroot}${fish_completion}
+    xinstall -m 0644 ${worksrcpath}/misc/auto-completion/fish/nnn.fish \
+        ${destroot}${fish_completion}/nnn.fish
+
+    xinstall -d ${destroot}${prefix}/share/${name}/quitcd
+    xinstall -m 0644 {*}[glob ${worksrcpath}/misc/quitcd/quitcd.*] \
+        ${destroot}${prefix}/share/${name}/quitcd
+
+    xinstall -d ${destroot}${prefix}/share/${name}/plugins
+    xinstall -m 0644 {*}[glob ${worksrcpath}/plugins/*] \
+        ${destroot}${prefix}/share/${name}/plugins
+}

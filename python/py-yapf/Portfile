@@ -5,28 +5,32 @@ PortGroup           github 1.0
 PortGroup           python 1.0
 PortGroup           select 1.0
 
-github.setup        google yapf 0.30.0 v
+github.setup        google yapf 0.40.2 v
+github.tarball_from archive
 revision            0
 name                py-yapf
 
 categories-append   devel
-platforms           darwin
 supported_archs     noarch
+platforms           {darwin any}
 license             Apache-2
 maintainers         {reneeotten @reneeotten} openmaintainer
 
 description         A formatter for Python files
 long_description    YAPF is based off of 'clang-format', developed by Daniel Jasper.
 
-checksums           rmd160  2c1f9e2dfa6f6479b3c18b084ea20fbedc4ce05b \
-                    sha256  91fd45b4def04a3c5632e9207f523a8b21c29bdd5f2c6af236d827a08155d3c7 \
-                    size    168307
+checksums           rmd160  293a09bfd44f4fb0fc457d280e3f99de33787e6a \
+                    sha256  8e0825803c488aa2cb118ed277a18d4617984608e75d10d5bffa5e24734eb022 \
+                    size    229593
 
-python.versions     27 35 36 37 38 39
+python.versions     38 39 310 311 312
+python.pep517       yes
 
 if {${subport} ne ${name}} {
     depends_lib-append \
-                    port:py${python.version}-setuptools
+                    port:py${python.version}-importlib-metadata \
+                    port:py${python.version}-platformdirs \
+                    port:py${python.version}-tomli
 
     depends_run-append \
                     port:yapf_select
@@ -36,9 +40,9 @@ if {${subport} ne ${name}} {
     post-destroot {
         set docdir ${prefix}/share/doc/${subport}
         xinstall -d ${destroot}${docdir}
-        xinstall -m 0644 -W ${worksrcpath} AUTHORS CHANGELOG \
-            CONTRIBUTING.rst CONTRIBUTORS HACKING.rst \
-            LICENSE README.rst ${destroot}${docdir}
+        xinstall -m 0644 -W ${worksrcpath} AUTHORS CHANGELOG.md \
+            CONTRIBUTING.md CONTRIBUTORS HACKING.md \
+            LICENSE README.md ${destroot}${docdir}
     }
 
     select.group    yapf
@@ -50,6 +54,4 @@ you execute the commands without a version suffix, e.g. 'yapf', run:
 
 port select --set ${select.group} [file tail ${select.file}]
 "
-
-    livecheck.type  none
 }

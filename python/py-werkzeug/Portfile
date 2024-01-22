@@ -4,17 +4,20 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-werkzeug
-python.rootname     Werkzeug
-version             1.0.1
+python.rootname     werkzeug
+version             3.0.1
 revision            0
 categories-append   www
-platforms           darwin
 license             BSD
 supported_archs     noarch
+platforms           {darwin any}
 
-python.versions     27 35 36 37 38 39
+python.versions     27 37 38 39 310 311 312
+python.pep517       yes
 
-maintainers         {stromnov @stromnov} openmaintainer
+python.pep517_backend   flit
+
+maintainers         {stromnov @stromnov} {@catap korins.ky:kirill} openmaintainer
 
 description         The Swiss Army knife of Python web development
 
@@ -27,12 +30,41 @@ long_description    Werkzeug is a one of the most advanced WSGI utility \
 
 homepage            https://palletsprojects.com/p/werkzeug/
 
-checksums           rmd160  9dc625e19c6cb90783972a8d467bd5270aafe30c \
-                    sha256  6c80b1e5ad3665290ea39320b91e1be1e0d5f60652b964a3070216de83d2e47c \
-                    size    904455
+checksums           rmd160  c4987497866074d9a1cc5c0e1b905e6660257c50 \
+                    sha256  507e811ecea72b18a404947aded4b3390e1db8f826b494d76550ef45bb3b1dcc \
+                    size    801436
 
 if {${name} ne ${subport}} {
-    depends_lib-append  port:py${python.version}-setuptools
+    depends_lib-append  port:py${python.version}-markupsafe \
+                        port:py${python.version}-setuptools
+
+    if {${python.version} == 27} {
+        python.rootname     Werkzeug
+        python.pep517       no
+
+        version             1.0.1
+        revision            0
+        distname            ${python.rootname}-${version}
+        checksums           rmd160  9dc625e19c6cb90783972a8d467bd5270aafe30c \
+                            sha256  6c80b1e5ad3665290ea39320b91e1be1e0d5f60652b964a3070216de83d2e47c \
+                            size    904455
+
+        livecheck.type      none
+    }
+
+    if {${python.version} == 37} {
+        python.rootname     Werkzeug
+        python.pep517_backend   \
+                            setuptools
+
+        version             2.2.3
+        revision            0
+        checksums           rmd160  6b8cb31aadd1f6f4c306b3cc6952134a23a643c7 \
+                            sha256  2e1ccc9417d4da358b9de6f174e3ac094391ea1d4fbef2d667865d819dfd0afe \
+                            size    845884
+
+        livecheck.type      none
+    }
 
     post-destroot {
         set docdir ${destroot}${prefix}/share/doc/${subport}
@@ -46,5 +78,25 @@ if {${name} ne ${subport}} {
         delete ${docdir}/Makefile
     }
 
-    livecheck.type      none
+    # test before 2.x requires missed py-pathlib
+    if {${python.version} > 27} {
+        depends_test-append \
+                        port:py${python.version}-cryptography \
+                        port:py${python.version}-ephemeral-port-reserve \
+                        port:py${python.version}-pytest-timeout \
+                        port:py${python.version}-pytest-xprocess \
+                        port:py${python.version}-watchdog
+
+        if {${python.version} < 311} {
+            depends_test-append \
+                        port:py${python.version}-greenlet
+        }
+
+        # Test is broken under MacPorts without installed version
+        # See: https://github.com/pallets/werkzeug/issues/2516
+        test.run        yes
+        # dev_server test is also broken
+        # See: https://github.com/pallets/werkzeug/issues/2515
+        test.args       -o addopts="-m 'not dev_server'"
+    }
 }

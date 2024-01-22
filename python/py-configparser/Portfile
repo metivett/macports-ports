@@ -5,37 +5,51 @@ PortGroup           python 1.0
 
 name                py-configparser
 epoch               1
-version             4.0.2
+version             5.3.0
 revision            0
 categories-append   devel
-platforms           darwin
 license             MIT
 supported_archs     noarch
+platforms           {darwin any}
 
-python.versions     27
+python.versions     27 37 38 39 310 311 312
 
 maintainers         {stromnov @stromnov} openmaintainer
 
 description         Configparser from Python 3.8 to Python 2.6-3.7
-long_description    ${description}
+long_description    {*}${description}
 
-homepage            https://github.com/jaraco/configparser/
-master_sites        pypi:[string index ${python.rootname} 0]/${python.rootname}
+homepage            https://github.com/jaraco/configparser
 
-distname            ${python.rootname}-${version}
-
-checksums           rmd160  9b6a5b12490e72c47ce2b1d190a35687c2d2c7eb \
-                    sha256  c7d282687a5308319bf3d2e7706e575c635b0a470342641c93bea0ea3b5331df \
-                    size    72498
-
-# 4.0.2 is the last py27-compatible version
-livecheck.type      none
+checksums           rmd160  09e9ed9c3176ac65fc5174c2502690c15221cbbc \
+                    sha256  8be267824b541c09b08db124917f48ab525a6c3e837011f3130781a224c57090 \
+                    size    67737
 
 if {${name} ne ${subport}} {
+
+    # 4.0.2 is the last py27-compatible version
+    if {${python.version} == 27} {
+        python.pep517       no
+
+        version             4.0.2
+
+        depends_build-append \
+                        port:py${python.version}-setuptools
+
+        depends_lib-append  port:py${python.version}-backports
+
+        distname            ${python.rootname}-${version}
+
+        checksums           rmd160  9b6a5b12490e72c47ce2b1d190a35687c2d2c7eb \
+                            sha256  c7d282687a5308319bf3d2e7706e575c635b0a470342641c93bea0ea3b5331df \
+                            size    72498
+    } else {
+        depends_build-append \
+                            port:py${python.version}-toml
+    }
+
     depends_build-append \
-                        port:py${python.version}-setuptools \
                         port:py${python.version}-setuptools_scm
-    depends_lib-append  port:py${python.version}-backports
 
     post-destroot {
         foreach f {__init__.py __init__.pyc __init__.pyo __pycache__} {
@@ -45,4 +59,6 @@ if {${name} ne ${subport}} {
             }
         }
     }
+
+    livecheck.type      none
 }

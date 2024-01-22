@@ -1,0 +1,25 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+# GitHub version lags behind.
+R.setup             cran paleolimbot wk 0.9.1
+revision            0
+categories-append   math
+maintainers         nomaintainer
+license             MIT
+description         Lightweight well-known geometry parsing
+long_description    {*}${description}
+homepage            https://paleolimbot.github.io/wk
+checksums           rmd160  f73312991b9d68c5e59fdf491913c36c97cffd25 \
+                    sha256  b7a0af51c0e04175dc359d1fb0e852ac55097b4105d876b58d3cf995c0f2bf7b \
+                    size    1039442
+
+depends_test-append port:R-readr \
+                    port:R-sf \
+                    port:R-testthat \
+                    port:R-tibble \
+                    port:R-vctrs
+
+test.run            yes

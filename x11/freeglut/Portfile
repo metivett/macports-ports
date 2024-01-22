@@ -1,10 +1,12 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
-PortGroup           cmake 1.0
+PortGroup           cmake 1.1
+PortGroup           github 1.0
 
-name                freeglut
-version             3.2.1
+github.setup        FreeGLUTProject freeglut 3.4.0 v
+github.tarball_from releases
+revision            0
 categories          x11 graphics
 license             X11
 maintainers         {jeremyhu @jeremyhu} openmaintainer
@@ -14,14 +16,14 @@ long_description    ${description}
 homepage            http://freeglut.sourceforge.net/
 
 platforms           macosx darwin
-master_sites        sourceforge:project/freeglut/freeglut/${version}
 
-checksums           rmd160  c9b9d76f61ff56b153367817cfbc1fb5c0816c54 \
-                    sha256  d4000e02102acaf259998c870e25214739d1f16f67f99cb35e4f46841399da68 \
-                    size    440228
+checksums           rmd160  3324010f7bc7d10e9b055b8565a56f7c2e12ad78 \
+                    sha256  3c0bcb915d9b180a97edaebd011b7a1de54583a838644dcd42bb0ea0c6f3eaec \
+                    size    413389
 
 depends_lib         port:mesa \
                     port:libGLU \
+                    port:xorg-libXi \
                     port:xorg-libXrandr \
                     port:xorg-libXxf86vm
 

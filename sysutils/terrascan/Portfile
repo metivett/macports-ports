@@ -3,7 +3,8 @@
 PortSystem          1.0
 PortGroup           golang 1.0
 
-go.setup            github.com/accurics/terrascan 1.3.3 v
+go.setup            github.com/accurics/terrascan 1.18.11 v
+github.tarball_from archive
 revision            0
 
 homepage            https://docs.accurics.com/projects/accurics-terrascan
@@ -16,19 +17,20 @@ long_description    Terrascan detects security vulnerabilities and compliance \
                     risks before provisioning cloud native infrastructure.
 
 categories          sysutils
+installs_libs       no
+license             Apache-2
 maintainers         {gmail.com:herby.gillot @herbygillot} \
                     openmaintainer
-license             Apache-2
 
 # Due to issues vendoring dependencies, allow fetching deps at build time.
-build.env-delete    GO111MODULE=off GOPROXY=off
+go.offline_build no
 
 build.cmd           make
 build.target        build
 
-checksums           rmd160  3e6dd0cb66952ed04f89bb8273ee13078e4214d9 \
-                    sha256  f505d14b671397516f0a559f9497f16ba8d99e72b63872486c5492cb71c9bd29 \
-                    size    704951
+checksums           rmd160  26799ffaaf5fef1c51e053cafbf07a604543d5b1 \
+                    sha256  1e82a5bb5a270c5f2a7da86fefccc1af6ecf66e5472228af4189e1ee6c3dfdd1 \
+                    size    1944490
 
 destroot {
     xinstall -m 0755 ${worksrcpath}/bin/${name} ${destroot}${prefix}/bin/

@@ -1,0 +1,29 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran flowervalleyconsulting forsearch 5.0.0
+revision            0
+categories-append   math
+maintainers         nomaintainer
+license             GPL-3+
+description         Diagnostic analysis using forward search procedure for various models
+long_description    {*}${description}
+checksums           rmd160  780ef23119ad1a59c1a3c4700fc5976539c5deba \
+                    sha256  0e51d400d4936ba4450a7c1ece6d3169b728b19b6b7f1f36fcb5a6b54572f33c \
+                    size    279933
+supported_archs     noarch
+
+depends_lib-append  port:R-Cairo \
+                    port:R-formula.tools \
+                    port:R-ggplot2 \
+                    port:R-Hmisc \
+                    port:R-tibble
+
+depends_run-append  port:gmp
+
+depends_test-append port:R-knitr \
+                    port:R-rmarkdown
+
+test.run            yes

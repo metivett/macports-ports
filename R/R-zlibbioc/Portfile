@@ -1,0 +1,21 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             github Bioconductor zlibbioc 77920bcab5ef50132fbcbf9e1e13ddb04692c2db
+version             1.49.0
+revision            0
+categories-append   archivers
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             Artistic-2
+description         An R-packaged zlib-1.2.5
+long_description    {*}${description}
+homepage            https://bioconductor.org/packages/${R.package}
+checksums           rmd160  db8fc7f33a310aaffd9dc99a90cb6a649fe7774b \
+                    sha256  aee04ea8c78e4252c544a6558d09870c4e121ff9611095d67e72a0840d124c99 \
+                    size    164507
+
+depends_test-append port:R-BiocStyle
+
+test.run            yes

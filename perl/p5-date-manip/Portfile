@@ -1,30 +1,30 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:filetype=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
-PortGroup perl5     1.0
+PortGroup           perl5 1.0
 
 name                p5-date-manip
-perl5.branches      5.26 5.28 5.30
-perl5.setup         Date-Manip 6.83
-
-platforms           darwin
+perl5.branches      5.28 5.30 5.32 5.34
+perl5.setup         Date-Manip 6.94 ../../authors/id/S/SB/SBECK
+revision            0
 maintainers         nomaintainer
 license             {Artistic-1 GPL}
 
+platforms           {darwin any}
+supported_archs     noarch
+
 description         Perl Module for manipulating date and time.
-long_description    This is a set of routines designed to make any common\
+long_description    This is a set of routines designed to make any common \
                     date/time manipulation easy to do. Operations such \
                     as comparing two times, calculating a time a given \
                     amount of time from another, or parsing international \
                     times are all easily done.
 
-checksums           rmd160  b0d046d95307b44661683b25036a3b9055f99c53 \
-                    sha256  f491b2e1d876c222a59563b1bbd893c1034207ed0337304bf396311d9e9199fa \
-                    size    2020472
+checksums           rmd160  077fa642c7c683b305e61dc4775d3f990a8680d7 \
+                    sha256  0278eb62113618c8977d3d537433d85340c487cbdfd95dd3452e4d7217f48848 \
+                    size    1882490
 
 if {${perl5.major} != ""} {
     depends_build-append \
         port:p${perl5.major}-test-inter
-
-    supported_archs noarch
 }

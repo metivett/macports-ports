@@ -12,13 +12,13 @@ maintainers         {ra1nb0w @ra1nb0w} openmaintainer
 description         A C++ Library for Parsing Expressions with Strings, Complex Numbers, Vectors, Matrices and more.
 long_description    ${description}
 
-github.setup        beltoforion muparserx 4.0.8 v
-checksums           rmd160  91236e237d03abaf41f105d993d77a89e2d1240f \
-                    sha256  b8a5ddb965053e8059553f0b5da6deaa96fd1e648d1d081f5cc8ff8643254545 \
-                    size    1897561
+github.setup        beltoforion muparserx 4.0.12 v
+checksums           rmd160  0754eed9c0e3727e6c84b53b1a930a378cfc24f6 \
+                    sha256  b40b3752ec442f648cd432ad3fbce8176c2348929c4662fe331455d937e4dc97 \
+                    size    223395
 revision            0
 
-compiler.cxx_standard 2011
+compiler.cxx_standard 2017
 
 configure.args-append \
     -DBUILD_SHARED_LIBS=ON

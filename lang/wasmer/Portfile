@@ -1,0 +1,55 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           cargo   1.0
+PortGroup           github  1.0
+
+github.setup        wasmerio wasmer 4.2.5 v
+github.tarball_from archive
+revision            0
+
+homepage            https://wasmer.io
+
+description         \
+    The leading WebAssembly Runtime supporting WASI and Emscripten
+
+long_description    \
+    Wasmer is a fast and secure WebAssembly runtime that enables super \
+    lightweight containers to run anywhere: from Desktop to the Cloud, Edge \
+    and IoT devices.
+
+categories          lang devel
+installs_libs       no
+license             MIT
+maintainers         {gmail.com:herby.gillot @herbygillot} \
+                    openmaintainer
+
+checksums           rmd160  dc48203d1fc43343af51fe99c3ace1168d55ccb8 \
+                    sha256  66cb3c9d795932257f99bd64d8e8720a908e2fdf7a4519d12193a45157fab577 \
+                    size    100596311
+
+build.cmd           make
+build.pre_args      {}
+build.args          build-wasmer build-capi
+
+github.livecheck.regex \
+                    {([0-9.]+)}
+
+destroot {
+    xinstall -m 0755 \
+        ${worksrcpath}/target/[cargo.rust_platform]/release/${name} \
+        ${destroot}${prefix}/bin/
+
+    xinstall \
+        ${worksrcpath}/target/[cargo.rust_platform]/release/lib${name}.dylib \
+        ${destroot}${prefix}/lib/
+
+    xinstall \
+        ${worksrcpath}/target/[cargo.rust_platform]/release/lib${name}.a \
+        ${destroot}${prefix}/lib/
+}
+
+post-destroot {
+    system -W ${destroot}${prefix} \
+        "sh -c 'WASMER_DIR=${prefix} ./bin/${name} config --pkg-config > ${destroot}${prefix}/lib/pkgconfig/${name}.pc'"
+}

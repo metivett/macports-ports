@@ -1,0 +1,27 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran cran qreport 1.0-0
+revision            0
+maintainers         nomaintainer
+license             GPL-2+
+description         Statistical reporting with Quarto
+long_description    {*}${description}
+homepage            https://hbiostat.org/R/qreport
+checksums           rmd160  442be071cc99415b870e539a216163129dadbff1 \
+                    sha256  cbe28a612a45e4785f05a449081a07e64a4990a45b2e725caaa3cf9934ebcc1b \
+                    size    43478
+supported_archs     noarch
+
+depends_lib-append  port:R-data.table \
+                    port:R-Formula \
+                    port:R-ggplot2 \
+                    port:R-Hmisc \
+                    port:R-htmltools \
+                    port:R-knitr \
+                    port:R-rms \
+                    port:R-viridis
+
+test.run            yes

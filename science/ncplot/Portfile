@@ -3,14 +3,14 @@
 PortSystem          1.0
 PortGroup           github 1.0
 
-github.setup        ncar ncplot 270652dcbcca56e8baad33177b3ebc9e171cee19
-version             2020-07-28
+github.setup        ncar ncplot 4.11.0 v
 revision            1
+epoch               1
 
-platforms           darwin
 categories          science
 license             permissive
 maintainers         {mf2k @mf2k} openmaintainer
+platforms           any
 
 description         ncplot is an interactive plotting tool
 long_description    ncplot is an interactive plotting tool that allows the user to \
@@ -21,9 +21,9 @@ long_description    ncplot is an interactive plotting tool that allows the user 
 
 homepage            https://archive.eol.ucar.edu/raf/Software/ncplot.html
 
-checksums           rmd160  682b2eef5c910f1980924e0fb23ab7a9f29b9729 \
-                    sha256  c615cccccfb1ad9bfd5a9737a9ffe8662d8a36628634f90e0fdd70df3506832c \
-                    size    131764
+checksums           rmd160  f5b49b5b7f4c75422950d875d44a15cf2d29d330 \
+                    sha256  c2ec218031e87f71f1f2d6769fd567bb1b2e94ef91acca0db42ba18af1b44b52 \
+                    size    133649
 
 patchfiles          patch-geopolmap.c.diff \
                     patch-Makefile.diff
@@ -36,16 +36,20 @@ post-patch {
 use_configure       no
 build.target
 
-build.args          CC="${configure.cxx} [get_canonical_archflags cxx]" \
+build.args          CC="${configure.cc} [get_canonical_archflags cc]" \
+                    CXX="${configure.cxx} [get_canonical_archflags cxx]" \
                     INCL="${configure.cppflags}" \
                     LIB="${configure.ldflags}"
 
-depends_lib-append  port:gsl \
+depends_lib-append  port:flex \
+                    port:gsl \
                     port:libpng \
                     port:netcdf \
+                    port:netcdf-cxx \
                     port:openmotif \
                     port:xorg-libX11 \
-                    port:xorg-libXt
+                    port:xorg-libXt \
+                    port:zlib
 
 depends_run         port:gmt6
 

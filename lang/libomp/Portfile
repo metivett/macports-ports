@@ -1,7 +1,7 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem              1.0
-PortGroup               cmake 1.0
+PortGroup               cmake 1.1
 if {${os.major} <= 17} {
     PortGroup           muniversal 1.0
 }
@@ -12,7 +12,7 @@ name                    libomp
 maintainers             {eborisch @eborisch} openmaintainer
 homepage                https://openmp.llvm.org
 description             The OpenMP subproject of LLVM
-long_description        ${description} is intended to contain all of the\
+long_description        {*}${description} is intended to contain all of the\
                         components required to build an executing OpenMP\
                         program that are outside the compiler itself. \
                         This port works with MacPorts' clang-3.7+ (optionally \
@@ -29,19 +29,30 @@ epoch                   1
 subport                 libomp-devel {}
 
 if {${os.platform} eq "darwin" && ${configure.cxx_stdlib} ne "libstdc++"} {
+
+    version             17.0.6
+    revision            0
+
     if { ${subport} eq "libomp-devel" } {
-        version                 11.0.1
-        checksums               rmd160  ec95e6d003cad34f3d46519f87cc5266313e7cf3 \
-                                sha256  4d15a21b90e7de2f01296503f6e4b16c50197fbe9c82e7e81f9c07e28bd82ca7 \
-                                size    971332
-        livecheck.regex         {"llvmorg-([0-9.rc-]+)".*}
+        # Marked obsolete 10/25/2022
+        PortGroup       obsolete 1.0
+        replaced_by     libomp
     } else {
-        version                 11.0.1
-        checksums               rmd160  ec95e6d003cad34f3d46519f87cc5266313e7cf3 \
-                                sha256  4d15a21b90e7de2f01296503f6e4b16c50197fbe9c82e7e81f9c07e28bd82ca7 \
-                                size    971332
-        livecheck.regex         {"llvmorg-([0-9.]+)".*}
+        livecheck.regex {"llvmorg-([0-9.]+)".*}
     }
+
+    distname        openmp-${version}.src
+    distfiles       ${distname}.tar.xz cmake-${version}.src.tar.xz
+
+    checksums \
+        openmp-${version}.src.tar.xz \
+                    rmd160  2c0c70b0cb662f2d74a53d90be72986723f4d221 \
+                    sha256  74334cbb4dc8b73a768448a7561d5a3540404940b2267b1fb9813a6464b320de \
+                    size    1273412 \
+        cmake-${version}.src.tar.xz \
+                    rmd160  025868efa2006d5b7365b279169c52fe28f8060e \
+                    sha256  807f069c54dc20cb47b21c1f6acafdd9c649f3ae015609040d6182cab01140f4 \
+                    size    8712
 
     if {${os.major} <= 12} {
         # kmp_alloc.c includes <atomic> but libc++ is not the default on
@@ -51,40 +62,40 @@ if {${os.platform} eq "darwin" && ${configure.cxx_stdlib} ne "libstdc++"} {
 
     # Build requires std::atomic
     configure.cxxflags-append -std=c++11
-    compiler.cxx_standard   2011
+    compiler.cxx_standard     2011
 
-    master_sites \
-        https://github.com/llvm/llvm-project/releases/download/llvmorg-${version} \
-        https://releases.llvm.org/${version}
-    distname                openmp-[strsed ${version} {s/-//}].src
-    use_xz                  yes
-    dist_subdir             openmp-release
-    worksrcdir              ${distname}
-    set rtpath              "runtime/"
-    
-    # D88252 is to enable arm64 support
-    patchfiles-append       patch-libomp-use-gettid-on-Leopard.diff \
-                            reviews.llvm.org_D88252.diff
+    master_sites        https://github.com/llvm/llvm-project/releases/download/llvmorg-${version} \
+                        https://releases.llvm.org/${version}
+    use_xz              yes
+    dist_subdir         openmp-release
+    worksrcdir          ${distname}
+    set rtpath          "runtime/"
+    patchfiles-append   patch-libomp-use-gettid-on-Leopard.diff
 
-    livecheck.url           https://api.github.com/repos/llvm/llvm-project/tags
+    livecheck.url       https://api.github.com/repos/llvm/llvm-project/tags
 } else {
     if { ${subport} eq "libomp-devel" } {
-        version                 291764
-        replaced_by             libomp
+        version         291764
+        replaced_by     libomp
     } else {
-        PortGroup               github 1.0
+        PortGroup       github 1.0
         # Last version working on libstdc++
-        github.setup            llvm-mirror openmp 381 svn-tags/RELEASE_
-        name                    libomp
+        github.setup    llvm-mirror openmp 381 svn-tags/RELEASE_
+        name            libomp
 
-        worksrcdir              openmp-${version}/final/runtime
-        version                 3.8.1
-        checksums \
-            rmd160  a41054068a127ef84610afef8090109078cb6c46 \
-            sha256  4c46b5946fe9b2a701661746d11c7c85c51a7f18673194a7ebd2a43470948a34
-        set rtpath              "./"
+        worksrcdir      openmp-${version}/final/runtime
+        version         3.8.1
+        checksums       rmd160  a41054068a127ef84610afef8090109078cb6c46 \
+                        sha256  4c46b5946fe9b2a701661746d11c7c85c51a7f18673194a7ebd2a43470948a34 \
+                        size    5587986
+        set rtpath      "./"
+
+        # use cmake-bootstrap to minimize dependencies.
+        depends_build-replace  \
+                        path:bin/cmake:cmake port:cmake-bootstrap
+        configure.cmd   ${prefix}/libexec/cmake-bootstrap/bin/cmake
     }
-    livecheck.type          none
+    livecheck.type      none
 }
 
 depends_build-append    port:perl5
@@ -92,6 +103,18 @@ cmake.out_of_source     yes
 
 # According to documentation builds with clang >= 3.3
 compiler.blacklist-append {clang < 500} *gcc*
+
+# https://trac.macports.org/ticket/68490#
+# Use clang-11-bootstrap on OSX10.11 and older
+if {${os.major} <= 15} {
+    configure.compiler.add_deps no
+    depends_build-append port:clang-11-bootstrap
+    depends_skip_archcheck-append clang-11-bootstrap
+    pre-configure {
+        configure.cc    ${prefix}/libexec/clang-11-bootstrap/bin/clang
+        configure.cxx   ${prefix}/libexec/clang-11-bootstrap/bin/clang++
+    }
+}
 
 if {${os.major} <= 17} {
     default_variants    +universal
@@ -110,8 +133,14 @@ configure.args-delete   -DCMAKE_INSTALL_RPATH=${prefix}/lib \
 # With this, cmake sets the correct library name in the dylibs for the
 # final destination we move them to
 configure.args-append   -DCMAKE_INSTALL_RPATH=${prefix}/lib/libomp \
-                        -DCMAKE_INSTALL_NAME_DIR=${prefix}/lib/libomp \
-                        -DLIBOMP_OMPT_SUPPORT=FALSE
+                        -DCMAKE_INSTALL_NAME_DIR=${prefix}/lib/libomp
+
+if {${os.major} <= 10} {
+    set hnames              {omp.h}
+    configure.args-append   -DLIBOMP_OMPT_SUPPORT=FALSE
+} else {
+    set hnames              {omp-tools.h omp.h ompt.h}
+}
 
 variant top_level description \
     "Install (links to) omp.h and libs into ${prefix}/(include|lib)" {}
@@ -120,22 +149,30 @@ post-extract {
     # Patch tool for build with CMAKE_INSTALL_PREFIX
     reinplace "/bulk.*compatibility/s/s\+/s+.*/" \
         ${rtpath}tools/check-depends.pl
+    if {[vercmp ${version} 15.0.0] >= 0} {
+        system -W ${workpath} "mv cmake*.src/Modules/* openmp*/cmake/"
+    }
 }
 
 post-destroot {
     set instdest ${destroot}${prefix}
     xinstall -d ${instdest}/share/doc/libomp
-    xinstall -d ${instdest}/include/libomp
-    move ${instdest}/tmp/include/omp.h ${instdest}/include/libomp/
-    xinstall -d ${instdest}/lib/libomp
 
+    xinstall -d ${instdest}/include/libomp
+    foreach h ${hnames} {
+        move ${instdest}/tmp/include/${h} ${instdest}/include/libomp/
+    }
+
+    xinstall -d ${instdest}/lib/libomp
     foreach p {libiomp5.dylib libomp.dylib libgomp.dylib} {
         move ${instdest}/tmp/lib/${p} ${instdest}/lib/libomp/
     }
 
     if {[variant_isset top_level]} {
-        system -W ${instdest}/include \
-          "ln -s libomp/omp.h"
+        foreach h ${hnames} {
+            system -W ${instdest}/include \
+              "ln -s libomp/${h}"
+        }
         foreach p {libiomp5.dylib libomp.dylib libgomp.dylib} {
             system -W ${instdest}/lib/ \
               "ln -s libomp/${p}"
@@ -143,8 +180,8 @@ post-destroot {
     }
 
     set fpath ${worksrcpath}/${rtpath}
-    file copy ${fpath}/README.txt ${fpath}/../LICENSE.txt \
-        ${fpath}/../www ${instdest}/share/doc/libomp/
+    file copy ${fpath}/README.txt ${fpath}/../LICENSE.TXT \
+        ${instdest}/share/doc/libomp/
 
 }
 

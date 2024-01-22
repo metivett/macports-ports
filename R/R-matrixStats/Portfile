@@ -1,0 +1,27 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             github HenrikBengtsson matrixStats 9d3c1e6e815abcc16b1821a871e64838c5f65f6e
+version             1.2.0-9000
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             Artistic-2
+description         Functions that apply to rows and columns of matrices (and to vectors)
+long_description    {*}${description}
+homepage            https://github.com/HenrikBengtsson/matrixStats
+checksums           rmd160  eef7703241f0ed2d05be0475378f88db4c7594ed \
+                    sha256  d4f995c82ac9d3e4bb0c660b7e6fd2d5ddd6994b9b3f358e2552448cbb1494c8 \
+                    size    311228
+
+depends_test-append port:R-base64enc \
+                    port:R-ggplot2 \
+                    port:R-knitr \
+                    port:R-markdown \
+                    port:R-microbenchmark \
+                    port:R-R.devices \
+                    port:R-R.rsp
+
+test.run            yes

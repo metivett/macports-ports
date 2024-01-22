@@ -21,7 +21,7 @@
 #
 # haskell_stack.stack_root
 #   The root directory for stack, passed as STACK_ROOT in haskell_stack.env.
-#   Defaults to ${workpath}/.stack.
+#   Defaults to ${workpath}/.home/.stack.
 #
 # haskell_stack.yaml
 #   The location of the stack.yaml config file, passed as STACK_YAML in
@@ -64,11 +64,14 @@ proc haskell_stack.add_dependencies {} {
 port::register_callback haskell_stack.add_dependencies
 
 options haskell_stack.stack_root
-default haskell_stack.stack_root {${workpath}/.stack}
+default haskell_stack.stack_root {${workpath}/.home/.stack}
 
 post-extract {
     xinstall -m 0755 -d "[option haskell_stack.stack_root]"
 }
+
+# stack builds arm64 and x86_64 binaries
+supported_archs     arm64 x86_64
 
 # libHSbase shipped with GHC links against system libiconv, which provides the
 # 'iconv' symbol, but not the 'libiconv' symbol. Because the compilation
@@ -76,6 +79,9 @@ post-extract {
 # search path first :/
 compiler.library_path
 compiler.cpath
+
+# Builds (sometimes) fail if ccache is enabled in MacPorts
+configure.ccache    no
 
 options haskell_stack.bin haskell_stack.default_args
 default haskell_stack.bin   ${prefix}/bin/stack

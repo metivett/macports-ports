@@ -1,0 +1,37 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           python 1.0
+
+name                codespell
+version             2.2.6
+revision            1
+
+categories-append   textproc devel
+supported_archs     noarch
+platforms           {darwin any}
+license             GPL-2
+maintainers         {reneeotten @reneeotten} openmaintainer
+
+description         codespell: check code for common misspellings
+long_description    {*}${description}
+
+homepage            https://github.com/codespell-project/codespell/
+
+checksums           rmd160  97fdd63c3145aa0bf77c1c441adc76feaaadc212 \
+                    sha256  a8c65d8eb3faa03deabab6b3bbe798bea72e1799c7e9e955d57eca4096abcff9 \
+                    size    300968
+
+python.default_version  312
+
+depends_build-append \
+                    port:py${python.version}-setuptools_scm
+
+depends_run-append  port:py${python.version}-chardet
+
+post-destroot {
+    set docdir ${prefix}/share/doc/${name}
+    xinstall -d ${destroot}${docdir}
+    xinstall -m 0644 -W ${worksrcpath} README.rst \
+        COPYING ${destroot}${docdir}
+}

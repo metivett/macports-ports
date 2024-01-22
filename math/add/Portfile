@@ -3,10 +3,9 @@
 PortSystem          1.0
 
 name                add
-version             20210108
+version             20230205
 revision            0
 categories          math
-platforms           darwin
 license             BSD
 maintainers         nomaintainer
 
@@ -15,12 +14,13 @@ long_description    add is a fixed-point calculator that operates as a full-scre
                     It is designed for use as a checkbook or expense-account balancing tool.
 
 homepage            https://invisible-island.net/add/
-master_sites        ftp://ftp.invisible-island.net/pub/add/
+master_sites        https://invisible-island.net/archives/${name}/ \
+                    https://invisible-mirror.net/archives/${name}/
 extract.suffix      .tgz
 
-checksums           rmd160  7b74e4c240902ebd36546b0b9f1fc83fde5e35c3 \
-                    sha256  1f57f2f3d807af1a471fb3b5ecd6dd85398a66942797df543d2de68440dbe430 \
-                    size    173004
+checksums           rmd160  179c058be44f43fdfe083f67dc50f90724aef804 \
+                    sha256  68e216241100d0cf098e139c24fe04880b9be60a8643cd82f8925ac0ce3d7260 \
+                    size    179162
 
 depends_lib         port:ncurses
 

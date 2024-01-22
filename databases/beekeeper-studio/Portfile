@@ -3,8 +3,8 @@
 PortSystem          1.0
 PortGroup           github 1.0
 
-github.setup        beekeeper-studio beekeeper-studio 1.9.4 v
-revision            1
+github.setup        beekeeper-studio beekeeper-studio 1.11.6 v
+revision            0
 
 homepage            https://beekeeperstudio.io
 
@@ -24,14 +24,14 @@ long_description    Beekeeper Studio is a free and open source SQL editor and \
 categories          databases
 license             MIT
 platforms           darwin
+supported_archs     x86_64
 
 maintainers         {gmail.com:herby.gillot @herbygillot} \
                     openmaintainer
 
-checksums           ${distname}${extract.suffix} \
-                    rmd160  2965b08285845a1201ae2345c10a971cd42f57d9 \
-                    sha256  92dfcdf29cea57f001f905b1ed5932e615c7b4f2db2fe07658e6888990516be7 \
-                    size    42333463
+checksums           rmd160  f9306bdbc2b24c2afa4b09c6979c0b4c3555b952 \
+                    sha256  2ab76d361ee3b6db09e963bbe0c6e527905ab471ab8da00478bdc8421b261ac2 \
+                    size    42414835
 
 depends_build       port:yarn
 
@@ -55,4 +55,5 @@ destroot {
          ${destroot}${applications_dir}
 }
 
-github.livecheck.regex {([0-9.]+)}
+github.livecheck.regex  {([0-9.]+)}
+github.tarball_from     archive

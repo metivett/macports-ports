@@ -1,0 +1,59 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           golang 1.0
+
+go.setup            github.com/containers/skopeo 1.12.0 v
+github.tarball_from archive
+revision            1
+
+description         Work with remote container image registries
+
+long_description    \
+    {*}${description}. ${name} works with API V2 container image registries \
+    such as docker.io and quay.io registries, private registries, local \
+    directories and local OCI-layout directories.
+
+categories          sysutils
+installs_libs       no
+license             Apache-2
+maintainers         {gmail.com:herby.gillot @herbygillot} \
+                    openmaintainer
+
+checksums           rmd160  dc1c05e5f1e18f3f05e71b56db831ac3589d031e \
+                    sha256  f7bbb3748eeb0c29abf5bfe9b1c1a149464c4ea65705e25686df3b9bcbd7bb89 \
+                    size    8216468
+
+depends_build-append \
+                    port:go-md2man
+
+depends_lib-append  port:gpgme      \
+                    port:gnupg2     \
+                    port:libassuan  \
+                    port:pkgconfig
+
+patch {
+    # Do not rebuild the skopeo binary during the installation phase
+
+    reinplace -E \
+        {s|^install-binary: bin/skopeo|install-binary:|} \
+        ${worksrcpath}/Makefile
+
+    reinplace -E \
+        {s|^completions: bin/skopeo|completions:|} \
+        ${worksrcpath}/Makefile
+}
+
+build.cmd           make
+build.target        all
+
+destroot {
+    system -W ${worksrcpath} \
+        "make   DESTDIR=${destroot} \\
+                CONTAINERSCONFDIR=${prefix}/etc/containers \\
+                LOOKASIDEDIR=${prefix}/var/lib/containers/sigstore \\
+                PREFIX=${prefix} \\
+                install"
+}
+
+use_parallel_build  no

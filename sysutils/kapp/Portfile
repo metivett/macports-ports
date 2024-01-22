@@ -3,7 +3,8 @@
 PortSystem          1.0
 PortGroup           golang 1.0
 
-go.setup            github.com/vmware-tanzu/carvel-kapp 0.35.0 v
+go.setup            github.com/vmware-tanzu/carvel-kapp 0.60.0 v
+github.tarball_from archive
 name                kapp
 revision            0
 
@@ -23,23 +24,25 @@ long_description    kapp (pronounced: kap) CLI encourages Kubernetes users to \
                     Kubernetes configuration.
 
 categories          sysutils
-license             Apache-2
 installs_libs       no
-
+license             Apache-2
 maintainers         {gmail.com:herby.gillot @herbygillot} \
                     openmaintainer
 
-checksums           rmd160  894765216784448e5ed2b2176860026a74d7d99b \
-                    sha256  c49f59cacdd6bbf7d969060b537ecdbff8ca836acf07f84e403f809c1c2c65b8 \
-                    size    4683395
+checksums           rmd160  c82d0dafc910e57284a0e2beaa8fd18751b91473 \
+                    sha256  4ca00c66121c4a14d9160a6edd4af66d72df43b0e409a58989778f2d47496ab2 \
+                    size    7476952
 
-# Allow fetching dependencies at build time.
-build.env-delete            GO111MODULE=off GOPROXY=off
+# Allow Go modules (needed for -mod=vendor)
+build.env-delete    GO111MODULE=off
 
-build.env-append            CGO_ENABLED=0
+build.env-append    CGO_ENABLED=0
 
-build.pre_args-append       -mod=vendor
-build.args                  ./cmd/${name}
+build.pre_args-append \
+    -mod=vendor \
+    -ldflags \"-X ${go.package}/pkg/kapp/version.Version=${github.tag_prefix}${version}\"
+
+build.args          ./cmd/${name}
 
 destroot {
     xinstall -m 0755 ${worksrcpath}/${name} ${destroot}${prefix}/bin/

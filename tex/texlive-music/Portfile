@@ -4,7 +4,7 @@ PortSystem          1.0
 PortGroup           texlive 1.0
 
 name                texlive-music
-version             54512
+version             66278
 revision            0
 
 categories          tex
@@ -13,25 +13,25 @@ license             Copyleft Permissive
 description         TeX Live: Music packages
 long_description    Music-related fonts and packages.
 
-checksums           texlive-music-54512-run.tar.xz \
-                    rmd160  5fa1ec653cd7f6ac930292ad82cb3e284388348e \
-                    sha256  cae4e6fd3fd6acf5a875667cb9ea4ec31a381515099291375f20fcada09a1635 \
-                    size    31306596 \
-                    texlive-music-54512-doc.tar.xz \
-                    rmd160  f820b6cc2db6854cbe87e21d86164924d04f7fd7 \
-                    sha256  9fcddb57a90334b57be4970bba654c46b59a2cab4c8eb964f00d403950952137 \
-                    size    16242716 \
-                    texlive-music-54512-src.tar.xz \
-                    rmd160  febd3d5ed6c7cfe1b0f32815134d51c068bf144a \
-                    sha256  c4496b300b6ce1ea6c907cefec7e6bd144ca951146650ae17c788493a68bc998 \
-                    size    321476
+checksums           texlive-music-66278-run.tar.xz \
+                    rmd160  9757da175c9e7ae4be63fc18cb24b7d9c60cb711 \
+                    sha256  c351d5f6701943be2102f5b72abdea5540deeb2a9a0cf45dd5fa37b0b088750b \
+                    size    65763656 \
+                    texlive-music-66278-doc.tar.xz \
+                    rmd160  e1d0a50a755c1bba14c93da38e2438637a815e2c \
+                    sha256  d1ffd382b8eabceb234c58244102865f4f72aebabe27fe5aadef55b4055277c0 \
+                    size    18450556 \
+                    texlive-music-66278-src.tar.xz \
+                    rmd160  b07644347a69c1b15799e3378676af5e531ee7be \
+                    sha256  f203ef8eb4f31740ee17fec3c76eba0c88a3ed481303324fecf9e28dd958ec31 \
+                    size    24284084
 
 depends_lib         port:texlive-latex
 
 texlive.maps      \
     {MixedMap musix.map}
 
-texlive.binaries    autosp gregorio lily-glyph-commands lily-image-commands lily-rebuild-pdfs m-tx msxlint musixflx musixtex pmxab pmxchords prepmx scor2prt tex2aspc
+texlive.binaries    autosp gregorio lily-glyph-commands lily-image-commands lily-rebuild-pdfs m-tx msxlint musixflx musixtex pmxab pmxchords prepmx scor2prt tex2aspc xml2pmx
 
 
 texlive.texmfport

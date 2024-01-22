@@ -1,0 +1,21 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             bioconductor Bioconductor multtest 2.58.0
+revision            0
+maintainers         nomaintainer
+license             LGPL
+description         Resampling-based multiple hypothesis testing
+long_description    {*}${description}
+checksums           rmd160  669c10a566181c3913de85d402889a578a9613ba \
+                    sha256  92c40644fb6a3adbca9cba1da864482ec5db737fcbcfc8c4e3cadc2e5e161d69 \
+                    size    1294473
+
+depends_lib-append  port:R-Biobase \
+                    port:R-BiocGenerics
+
+depends_test-append port:R-snow
+
+test.run            yes

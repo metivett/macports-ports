@@ -3,19 +3,23 @@
 PortSystem          1.0
 PortGroup           python 1.0
 PortGroup           github 1.0
+PortGroup           compiler_blacklist_versions 1.0
 
-github.setup        ronaldoussoren pyobjc 7.1 v
+github.setup        ronaldoussoren pyobjc 10.1 v
 revision            0
 
-checksums           rmd160  f2d5035a5f35f12a6b34861c0a15a9446bd514fa \
-                    sha256  ba15cfd3d3e1d809b236fe147c0854c55cdfed14b7580f1651d9651a4760fdfc \
-                    size    12861424
+checksums           rmd160  4ed3e4de68817e52920dc72bc9d2a3e667c56b80 \
+                    sha256  079c59f41c75c36fbbbc9b72f49b6afdaeedbc503f6263c9c8d7542303d93c89 \
+                    size    25557538
 
 name                py-pyobjc
 categories-append   devel
 license             MIT
 maintainers         openmaintainer {danchr @danchr}
-platforms           darwin
+
+# https://pyobjc.readthedocs.io/en/latest/install.html
+platforms           {darwin >= 13}
+
 description         bidirectional bridge between python and Objective C
 long_description    The PyObjC project aims to provide a bridge between \
                     the Python and Objective-C programming languages. The \
@@ -26,29 +30,63 @@ long_description    The PyObjC project aims to provide a bridge between \
                     Python based functionality.
 homepage            https://pyobjc.readthedocs.io
 
-python.versions     36 37 38 39
+python.versions     38 39 310 311 312
 
 if {${name} ne ${subport}} {
     depends_lib-append \
-                    port:libffi \
                     port:py${python.version}-setuptools
-    depends_build   port:py${python.version}-sphinx
+    depends_build-append \
+                    port:py${python.version}-sphinx \
+                    port:py${python.version}-sphinxcontrib-blockdiag
 
-    # the patches below suppresses cleaning on incremental builds, as
-    # MacPorts handles that itself, and disables a sphinx extension
-    # not in MacPorts
     patchfiles-append \
                     patch-docs-conf.py.diff \
-                    patch-install.py.diff
+                    patch-pyobjc-core-setup.py.diff \
+                    patch-setup-no-werror.diff \
+                    patch-development-support-_install_tool.py-no-setup.diff
+
+    # use system libffi on Catalina and Big Sur until upstream merges
+    # and releases Apple's changes
+    # https://trac.macports.org/ticket/62475
+    if {${os.major} < 19} {
+        depends_lib-append \
+                    port:libffi
+    }
+
+    use_xcode                  yes
+    compiler.blacklist-append  {clang < 900}
 
     post-patch {
         reinplace \
             "s/sphinx-build /sphinx-build-${python.branch} /g" \
             ${worksrcpath}/docs/Makefile
+
+        # see comment above
+        if {${os.major} < 19} {
+            # force using both our libffi _and_ its headers
+            reinplace \
+                "s,/usr/include/ffi,${prefix}/include,g" \
+                ${worksrcpath}/pyobjc-core/setup.py
+
+            reinplace \
+                "s,<ffi/ffi.h>,<ffi.h>,g" \
+                ${worksrcpath}/pyobjc-core/Modules/objc/libffi_support.h
+        } else {
+            # force linking against system libffi by path, so that we
+            # bypass CPython's dependency on it
+            reinplace \
+                "s,-lffi,${configure.sdkroot}/usr/lib/libffi.tbd,g" \
+                ${worksrcpath}/pyobjc-core/setup.py
+        }
     }
 
     if {${configure.sdkroot} eq ""} {
-        set sdkroot "/"
+        if {${os.platform} eq "darwin" && ${os.major} == 13} {
+            # Fix for 10.9: use SIMD headers from 10.10 SDK
+            set sdkroot "${developer_dir}/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk"
+        } else {
+            set sdkroot "/"
+        }
     } else {
         set sdkroot ${configure.sdkroot}
     }
@@ -56,24 +94,17 @@ if {${name} ne ${subport}} {
     build.env-append    SDKROOT=${sdkroot}
     destroot.env-append SDKROOT=${sdkroot}
 
-    platform darwin 8 {
-        depends_lib
-        pre-fetch {
-            ui_error "${subport} @${version} requires Mac OS X 10.5 or later"
-            return -code error "incompatible Mac OS X version"
-        }
-    }
+    python.pep517       yes
 
-    # the pyobjc build system is vaguely horrible, so do everything in
-    # the destroot target
-    build {
-        system -W ${worksrcpath}/docs "make html"
-    }
+    build.cmd-prepend   ${python.bin} ${filespath}/multibuild.py ${build.jobs}
+    destroot.cmd-prepend \
+                        ${python.bin} ${filespath}/multiinstall.py ${workpath}
+    destroot.target
 
-    # don't pass --no-user-cfg, as the build system subclasses the
-    # install command from distutils, not setuptools -- in fact, doing
-    # so breaks the build...
-    destroot.cmd "${python.bin} install.py"
+    # build the documentation
+    post-build {
+        system -W ${worksrcpath}/docs "make -j${build.jobs} html"
+    }
 
     post-destroot {
         xinstall -m 644 -W ${worksrcpath}/pyobjc-core HISTORIC.txt Install.txt \
@@ -82,3 +113,6 @@ if {${name} ne ${subport}} {
         copy ${worksrcpath}/docs/_build/html ${destroot}${prefix}/share/doc/${subport}/html
     }
 }
+
+# suppress release candidates
+github.livecheck.regex  (\\d+(?:\\.\\d+)*)

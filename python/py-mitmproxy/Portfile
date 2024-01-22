@@ -5,13 +5,13 @@ PortGroup           python 1.0
 PortGroup           github 1.0
 
 
-github.setup        mitmproxy mitmproxy 5.2 v
+github.setup        mitmproxy mitmproxy 7.0.4 v
 revision            0
 
 name                py-${github.project}
 
 categories-append   net www
-platforms           darwin
+platforms           {darwin any}
 supported_archs     noarch
 license             {MIT}
 maintainers         {petr @petrrr} openmaintainer
@@ -26,19 +26,19 @@ long_description    \
 
 homepage            https://mitmproxy.org/
 
-checksums           md5     7149b0a4ad86b6895db5640c542d307a \
-                    rmd160  a05901d0588340430e82ea4952cc3274ddbd2a1e \
-                    sha256  9d3de6e843fca745336b419b3a9e416350c7c0cd2865f72bec5d5b001e36b797 \
-                    size    27252777
+checksums           rmd160  7668d0fe20ad33e026de91345ceb966d408f4774 \
+                    sha256  d7d7636e2c2c2d957e413fdd54fd5be35f9128287601df5e8a971865d186fffe \
+                    size    27312057
 
-patchfiles          version-test.patch
+patchfiles          patch-test_version.py.diff
 
-python.versions     37 38
+python.versions     37 38 39 310 311
 
 if {${name} ne ${subport}} {
     depends_build-append    port:py${python.version}-setuptools
 
     depends_lib-append      port:py${python.version}-asn1 \
+                            port:py${python.version}-asgiref \
                             port:py${python.version}-blinker \
                             port:py${python.version}-brotli \
                             port:py${python.version}-click \
@@ -49,6 +49,7 @@ if {${name} ne ${subport}} {
                             port:py${python.version}-hyperframe \
                             port:py${python.version}-kaitaistruct \
                             port:py${python.version}-ldap3 \
+                            port:py${python.version}-msgpack \
                             port:py${python.version}-openssl \
                             port:py${python.version}-parsing \
                             port:py${python.version}-passlib \
@@ -81,13 +82,4 @@ if {${name} ne ${subport}} {
     test.run yes
     # ignore pytest.PytestDeprecationWarning since pytest 6
     test.cmd py.test-${python.branch} -W ignore::pytest.PytestDeprecationWarning
-
-    livecheck.type  none
-} else {
-    livecheck.type  pypi
-}
-
-subport py36-${python.rootname} {
-    replaced_by py37-${python.rootname}
-    PortGroup obsolete 1.0
 }

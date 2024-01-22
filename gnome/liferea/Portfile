@@ -6,6 +6,7 @@ PortGroup           github 1.0
 PortGroup           gobject_introspection 1.0
 
 github.setup        lwindolf liferea 1.12.9 v
+revision            1
 # Note: do not remove the epoch line.
 epoch               20090731
 description         A feed aggregator for GTK+/GNOME.
@@ -30,11 +31,11 @@ depends_build       port:pkgconfig \
                     port:libtool
 
 depends_lib         port:desktop-file-utils \
-                    port:gtk3 \
+                    path:lib/pkgconfig/gtk+-3.0.pc:gtk3 \
                     port:libxml2 \
                     port:libxslt \
                     port:sqlite3 \
-                    port:libsoup \
+                    path:lib/pkgconfig/libsoup-2.4.pc:libsoup \
                     port:json-glib \
                     port:gsettings-desktop-schemas \
                     port:libpeas \

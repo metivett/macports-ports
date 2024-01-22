@@ -4,15 +4,18 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-cachecontrol
-python.rootname     CacheControl
-version             0.12.6
+version             0.13.1
 revision            0
 categories-append   devel
-platforms           darwin
+platforms           {darwin any}
 license             Apache-2
 supported_archs     noarch
 
-python.versions     37 38 39
+python.versions     38 39 310 311 312
+
+python.pep517       yes
+python.pep517_backend \
+                    flit
 
 maintainers         {gmail.com:davidgilman1 @dgilman} openmaintainer
 
@@ -21,11 +24,11 @@ long_description    \
     CacheControl is a port of the caching algorithms in \
     httplib2 for use with requests session object.
 
-homepage            https://github.com/ionrock/cachecontrol
+homepage            https://github.com/psf/cachecontrol
 
-checksums           rmd160  67bcb07c66fed67504390434cce0e02050336f72 \
-                    sha256  be9aa45477a134aee56c8fac518627e1154df063e85f67d4f83ce0ccc23688e8 \
-                    size    14616
+checksums           rmd160  bf4659f482b388370b980094231cb4465f915eb3 \
+                    sha256  f012366b79d2243a6118309ce73151bf52a38d4a5dac8ea57f09bd29087e506b \
+                    size    29069
 
 if {${name} ne ${subport}} {
     depends_build-append \
@@ -34,6 +37,4 @@ if {${name} ne ${subport}} {
     depends_lib-append \
         port:py${python.version}-requests \
         port:py${python.version}-msgpack
-
-    livecheck.type  none
 }

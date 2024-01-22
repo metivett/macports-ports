@@ -4,15 +4,18 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-hypothesis
-version             5.48.0
+version             6.92.1
 revision            0
 categories-append   devel
-platforms           darwin
+platforms           {darwin any}
+supported_archs     noarch
 license             MPL-2
 
-python.versions     27 35 36 37 38 39
+python.versions     27 35 36 37 38 39 310 311 312
 
-maintainers         {khindenburg @kurthindenburg} openmaintainer
+maintainers         {khindenburg @kurthindenburg} \
+                    {@catap korins.ky:kirill} \
+                    openmaintainer
 
 description         A library for property based testing
 
@@ -23,9 +26,9 @@ long_description \
 
 homepage            https://pypi.python.org/pypi/hypothesis
 
-checksums           rmd160  c26be28ea009ff88ac0445681270d092a10ed3b3 \
-                    sha256  c54dcccdca262ac119953510d66fde1c0256d43715c4ddc4eb897f80dd6c2e9f \
-                    size    289344
+checksums           rmd160  e7fb2a40bf218172ea322240c32c50aa70853c75 \
+                    sha256  fa755ded526e50b7e2f642cdc5d64519f88d4e4ee71d9d29ec3eb2f2fddf1274 \
+                    size    369856
 
 if {${name} ne ${subport}} {
     depends_build-append  port:py${python.version}-setuptools
@@ -42,6 +45,8 @@ if {${name} ne ${subport}} {
                             size    233528
 
         depends_lib-append  port:py${python.version}-enum34
+
+        livecheck.type none
     }
 
     if {${python.version} == 35} {
@@ -50,7 +55,51 @@ if {${name} ne ${subport}} {
         checksums           rmd160  ba112a0d4a97ffaf0a0aa6e6ab2c135e0dd96d10 \
                             sha256  5cc9073ee5a5c109c8d731a52c304729dbb6affed570eb7d35908bfdd937975e \
                             size    267988
+
+        livecheck.type none
     }
 
-    livecheck.type      none
+    if {${python.version} == 36} {
+        version             6.31.6
+        revision            0
+        checksums           rmd160  fa5b58a419eafda77d1b0fe21723034da51c76b3 \
+                            sha256  d54be6a80b160ad5ea4209b01a0d72e31d910510ed7142fa9907861911800771 \
+                            size    316859
+
+        livecheck.type none
+    }
+
+    if {${python.version} == 37} {
+        version             6.79.4
+        revision            0
+        checksums           rmd160  8b7784dd3cc735560db395c9f3bc272ad037db48 \
+                            sha256  e9a9ff3dc3f3eebbf214d6852882ac96ad72023f0e9770139fd3d3c1b87673e2 \
+                            size    355439
+
+        livecheck.type none
+    }
+
+    if {${python.version} == 38} {
+        version             6.80.0
+        revision            0
+        checksums           rmd160  c418f4d27f1b06534e74f0a9b68c1f3f453f32ac \
+                            sha256  75d74da36fd3837b5b3fe15211dabc7389e78d882bf2c91bab2184ccf91fe64c \
+                            size    352808
+
+        livecheck.type none
+    }
+
+    if {${python.version} > 36 && ${python.version} < 311} {
+       depends_lib-append   port:py${python.version}-exceptiongroup
+    }
+
+    # Leave for next major release
+    if {0} {
+    notes "Welcome to the next major version of Hypothesis!\
+    If you were running on the last version of Hypothesis 5.x without\
+    any Hypothesis deprecation warnings (or using private APIs), this\
+    upgrade should cause no issues.\
+    See https://hypothesis.readthedocs.io/en/latest/changes.html#v6-0-0\
+    for more information."
+    }
 }

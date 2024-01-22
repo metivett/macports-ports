@@ -6,7 +6,8 @@ PortGroup           select          1.0
 PortGroup           wxWidgets       1.0
 
 # remember to bump version of wxWidgets-common
-github.setup        wxWidgets wxWidgets 3.1.4 v
+github.setup        wxWidgets wxWidgets 3.2.4 v
+github.tarball_from releases
 revision            1
 name                wxWidgets-3.2
 wxWidgets.use       wxWidgets-3.2
@@ -16,7 +17,6 @@ set wxtype          osx_cocoa
 set branch          [join [lrange [split ${version} .] 0 1] .]
 
 categories          graphics devel
-platforms           darwin
 license             wxwidgets-3.1
 maintainers         {mojca @mojca} openmaintainer
 
@@ -26,16 +26,19 @@ long_description    wxWidgets ${branch} is an open-source cross-platform C++ \
 
 homepage            http://www.wxwidgets.org/
 
-checksums           rmd160  ae7895b1a706247400caa840c13c1d1102a03581 \
-                    sha256  2e4e12d44b111b72899f60bb0f9d1534f5253fef13a77e6cd8f857284971f084 \
-                    size    20702399
+distname            wxWidgets-${version}
+use_bzip2           yes
+
+checksums           rmd160  77df801aa2344874ff789ae9530a0849913d9413 \
+                    sha256  0640e1ab716db5af2ecb7389dbef6138d7679261fbff730d23845ba838ca133e \
+                    size    27505949
+
+# see https://trac.macports.org/ticket/62087
+platforms           {darwin >= 16}
 
 dist_subdir         wxWidgets/${version}
 worksrcdir          ${distname}/build
 patch.dir           ${worksrcpath}/..
-
-# https://trac.macports.org/ticket/61672
-patchfiles-append   fix-implicit-decl.diff
 
 set selectdir       ${workpath}/select
 select.group        wxWidgets
@@ -44,15 +47,24 @@ select.file         ${selectdir}/${subport}
 compiler.c_standard   2011
 compiler.cxx_standard 2011
 
+depends_build       port:pkgconfig
+
 depends_lib-append  path:include/turbojpeg.h:libjpeg-turbo \
                     port:tiff \
                     port:libpng \
+                    port:jbigkit \
                     port:zlib \
                     port:libiconv \
-                    port:expat
+                    port:expat \
+                    port:curl \
+                    port:pcre2
 
 depends_run         port:wxWidgets-common \
                     port:wxWidgets_select
+
+# see https://trac.macports.org/ticket/57508
+configure.env-append \
+                    GREP=/usr/bin/grep
 
 post-patch {
     file mkdir ${selectdir}
@@ -70,6 +82,7 @@ configure.args      --prefix=${wxWidgets.prefix} \
                     --with-cocoa \
                     --without-sdl \
                     --enable-aui \
+                    --with-libcurl \
                     --disable-sdltest \
                     --enable-display \
                     --enable-xrc \
@@ -78,7 +91,20 @@ configure.args      --prefix=${wxWidgets.prefix} \
                     --with-macosx-version-min=no \
                     --disable-compat30 \
                     --enable-cxx11 \
-                    --disable-tests
+                    --disable-tests \
+                    --enable-unicode \
+                    --enable-display \
+                    --enable-geometry \
+                    --enable-optimise \
+                    --enable-debugreport \
+                    --enable-uiactionsim \
+                    --enable-autoidman \
+                    --enable-aui \
+                    --enable-html \
+                    --disable-stl \
+                    --enable-richtext \
+                    --enable-webview \
+                    --enable-repro-build
 
 if { ${os.platform} eq "darwin" && ${os.major} == 11 } {
     # https://trac.macports.org/ticket/58040
@@ -113,6 +139,12 @@ variant universal {
                             --disable-precomp-headers
 }
 
+# Remove the default universal flags, universal is handled above
+configure.universal_ldflags
+configure.universal_cflags
+configure.universal_cxxflags
+configure.universal_cppflags
+
 variant debug description {add debug info to libraries} {
     configure.args-append   --enable-debug
 }
@@ -125,4 +157,6 @@ variant stdlib description {add support for various standard library features} {
                             --enable-std_string_conv_in_wxstring
 }
 
-livecheck.regex     {archive/v([0-9.]+).tar.gz}
+default_variants +compat30
+
+github.livecheck.regex  {([0-9.]+)}

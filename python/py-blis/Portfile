@@ -8,31 +8,31 @@ PortGroup           compiler_blacklist_versions 1.0
 name                py-blis
 epoch               1
 # Don't upgrade past py-spaCy's highest supported version.
-github.setup        explosion cython-blis 0.4.2 v
+github.setup        explosion cython-blis 0.9.1 v
 revision            0
-checksums           rmd160  3e51b8e63d1018e0695c43bf600b0d3d281f5d7e \
-                    sha256  a54606d48cee4d366442b313fbd2286710b2be0c83cdab0b19cd97492590967c \
-                    size    2038082
 
-platforms           darwin
-supported_archs     x86_64
+checksums           rmd160  94337b4032e0fb0d7ab49d622a9b42f5c53c7335 \
+                    sha256  6b13374cd4fd6493d583db2a5139c973c90818c9b59bbb572eb207325c3e5542 \
+                    size    3914839
+
+supported_archs     arm64 x86_64
 
 license             MIT
 
 maintainers         {jonesc @cjones051073} openmaintainer
 
 description         Fast matrix-multiplication as a self-contained Python library
-long_description    ${description}
+long_description    {*}${description}
 
 # overload the github livecheck regex to look for versions that
 # are just numbers and '.', no letters (e.g., "0.4.0.dev1").
 github.livecheck.regex  {([0-9.]+)}
 
 # Supported python versions
-python.versions        35 36 37 38 39
-python.default_version 38
+python.versions        37 38 39 310 311
 
 # Compiler selection
+compiler.c_standard    1999
 compiler.cxx_standard  2011
 compiler.blacklist-append *gcc* {clang < 999} macports-clang-3.* {macports-clang-[4-6].0}
 
@@ -51,6 +51,7 @@ if {${name} ne ${subport}} {
     default_variants-append +native
 
     depends_build-append \
+        port:cctools \
         port:py${python.version}-setuptools
 
     depends_lib-append \
@@ -60,13 +61,4 @@ if {${name} ne ${subport}} {
     depends_test-append \
         port:py${python.version}-pytest \
         port:py${python.version}-hypothesis
-
-    post-extract {
-        # Set cython version
-        set PythonVersionWithDot [join [split ${python.version} ""] "."]
-        reinplace "s|\'cython\'|\'cython-${PythonVersionWithDot}\'|g" ${worksrcpath}/bin/cythonize.py
-    }
-
-    livecheck.type none 
-
 }

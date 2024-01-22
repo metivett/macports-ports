@@ -3,7 +3,8 @@
 PortSystem          1.0
 PortGroup           golang 1.0
 
-go.setup            github.com/cloudskiff/driftctl 0.5.0 v
+go.setup            github.com/snyk/driftctl 0.40.0 v
+github.tarball_from archive
 revision            0
 
 homepage            https://driftctl.com
@@ -13,39 +14,29 @@ description         Detect, track and alert on infrastructure drift
 long_description    {*}${description}. Measures infrastructure as code \
                     coverage, and tracks infrastructure drift.
 
+categories          sysutils
+installs_libs       no
+license             Apache-2
 maintainers         {gmail.com:herby.gillot @herbygillot} \
                     openmaintainer
 
-categories          sysutils
-license             Apache-2
-platforms           darwin
-supported_archs     x86_64
-installs_libs       no
-
-checksums           rmd160  27cab3d6ac11e315b0bb2de02546c0475d85e805 \
-                    sha256  21242cf08e2223579a19fc642602b01ce344916694e3f0dc90d4457f9d3a1305 \
-                    size    16659300
-
-depends_build-append port:gox
+checksums           rmd160  de440c96d9729fce4307c8dbbe579974418beeab \
+                    sha256  30781d35092dd1dd1b34f22e63e3130a062cf4a3f511f61be013a0ff2a0c7767 \
+                    size    1864461
 
 # Allow fetching dependencies at build time
-build.env-delete    GOPROXY=off GO111MODULE=off
+go.offline_build no
 
-build.cmd           make
-build.target        release
+build.env-append    OS_ARCH=${os.platform}/${goarch}
 
-patch {
-    # Delete all non-Darwin build targets from the build scripts
-    reinplace -E {/(linux|windows)/ d} ${worksrcpath}/scripts/build.sh
+build.cmd           "${go.bin} generate ./... && ${go.bin} build"
 
-    # Disable running git commands to determine commit and version.
-    # This is not a git repo.
-    reinplace "s|GIT_COMMIT=.*|GIT_COMMIT=|g" ${worksrcpath}/scripts/build.sh
-    reinplace "s|VERSION=.*|VERSION=v${version}|g" ${worksrcpath}/scripts/build.sh
-    reinplace {s|sha256sum|shasum -a 256|} ${worksrcpath}/scripts/build.sh
-}
+build.pre_args-append \
+    -ldflags \" \
+        -X ${go.package}/pkg/version.version=${github.tag_prefix}${version} \
+        -X ${go.package}/build.env=release \
+    \"
 
 destroot {
-    xinstall -m 755 ${worksrcpath}/bin/${name}_darwin_amd64 \
-        ${destroot}${prefix}/bin/${name}
+    xinstall -m 0755 ${worksrcpath}/${name} ${destroot}${prefix}/bin/
 }

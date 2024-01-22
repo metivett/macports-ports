@@ -3,16 +3,17 @@
 PortSystem          1.0
 PortGroup           perl5 1.0
 
-perl5.branches      5.26 5.28 5.30
-perl5.setup         Mac-Pasteboard 0.011
+perl5.branches      5.28 5.30 5.32 5.34
+perl5.setup         Mac-Pasteboard 0.104
+revision            0
 license             {Artistic-1 GPL}
 maintainers         nomaintainer
 
 description         Manipulate Mac OS X pasteboards/clipboards
 long_description    ${name} is a perl module to ${description}.
 
-checksums           rmd160  41862008818e10171b5acbae4a1ae8bba556e942 \
-                    sha256  bd8c4510b1e805c43e4b55155c0beaf002b649fe30b6a7841ff05e7399ba02a9 \
-                    size    108155
-
 platforms           darwin
+
+checksums           rmd160  bec723748b3a1ae8b66580aab7e95412dc0db5e8 \
+                    sha256  c55a4431188bec4873212a7c308f835fd1f0e3ba1958173037b5e2d0100fca40 \
+                    size    225287

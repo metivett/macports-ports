@@ -5,12 +5,12 @@ PortGroup           python 1.0
 
 name                py-tz
 python.rootname     pytz
-version             2021.1
+version             2023.3.post1
 revision            0
 
 categories-append   devel
-platforms           darwin
 supported_archs     noarch
+platforms           {darwin any}
 license             MIT
 maintainers         nomaintainer
 
@@ -20,11 +20,12 @@ long_description    pytz brings the Olson tz database into Python. This library 
 
 homepage            https://pypi.python.org/pypi/pytz
 
-checksums           rmd160  1f7dba08d6ac28c013057666491d2219d82898b0 \
-                    sha256  83a4a90894bf38e243cf052c8b58f381bfe9a7a483f6a9cab140bc7f702ac4da \
-                    size    317945
+checksums           md5 84e6569fcc917b096cca1063819c4ab0 \
+                    rmd160 05b731bdfd054ea22168c9194101983d591e7da4 \
+                    sha256 7b4fddbeb94a1eba4b557da24f19fdf9db575192544270a9101d8509f9f43d7b \
+                    size 316899
 
-python.versions     27 35 36 37 38 39
+python.versions     27 35 36 37 38 39 310 311 312
 
 if {${name} ne ${subport}} {
     if {${python.version} in "27 35 36"} {
@@ -32,10 +33,9 @@ if {${name} ne ${subport}} {
     }
 
     test.run        yes
+    python.test_framework
     test.dir        ${build.dir}/pytz/tests
     test.cmd        ${python.bin} test_lazy.py && ${python.bin} test_tzinfo.py
-    test.target
-    test.env        PYTHONPATH=${worksrcpath}/build/lib
 
     post-destroot {
         set docdir ${prefix}/share/doc/${subport}
@@ -43,6 +43,4 @@ if {${name} ne ${subport}} {
         xinstall -m 0644 -W $worksrcpath LICENSE.txt README.rst \
             ${destroot}${docdir}
     }
-
-    livecheck.type  none
 }

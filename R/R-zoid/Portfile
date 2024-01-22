@@ -1,0 +1,41 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+# Revert to GitHub once updated there.
+R.setup             cran nwfsc-cb zoid 1.2.0
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             GPL-3+
+description         Bayesian Zero-and-One Inflated Dirichlet regression modelling
+long_description    {*}${description}
+homepage            https://nwfsc-cb.github.io/zoid
+checksums           rmd160  e7d7240d5b61cf3f8c2cb9e8218646a73e501852 \
+                    sha256  397b7d852a44101eb5bf8e68f6b384f4d81db34e5139a8a586b8e08548944330 \
+                    size    119526
+
+post-extract {
+    foreach f {RcppExports.o stanExports_dirichregmod.o zoid.so} {
+        if {[file exists ${worksrcpath}/src/${f}]} {
+            delete ${worksrcpath}/src/${f}
+        }
+    }
+}
+
+depends_lib-append  port:R-BH \
+                    port:R-compositions \
+                    port:R-gtools \
+                    port:R-Rcpp \
+                    port:R-RcppEigen \
+                    port:R-RcppParallel \
+                    port:R-rstan \
+                    port:R-rstantools \
+                    port:R-StanHeaders
+
+depends_test-append port:R-knitr \
+                    port:R-rmarkdown \
+                    port:R-testthat
+
+test.run            yes

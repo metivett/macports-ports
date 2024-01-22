@@ -6,15 +6,15 @@ PortGroup           github 1.0
 PortGroup           compiler_blacklist_versions 1.0
 
 epoch               1
-github.setup        mongodb mongo-cxx-driver 3.6.2 r
+github.setup        mongodb mongo-cxx-driver 3.9.0 r
 revision            0
-checksums           rmd160  83e15a0b923fe91165f0bb0069be44a99e13287c \
-                    sha256  24325dce74723f7632da76d0eeb5f5020828498cc5bc1a624c6d7117efb2b7cf \
-                    size    1395487
+checksums           rmd160  34cbfc84e78f9e644fdce56f7811d9352c375d86 \
+                    sha256  09526c61b38f6adce86aa9ff682c061d08a5184cfe14e3aea12d8ecaf35364a2 \
+                    size    1847472
 
 license             Apache-2
 categories          devel databases
-platforms           darwin
+platforms           {darwin >= 10}
 maintainers         {ryandesign @ryandesign} openmaintainer
 
 description         library for using mongodb from C++ code
@@ -27,27 +27,23 @@ supported_archs     arm64 i386 x86_64
 github.tarball_from releases
 distname            ${name}-${github.tag_prefix}${version}
 
-depends_lib-append  port:mnmlstc-core \
+depends_lib-append  port:cyrus-sasl2 \
+                    port:mnmlstc-core \
                     port:mongo-c-driver
 
 compiler.cxx_standard 2011
+compiler.thread_local_storage yes
 
 # Segmentation fault observed during build for Xcode 6.2
 compiler.blacklist-append {clang == 600.0.57}
+# error: no matching member function for call to 'push_back'
+compiler.blacklist-append {clang < 1000}
 
 configure.args      -DBSONCXX_POLY_USE_MNMLSTC=ON \
                     -DBSONCXX_POLY_USE_SYSTEM_MNMLSTC=ON \
+                    -DBUILD_SHARED_AND_STATIC_LIBS=ON \
                     -DBUILD_VERSION=${version} \
+                    -DENABLE_UNINSTALL=OFF \
                     -DMONGOCXX_ENABLE_SSL=ON
-
-if {${os.platform} eq "darwin" && ${os.major} < 10} {
-    known_fail      yes
-    depends_build
-    depends_lib
-    pre-fetch {
-        ui_error "${name} @${version} requires Mac OS X 10.6 or greater."
-        return -code error "incompatible Mac OS X version"
-    }
-}
 
 github.livecheck.regex {([0-9.]+)}

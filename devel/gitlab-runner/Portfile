@@ -3,42 +3,52 @@
 PortSystem          1.0
 PortGroup           golang 1.0
 
-go.setup            gitlab.com/gitlab-org/gitlab-runner 13.9.0 v
-
-categories          devel
-platforms           darwin
-supported_archs     x86_64
-maintainers         {breun.nl:nils @breun} openmaintainer
-license             MIT
-
-description         GitLab Runner
-long_description    GitLab Runner is the open source project that is used to \
-                    run your jobs and send the results back to GitLab. It is \
-                    used in conjunction with GitLab CI, the open-source \
-                    continuous integration service included with GitLab that \
-                    coordinates the jobs.
+go.setup            gitlab.com/gitlab-org/gitlab-runner 16.2.0 v
+revision            0
 
 homepage            https://docs.gitlab.com/runner/
 
-master_sites        https://gitlab.com/gitlab-org/gitlab-runner/-/archive/v${version}/
-distname            gitlab-runner-v${version}
+description         GitLab Runner
 
-checksums           rmd160  73e97c1c4741fa86df06d8dcfa6dd94f79e2bf9e \
-                    sha256  35e128eba8cae5269ba5e17d8a5610b39493cc030f110a2a331bbe642c878191 \
-                    size    8266236
+long_description    \
+    GitLab Runner is the open source project that is used to run your jobs \
+    and send the results back to GitLab. It is used in conjunction with \
+    GitLab CI, the open-source continuous integration service included with \
+    GitLab that coordinates the jobs.
 
-# Reproduce the "build_simple" target from the upstream Makefile
-set go_ldflags      "-X ${go.package}/common.NAME=${go.package} \
-    -X ${go.package}/common.VERSION=${version} \
-    -X ${go.package}/common.REVISION=unknown \
-    -X ${go.package}/common.BUILT=unknown \
-    -X ${go.package}/common.BRANCH=unknown \
-    -s -w"
-build.args          -ldflags \"${go_ldflags}\" -o out/binaries/${name} ${go.package}
+categories          devel
+installs_libs       no
+license             MIT
+maintainers         {gmail.com:herby.gillot @herbygillot} \
+                    openmaintainer
 
-destroot {
-    xinstall -m 0755 ${worksrcpath}/out/binaries/${name} ${destroot}${prefix}/bin/${name}
+checksums           rmd160  6b67637423b5afe9e22be37c893b2395c661579f \
+                    sha256  e2e6b7cbe3277e6d23549473efdf241b06f2c89580b4b506f8198c8a5652de32 \
+                    size    1361843
+
+# Allow Go to fetch deps at build time
+go.offline_build no
+
+pre-build {
+    # Reproduce the "runner-bin-host" target from the upstream Makefile
+    # Lookup REVISION from https://gitlab.com/gitlab-org/gitlab-runner/-/releases/v${version}
+    set release_info [exec curl -s "https://gitlab.com/api/v4/projects/gitlab-org%2Fgitlab-runner/releases/v${version}"]
+    regexp {"short_id"\s*:\s*"(.{8})"} ${release_info}     matched short_id
+    regexp {^(\d+)\.(\d+)\.}           ${version}          matched major minor
+
+    set go_ldflags     " \
+        -X ${go.package}/common.NAME=${go.package} \
+        -X ${go.package}/common.VERSION=${version} \
+        -X ${go.package}/common.REVISION=${short_id} \
+        -X ${go.package}/common.BUILT=unknown \
+        -X ${go.package}/common.BRANCH=${major}-${minor}-stable \
+        -s -w "
+
+    build.args\
+        -ldflags \"${go_ldflags}\" -o out/binaries/${name} ${go.package}
 }
 
-livecheck.url   https://gitlab.com/gitlab-org/gitlab-runner/-/tags
-livecheck.regex v(\\d+\\.\\d+\\.\\d+)
+destroot {
+    xinstall -m 0755 \
+        ${worksrcpath}/out/binaries/${name} ${destroot}${prefix}/bin/
+}

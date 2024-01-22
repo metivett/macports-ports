@@ -5,10 +5,9 @@ PortSystem          1.0
 name                postgis3
 categories          databases gis
 license             GPL-2+
-version             3.0.3
-revision            0
-platforms           darwin
-maintainers         {vince @Veence} openmaintainer
+version             3.4.1
+revision            2
+maintainers         {vince @Veence} {yahoo.com:n_larsson @nilason} openmaintainer
 
 description         PostGIS is the spatial extension to the\
                     PostGreSQL database.
@@ -17,108 +16,121 @@ long_description    PostGIS adds geometrical, geographical and topological\
                     types, and functions operating thereon, to the PostGreSQL\
                     database. It also handles raster tiles and MVT format.
 
-homepage            http://postgis.net/
+homepage            https://postgis.net/
 
-master_sites        http://download.osgeo.org/postgis/source
+master_sites        https://download.osgeo.org/postgis/source
 distname            postgis-${version}
 
-checksums           rmd160  39c8a4d8bbaba127223ff19a9ebe2b08a3b3c0d2 \
-                    sha256  07fedbd046cbed55d24bb22474890a4651d0223b6e12d2dac1517b9a43674817 \
-                    size    16871696
+checksums           rmd160  06ea2b4f8e07bba9923dcfd681bae9893ecaee03 \
+                    sha256  fef6a141213d0ff27bf45b33b849cc396c22ddb1ffc6fed435469c9e891fc81d \
+                    size    14942851
 
-depends_build       port:autoconf \
+depends_build-append \
+                    port:autoconf \
                     port:automake \
                     port:libtool \
-                    port:libxslt
+                    port:libxslt \
+                    port:pkgconfig
 
-depends_lib         port:geos\
-                    port:libiconv\
-                    port:libxml2\
-                    port:json-c
-
-# PostGIS 2.0 is not compatible with PostGIS 1.5
+depends_lib-append  port:geos \
+                    port:json-c \
+                    path:lib/pkgconfig/icu-uc.pc:icu \
+                    port:libiconv \
+                    port:libxml2 \
+                    port:protobuf-c
 
 conflicts           postgis postgis2
 
-# Neither is PostGIS 2.0 compatible with PostGreSQL 8
-# Database variants (from the GDAL port)
-set postgresql_suffixes {13 12 11 10}
+compiler.thread_local_storage yes
 
-set postgresql_variants {}
-
-foreach suffix ${postgresql_suffixes} {
-    lappend postgresql_variants postgresql${suffix}
-}
-
-foreach suffix ${postgresql_suffixes} {
-    set vrt postgresql${suffix}
-    set pgversion [string index ${suffix} 0].[string index ${suffix} 1]
-    set index [lsearch -exact ${postgresql_variants} ${vrt}]
-    set conf [lreplace ${postgresql_variants} ${index} ${index}]
-
-    variant ${vrt} \
-        conflicts ${conf} \
-        description "Use PostgreSQL ${pgversion}" \
-        "
-        depends_lib-append      port:${vrt}
-        configure.args-append   --libdir=${prefix}/lib/${vrt} \
-            --with-pgconfig=${prefix}/lib/${vrt}/bin/pg_config
-        build.args-append       \
-            PGSQL_DOCDIR=${destroot}${prefix}/share/doc/${vrt} \
-            PGSQL_MANDIR=${destroot}${prefix}/share/man 
-        " 
-}
-
-# postgresql default
-set pgdefault "if {"
-
-foreach suffix ${postgresql_suffixes} {
-    set pgdefault "${pgdefault}!\[variant_isset postgresql${suffix}\] && "
-}
-
-set pgdefault [string range ${pgdefault} 0 end-4]
-set pgdefault "${pgdefault}} { default_variants +postgresql13 }"
-
-eval ${pgdefault}
-
-variant raster              description {Build raster support} {
-
-    depends_lib-append      port:gdal
-    configure.args-append   --with-raster
-}
-
-variant topology            description {Build topology support} {
-
-    configure.args-append   --with-topology
-}
-
-variant sfcgal              description {Uses SFCGAL for 3D queries} {
-    depends_lib-append      port:sfcgal
-    configure.args-append   --with-sfcgal=${prefix}/bin/sfcgal-config
-}
-
-variant proj6 conflicts proj7 {
-    depends_lib-append      port:proj6
-    configure.args-append   --with-projdir=${prefix}/lib/proj6
-}
-
-variant proj7 conflicts proj6 {
-    depends_lib-append      port:proj7
-    configure.args-append   --with-projdir=${prefix}/lib/proj7
-}
-
-default_variants            +raster +topology
-if {![variant_isset proj6] && ![variant_isset proj7]} {
-    default_variants        +proj7
-}
-
-# Port phases
+configure.args-append \
+                    --without-address-standardizer \
+                    --without-raster \
+                    --without-sfcgal \
+                    --without-topology
 
 configure.cflags-append \
-    -Diconv=libiconv -Diconv_open=libiconv_open -Diconv_close=libiconv_close 
+                    -Diconv=libiconv -Diconv_open=libiconv_open -Diconv_close=libiconv_close
 
 # see https://trac.macports.org/wiki/UsingTheRightCompiler
-configure.env-append    CPPBIN=${configure.cpp}
+configure.env-append \
+                    CPPBIN=${configure.cpp}
+
+build.args          ICONV_LDFLAGS='-L${prefix}/lib -liconv'
+
+variant address_standardizer description {Build with Address Standardizer support} {
+    depends_lib-append      port:pcre2
+    configure.args-replace  --without-address-standardizer --with-address-standardizer
+}
+
+variant lto description {Build with Link Time Optimization (LTO)} {
+    configure.args-append   --enable-lto
+}
+
+# PROJ variants
+set proj_versions {6 7 8 9}
+set proj_variants {}
+foreach pjver ${proj_versions} {
+    lappend proj_variants proj${pjver}
+}
+foreach proj_ver ${proj_versions} {
+    set index [lsearch -exact ${proj_variants} proj${proj_ver}]
+    set cflcts [lreplace ${proj_variants} ${index} ${index}]
+    variant proj${proj_ver} description "Use Proj${proj_ver}" conflicts {*}${cflcts} "
+            depends_lib-append      port:proj${proj_ver}
+            configure.args-append   PROJ_CFLAGS=-I${prefix}/lib/proj${proj_ver}/include \
+                                    PROJ_LIBS=\"-L${prefix}/lib/proj${proj_ver}/lib -lproj\"
+        "
+}
+set projdf "if {"
+foreach pv ${proj_versions} {
+    set projdf "${projdf}!\[variant_isset proj${pv}\] && "
+}
+set projdf [string range ${projdf} 0 end-4]
+set projdf "${projdf}} { default_variants +proj${pv} }"
+eval ${projdf}
+
+# PostgreSQL variants
+set pg_suffixes {12 13 14 15}
+set pg_variants {}
+set pg_default_variant "if {"
+foreach s ${pg_suffixes} {
+    lappend pg_variants postgresql${s}
+    set pg_default_variant "${pg_default_variant}!\[variant_isset postgresql${s}] && "
+}
+set pg_default_variant [string range ${pg_default_variant} 0 end-4]
+set pg_default_variant "${pg_default_variant}} {default_variants +postgresql${s}}"
+eval $pg_default_variant
+foreach s ${pg_suffixes} {
+    set p postgresql${s}
+    set i [lsearch -exact ${pg_variants} ${p}]
+    set c [lreplace ${pg_variants} ${i} ${i}]
+    variant ${p} description "Use PostgreSQL ${s}" conflicts {*}${c} "
+        depends_lib-append      port:${p}
+        configure.args-append   --libdir=${prefix}/lib/${p} \
+                                --bindir=${prefix}/lib/${p}/bin \
+                                --with-pgconfig=${prefix}/lib/${p}/bin/pg_config
+        build.args-append       PGSQL_DOCDIR=${destroot}${prefix}/share/doc/${p} \
+                                PGSQL_MANDIR=${destroot}${prefix}/share/man
+    "
+}
+
+variant raster description {Build raster support} {
+    depends_lib-append      port:gdal
+    configure.args-replace  --without-raster --with-raster
+    configure.args-append   --with-gdalconfig=${prefix}/bin/gdal-config
+}
+
+variant sfcgal description {Uses SFCGAL for 3D queries} {
+    depends_lib-append      port:sfcgal
+    configure.args-replace  --without-sfcgal --with-sfcgal=${prefix}/bin/sfcgal-config
+}
+
+variant topology description {Build topology support} {
+    configure.args-replace  --without-topology --with-topology
+}
+
+default_variants    +raster +topology
 
 post-configure {
     if {[variant_exists universal] && [variant_isset universal]} {
@@ -131,9 +143,25 @@ post-configure {
     }
 }
 
-build.args                  ICONV_LDFLAGS='-L${prefix}/lib -liconv'
-use_parallel_build          no
+notes               "\n\
+                    ! This version comes with the following warning if you use postgresql14:\n\
+                    ‘Due to some query performance degradation with the new fast index build\n\
+                    that requires PG14, we have decided to disable the feature by default\n\
+                    until we get more user testing as to the true impact of real-world queries.\n\
+                    If you are running PG14+, you can reenable it by doing:\n\
+                    \n\
+                        ALTER OPERATOR FAMILY gist_geometry_ops_2d USING gist\n\
+                            ADD FUNCTION 11 (geometry)\n\
+                                geometry_gist_sortsupport_2d (internal);\n\
+                    \n\
+                    and then reindex your gist indexes.\n\
+                    To revert back to the old index behavior:\n\
+                    \n\
+                        ALTER OPERATOR FAMILY gist_geometry_ops_2d using gist\n\
+                            DROP FUNCTION 11 (geometry);\n\
+                    \n\
+                    and then reindex your gist indexes.’"
 
-livecheck.type              regex
-livecheck.url               ${master_sites}
-livecheck.regex             {postgis2?-(\d+(?:\.\d+)*)\.[tz]}
+livecheck.type      regex
+livecheck.url       ${master_sites}
+livecheck.regex     {postgis2?-(\d+(?:\.\d+)*)\.[tz]}

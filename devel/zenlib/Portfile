@@ -4,11 +4,11 @@ PortSystem          1.0
 PortGroup           github 1.0
 PortGroup           cmake 1.1
 
-github.setup        MediaArea ZenLib 0.4.38 v
+github.setup        MediaArea ZenLib 0.4.41 v
 name                zenlib
-checksums           rmd160  c70ca274744dbd5997678e075449f56de7587f8d \
-                    sha256  a95c219e607c933bd27788d2a5e80097eb5e407a2b673bf9fe452e448684b668 \
-                    size    162643
+checksums           rmd160  6fb95921aca9d2f2cbf41111f123b5b613204930 \
+                    sha256  98f58fe2f6ac22424013e72050f0c861279173a846e0ed779a59ee8ec4143a32 \
+                    size    157894
 
 description         Shared library for mediainfolib and mediainfo
 long_description    {*}${description}
@@ -21,3 +21,6 @@ license             BSD
 depends_build-append port:pkgconfig
 
 worksrcdir          ${worksrcdir}/Project/CMake
+
+# As of 0.4.40
+compiler.cxx_standard 2011

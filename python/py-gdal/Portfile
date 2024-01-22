@@ -2,17 +2,17 @@
 
 PortSystem          1.0
 PortGroup           python 1.0
+PortGroup           select 1.0
 
 name                py-gdal
 python.rootname     GDAL
 # keep version in sync with gdal; rebuilt after gdal update
-version             3.2.1
+version             3.8.3
 revision            0
 
 categories-append   gis
-platforms           darwin
 license             MIT
-maintainers         {petr @petrrr} openmaintainer
+maintainers         {petr @petrrr} {yahoo.com:n_larsson @nilason} openmaintainer
 
 description         GDAL: Geospatial Data Abstraction Library
 long_description    This Python package and extensions are a number of tools for programming \
@@ -20,28 +20,33 @@ long_description    This Python package and extensions are a number of tools for
 
 homepage            https://www.gdal.org
 
-checksums           rmd160  5b7a2df1517cba4b4bd1a22164271fba6ccd8e25 \
-                    sha256  41e928fbe6880a7b38124b8dff9efe82f3d4e1bc17f771fda46bf222289ab9a4 \
-                    size    604248
+checksums           rmd160  93932cfdc77ab070d0f64060a035aa05d0b3bb26 \
+                    sha256  eae2587c581d6609289e44f30afe30edcc25fbc640b5d6aba2f3c3e81def55be \
+                    size    802458
 
-python.versions     27 35 36 37 38 39
+python.versions     38 39 310 311 312
 
 if {${name} ne ${subport}} {
     compiler.cxx_standard   2011
+    compiler.thread_local_storage yes
+
+    depends_run-append \
+                    port:gdal_select
 
     depends_lib-append \
                     port:gdal \
                     port:py${python.version}-numpy
 
-    post-patch {
-        reinplace "s|../../apps/|${prefix}/bin/|" ${worksrcpath}/setup.cfg
-    }
-
     post-destroot {
         set docdir ${prefix}/share/doc/${subport}
         xinstall -d ${destroot}${docdir}
         xinstall -m 0644 -W ${worksrcpath} README.rst ${destroot}${docdir}
+
+        set destroot_sel_dir ${destroot}${prefix}/etc/select/
+        reinplace -q "s|@PYVER@|${python.branch}|" ${destroot_sel_dir}/gdal/py-gdal
+        move ${destroot_sel_dir}/gdal/py-gdal ${destroot_sel_dir}/gdal/py${python.version}-gdal
     }
 
-    livecheck.type  none
+    select.group    gdal
+    select.file     ${filespath}/py-gdal
 }

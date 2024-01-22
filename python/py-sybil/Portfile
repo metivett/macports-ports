@@ -4,10 +4,11 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-sybil
-version             2.0.1
+version             6.0.2
 revision            0
 maintainers         {khindenburg @kurthindenburg} openmaintainer
-platforms           darwin
+supported_archs     noarch
+platforms           {darwin any}
 license             MIT
 
 description         Automated testing for the examples in your documentation.
@@ -17,31 +18,21 @@ long_description    This library provides a way to test examples in your \
                     your normal test run. Integration is provided for the \
                     three main Python test runners.
 
-homepage            https://pypi.python.org/pypi/${python.rootname}
-master_sites        pypi:[string index ${python.rootname} 0]/${python.rootname}/
-distname            ${python.rootname}-${version}
+homepage            https://github.com/simplistix/sybil
 
-checksums           rmd160  5fa7b4e6b9fba4dd807bfbf4850b804be8caa016 \
-                    sha256  597d71e246690b9223c132f0ed7dcac470dcbe9ad022004a801e108a00dc3524 \
-                    size    29316
+checksums           rmd160  62a1ca87a531890a5b05494172b3b079f1f0ec9a \
+                    sha256  8dd4d9675551482a25a0b3a0c0f602a7de4903718305253d56f9b7c3e663a81c \
+                    size    39833
 
-python.versions     27 35 36 37 38
+python.versions     38 39 310 311 312
 
 if {${name} ne ${subport}} {
-    depends_build-append    port:py${python.version}-setuptools
+    depends_build-append \
+                    port:py${python.version}-setuptools
 
-    depends_test-append \
-        port:py${python.version}-pytest \
-        port:py${python.version}-pytest-cov
+    # some failures due to missing packages
+    depends_test-append     port:py${python.version}-pytest
+    test.run                yes
 
-    set pyver [join [split ${python.version} {}] {.}]
-    test.run            yes
-    test.cmd            py.test-${pyver}
-    test.target
-    test.env            PYTHONPATH=${worksrcpath}/build/lib
-
-
-    livecheck.type          none
-} else {
-    livecheck.type          pypi
+    livecheck.type  none
 }

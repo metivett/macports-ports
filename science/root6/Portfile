@@ -9,10 +9,10 @@ PortGroup           compiler_blacklist_versions   1.0
 PortGroup           github                        1.0
 PortGroup           select                        1.0
 PortGroup           xcodeversion                  1.0
-PortGroup           legacysupport                 1.0
+PortGroup           legacysupport                 1.1
 
 # Please also check if Gate needs a revbump after root6 update
-github.setup        root-project root 6-22-06 v
+github.setup        root-project root 6-30-03 v
 version             [string map {- .} ${github.version}]
 revision            2
 livecheck.version   ${github.version}
@@ -24,6 +24,10 @@ livecheck.version   ${github.version}
 #livecheck.version   6-14-00
 #revision            0
 
+checksums           rmd160  fcaee795c0fa558541991e084ce65098b411ef0e \
+                    sha256  65a6cbd881e7659aa541877090372c6f8e23ec06e0eb7d6abb5a727b0af6e533 \
+                    size    184779567
+
 # extract major version
 set version_major   [lindex [split ${version} .] 0]
 
@@ -32,10 +36,6 @@ livecheck.url       ${github.homepage}/tags
 # even numbered minor releases are production releases, odd are developmental so skip.
 # Also, skip anything with trailing rcX etc.
 livecheck.regex     {v(6[-.]\d[02468][-.]\d{2}).tar.gz}
-
-checksums           rmd160  aed7e02f92002eb8c2d09803c8c8c24bba9ae490 \
-                    sha256  cdb7e784773793c722366fe133ca4f0cd39f12078d3226e0380ac36f80c96f67 \
-                    size    173088214
 
 name                root${version_major}
 categories          science
@@ -48,20 +48,18 @@ long_description    The ROOT system provides a set of frameworks with all \
                     of data in a very efficient way.
 
 homepage            https://root.cern.ch/
-platforms           darwin
+platforms           {darwin > 15}
 
-dist_subdir         root/${version}_1
+dist_subdir         root/${version}
 
 # Use compilers PG to pick a fortran compiler
 compilers.choose    f90 fc f77
 compilers.setup     require_fortran -g95 -gcc44 -gcc45 -gcc46 -gcc47 -gcc48 -gcc49 -gcc5 -gcc6 -gcc7 -gcc8
 compiler.blacklist-append *gcc* {clang < 920} {macports-clang-3.[0-9]} {macports-clang-[4-6].0}
 
-# If using Macports clang, make sure its added as a runtime dep as well as cling will need it.
-foreach clang_v { 7.0 8.0 9.0 10 11 } {
-    if { ${configure.compiler} eq "macports-clang-${clang_v}"} {
-        depends_run-append port:clang-${clang_v}
-    }
+# If using MacPorts clang, make sure it's added as a runtime dep as well as cling will need it.
+if {[regexp {macports-clang-(.*)} ${configure.compiler} -> clang_v]} {
+    depends_run-append port:clang-${clang_v}
 }
 
 depends_build-append port:pkgconfig
@@ -79,8 +77,8 @@ depends_lib-append  port:expat \
                     port:lz4 \
                     port:vdt \
                     port:tbb \
-                    port:git \
                     port:xxhashlib \
+                    port:z3 \
                     port:zstd \
                     path:lib/libopenblas.dylib:OpenBLAS \
                     path:lib/libssl.dylib:openssl
@@ -92,7 +90,7 @@ depends_lib-append  port:expat \
 depends_run-append  port:root_select
 
 cmake.out_of_source yes
-cmake.generator     Ninja
+#cmake.generator     Ninja
 
 # TODO: the file ${filespath}/${name} would have to be generated on the fly instead
 select.group        root
@@ -101,7 +99,7 @@ select.file         ${filespath}/${name}
 # port specific location
 set install_prefix  ${prefix}/libexec/root${version_major}
 
-patch.pre_args      -p1   
+patch.pre_args      -p1
 
 configure.args-append \
                     -Dgnuinstall=ON \
@@ -132,8 +130,6 @@ configure.args-append \
                     -Dxml=OFF \
                     -Dpyroot=OFF \
                     -Dfitsio=OFF \
-                    -Dgsl_shared=OFF \
-                    -Dbuiltin_gsl=OFF \
                     -Dpgsql=OFF \
                     -Ddcache=OFF \
                     -Dchirp=OFF \
@@ -145,15 +141,13 @@ configure.args-append \
                     -Dqtgsi=OFF \
                     -Dgviz=OFF \
                     -Dsoversion=ON \
-                    -Dcxx11=ON \
                     -Dcxx14=OFF \
-                    -Dcxx17=OFF \
                     -Dlibcxx=ON \
                     -Dxrootd=OFF \
                     -Dbuiltin_ftgl=ON \
-                    -Dmathmore=OFF \
+                    -Dbuiltin_gsl=ON \
+                    -Dmathmore=ON \
                     -Dgenvector=ON \
-                    -Dmemstat=ON \
                     -Dunuran=ON \
                     -Dgdml=ON \
                     -Dhttp=ON \
@@ -161,37 +155,29 @@ configure.args-append \
                     -Dastiff=ON \
                     -Dgeocad=OFF \
                     -Dr=OFF \
-                    -Droot7=ON \
+                    -Droot7=OFF \
                     -Dwebgui=ON \
                     -Dbuiltin_veccore=OFF \
                     -DPNG_LIBRARY=${prefix}/lib/libpng.dylib \
                     -DPNG_PNG_INCLUDE_DIR=${prefix}/include
 
-# Work-around until ROOT supports building for macOS 11.X as deployment target.
-if { ${os.major} >= 20 } {
-    macosx_deployment_target 10.16
-}
+configure.env-append \
+                    TBB_ROOT=${prefix}/libexec/tbb
 
 # https://root-forum.cern.ch/t/v6-22-00-build-error-on-macos/40239
 configure.args-append -Druntime_cxxmodules=OFF
 
-# Enable C++17 on 10.14 and newer (Darwin18+)
-#        C++14 otherwise
-if        { ${os.major} >= 18 } {
-    compiler.cxx_standard 2017
-    configure.args-replace  -Dcxx17=OFF -Dcxx17=ON
-} else {
-    compiler.cxx_standard 2014
-    configure.args-replace  -Dcxx14=OFF -Dcxx14=ON
-}
+# Enable C++17
+compiler.cxx_standard    2017
+cmake.set_cxx_standard   yes
 
 # Configure the C++ runtime to use
 if { ${configure.cxx_stdlib} ne "libc++" } {
     configure.args-replace -Dlibcxx=ON -Dlibcxx=OFF
 }
 
-# Configure the graphics backend. cocoa on OSX10.12 and newer. X11 otherwise
-if { ${os.major} >= 16 } {
+# Configure the graphics backend. cocoa on macOS 10.12 and newer. X11 otherwise
+if {${os.platform} eq "darwin" && ${os.major} >= 16} {
     if {![variant_isset x11]} {
         default_variants-append +cocoa
     }
@@ -202,20 +188,11 @@ if { ${os.major} >= 16 } {
 }
 
 # Enable xrootd support by default
-if { ${os.major} >= 12 } {
+if {${os.platform} eq "darwin" && ${os.major} >= 12} {
     default_variants-append +xrootd
 }
 
-# No longer compiles on OSX10.6 or older.
-if { ${os.major} <= 10 } {
-    known_fail yes
-    pre-fetch {
-        ui_error "${name} is not supported on this OSX release (Darwin ${os.major})."
-        return -code error "Unsupported OSX version"
-    }
-}
-
-if { ${os.major} >= 20 } {
+if {${os.platform} eq "darwin" && ${os.major} >= 20} {
     # Starting with macOS 11 the SDK version changes on incremental OS updates,
     # e.g. going from 11.0 to 11.1. This causes problems with root as it bakes
     # the SDK version (sysroot) into a number of places in the installed files
@@ -225,6 +202,18 @@ if { ${os.major} >= 20 } {
     # need to come up with a better policy in MacPorts to handle this, but until then
     # unset the sdk version to use, which causes a fallback to the unversioned SDK path.
     configure.sdk_version
+}
+
+if {${os.platform} eq "darwin" && ${os.major} >= 22} {
+    if { [vercmp ${xcodeversion} >= 15.0] || [vercmp ${xcodecltversion} >= 15.0] } {
+        # On macOS13 and newer ensure the 'legacy' linker is used as GCC currently has problems
+        # with the new default linker in Xcode 15. See e.g.
+        # https://developer.apple.com/documentation/xcode-release-notes/xcode-15-release-notes#Linking
+        # https://discussions.apple.com/thread/255137447
+        # https://developer.apple.com/forums/thread/737707
+        # https://github.com/Homebrew/homebrew-core/issues/145991
+        configure.ldflags-append  -Wl,-ld_classic
+    }
 }
 
 pre-configure {
@@ -303,7 +292,7 @@ post-activate {
 
 universal_variant no
 
-default_variants-append +xml +gsl +tmva +roofit +graphviz +opengl +davix
+default_variants-append +xml +tmva +roofit +graphviz +opengl +davix
 
 variant native description {Build with best native support for local CPU capabilities} {
     configure.cflags-append    -O3 -mtune=native
@@ -357,15 +346,6 @@ variant fftw3 description {Build with fftw3 support} {
     depends_lib-append      port:fftw-3
 }
 
-variant gsl description {Build with gsl support} {
-    # External GSL library
-    configure.args-replace  -Dgsl_shared=OFF -Dgsl_shared=ON
-    configure.args-append   -DGSL_CONFIG_EXECUTABLE="${prefix}/bin/gsl-config"
-    depends_lib-append      port:gsl
-    # Enable the MathMore library
-    configure.args-replace  -Dmathmore=OFF -Dmathmore=ON
-}
-
 variant fitsio description {Build with fitsio support} {
     configure.args-replace  -Dfitsio=OFF -Dfitsio=ON
     depends_lib-append      port:cfitsio
@@ -396,13 +376,13 @@ variant opengl description {Build with opengl support} {
 # ========================================================================================
 
 # List of possible python versions
-set python_versions { 2.7 3.5 3.6 3.7 3.8 3.9 }
-# Enable python variant by default on OSX 10.9 and newer.
+set python_versions { 3.8 3.9 3.10 3.11 3.12 }
+# Enable python variant by default on OS X 10.9 and newer.
 # Disabled on older systems due to an issue fetching the source for
 # the various python dependencies due to these systems having out of
 # date SSL versions that are rejected by the upstream server.
-if { ${os.major} >= 13 } {
-    set default_python_variant +python38
+if {${os.platform} ne "darwin" || ${os.major} >= 13} {
+    set default_python_variant +python312
 } else {
     set default_python_variant ""
 }
@@ -428,6 +408,8 @@ foreach py_ver ${python_versions} {
 if {${default_python_variant} != ""} {
     default_variants-append "${default_python_variant}"
 }
+
+variant jupyter description {Enable Jupyter support} { }
 
 # If a python variant is enabled, activate it
 set active_python_version ""
@@ -462,9 +444,11 @@ foreach py_ver ${python_versions} {
         }
         depends_lib-append      port:python${py_ver_no_dot} \
                                 port:py${py_ver_no_dot}-numpy \
-                                port:py${py_ver_no_dot}-jupyter \
-                                port:py${py_ver_no_dot}-gnureadline \
+                                port:py${py_ver_no_dot}-gnureadline
+        if {[variant_isset jupyter ]} {
+            depends_lib-append  port:py${py_ver_no_dot}-jupyter \
                                 port:py${py_ver_no_dot}-metakernel
+        }
 
         post-destroot {
             # Install PyROOT in the correct place
@@ -501,14 +485,20 @@ foreach py_ver ${python_versions} {
             foreach f [ exec find ${destroot}${install_prefix} -type f -and -name "*.py" ] {
                 reinplace -q "s|${pystringtoreplace}|${prefix}/bin/python${active_python_version}|g" $f
             }
-        }
-        # patch the command ROOT assumes to run for juypter
-        pre-configure {
-            foreach f [ exec find ${worksrcpath}/ -type f -and -name "nbmain.cxx" ] {
-                reinplace "s|\"jupyter\"|\"jupyter-${active_python_version}\"|g" $f
+            # Add rpath to all libraries
+            # https://root-forum.cern.ch/t/import-error/49492
+            foreach f [ exec find ${destroot}${install_prefix}/ -name "*.so" -or -name "*.dylib"] {
+                system "install_name_tool -add_rpath ${install_prefix}/lib/root ${f} > /dev/null 2>&1 ; true"
             }
         }
-
+        if {[variant_isset jupyter ]} {
+            # patch the command ROOT assumes to run for jupyter
+            pre-configure {
+                foreach f [ exec find ${worksrcpath}/ -type f -and -name "nbmain.cxx" ] {
+                    reinplace "s|\"jupyter\"|\"jupyter-${active_python_version}\"|g" $f
+                }
+            }
+        }
     }
 }
 

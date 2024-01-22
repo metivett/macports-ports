@@ -2,15 +2,17 @@
 
 PortSystem      1.0
 PortGroup       legacysupport 1.0
+PortGroup       compiler_blacklist_versions 1.0
 
 name            bind9
-version         9.16.12
+version         9.18.21
 categories      net
-maintainers     {geeklair.net:dluke @danielluke}
+maintainers     {geeklair.net:dluke @danielluke} {jmr @jmroot}
 platforms       darwin freebsd sunos
 
 description     Domain Name System server
-license         MPL
+# see https://gitlab.isc.org/isc-projects/bind9/-/blob/main/LICENSE
+license         {MPL-2 GPL-2+ LGPL-2.1+ AGPL-3+}
 
 long_description \
                 The BIND DNS Server is used on the vast majority of name \
@@ -27,9 +29,9 @@ homepage        https://www.isc.org/
 distname        bind-${version}
 master_sites    isc:${name}/${version}
 
-checksums       rmd160    7b180be178a847af1f47f06fbfec4bf79326df68 \
-                sha256    9914af9311fd349cab441097898d94fb28d0bfd9bf6ed04fe1f97f042644da7f \
-                size      5017756
+checksums       rmd160    21a8589a80359193f1ef63debded83e3ad3a8168 \
+                sha256    a556be22505d9ea4f9c6717aee9c549739c68498aff3ca69035787ecc648fec5 \
+                size      5507132
 
 use_xz          yes
 
@@ -38,19 +40,29 @@ depends_build   port:pkgconfig
 depends_lib     path:lib/libssl.dylib:openssl  \
                 port:libuv \
                 port:libxml2 \
-                port:python39 \
-                port:py39-ply
+                port:nghttp2 \
+                port:jemalloc \
+                port:json-c \
+                port:libidn2 \
+                port:lmdb
 
-use_parallel_build \
-                no
 universal_variant \
                 no
 
+# Needs working __atomic_* builtins
 compiler.blacklist \
-                gcc-4.2
+                gcc-4.2 \
+                {clang < 500}
 
-patchfiles      atomics.patch
+# libisc_random_clang_codgen.patch forces 8 byte alignment for the thread_local variable
+# which causes clang to produce a movups insruction instead of an un-aligned movaps instruction
+# we could alternatively build with gcc or figure out which clang version(s) don't have this problem
+# macports clang 16 and 17 don't have this problem but clang-14 does.
+patchfiles      atomics.patch \
+                lib_dns_Makefile.in.patch \
+                libisc_random_clang_codegen.patch
 
+# tests require `sudo bin/tests/system/ifconfig.sh up`
 test.run        yes
 test.target     test
 
@@ -60,12 +72,19 @@ startupitem.executable  ${prefix}/sbin/named -u named -f
 
 add_users       named group=named
 
-configure.env   STD_CDEFINES=-DDIG_SIGCHASE=1
+configure.env   STD_CDEFINES=-DDIG_SIGCHASE=1 \
+                CC_FOR_BUILD=${configure.cc}
+if {${os.platform} eq "darwin" && ${os.major} <= ${legacysupport.newest_darwin_requires_legacy}} {
+    configure.env-append    CPPFLAGS_FOR_BUILD=-I${prefix}/include/LegacySupport \
+                            CFLAGS_FOR_BUILD=${configure.cc_archflags} \
+                            "LDFLAGS_FOR_BUILD=-L${prefix}/lib -lMacportsLegacySupport"
+}
 
-configure.args  --mandir=${prefix}/share/man \
+configure.args  --disable-silent-rules \
+                --mandir=${prefix}/share/man \
                 --with-openssl=${prefix} \
-                --without-libjson \
-                --with-python=${prefix}/bin/python3.9
+                --with-libidn2=${prefix} \
+                --enable-doh
 
 platform darwin 8 {
     configure.args-append --with-dlopen=no \
@@ -121,4 +140,4 @@ notes "******************************************************
 
 livecheck.type   regex
 livecheck.url    ${homepage}downloads/
-livecheck.regex  "BIND(\\d+\.\\d+\.\\d+(?:-P\\d+)?).tar.gz - tar.gz\\s*</a>"
+livecheck.regex  {BIND(\d+\.\d*[02468]\.\d+(?:-P\d+)?)\.tar\.[gx]z</a>}

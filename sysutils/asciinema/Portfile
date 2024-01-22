@@ -4,12 +4,15 @@ PortSystem          1.0
 PortGroup           github 1.0
 PortGroup           python 1.0
 
-github.setup        asciinema asciinema 2.0.2 v
+github.setup        asciinema asciinema 2.4.0 v
+revision            0
 
 categories          sysutils
-platforms           darwin
 license             GPL-3+
-maintainers         {larryv @larryv}
+platforms           {darwin any}
+supported_archs     noarch
+maintainers         {larryv @larryv} \
+                    openmaintainer
 
 description         Record and share your terminal sessions, the right way
 long_description    Forget screen recording apps and blurry video. \
@@ -21,18 +24,18 @@ long_description    Forget screen recording apps and blurry video. \
 homepage            https://asciinema.org
 
 python.default_version \
-                    38
+                    311
 
 depends_lib         port:py${python.version}-setuptools
 
-checksums           rmd160  4b2dfc290452e8ab6e297271de8becf4b7c73df3 \
-                    sha256  b518c8f4d938dae40fb4468a9c658c794266d1adb2d25d1aad8e8866dec2cd22 \
-                    size    50067
+checksums           rmd160  2b54bef03acc906e1fd7257917ba22e28c4d5d58 \
+                    sha256  0f6c4d0dce30747dcaca522cdfd426b7f581531cbc08bd81889e6944c0ab4f9d \
+                    size    161494
 
 post-destroot {
     set docdir ${prefix}/share/doc/${subport}
     xinstall -d ${destroot}${docdir}
-    xinstall -m 644 -W ${worksrcpath} \
+    xinstall -m 0644 -W ${worksrcpath} \
         CHANGELOG.md \
         CONTRIBUTING.md \
         LICENSE \
@@ -41,8 +44,3 @@ post-destroot {
         doc/asciicast-v2.md \
         ${destroot}${docdir}
 }
-
-livecheck.type      regex
-livecheck.url       ${github.homepage}/releases.atom
-livecheck.regex     {<id>tag:github.com,2008:Repository/2823326/v(\d+(\.\d+)+)</id>}
-livecheck.version   ${version}

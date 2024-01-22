@@ -9,14 +9,15 @@ set lts_date            ${version}
 
 conflicts               ${name}-devel
 
-maintainers             {g5pw @g5pw}
+maintainers             nomaintainer
 
 categories              cross devel
 description             Device capabilites database for MSP430 toolchain
-long_description        ${description}
+long_description        {*}${description}
 
 license                 GPL-3+
-platforms               darwin
+platforms               any
+supported_archs         noarch
 
 homepage                http://mspgcc.sourceforge.net/
 

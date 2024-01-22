@@ -1,14 +1,15 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem      1.0
+PortGroup       cmake 1.1
 
 name            gnucash-docs
-version         4.4
+version         5.5
 license         GFDL-1.1+
 categories      gnome x11
 maintainers     {dports @drkp} openmaintainer
 description     docs for gnucash
-platforms       macosx
+platforms       any
 long_description \
                 GnuCash is a personal and small-business \
                 financial-accounting software, freely licensed under the \
@@ -22,12 +23,13 @@ long_description \
                 Tutorial And Concepts Guide.  Both are available through \
                 yelp, the gnome help browser, and an HTML copy is \
                 installed in ${prefix}/share/doc/gnucash.
-homepage        http://www.gnucash.org/
-master_sites    sourceforge:gnucash
 
-checksums       rmd160  1f6600ce8c9800542b1ca115d6e85f23d94bf7d8 \
-                sha256  298977e7dddce83335e1f988e6977cb010e37b289c31d09b15df4af526e4ba35 \
-                size    62625808
+homepage        https://www.gnucash.org
+master_sites    sourceforge:project/gnucash/gnucash%20%28stable%29/${version}
+
+checksums       rmd160  a1eb5efc26b64c2636ea6fb6f2442d74e662c433 \
+                sha256  93560f55d9305aef45525cf7e7143b72503365c353840dfaaa382d9dfb97c8ab \
+                size    114800363
 
 depends_lib     bin:scrollkeeper-config:rarian \
                 port:libxml2 \
@@ -44,8 +46,6 @@ if {![variant_isset quartz]} {
 }
 
 supported_archs noarch
-
-configure.args  --disable-scrollkeeper
 
 build.target    all html
 

@@ -5,7 +5,7 @@ PortGroup github    1.0
 PortGroup ocaml     1.1
 
 name                ocaml-ppx_tools
-github.setup        ocaml-ppx ppx_tools 5.3+4.08.0
+github.setup        ocaml-ppx ppx_tools 6.6
 
 categories          ocaml devel
 maintainers         {landonf @landonf} openmaintainer
@@ -14,18 +14,11 @@ description         Tools for authors of OCaml syntactic tools
 long_description    Tools for authors of OCaml syntactic tools, including \
                     OCaml PPX rewriters.
 
-platforms           darwin
-
+checksums           rmd160  2b68da8a83942a1bdcb46e6caae463938f8781b4 \
+                    sha256  7a38f6dcd475dbdbb775fc1e9e1f4542de6d26737776b11391b16274b7cf651d \
+                    size    19265
 github.tarball_from archive
 
-distname            ${version}
-checksums           rmd160  e331797d0f5c2af7aadc418804405aeb4a27f39b \
-                    sha256  843ae4f2817269e31b62101add093f0497566a5bf74205ad24dfc0a033803645 \
-                    size    18590
+depends_build       port:ocaml-cppo
 
-worksrcdir          ${github.project}-[strsed ${version} {s/\+/-/}]
-
-use_configure       no
-ocaml.use_findlib   yes
-
-use_parallel_build  no
+ocaml.build_type    dune

@@ -1,0 +1,81 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           github 1.0
+
+github.setup        traefik traefik 2.10.7 v
+github.tarball_from releases
+revision            0
+
+categories          net security devel
+maintainers         {judaew @judaew} openmaintainer
+license             MIT
+
+description         The Cloud Native Application Proxy
+long_description    \
+    Traefik (pronounced traffic) is a modern HTTP reverse proxy and load \
+    balancer that makes deploying microservices easy. Traefik integrates with \
+    your existing infrastructure components (Docker, Swarm mode, Kubernetes, \
+    Marathon, Consul, Etcd, Rancher, Amazon ECS, ...) and configures itself \
+    automatically and dynamically. Pointing Traefik at your orchestrator \
+    should be the only configuration step you need.
+
+set arch ${build_arch}
+
+if {${build_arch} eq "x86_64"} {
+    set arch "amd64"
+}
+
+distfiles           traefik_v${version}_darwin_${arch}${extract.suffix} \
+                    traefik-v${version}.src${extract.suffix}
+
+checksums           traefik_v${version}_darwin_amd64${extract.suffix} \
+                        rmd160  675be0af4267bd1cd0dda3a70eda0f1c2ebbe1c7 \
+                        sha256  4959db35167542976568d1c92558e699115b97f5dd310016348b4c95dbbec647 \
+                        size    41244628 \
+                    traefik_v${version}_darwin_arm64${extract.suffix} \
+                        rmd160  a869329e9f3f9758bb5817886ba28a4e5f945dab \
+                        sha256  3af0178faa6bffb1062f01594c46969663aeacab72dcc553762429c91c51b703 \
+                        size    40621008 \
+                    traefik-v${version}.src${extract.suffix} \
+                        rmd160  42c6c7d9259a9e765a432d9ef9412a27477aa2d1 \
+                        sha256  64f8fdcb907b8f6cd7431cf91607f45b576324bf224efe4ea0f3dc09e65db6a6 \
+                        size    11793760
+
+extract.mkdir       yes
+use_configure       no
+build {}
+
+destroot {
+    xinstall -m 0755 ${worksrcpath}/${name} ${destroot}${prefix}/bin/
+
+    xinstall -d ${destroot}${prefix}/share/examples/${name}
+    xinstall -m 0644 -W ${worksrcpath} \
+        traefik.sample.toml traefik.sample.yml \
+        ${destroot}${prefix}/share/examples/${name}
+
+    xinstall -d ${destroot}${prefix}/etc/${name}
+}
+destroot.keepdirs ${destroot}${prefix}/etc/${name}
+
+startupitem.create  yes
+startupitem.start   \
+    "${prefix}/bin/${name} --configfile=${prefix}/etc/${name}/traefik.toml"
+startupitem.stop    "kill \$(cat ${prefix}/var/run/${name}.pid) "
+startupitem.pidfile auto ${prefix}/var/run/${name}.pid
+
+github.livecheck.regex  {([^"r-]+)}
+
+notes "
+A config must be created in
+    ${prefix}/etc/traefik/traefik.toml
+
+An example config is
+    ${prefix}/share/examples/traefik/traefik.toml
+
+Launch ${name} as daemon with
+    sudo port load ${name}
+or
+    sudo launchctl load -w \\
+        /Library/LaunchDaemons/org.macports.traefik.plist
+"

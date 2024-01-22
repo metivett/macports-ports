@@ -5,19 +5,16 @@ PortGroup           github 1.0
 PortGroup           waf 1.0
 
 name                jack
-github.setup        jackaudio jack2 1.9.17 v
+github.setup        jackaudio jack2 1.9.22 v
 revision            0
-
-checksums           rmd160  1a4de2e52440958b1a5344f9123ec55efaa0a0db \
-                    sha256  5b4a566dec7062f89f019aa6bd22772fcddad54408e9f4e5e3d294f566d3e057 \
-                    size    975950
+checksums           rmd160  1f13a7ac5020d95b5b51f1c43d7cfe3507e7b8b0 \
+                    sha256  1e42b9fc4ad7db7befd414d45ab2f8a159c0b30fcd6eee452be662298766a849 \
+                    size    933448
 
 categories          audio
 maintainers         nomaintainer
-platforms           darwin
-
 license             GPL-2 LGPL-2.1
-homepage            http://jackaudio.org/
+
 description         JACK Audio Connection Kit
 long_description    \
     JACK (JACK Audio Connection Kit) refers to an API and two implementations \
@@ -25,6 +22,9 @@ long_description    \
     applications to communicate with each other and with audio hardware. \
     Through JACK, users are enabled to build powerful systems for signal \
     processing and music production.
+
+homepage            https://jackaudio.org
+github.tarball_from archive
 
 platform darwin {
     if {${os.major} < 12} {
@@ -36,6 +36,7 @@ compiler.blacklist  *gcc-3.* *gcc-4.*
 
 depends_build-append \
                     port:pkgconfig
+
 depends_lib         port:libsamplerate \
                     port:libsndfile \
                     port:aften
@@ -51,12 +52,10 @@ configure.args      --doxygen=no \
                     --celt=no \
                     --opus=no \
                     --samplerate=yes \
-                    --sndfile=yes \
-                    --readline=no \
                     --db=no
 
 platform darwin {
-    if {[string match *clang* ${configure.compiler}]} {
+    if {[string match *clang* ${configure.compiler}] && ${configure.cxx_stdlib} ne ""} {
         configure.ldflags-append -stdlib=${configure.cxx_stdlib}
     }
 }

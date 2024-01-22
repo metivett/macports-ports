@@ -1,0 +1,39 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           golang 1.0
+
+go.setup            github.com/containers/gvisor-tap-vsock 0.7.2 v
+github.tarball_from archive
+revision            0
+
+categories          net
+license             Apache-2
+maintainers         {judaew @judaew} {@catap korins.ky:kirill} openmaintainer
+
+description         A new network stack based on gVisor
+long_description    \
+    A replacement for libslirp and VPNKit, written in pure Go. It is based on \
+    the network stack of gVisor. Compared to libslirp, gvisor-tap-vsock \
+    brings a configurable DNS server and dynamic port forwarding.
+
+checksums           rmd160  2db2bad925b2a97405528aa8130554002d08b481 \
+                    sha256  2163287ba1df33d9aba905888f271dc997d04fd3027f1c1f0c354d6045e07425 \
+                    size    10472886
+
+# FIXME: This port currently can't be built without allowing go mod to fetch
+go.offline_build no
+
+build.cmd           make
+build.args          gvproxy
+
+destroot {
+    # `gvproxy` is a binary to forward ports for podman machine. It should not
+    # be used as a normal user.
+    #
+    # https://github.com/containers/podman/issues/11960#issuecomment-943162546
+    xinstall -m 0755 ${worksrcpath}/bin/gvproxy ${destroot}${prefix}/libexec
+}
+
+# Do not check the first tags v3 and v4.
+github.livecheck.regex  {([0-2.]\.[0-9.]+)}

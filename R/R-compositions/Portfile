@@ -1,0 +1,30 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran boogaart.de compositions 2.0-7
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             GPL-2+
+description         Compositional data analysis
+long_description    {*}${description}
+homepage            http://www.stat.boogaart.de/compositions
+checksums           rmd160  ee2a18917c6d6783bc14681c5cca6fd03dcf68e6 \
+                    sha256  b44221b63c2cd39c75ea797088c7dcafcffd088774b6743080dc9f35295038c8 \
+                    size    3073825
+
+depends_lib-append  port:R-bayesm \
+                    port:R-robustbase \
+                    port:R-tensorA
+
+compilers.setup     require_fortran
+
+depends_test-append port:R-combinat \
+                    port:R-energy \
+                    port:R-knitr \
+                    port:R-rgl \
+                    port:R-rmarkdown
+
+test.run            yes

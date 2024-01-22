@@ -1,22 +1,18 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
+PortGroup           compilers 1.0
+PortGroup           compiler_blacklist_versions 1.0
 PortGroup           cmake 1.1
 PortGroup           github 1.0
 
-github.setup        google snappy 1.1.8
+github.setup        google snappy 1.1.10
 revision            0
 categories          archivers
-platforms           darwin
 maintainers         nomaintainer
 license             BSD
 
-# Remove these lines when updating the port to the next version.
-master_sites        https://github.com/google/snappy/archive/
-distname            ${version}
-worksrcdir          ${name}-${version}
-
-description         a fast compressor/decompressor
+description         A fast compressor/decompressor
 
 long_description    Snappy is a compression/decompression library. It does \
                     not aim for maximum compression, or compatibility with \
@@ -31,18 +27,32 @@ long_description    Snappy is a compression/decompression library. It does \
 
 homepage            https://google.github.io/snappy/
 
-checksums           rmd160  a4a8766720094b1eba919a617dfeb91e0bf9b8c2 \
-                    sha256  16b677f07832a612b0836178db7f374e414f94657c138e6993cbfc5dcc58651f \
-                    size    1096137
+checksums           rmd160  e9039aa884499f3ba16d1063d7d6f942ee9bb286 \
+                    sha256  c965e69ae164670c1ea8f688a775da3fe6bae6484d3e24c2ed3fbaf6d749bdee \
+                    size    1105397
+
+# Disable Xcode clang < 1200, due to the following:
+#   error: invalid output constraint '=@ccz' in asm
+compiler.blacklist-append {clang < 1200}
+
+# https://github.com/facebook/folly/issues/1583
+# https://github.com/Homebrew/homebrew-core/pull/76686
+patchfiles-append   patch-no-disable-rtti.diff \
+                    patch-disable-sign-compare-warning.diff
 
 # CMake Error in CMakeLists.txt:
 #  Target "snappy" requires the language dialect "CXX11" , but CMake does not
 #  know the compile flags to use to enable it.
 compiler.cxx_standard 2011
 
-depends_lib         port:lzo2 \
-                    port:zlib
+depends_build-append \
+                    port:pkgconfig
+
+depends_lib-append  port:lzo2 \
+                    port:zlib \
+                    port:lz4
 
 configure.args-append \
                     -DBUILD_SHARED_LIBS=ON \
-                    -DSNAPPY_BUILD_TESTS=OFF
+                    -DSNAPPY_BUILD_TESTS=OFF \
+                    -DSNAPPY_BUILD_BENCHMARKS=OFF

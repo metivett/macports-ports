@@ -7,7 +7,7 @@ version             0.1.94
 revision            2
 
 categories          science chemistry
-platforms           darwin freebsd linux
+platforms           any
 maintainers         nomaintainer
 license             LGPL-2
 supported_archs     noarch
@@ -33,7 +33,7 @@ depends_build       port:pkgconfig \
                     port:automake \
                     port:libtool
 
-depends_lib         port:gtk3 \
+depends_lib         path:lib/pkgconfig/gtk+-3.0.pc:gtk3 \
                     port:shared-mime-info
 
 # reconfigure using upstream autogen.sh for intltool 0.51 compatibility

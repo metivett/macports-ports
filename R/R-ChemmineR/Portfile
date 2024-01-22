@@ -1,0 +1,50 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             bioconductor girke-lab ChemmineR 3.54.0
+revision            0
+maintainers         nomaintainer
+license             Artistic-2
+description         Cheminformatics toolkit for R
+long_description    {*}${description}
+homepage            https://github.com/girke-lab/ChemmineR
+checksums           rmd160  c9ea71d72f93cc4bca758fbdf55d764cc39550f5 \
+                    sha256  01297549b77098b794d22158253a30989b8111a6998d1872dc993af82aaf488c \
+                    size    2062632
+
+depends_lib-append  port:R-base64enc \
+                    port:R-BiocGenerics \
+                    port:R-BH \
+                    port:R-DBI \
+                    port:R-digest \
+                    port:R-DT \
+                    port:R-ggplot2 \
+                    port:R-gridExtra \
+                    port:R-jsonlite \
+                    port:R-png \
+                    port:R-Rcpp \
+                    port:R-RCurl \
+                    port:R-rjson \
+                    port:R-rsvg \
+                    port:R-stringi
+
+depends_test-append port:R-bibtex \
+                    port:R-BiocManager \
+                    port:R-BiocStyle \
+                    port:R-ChemmineDrugs \
+                    port:R-ChemmineOB \
+                    port:R-fmcsR \
+                    port:R-gplots \
+                    port:R-knitcitations \
+                    port:R-knitr \
+                    port:R-knitrBootstrap \
+                    port:R-rmarkdown \
+                    port:R-RPostgreSQL \
+                    port:R-RSQLite \
+                    port:R-scatterplot3d \
+                    port:R-snow
+
+# Tests fail presently: https://github.com/girke-lab/ChemmineR/issues/19
+test.run            yes

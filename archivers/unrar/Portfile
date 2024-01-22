@@ -1,12 +1,15 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:filetype=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
+PortGroup           legacysupport 1.1
+
+# wcsdup function is not available in Snow Leopard
+legacysupport.newest_darwin_requires_legacy 10
 
 name                unrar
 set my_name         ${name}src
-version             6.0.2
+version             6.2.12
 categories          archivers
-platforms           darwin freebsd
 maintainers         nomaintainer
 license             Restrictive/Distributable
 
@@ -20,9 +23,9 @@ homepage            https://www.rarlab.com/
 master_sites        ${homepage}rar/
 distname            ${my_name}-${version}
 
-checksums           rmd160  171d4044a50db2860e2f16ab258c3534a1699a3b \
-                    sha256  81bf188333f89c976780a477af27f651f54aa7da9312303d8d1a804696d3edd3 \
-                    size    232306
+checksums           rmd160  539296f8f366a1100beea43ac48f171ebdb58758 \
+                    sha256  a008b5f949bca9bb4ffa1bebbfc8b3c14b89df10a10354809b845232d5f582e5 \
+                    size    246918
 
 patchfiles          patch-makefile.unix.diff
 
@@ -36,8 +39,14 @@ if {[tbool configure.ccache]} {
     configure.cxx "ccache ${configure.cxx}"
 }
 
+# error: unknown type name 'constexpr'
+compiler.cxx_standard \
+                    2011
+configure.cxxflags-append \
+                    -std=c++11
+
 set cxx_stdlibflags {}
-if {[string match *clang* ${configure.cxx}]} {
+if {[string match *clang* ${configure.cxx}] && ${configure.cxx_stdlib} ne ""} {
     set cxx_stdlibflags -stdlib=${configure.cxx_stdlib}
 }
 

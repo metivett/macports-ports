@@ -4,12 +4,18 @@ PortSystem          1.0
 PortGroup           github 1.0
 PortGroup           python 1.0
 
-github.setup        jeffkaufman icdiff 1.9.1 release-
+github.setup        jeffkaufman icdiff 2.0.6 release-
+revision            0
+checksums           rmd160  f128e909a3333e611b7fad9fd61379b470711020 \
+                    sha256  8f79b82032696d2eea2a3acf722cd34cf45215d4b09b52139880626a2b0d360e \
+                    size    39715
+
 categories          textproc sysutils devel
-platforms           darwin
+platforms           {darwin any}
 maintainers         {raimue @raimue} \
                     openmaintainer
 license             PSF
+supported_archs     noarch
 
 description         improved colored diff
 
@@ -18,12 +24,9 @@ long_description    \
     in the way. This is especially helpful for identifying and understanding \
     small changes within existing lines.
 
-homepage            http://www.jefftk.com/icdiff
+homepage            https://www.jefftk.com/icdiff
+github.tarball_from archive
 
-checksums           rmd160  118cd781f26348efb116e582b963c3467af99ea6 \
-                    sha256  8d7da8a3a8c8110ff227924bea42f3892e8a221d6da22cb71d81dbd2cde91d9b \
-                    size    24380
-
-python.default_version 27
+python.default_version 311
 
 depends_build-append port:py${python.version}-setuptools

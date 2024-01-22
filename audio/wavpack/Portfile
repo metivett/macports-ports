@@ -5,11 +5,12 @@ PortGroup           muniversal 1.0
 PortGroup           compiler_blacklist_versions 1.0
 
 name                wavpack
-version             5.3.0
+version             5.6.0
 revision            0
-checksums           rmd160  ab0ad42eb7587adb334554eba7983b7264fd43ef \
-                    sha256  b6f00b3a2185a1d2df6cf8d893ec60fd645d2eb90db7428a617fd27c9e8a6a01 \
-                    size    851092
+
+checksums           rmd160  2f6387b86313b4ea997bf8e87961fced75e830cb \
+                    sha256  8cbfa15927d29bcf953db35c0cfca7424344ff43ebe4083daf161577fb839cc1 \
+                    size    868207
 
 categories          audio
 license             BSD
@@ -45,9 +46,6 @@ lappend merger_configure_args(arm64)    --disable-asm
 # if host is not set in 32-bit mode, wrong assembly code is used
 lappend merger_configure_args(i386)     --host=i686-apple-${os.platform}${os.version}
 
-if {![info exists universal_possible]} {
-    set universal_possible [expr {${os.universal_supported} && [llength ${configure.universal_archs}] >= 2}]
-}
 if {!(${universal_possible} && [variant_isset universal]) && [info exists merger_configure_args(${configure.build_arch})]} {
     configure.args-append   {*}$merger_configure_args(${configure.build_arch})
 }

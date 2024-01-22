@@ -6,20 +6,16 @@ PortGroup       python 1.0
 name            py-thrift
 
 # NOTE: This port must be kept at the same version as port:thrift and port:p5-thrift
-version         0.13.0
-checksums       rmd160 04cd735494a9d8558c2d22d1b99315ca859749c8 \
-                sha256 7ad348b88033af46ce49148097afe354d513c1fca7c607b59c33ebb6064b5179 \
-                size   4154357
+version         0.19.0
+checksums       rmd160  6a9560b841762a260bb8e6cc7f9d69d663c5e99c \
+                sha256  d49c896c2724a78701e05cfccf6cf70b5db312d82a17efe951b441d300ccf275 \
+                size    4335656
 revision        0
 
-categories      python
 license         Apache-2
-platforms       darwin
-
 maintainers     nomaintainer
 
 description     Python bindings to Thrift
-
 long_description \
     Thrift is a software framework for scalable cross-language \
     services development. It combines a software stack with a code \
@@ -32,8 +28,7 @@ dist_subdir     thrift
 master_sites    apache:${dist_subdir}/${version}
 distname        thrift-${version}
 
-python.versions 27 35 36 37 38
-python.default_version 37
+python.versions 37 38 39 310 311
 
 if {${name} ne ${subport}} {
     depends_lib-append  port:thrift
@@ -46,7 +41,7 @@ if {${name} ne ${subport}} {
     post-destroot {
         set docdir ${prefix}/share/doc/${subport}
         xinstall -d ${destroot}${docdir}
-        xinstall -m 644 -W ${worksrcpath} \
+        xinstall -m 0644 -W ${worksrcpath} \
             CHANGES.md \
             LICENSE \
             NOTICE \

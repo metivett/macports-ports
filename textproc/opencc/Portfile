@@ -4,15 +4,14 @@ PortSystem          1.0
 PortGroup           cmake 1.1
 PortGroup           github 1.0
 
-github.setup        BYVoid OpenCC 1.1.1 ver.
-revision            0
-checksums           rmd160  16934c802a3c7d3e9582edf6f04bfbc11a934dee \
-                    sha256  2d4987dc84275f252d47bc6d8c81b452f6a6e82caa26f284c854a8153ccf5933 \
-                    size    2212256
+github.setup        BYVoid OpenCC 1.1.7 ver.
+revision            1
+checksums           rmd160  b6db6894d579e912b1aeec65d8b3ffabed36e6f2 \
+                    sha256  80a12675094a0cac90e70ee530e936dc76ca0953cb0443f7283c2b558635e4fe \
+                    size    3311712
 
 name                opencc
 categories          textproc
-platforms           darwin
 maintainers         {ryandesign @ryandesign} openmaintainer
 license             Apache-2
 
@@ -26,7 +25,17 @@ long_description    Open Chinese Convert (OpenCC) is an open-source project \
 
 github.tarball_from archive
 
+depends_lib         port:marisa-trie
+
 patchfiles          patch-data-CMakeLists.txt.diff
 
 compiler.cxx_standard \
-                    2011
+                    2014
+
+configure.args      -DUSE_SYSTEM_MARISA=ON
+
+if {${os.platform} ne "darwin" || ${os.major} >= 21} {
+    configure.args-append -DPYTHON_EXECUTABLE=/usr/bin/python3
+} else {
+    configure.args-append -DPYTHON_EXECUTABLE=/usr/bin/python
+}

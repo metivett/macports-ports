@@ -2,14 +2,15 @@
 
 PortSystem          1.0
 
+PortGroup           openssl 1.0
+
 name                fossil
-version             2.13
-revision            1
+version             2.22
+revision            0
 epoch               20110901182519
 categories          devel
-platforms           darwin
 license             BSD
-maintainers         {ciserlohn @ci42}
+maintainers         {ciserlohn @ci42} openmaintainer
 
 description         Simple, high-reliability, distributed software configuration management
 
@@ -19,25 +20,28 @@ long_description    Fossil is a distributed software configuration management wh
                     an easy-to-use web interface to access and administrate projects over the \
                     built-in webserver or CGI.
 
-homepage            https://www.fossil-scm.org/
+homepage            https://fossil-scm.org/home/
 
-master_sites        ${homepage}index.html/uv
-distname            ${name}-src-${version}
+master_sites        ${homepage}tarball/version-${version}/
 
-worksrcdir          ${name}-${version}
-
-checksums           rmd160  2f9aa5461af25381ec017f4027fc2286b46b5278 \
-                    sha256  d933d3e0710eed3de5ee23bf8d2677419c4d4a8cd30b61f7161d9071d63a73f5 \
-                    size    6121223
+checksums           rmd160  99e144282ede18d8f2221d0752cdd16935b2d09e \
+                    sha256  81d823ff6f5d175b384dfa84eeba0d052da73a37cd66cd72b786e71671210d6b \
+                    size    6730169
 
 test.run            yes
 
-depends_lib         port:tcl \
-                    port:zlib \
-                    path:lib/libssl.dylib:openssl \
-                    port:libiconv
+openssl.branch      3
 
-configure.args-append       --with-tcl=${prefix}/lib \
+depends_lib-append  port:libiconv \
+                    port:sqlite3 \
+                    port:tcl \
+                    port:zlib
+
+configure.args-append       --disable-fusefs \
+                            --with-sqlite=${prefix}/lib \
+                            --with-tcl=${prefix}/lib \
+                            --with-openssl=[openssl::install_area] \
+                            --with-zlib=${prefix}/lib \
                             --with-th1-docs \
                             --with-th1-hooks \
                             --with-exec-rel-paths \
@@ -50,7 +54,7 @@ configure.ldflags-append    -liconv
 post-destroot {
     set docdir ${destroot}${prefix}/share/doc/${name}
     xinstall -d ${docdir}
-    xinstall -m 644 -W ${worksrcpath} \
+    xinstall -m 0644 -W ${worksrcpath} \
         COPYRIGHT-BSD2.txt \
         ${docdir}
 }
@@ -66,5 +70,5 @@ not harm the integrity of a repository.
 "
 
 livecheck.type      regex
-livecheck.url       ${homepage}home/juvlist
-livecheck.regex     {fossil-src-([\d.]+).tar.gz}
+livecheck.url       ${homepage}
+livecheck.regex     {Latest Release: ([\d.]+)}

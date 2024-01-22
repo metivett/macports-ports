@@ -4,11 +4,11 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-keyring
-version             22.0.1
+version             24.3.0
 revision            0
 
 categories-append   security
-platforms           darwin
+platforms           {darwin any}
 supported_archs     noarch
 license             {MIT PSF}
 maintainers         {reneeotten @reneeotten} openmaintainer
@@ -21,49 +21,31 @@ long_description    The Python keyring lib provides a easy way to access the sys
 
 homepage            https://github.com/jaraco/keyring
 
-checksums           rmd160  8385679309bd6e72d0e8fba0ca3e25c492ce1343 \
-                    sha256  9acb3e1452edbb7544822b12fd25459078769e560fa51f418b6d00afaa6178df \
-                    size    58079
+checksums           rmd160  0f5a0cbcae6110871ea017eae11e9dbd9b5d1c6f \
+                    sha256  e730ecffd309658a08ee82535a3b5ec4b4c8669a9be11efb66249d8e0aeb9a25 \
+                    size    59666
 
-python.versions     27 35 36 37 38 39
+python.versions     37 38 39 310 311 312
 
 if {${name} ne ${subport}} {
-    if {${python.version} eq 27} {
-        version     18.0.1
-        revision    0
-        checksums   rmd160  0e07d12c4943d18499350057a9df781fb4fcbbaf \
-                    sha256  67d6cc0132bd77922725fae9f18366bb314fd8f95ff4d323a4df41890a96a838 \
-                    size    48559
-
-        depends_lib-append \
-                    port:py${python.version}-entrypoints
-
-    } elseif {${python.version} eq 35} {
-        version     20.0.1
-        revision    1
-        checksums   rmd160  171bae4ffee2780dff9d7529c52e119abd9d0a97 \
-                    sha256  963bfa7f090269d30bdc5e25589e5fd9dad2cf2a7c6f176a7f2386910e5d0d8d \
-                    size    53452
-    } else {
-        depends_build-append \
-                    port:py${python.version}-toml
+    if {${python.version} == 37} {
+        version     24.1.1
+        checksums   rmd160  5353bf64c987040fde5dd05af450ced945cccd87 \
+                    sha256  3d44a48fa9a254f6c72879d7c88604831ebdaac6ecb0b214308b02953502c510 \
+                    size    59094
     }
 
     depends_build-append \
                     port:py${python.version}-setuptools_scm
 
     depends_lib-append \
-                    port:py${python.version}-setuptools
-
-    if {${python.version} in "35 36 37"} {
-        depends_lib-append \
-                port:py${python.version}-importlib-metadata
-    }
+                    port:py${python.version}-importlib-metadata \
+                    port:py${python.version}-jaraco.classes
 
     post-destroot {
         set docdir ${prefix}/share/doc/${subport}
         xinstall -d ${destroot}${docdir}
-        xinstall -m 0644 -W ${worksrcpath} CHANGES.rst LICENSE README.rst \
+        xinstall -m 0644 -W ${worksrcpath} NEWS.rst LICENSE README.rst \
             ${destroot}${docdir}
     }
 

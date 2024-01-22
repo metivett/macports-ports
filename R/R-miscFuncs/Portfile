@@ -1,0 +1,20 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran benjamin.taylor.software miscFuncs 1.5-7
+revision            0
+maintainers         nomaintainer
+license             GPL-3
+description         Miscellaneous useful functions including LaTeX tables, Kalman filtering and development tools
+long_description    {*}${description}
+checksums           rmd160  5f49a5724c1af072ae8fb60810f30c3a1dba1b1c \
+                    sha256  d7434ee266ee6f8c9cfacc2cf4f25872df37105ec2b2a1a0c8fbc5ec2d217b0a \
+                    size    87768
+supported_archs     noarch
+
+depends_lib-append  port:R-mvtnorm \
+                    port:R-roxygen2
+
+test.run            yes

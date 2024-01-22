@@ -2,17 +2,18 @@
 
 PortSystem          1.0
 PortGroup           python 1.0
-PortGroup           legacysupport 1.0
+PortGroup           legacysupport 1.1
 
 name                py-zmq
+python.rootname     pyzmq
 
-version             22.0.3
-checksums           rmd160  cca4c9e92c44eb6a2e89783a9cddafa5ec99ccb9 \
-                    sha256  f7f63ce127980d40f3e6a5fdb87abf17ce1a7c2bd8bf2c7560e1bbce8ab1f92d \
-                    size    1218664
+version             25.1.2
+checksums           rmd160  bbd0b94530ff5ca4d6cdb2434e3b3ab5cf8a4a9f \
+                    sha256  93f1aa311e8bb912e34f004cf186407a4e90eec4f0ecc0efd26056bf7eda0226 \
+                    size    1402339
 revision            0
 
-python.versions     27 35 36 37 38 39
+python.versions     27 35 36 37 38 39 310 311 312
 
 maintainers         {gmail.com:jrjsmrtn @jrjsmrtn} {michaelld @michaelld} openmaintainer
 
@@ -26,11 +27,10 @@ long_description    PyZMQ is a lightweight and super-fast messaging library \
                     built on top of the ZeroMQ library.
 
 homepage            https://github.com/zeromq/pyzmq
-master_sites        pypi:p/pyzmq
 
 if {${name} ne ${subport}} {
 
-    depends_lib-append path:lib/libzmq.dylib:zmq 
+    depends_lib-append path:lib/libzmq.dylib:zmq
 
     if {${python.version} == 27} {
 
@@ -59,20 +59,26 @@ if {${name} ne ${subport}} {
         livecheck.regex     {"filename":"pyzmq-(20.[0-9.]+).tar.gz",}
 
     } else {
+        python.pep517       yes
+        depends_build-append \
+                            port:py${python.version}-setuptools_scm
+        depends_lib-append \
+                            port:py${python.version}-packaging \
+                            port:py${python.version}-cffi
 
-        depends_lib-append  port:py${python.version}-setuptools
         livecheck.regex     {"filename":"pyzmq-([0-9.]+).tar.gz",}
-
     }
-
-    distname                pyzmq-${version}
 
     post-patch {
         set setup_cfg ${worksrcpath}/setup.cfg
         file delete ${setup_cfg}
         file copy ${worksrcpath}/setup.cfg.template ${setup_cfg}
         reinplace "s|/usr/local|${prefix}|g" ${setup_cfg}
+
+        if {${python.version} >= 36} {
+            # remove cython, required only for zmq development
+            # double check during the next portfile upgrade
+            reinplace "s|\"cython.*,||g" ${worksrcpath}/pyproject.toml
+        }
     }
 }
-
-livecheck.name pyzmq

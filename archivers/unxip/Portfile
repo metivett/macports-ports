@@ -1,0 +1,53 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           github 1.0
+PortGroup           muniversal 1.1
+
+github.setup        saagarjha unxip 3.0 v
+revision            1
+github.tarball_from archive
+
+categories          archivers sysutils
+license             LGPL-3
+maintainers         {i0ntempest @i0ntempest} {saagarjha.com:saagar @saagarjha} openmaintainer
+
+description         A fast signed archive extractor
+long_description    ${name} is a command-line tool designed for rapidly unarchiving Xcode \
+                    XIP files and writing them to disk with good compression. Its goal is to \
+                    outperform Bom (which powers xip and Archive Utility) in both performance \
+                    and on-disk usage.
+
+checksums           rmd160  c0cc0232dab6cd36bd7219aa87f20ac0529fce18 \
+                    sha256  3e2b841eb06462110a83f90584d7e0c4bcac90de23ccd45d2eba6a29066a7e2d \
+                    size    22523
+
+if {${os.platform} eq "darwin" && ${os.major} < 21} {
+    known_fail yes
+    pre-fetch {
+        ui_error "${name} requires macOS 12 or later."
+        return -code error "incompatible macOS version"
+    }
+}
+
+use_configure       no
+universal_variant   yes
+
+# Use MacOSX13.sdk to compile on macOS 12 Monterey
+if {${os.platform} eq "darwin" && ${os.major} < 22} {
+    configure.sdk_version   13
+}
+
+build.cmd           swiftc
+build.target        unxip.swift
+build.args          -O -whole-module-optimization -parse-as-library
+
+if {${universal_possible} && [variant_isset universal]} {
+    foreach arch "${muniversal.architectures}" {
+        build.args.${arch}-append -target "${arch}-${triplet.vendor}-${triplet.os}"
+    }
+}
+
+destroot {
+    xinstall -m 755 ${worksrcpath}/${name} ${destroot}${prefix}/bin/
+}

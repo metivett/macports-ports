@@ -4,24 +4,28 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-threadpoolctl
-version             2.1.0
+version             3.2.0
 revision            0
 categories-append   science
-platforms           darwin
+supported_archs     noarch
+platforms           {darwin any}
 license             BSD
 
-python.versions     36 37 38 39
+python.versions     37 38 39 310 311
 
 maintainers         {stromnov @stromnov} openmaintainer
 
 description         Helpers to limit the number of threads used in the common native libraries.
-long_description    ${description}
+long_description    {*}${description}
 
 homepage            https://github.com/joblib/threadpoolctl
 
-checksums           rmd160  f98c5fb486f7dc86b5845a15340ab4c82329c940 \
-                    sha256  ddc57c96a38beb63db45d6c159b5ab07b6bced12c45a1f07b2b92f272aebfa6b \
-                    size    26644
+checksums           rmd160  bc71e6ea121d307c1dcc2619ee2763a945838817 \
+                    sha256  c96a0ba3bdddeaca37dc4cc7344aafad41cdb8c313f74fdfe387a867bba93355 \
+                    size    36266
+
+python.pep517       yes
+python.pep517_backend   flit
 
 if {${name} ne ${subport}} {
     livecheck.type      none

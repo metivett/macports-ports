@@ -1,0 +1,44 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           golang 1.0
+
+go.setup            github.com/cue-lang/cue 0.7.0 v
+go.package          cuelang.org/go
+revision            0
+
+homepage            https://cuelang.org
+
+description         Open-source data constraint language which aims to \
+                    simplify tasks involving defining and using data.
+
+long_description    CUE is an {*}${description} It is a superset of JSON, \
+                    allowing users familiar with JSON to get started quickly.
+
+categories          devel lang
+installs_libs       no
+license             Apache-2
+maintainers         {gmail.com:herby.gillot @herbygillot} \
+                    openmaintainer
+
+checksums           rmd160  8d2fccb6081d87a8195f87124ee678b14fdc05eb \
+                    sha256  38c4f0afce44809891dc8dcfcd21ce9903d61c56801cd9a12b299a5ddb0a4e5d \
+                    size    1504875
+
+# Allow Go to download dependencies at build time
+go.offline_build no
+
+build.pre_args-append \
+    -ldflags=\"-X ${go.package}/cmd/cue/cmd.version=${version}\" \
+    -o ./_dist/${name}
+build.args          ./cmd/${name}
+
+github.livecheck.regex  {([0-9.]+)}
+
+pre-build {
+    file mkdir ${worksrcpath}/_dist
+}
+
+destroot {
+    xinstall -m 0755 ${worksrcpath}/_dist/${name} ${destroot}${prefix}/bin/
+}

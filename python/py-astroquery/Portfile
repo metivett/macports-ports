@@ -4,46 +4,40 @@ PortSystem          1.0
 PortGroup           python 1.0
 PortGroup           github 1.0
 
-github.setup        astropy astroquery 0.4 v
+github.setup        astropy astroquery 0.4.6 v
 name                py-${name}
+revision            0
+
 maintainers         {aronnax @lpsinger} openmaintainer
 categories-append   science
 description         Accessing Online Astronomical Data
 long_description    Astroquery is an astropy affiliated package that contains \
                     a collection of tools to access online Astronomical data. \
                     Each web service has its own sub-package.
-platforms           darwin
 supported_archs     noarch
+platforms           {darwin any}
 license             BSD
 
 homepage            https://astroquery.readthedocs.io/
-checksums           rmd160  c40d69a62233356f4212f0366818066769f29bc8 \
-                    sha256  2e266102d5de1ee48cd8926cc89b291ff40bbb450ce21aa04e14784a80549584 \
-                    size    6241912
 
-python.versions     27 35 36 37 38
+checksums           rmd160  f5646aa21b8094885b6e8ab0899f960da3487c79 \
+                    sha256  9c9bbb1173fbd88d82be657be88f784bba6ee2718f749555ddbe33814b753730 \
+                    size    7883378
+
+python.versions     38 39 310 311
 
 if {${name} ne ${subport}} {
+    python.pep517       yes
 
     depends_lib-append  port:py${python.version}-astropy \
-                        port:py${python.version}-requests \
-                        port:py${python.version}-keyring \
                         port:py${python.version}-beautifulsoup4 \
                         port:py${python.version}-html5lib \
-                        port:py${python.version}-six
-
-    depends_build-append \
-                        port:py${python.version}-astropy-helpers \
-                        port:py${python.version}-setuptools
-
-    # By default, astropy downloads an astropy-helpers package for setup.py.
-    # The --offline and --no-git flags prevent this and use a bundled version.
-    build.cmd  ${python.bin} setup.py --no-user-cfg --offline --no-git
-    destroot.cmd  ${python.bin} setup.py --no-user-cfg --offline --no-git
+                        port:py${python.version}-keyring \
+                        port:py${python.version}-numpy \
+                        port:py${python.version}-pyvo \
+                        port:py${python.version}-requests
 
     post-patch {
         reinplace -W ${worksrcpath} "s/auto_use = True/auto_use = False/" setup.cfg
     }
-
-    livecheck.type      none
 }

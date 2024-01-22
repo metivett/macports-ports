@@ -5,7 +5,7 @@ PortGroup           java 1.0
 PortGroup           python 1.0
 
 name                jython
-version             2.7.2
+version             2.7.3
 categories          lang python java
 platforms           darwin
 supported_archs     noarch
@@ -35,9 +35,9 @@ variant installer description {Use installer, rather than building from source} 
 
     distfiles       ${name}-installer-${version}.jar
 
-    checksums       rmd160  91074db0983f75498070d4c1e25306a892646246 \
-                    sha256  36e40609567ce020a1de0aaffe45e0b68571c278c14116f52e58cc652fb71552 \
-                    size    80153928
+    checksums       rmd160  bdb7823205e80d487e415dc5e75d59303070a483 \
+                    sha256  3ffc25c5257d2028b176912a4091fe048c45c7d98218e52d7ce3160a62fdc9fc \
+                    size    89408837
 
     extract.only
 
@@ -63,13 +63,13 @@ default_variants +installer
 # This block must come after the installer variant definition.
 if {![variant_isset installer]} {
     PortGroup       github 1.0
-    github.setup    jythontools jython ${version} v
+    github.setup    jython jython ${version} v
 
-    checksums       rmd160  13ea84c24ffd0abbcf25a1b168d243ea6e57c86d \
-                    sha256  4938cc7079f48fa64e7558682b9bf9a62ebee16bbce698570007667945d08f60 \
-                    size    46106571
+    checksums       rmd160  52929a497d0729c7f3fea1fc8c848de2abf46bf7 \
+                    sha256  aca039f72328667602c06bf4785fcaa8083e502b8de52a74e6f46df39037171b \
+                    size    51470331
     # Remove during next update
-    dist_subdir   ${name}/${version}_1
+    dist_subdir   ${name}/${version}_2
 
     # Jython built with JDK 9 or later won't run on Java 8
     # https://github.com/macports/macports-ports/pull/8425#discussion_r488342820
@@ -110,5 +110,5 @@ pre-activate {
 
 # Homepage is rarely updated, so check tags on GitHub mirror
 livecheck.type      regex
-livecheck.url       https://github.com/jythontools/jython/tags
-livecheck.regex     {archive/v([0-9.-]+)\.tar\.gz}
+livecheck.url       https://github.com/jython/jython/tags
+livecheck.regex     {archive/refs/tags/v([0-9.-]+)\.tar\.gz}

@@ -1,0 +1,44 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           golang 1.0
+
+go.setup            github.com/bazelbuild/bazelisk 1.19.0 v
+github.tarball_from archive
+revision            0
+
+categories          devel
+maintainers         {@0xIDANT danieltrautmann.com:me} \
+                    {gmail.com:herby.gillot @herbygillot} \
+                    openmaintainer
+license             Apache-2
+
+description         A user-friendly launcher for Bazel
+
+long_description    Bazelisk is a wrapper for Bazel written in Go. \
+                    It automatically picks a good version of Bazel given your \
+                    current working directory, downloads it from the official \
+                    server (if required) and then transparently passes through \
+                    all command-line arguments to the real Bazel binary. You \
+                    can call it just like you would call Bazel.
+
+checksums           rmd160  5dc725922d3e7b2bc1e936a92bd162674394ae9c \
+                    sha256  4c291875707cdd98da87ad34e287c06384436f60cb76e2ac03c32d51f48c96ce \
+                    size    166002
+
+conflicts           bazel
+
+build.cmd           ./build.sh
+build.env-append    BAZELISK_VERSION=v${version}
+go.offline_build no
+
+patchfiles          patch-bazelisk-version.diff \
+                    patch-build.sh.diff
+
+destroot {
+    xinstall -m 0755 \
+        ${worksrcpath}/bin/${name}-${goos}-${goarch} \
+        ${destroot}${prefix}/bin/${name}
+
+    ln -s ${prefix}/bin/${name} ${destroot}${prefix}/bin/bazel
+}

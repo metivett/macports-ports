@@ -4,13 +4,14 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-scikit-image
-version             0.18.1
+python.rootname     scikit_image
+version             0.22.0
 revision            0
 categories-append   science
-platforms           darwin
 license             BSD
 
-python.versions     27 35 36 37 38 39
+python.versions     38 39 310 311 312
+python.pep517_backend   meson
 
 maintainers         {stromnov @stromnov} openmaintainer
 
@@ -22,52 +23,45 @@ long_description    Image processing algorithms for SciPy, including IO, \
 
 homepage            https://scikit-image.org/
 
-checksums           rmd160  b880d4ca8d86eb7ee7ce8bb9f5aeb8941fb8fee1 \
-                    sha256  fbb618ca911867bce45574c1639618cdfb5d94e207432b19bc19563d80d2f171 \
-                    size    29663758
+checksums           md5 91dbff8962b4231ca0a9666f43c0d71f \
+                    rmd160 fb8347226da3f17fd149414ce0aeaf93d43993e9 \
+                    sha256 018d734df1d2da2719087d15f679d19285fce97cd37695103deadfaef2873236 \
+                    size   22685018
 
 if {${name} ne ${subport}} {
     compiler.openmp_version 2.5
 
-    if {${python.version} < 36} {
-        version             0.14.2
-        revision            2
-        distname            ${python.rootname}-${version}
-        checksums           rmd160  2126c9e2d11c46e3cabb73656bc048cc27d2c960 \
-                            sha256  1afd0b84eefd77afd1071c5c1c402553d67be2d7db8950b32d6f773f25850c1f \
-                            size    27785514
-
-        depends_lib-append  port:py${python.version}-six
-
-        depends_run-append  port:py${python.version}-dask \
-                            port:py${python.version}-toolz \
-                            port:py${python.version}-cloudpickle
-    } elseif {${python.version} == 36} {
-        version             0.16.2
-        revision            1
-        epoch               1
-        distname            ${python.rootname}-${version}
-        checksums           rmd160  4315f53c8b32c3dffe58bf054a458cf9e21379c9 \
-                            sha256  dd7fbd32da74d4e9967dc15845f731f16e7966cee61f5dc0e12e2abb1305068c \
-                            size    28945695
-    } else {
-        depends_run-append  port:py${python.version}-tifffile
-    }
-
     depends_build-append \
-                        port:py${python.version}-setuptools \
-                        port:py${python.version}-cython
+                        path:bin/cython-${python.branch}:py${python.version}-cython \
+                        port:py${python.version}-pythran
 
-    depends_lib-append  port:py${python.version}-numpy \
+    depends_lib-append  port:py${python.version}-lazy_loader \
+                        port:py${python.version}-numpy \
+                        port:py${python.version}-packaging \
                         port:py${python.version}-scipy
 
     depends_run-append  port:py${python.version}-matplotlib \
                         port:py${python.version}-networkx \
                         port:py${python.version}-Pillow \
                         port:py${python.version}-imageio \
-                        port:py${python.version}-pywavelets
+                        port:py${python.version}-pywavelets \
+                        port:py${python.version}-tifffile
 
-    use_parallel_build  no
+    post-patch {
+        reinplace "s|#!/usr/bin/env python|#!/usr/bin/env python3|" \
+            {*}[glob -directory ${worksrcpath}/skimage/_build_utils {[a-z]*.py}]
+    }
 
-    livecheck.type      none
+    if {${python.version} == 38} {
+        version             0.21.0
+        revision            0
+        checksums           md5 de3b2910a7f3f3b239111fee4f31eaf1 \
+                            rmd160 7566fecf15bbe02f0015c4c664afac59fb049ff8 \
+                            sha256 b33e823c54e6f11873ea390ee49ef832b82b9f70752c8759efd09d5a4e3d87f0
+        patchfiles-append   pyproject.toml-0.21.0.diff
+    } else {
+        patchfiles-append   patch-pyproject.toml.diff
+    }
+
+    build.env-append        PATH=${python.prefix}/bin:$::env(PATH)
 }

@@ -3,83 +3,77 @@
 PortSystem          1.0
 PortGroup           app 1.0
 PortGroup           active_variants 1.1
+PortGroup           compiler_blacklist_versions 1.0
 
 name                pan2
-version             0.146
+version             0.155
+revision            0
 categories          news
 license             GPL-2
 platforms           darwin
 maintainers         nomaintainer
 
-description         News reader for GTK+ version 2 or 3.
+description         News reader for GTK+ version 3.
 
 long_description    Pan2 is a newsreader for GTK+ that is based on \
-                    the Agent newsreader for Windows OSes. The default \
-                    build supports supports GTK+ 2 but it can optionally build \
-                    with GTK+ 3 if desired.
+                    the Agent newsreader for Windows OSes.
 
-homepage            http://pan.rebelbase.com/
-master_sites        http://pan.rebelbase.com/download/releases/${version}/source/
+homepage            https://gitlab.gnome.org/GNOME/pan
+master_sites        https://gitlab.gnome.org/GNOME/pan/-/archive/v${version}
 
-distname            pan-${version}
+distname            pan-v${version}
 use_bzip2           yes
 
-checksums           rmd160  50a97800690e7926ef4c20c90350187786d3741a \
-                    sha256  a52c28664652ddbd1639faf99cdb93969c3dd3e0e0ddb9a1b24711ab8f684f9d \
-                    size    2309326
+checksums           rmd160  3e450a66c574dbcb06ea37674fd00015f24fcf7b \
+                    sha256  3624ac3171fa8089825ce55b62b053db4f86d592f717c4d874c48ce0e885dff2 \
+                    size    1797355
 
-depends_build       port:pkgconfig \
+depends_build-append \
+                    port:autoconf-archive \
+                    port:pkgconfig \
                     port:itstool \
                     port:yelp-tools
 
-depends_lib         port:desktop-file-utils \
+depends_lib-append  port:desktop-file-utils \
                     port:pcre \
-                    port:gmime \
-                    port:gnutls \
-                    port:gtk2 \
-                    port:gtkspell2 \
+                    port:gmime3 \
+                    path:lib/pkgconfig/gnutls.pc:gnutls \
+                    path:lib/pkgconfig/gtk+-3.0.pc:gtk3 \
+                    port:gtkspell3 \
                     port:libiconv
 
+depends_run-append  port:adwaita-icon-theme
+
+use_autoreconf      yes
+
+compiler.cxx_standard       2011
+compiler.blacklist-append   {clang < 900}
+
+configure.cxxflags-append   -std=c++11
+
 configure.args      --with-gnutls \
+                    --disable-gkr  \
                     --disable-silent-rules
 
-configure.ldflags-append \
-                    -liconv
-
-variant gtk3 description {Build using gtk3} {
-    depends_lib-replace port:gtk2 port:gtk3
-    depends_lib-replace port:gtkspell2 port:gtkspell3
-    depends_lib-append  port:gcr port:libsecret
-    depends_run-append  port:adwaita-icon-theme
-
-    configure.args-append --with-gtk3 --enable-gkr
-}
-
 app.icon                pan/icons/icon_pan_about_logo.png
-# note - next update enable the following line
-#app.name                Pan
+app.name                Pan
 app.executable          pan
 app.use_launch_script   yes
 
 variant x11 conflicts quartz {
    require_active_variants gtk3 x11 quartz
-   require_active_variants gtk2 x11 quartz
+   depends_lib-append      port:gcr port:libsecret
+   configure.args-replace  --disable-gkr --enable-gkr
 }
 
 variant quartz conflicts x11 {
    require_active_variants gtk3 quartz x11
-   require_active_variants gtk2 quartz x11
 }
 
 if {![variant_isset quartz]} {
     default_variants-append +x11
 }
 
-
 post-activate {
     system "${prefix}/bin/update-desktop-database ${prefix}/share/applications"
 }
-
-livecheck.type      regex
-livecheck.url       http://pan.rebelbase.com/download/releases/
-livecheck.regex     {>([0-9.]+)/<}

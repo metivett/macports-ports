@@ -5,14 +5,14 @@ PortGroup           python 1.0
 PortGroup           select 1.0
 
 name                py-virtualenv
-version             20.4.2
+version             20.25.0
 revision            0
 
 categories-append   devel
-platforms           darwin
+platforms           {darwin any}
 supported_archs     noarch
 license             MIT
-maintainers         {larryv @larryv} openmaintainer
+maintainers         {reneeotten @reneeotten} {larryv @larryv} openmaintainer
 
 description         Virtual Python Environment builder
 long_description    virtualenv is a tool to create isolated Python \
@@ -20,57 +20,72 @@ long_description    virtualenv is a tool to create isolated Python \
 
 homepage            https://virtualenv.pypa.io
 
-checksums           rmd160  3c134b603e5997331b05ed49d2ccf6a1cc0f7bc9 \
-                    sha256  147b43894e51dd6bba882cf9c282447f780e2251cd35172403745fc381a0a80d \
-                    size    10578406
+checksums           rmd160  039291eeead6b42bb8bde02cd26db95b0ef1dc61 \
+                    sha256  bf51c0d9c7dd63ea8e44086fa1e4fb1093a31e963b86959257378aef020e1f1b \
+                    size    7150307
 
-# keep older Python versions here, do add the EOL version to the list below
-python.versions     27 34 35 36 37 38 39
+# keep Python versions < 3.4 here, do add the EOL versions to the list below
+# See <https://trac.macports.org/wiki/Python#VersionPolicy>
+python.versions     27 37 38 39 310 311 312
 
 if {${name} ne ${subport}} {
     # add EOL warnings
-    if {${python.version} in "27 34 35"} {
+    if {${python.version} <= 37} {
         PortGroup   deprecated 1.0
 
         deprecated.eol_version  yes
     }
 
-    depends_build-append    port:py${python.version}-setuptools_scm
-
-    depends_lib-append      port:py${python.version}-appdirs \
-                            port:py${python.version}-distlib \
-                            port:py${python.version}-filelock \
-                            port:py${python.version}-setuptools \
-                            port:py${python.version}-six
+    depends_lib     port:py${python.version}-distlib \
+                    port:py${python.version}-filelock \
+                    port:py${python.version}-platformdirs
 
     if {${python.version} == 27} {
-        depends_lib-append  port:py${python.version}-contextlib2 \
-                            port:py${python.version}-pathlib2
-    }
+        depends_build-append \
+                        port:py${python.version}-setuptools_scm
 
-    if {${python.version} < 37} {
-        depends_lib-append  port:py${python.version}-importlib-resources
-    }
+        depends_lib-append \
+                        port:py${python.version}-importlib-resources \
+                        port:py${python.version}-importlib-metadata \
+                        port:py${python.version}-contextlib2 \
+                        port:py${python.version}-pathlib2 \
+                        port:py${python.version}-six
 
-    if {${python.version} < 38} {
-        depends_lib-append  port:py${python.version}-importlib-metadata
+        version     20.15.1
+        revision    0
+        checksums   rmd160  22ae6412f07079cc66ab083e63b234da203e99da \
+                    sha256  288171134a2ff3bfb1a2f54f119e77cd1b81c29fc1265a2356f3e8d14c7d58c4 \
+                    size    13523736
+
+        post-destroot {
+            set docdir ${prefix}/share/doc/${subport}
+            xinstall -d ${destroot}${docdir}/docs/changelog
+            xinstall -m 0644 -W ${worksrcpath} README.md LICENSE \
+                ${destroot}${docdir}
+            xinstall -m 0644 {*}[glob -directory ${worksrcpath}/docs *.rst] \
+                    ${destroot}${docdir}/docs
+            xinstall -m 0644 {*}[glob -directory ${worksrcpath}/docs/changelog *] \
+                    ${destroot}${docdir}/docs/changelog
+        }
+
+    } else {
+        # latest upstream version, Python 3.7+
+        python.pep517       yes
+        python.pep517_backend   hatch
+
+        depends_build-append \
+                        port:py${python.version}-hatch-vcs
+
+        if {${python.version} == 37} {
+            depends_lib-append \
+                        port:py${python.version}-importlib-metadata
+        }
     }
 
     depends_run-append  port:virtualenv_select
 
     select.group        virtualenv
     select.file         virtualenv${python.version}
-
-    post-destroot {
-        set docdir ${prefix}/share/doc/${subport}
-        xinstall -d ${destroot}${docdir}/docs/changelog
-        xinstall -m 0644 -W ${worksrcpath} README.md LICENSE \
-            ${destroot}${docdir}
-        xinstall -m 0644 {*}[glob -directory ${worksrcpath}/docs *.rst] \
-                ${destroot}${docdir}/docs
-        xinstall -m 0644 {*}[glob -directory ${worksrcpath}/docs/changelog *] \
-                ${destroot}${docdir}/docs/changelog
-    }
 
     notes-append "
     The executable is installed as\

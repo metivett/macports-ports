@@ -1,0 +1,28 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             github JacobSeedorff21 BranchGLM 2.1.3 v
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             Apache-2+
+description         Efficient and scalable glm best subset selection using a novel implementation \
+                    of a branch and bound algorithm
+long_description    {*}${description}
+checksums           rmd160  a5f34a93a19d9db078a0158f1bc9df82b0bd2198 \
+                    sha256  db275f9e9ce23786c8d11b90f57df32ae1f918bf1f7e8ae203fd1c1d91f8b1af \
+                    size    92867
+
+depends_lib-append  port:R-BH \
+                    port:R-Rcpp \
+                    port:R-RcppArmadillo
+
+compilers.setup     require_fortran
+
+depends_test-append port:R-knitr \
+                    port:R-rmarkdown \
+                    port:R-testthat
+
+test.run            yes

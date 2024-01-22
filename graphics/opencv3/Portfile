@@ -5,19 +5,35 @@ PortGroup           cmake 1.1
 PortGroup           compiler_blacklist_versions 1.0
 PortGroup           legacysupport 1.0
 
-name                opencv3
-version             3.4.13
-revision            1
-categories          graphics science
-platforms           darwin
-license             BSD
+#==============================================================================
+# IMPORTANT NOTE
+#
+# Before updating to a new version from upstream, please test building with
+# +contrib, in addition to the default. Reason being, the extra functionality
+# is used by many, including our own MacPorts members. Enough so that we may
+# want to enable +contrib by default at some point.
+#
+# Also note that upstream has occassionally broken the Contrib build, so it's
+# not a given that it will compile successfully.
+#
+# Net-Net: If upstream breaks Contrib for a certain release, please don't
+# update to it. And submit a ticket for the issue, if none exists.
+#
+# Thanks!
+#==============================================================================
 
-maintainers         \
-                    {@mascguy} \
-                    openmaintainer
+name                opencv3
+conflicts           opencv3-devel
+set my_name         opencv3
+version             3.4.16
+# NOTE: Separate revisions maintained for Python subports, later in portfile
+revision            16
+
+categories          graphics science
+license             BSD
+maintainers         {mascguy @mascguy}
 
 description         Open Source Computer Vision Library
-
 long_description    OpenCV (Open Source Computer Vision Library) is an \
                     open source computer vision and machine learning \
                     software library. OpenCV was built to provide a \
@@ -26,19 +42,19 @@ long_description    OpenCV (Open Source Computer Vision Library) is an \
                     perception in the commercial products. Being a \
                     BSD-licensed product, OpenCV makes it easy for \
                     businesses to utilize and modify the code.
-
 homepage            https://opencv.org
 
 master_sites        https://github.com/opencv/opencv/archive/:opencv
 distname            ${version}
-
 distfiles           ${distname}${extract.suffix}:opencv
+dist_subdir         ${my_name}
 
 # don't forget to also update the checksums under the contrib variant.
-checksums           ${distname}${extract.suffix} \
-                    rmd160  39f8733cb2f58d2a955e3c74e7a52f16b1b78d9c \
-                    sha256  70230049194ae03ed8bfaab6cd1388569aa1b5c482d8b50d3af1cd2ae5a0b95d \
-                    size    87573369
+checksums-append \
+                    ${distname}${extract.suffix} \
+                    rmd160  c8c3c68a05b01d58505ca84e328996bbe17706b2 \
+                    sha256  5e37b791b2fe42ed39b52d9955920b951ee42d5da95f79fbc9765a08ef733399 \
+                    size    87694121
 
 platform macosx {
     if {${os.major} <= 10} {
@@ -55,6 +71,16 @@ platform macosx {
 }
 
 #------------------------------------------------------------------------------
+# Python build support
+#------------------------------------------------------------------------------
+set default_python_branch \
+                    3.11
+set default_python_version \
+                    [join [lrange [split ${default_python_branch} .] 0 1] ""]
+set default_python_path \
+                    ${prefix}/bin/python${default_python_branch}
+
+#------------------------------------------------------------------------------
 # Subport name used for staging files, etc.
 #
 # This is needed to support Python subports, whose names have no relation to
@@ -64,9 +90,9 @@ platform macosx {
 #   change once the various OpenCV-related ports are merged.
 #------------------------------------------------------------------------------
 set parent_subport_name \
-                    ${name}
+                    ${my_name}
 
-worksrcdir          ${parent_subport_name}-${version}
+worksrcdir          opencv-${version}
 
 compiler.cxx_standard \
                     2011
@@ -79,10 +105,11 @@ compiler.blacklist-append \
                     macports-clang-4.0
 
 depends_build-append \
-                    port:pkgconfig
+                    port:pkgconfig \
+                    port:python${default_python_version}
 
 depends_lib-append  \
-                    port:ffmpeg \
+                    path:lib/libavcodec.dylib:ffmpeg \
                     port:zlib \
                     port:bzip2 \
                     port:libpng \
@@ -91,7 +118,7 @@ depends_lib-append  \
                     port:tiff \
                     port:webp \
                     port:ilmbase \
-                    port:openexr
+                    port:openexr2
 
 # only search for openexr in ${prefix}
 patchfiles-append   patch-find-openexr.diff
@@ -104,7 +131,7 @@ configure.cppflags-replace -I${prefix}/include -isystem${prefix}/include
 patchfiles-append   patch-local_protobuf.diff
 
 post-patch {
-    reinplace "s|@PREFIX@|${prefix}|g" \
+    reinplace "s|@PREFIX@|${prefix}/libexec/openexr2|g" \
         ${worksrcpath}/cmake/OpenCVFindOpenEXR.cmake
 }
 
@@ -253,8 +280,8 @@ configure.args-append \
                     -DBUILD_opencv_python2=OFF \
                     -DBUILD_opencv_python3=OFF \
                     -DOPENCV_PYTHON_SKIP_DETECTION=OFF \
-                    -DPYTHON_EXECUTABLE=/usr/bin/python \
-                    -DPYTHON_DEFAULT_EXECUTABLE=/usr/bin/python
+                    -DPYTHON_EXECUTABLE=${default_python_path} \
+                    -DPYTHON_DEFAULT_EXECUTABLE=${default_python_path}
 
 if {![info exists universal_possible]} {
     set universal_possible [expr {${os.universal_supported} && [llength ${configure.universal_archs}] >= 2}]
@@ -324,16 +351,21 @@ if {${universal_possible} && [variant_isset universal]} {
 }
 
 # Python Bindings
-# Name consistency with ${python.branch} and ${python.version} in
-# ${prefix}/var/macports/sources/rsync.macports.org/macports/release/tarballs/ports/_resources/port1.0/group/python-1.0.tcl
-
 foreach python_branch {2.7} {
     set python_version [join [lrange [split ${python_branch} .] 0 1] ""]
-    subport py${python_version}-${parent_subport_name} {
+    subport py${python_version}-${name} {
+        # NOTE: Only rev-bump subports, for major changes/additions
+        revision 5
+
+        conflicts-append \
+                            py${python_version}-opencv3-devel
+
+        depends_build-delete \
+                            port:python${default_python_version}
         depends_lib-append \
-                            port:${parent_subport_name} \
-                            port:python${python_version} \
-                            port:py${python_version}-numpy
+                            port:${name} \
+                            port:py${python_version}-numpy \
+                            port:python${python_version}
         configure.args-replace \
                             -DBUILD_opencv_python2=OFF \
                             -DBUILD_opencv_python2=ON
@@ -341,7 +373,7 @@ foreach python_branch {2.7} {
                             -DBUILD_opencv_apps=ON \
                             -DBUILD_opencv_apps=OFF
         configure.args-replace \
-                            -DPYTHON_EXECUTABLE=/usr/bin/python \
+                            -DPYTHON_EXECUTABLE=${default_python_path} \
                             -DPYTHON_EXECUTABLE=${prefix}/bin/python${python_branch}
         configure.args-append \
                             -DPYTHON2_EXECUTABLE=${prefix}/bin/python${python_branch} \
@@ -353,21 +385,31 @@ foreach python_branch {2.7} {
         # Deconflict with parent port contents
         post-destroot {
             ui_debug "${subport}: python subport: removing files unrelated to Python bindings"
-            foreach f [exec port contents ${parent_subport_name}] {
+            foreach f [exec port contents ${name}] {
                 delete ${destroot}${f}
             }
         }
     }
 }
 
-set python_branches {3.5 3.6 3.7 3.8 3.9}
+set python_branches {3.7 3.8 3.9 3.10 3.11}
 foreach python_branch ${python_branches} {
     set python_version [join [lrange [split ${python_branch} .] 0 1] ""]
-    subport py${python_version}-${parent_subport_name} {
+    subport py${python_version}-${name} {
+        # NOTE: Only rev-bump subports, for major changes/additions
+        revision 5
+
+        conflicts-append \
+                            py${python_version}-opencv3-devel \
+                            py${python_version}-opencv4 \
+                            py${python_version}-opencv4-devel
+
+        depends_build-delete \
+                            port:python${default_python_version}
         depends_lib-append \
-                            port:${parent_subport_name} \
-                            port:python${python_version} \
-                            port:py${python_version}-numpy
+                            port:${name} \
+                            port:py${python_version}-numpy \
+                            port:python${python_version}
         configure.args-replace \
                             -DBUILD_opencv_python3=OFF \
                             -DBUILD_opencv_python3=ON
@@ -383,7 +425,7 @@ foreach python_branch ${python_branches} {
         # Deconflict with parent port contents
         post-destroot {
             ui_debug "${subport}: python subport: removing files unrelated to Python bindings"
-            foreach f [exec port contents ${parent_subport_name}] {
+            foreach f [exec port contents ${name}] {
                 delete ${destroot}${f}
             }
         }
@@ -392,7 +434,7 @@ foreach python_branch ${python_branches} {
 
 if {${name} eq ${subport}} {
     notes \
-        "* ${subport} binaries are now prefixed with '${subport}_', to prevent conflicts\
+        "* ${subport} binaries are now prefixed with '${my_name}_', to prevent conflicts\
         with other OpenCV-related ports." \
         "* Python bindings are now implemented via subports 'pyXX-${subport}',\
         to support multiple Python versions side-by-side."
@@ -410,7 +452,7 @@ if {${name} eq ${subport}} {
     }
 
     variant eigen description {Enable eigen support} {
-        depends_lib-append  port:eigen3
+        depends_lib-append  path:share/pkgconfig/eigen3.pc:eigen3
         configure.args-replace \
                             -DWITH_EIGEN=OFF \
                             -DWITH_EIGEN=ON
@@ -452,59 +494,87 @@ if {${name} eq ${subport}} {
 
     variant dc1394 description {Use libdc1394 for FireWire camera; breaks compatibility with Apple iSight FireWire camera} {
         depends_lib-append  port:libdc1394
-        configure.args-replace  -DWITH_1394=OFF \
+        configure.args-replace \
+                            -DWITH_1394=OFF \
                             -DWITH_1394=ON
-        configure.args-append   -DHAVE_DC1394_2=ON
+        configure.args-append \
+                            -DHAVE_DC1394_2=ON
     }
 
     variant qt4 conflicts qt5 description {Build with Qt4 Backend support} {
         PortGroup           qt4 1.0
-        configure.args-replace  -DWITH_QT=OFF \
+
+        configure.args-replace \
+                            -DWITH_QT=OFF \
                             -DWITH_QT=4
     }
 
     variant qt5 conflicts qt4 description {Build with Qt5 Backend support} {
         PortGroup           qt5 1.0
-        configure.args-replace  -DWITH_QT=OFF \
+
+        configure.args-replace \
+                            -DWITH_QT=OFF \
                             -DWITH_QT=5
     }
 
     variant java description {Add Java bindings} {
         PortGroup           java 1.0
+
         # OpenCV appears to support older Java versions,
         # and MacPorts users have requested Java 8 support:
         # see https://trac.macports.org/ticket/60193
         java.version        1.6+
         # Use latest LTS Java version as fallback
         java.fallback       openjdk11
-        depends_build-append    port:apache-ant
-        configure.args-replace  -DBUILD_opencv_java=OFF \
+        depends_build-append \
+                            port:apache-ant
+        configure.args-replace \
+                            -DBUILD_opencv_java=OFF \
                             -DBUILD_opencv_java=ON
     }
 
     if {[variant_isset java] && ![variant_isset python27]} {
-        configure.args-replace  -DPYTHON_EXECUTABLE=OFF \
-                            -DPYTHON_EXECUTABLE=/usr/bin/python
-        configure.args-delete   -DBUILD_opencv_python2=OFF
+        configure.args-replace \
+                            -DPYTHON_EXECUTABLE=OFF \
+                            -DPYTHON_EXECUTABLE=${default_python_path}
+        configure.args-delete \
+                            -DBUILD_opencv_python2=OFF
     }
 
     variant tbb description {Use Intel TBB} {
-        depends_lib-append      port:tbb
-        configure.args-replace  -DWITH_TBB=OFF \
+        depends_lib-append  \
+                            port:tbb
+        configure.args-replace \
+                            -DWITH_TBB=OFF \
                             -DWITH_TBB=ON
-        configure.args-append   -DHAVE_TBB=ON \
-                            -DTBB_INCLUDE_DIRS=${prefix}/include
+        configure.args-append \
+                            -DHAVE_TBB=ON
+
+        # NOTE: TBB 2020 (tbb port) doesn't provide cmake package and to prevent
+        # from pickinkg OneTBB it uses TBBROO env to verify that cmake picks the right one
+        configure.env-append \
+                            TBBROOT=${prefix}/libexec/tbb
+        configure.cflags-prepend \
+                            -I${prefix}/libexec/tbb/include
+        configure.cxxflags-prepend \
+                            -I${prefix}/libexec/tbb/include
+        configure.ldflags-prepend \
+                            -L${prefix}/libexec/tbb/lib
     }
 
     variant vtk description {Include VTK support} {
-        depends_lib-append      port:vtk
-        configure.args-replace  -DWITH_VTK=OFF \
+        depends_lib-append  \
+                            port:vtk
+        configure.args-replace \
+                            -DWITH_VTK=OFF \
                             -DWITH_VTK=ON
     }
 
     variant gdal description {Include GDAL support} {
-        depends_lib-append      port:gdal
-        configure.args-replace  -DWITH_GDAL=OFF \
+        depends_lib-append \
+                            port:gdal
+        configure.args-replace \
+                            -DWITH_GDAL=OFF \
                             -DWITH_GDAL=ON
     }
 
@@ -512,25 +582,28 @@ if {${name} eq ${subport}} {
         master_sites-append     https://github.com/opencv/opencv_contrib/archive:opencv_contrib
         distfiles-append        ${version}.zip:opencv_contrib
         checksums-append        ${version}.zip \
-                            rmd160  e3fe150fa131a4cf7cd9e0bf9f6a597df6e8f3f3 \
-                            sha256  4412a8b1a9d55b4bac489d79c21c567e0bf69272e6fbc7f45a68a7b72fb59066 \
-                            size    56393041
-        configure.args-append   -DOPENCV_EXTRA_MODULES_PATH=${workpath}/opencv_contrib-${version}/modules \
+                                rmd160  1f4a256abf81291ba41e941b8519c160c4798963 \
+                                sha256  46306034f3ebe3d245724f633df1b5ddde755266c95b2aaec76092f848fec7fb \
+                                size    56441730
+
+        configure.args-append \
+                            -DOPENCV_EXTRA_MODULES_PATH=${workpath}/opencv_contrib-${version}/modules \
                             -DBUILD_PROTOBUF=YES
-        depends_lib-append      \
+        depends_lib-append \
+                            port:double-conversion \
                             port:gflags \
                             port:google-glog \
                             port:ceres-solver
 
         post-extract {
             # gunzip cannot handle multi-member .zip archives
-            exec unzip -oq ${distpath}/${version}.zip -d ${extract.dir}
+            system "unzip -oq ${distpath}/${version}.zip -d ${extract.dir}"
 
             # less than ideal way for patchfiles to be applied to contrib directory
             ln -s ${workpath}/opencv_contrib-${version} ${worksrcpath}/opencv_contrib
         }
 
-        extract.only            ${distname}${extract.suffix}
+        extract.only        ${distname}${extract.suffix}
 #                            ${version}.zip
 
         # dnn_modern:
@@ -539,16 +612,16 @@ if {${name} eq ${subport}} {
         distfiles-append        v1.0.0a3.tar.gz:tiny-dnn
 
         checksums-append        v1.0.0a3.tar.gz \
-                            rmd160 1d44a0f0c3b0a6f31a333afdfb246526c42336ad \
-                            sha256 e2c61ce8c5debaa644121179e9dbdcf83f497f39de853f8dd5175846505aa18b \
-                            size 12885646
+                                rmd160  1d44a0f0c3b0a6f31a333afdfb246526c42336ad \
+                                sha256  e2c61ce8c5debaa644121179e9dbdcf83f497f39de853f8dd5175846505aa18b \
+                                size    12885646
 
         configure.args-append  -DOPENCV_TINY_DNN_URL=file://${distpath}/
 
         # xfeatures2d/boostdesc:
         master_sites-append    https://raw.githubusercontent.com/opencv/opencv_3rdparty/34e4206aef44d50e6bbcd0ab06354b52e7466d26:boostdesc
 
-        distfiles-append       boostdesc_bgm.i:boostdesc \
+        distfiles-append   boostdesc_bgm.i:boostdesc \
                            boostdesc_bgm_bi.i:boostdesc \
                            boostdesc_bgm_hd.i:boostdesc \
                            boostdesc_binboost_064.i:boostdesc \
@@ -556,7 +629,7 @@ if {${name} eq ${subport}} {
                            boostdesc_binboost_256.i:boostdesc \
                            boostdesc_lbgm.i:boostdesc
 
-        checksums-append       boostdesc_bgm.i \
+        checksums-append   boostdesc_bgm.i \
                                rmd160 a090147b1ff8cdb23cbb3898cb5cd9cdb181f000 \
                                sha256 c441a027f15b9b8ff6c006b0775cd86781169ebd5b6257a94bdce668010d5df5 \
                                size 14852 \
@@ -590,12 +663,12 @@ if {${name} eq ${subport}} {
         #xfeatures2d/vggdesc:
         master_sites-append    https://raw.githubusercontent.com/opencv/opencv_3rdparty/fccf7cd6a4b12079f73bbfb21745f9babcd4eb1d:vggdesc
 
-        distfiles-append       vgg_generated_48.i:vggdesc \
+        distfiles-append   vgg_generated_48.i:vggdesc \
                            vgg_generated_64.i:vggdesc \
                            vgg_generated_80.i:vggdesc \
                            vgg_generated_120.i:vggdesc
 
-        checksums-append       vgg_generated_48.i \
+        checksums-append   vgg_generated_48.i \
                                rmd160 fdb2d976ec287c4989e9d3b6f95104a0bef9c9a4 \
                                sha256 71274a67ab0896865e27de830eda0065e387d75fe071dab4a887e2430ccb8a35 \
                                size 773330 \
@@ -617,9 +690,9 @@ if {${name} eq ${subport}} {
         #face:
         master_sites-append    https://raw.githubusercontent.com/opencv/opencv_3rdparty/8afa57abc8229d611c4937165d20e2a2d9fc5a12:face
 
-        distfiles-append       face_landmark_model.dat:face
+        distfiles-append   face_landmark_model.dat:face
 
-        checksums-append       face_landmark_model.dat \
+        checksums-append   face_landmark_model.dat \
                            rmd160 3a4e4a80f2c74a6af2b36b4d74e3c6d59c347ce0 \
                            sha256 eeab592db2861a6c94d592a48456cf59945d31483ce94a6bc4d3a4e318049ba3 \
                            size 72368157
@@ -710,18 +783,42 @@ proc opencv_soft_link_binaries {p_bin_main_dir p_bin_port_dir p_destroot p_prefi
     return 0
 }
 
+proc opencv_fix_pkgconfig {p_destroot p_prefix p_subport p_parent_subport_name} {
+    if {${p_subport} eq ${p_parent_subport_name}} {
+        set pkgconfig_file \
+            "${p_destroot}${p_prefix}/lib/${p_parent_subport_name}/pkgconfig/opencv.pc"
+
+        ui_debug "opencv_fix_pkgconfig: fixing pkgconfig file ${pkgconfig_file}"
+
+        # Fix paths
+        reinplace "s|\$\{exec_prefix\}\/||g" \
+            ${pkgconfig_file}
+        reinplace "s|\$\{prefix\}\/||g" \
+            ${pkgconfig_file}
+
+        # http://trac.macports.org/ticket/42702
+        if {[variant_isset qt4] || [variant_isset qt5]} {
+            reinplace "s|-L//System/Library/Frameworks ||g" \
+                ${pkgconfig_file}
+            reinplace "s|-lOpenGL.framework|-framework OpenGL|g" \
+                ${pkgconfig_file}
+        }
+    }
+
+    return 0
+}
+
 proc opencv_post_destroot {} {
-    global prefix
     global destroot
+    global prefix
+    global subport
     global parent_subport_name
 
-    # http://trac.macports.org/ticket/42702
-    if {[variant_isset qt4] || [variant_isset qt5]} {
-        reinplace "s|-L//System/Library/Frameworks ||g" \
-            ${destroot}${prefix}/lib/${parent_subport_name}/pkgconfig/opencv.pc
-        reinplace "s|-lOpenGL.framework|-framework OpenGL|g" \
-            ${destroot}${prefix}/lib/${parent_subport_name}/pkgconfig/opencv.pc
-    }
+    opencv_fix_pkgconfig \
+        ${destroot} \
+        ${prefix} \
+        ${subport} \
+        ${parent_subport_name}
 
     set bin_main_dir \
         "${destroot}${prefix}/bin"

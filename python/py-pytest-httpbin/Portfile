@@ -1,0 +1,30 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           python 1.0
+
+name                py-pytest-httpbin
+version             2.0.0
+revision            0
+
+categories-append   devel
+supported_archs     noarch
+platforms           {darwin any}
+license             MIT
+maintainers         nomaintainer
+
+description         Easily test your HTTP library against a local copy of httpbin
+long_description    {*}${description}
+
+homepage            https://github.com/kevin1024/pytest-httpbin
+
+checksums           rmd160  063ae009f68ffd51f09fa995f2b778517203a9d3 \
+                    sha256  3e739cad9b8f8df58952df7329d9295fe17449d3a647f49c4ce634fd81d71b8e \
+                    size    16081
+
+python.versions     310 311 312
+
+if {${name} ne ${subport}} {
+    depends_lib-append \
+                    port:py${python.version}-httpbin
+}

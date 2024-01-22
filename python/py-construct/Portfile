@@ -5,18 +5,18 @@ PortGroup           python 1.0
 
 name                py-construct
 
-version             2.10.61
-checksums           rmd160  81ad5b3c6a7e00b7882ddfe1c47b72cc6891364c \
-                    sha256  d75384a04cb36ae5417dd34ce230c392e6085d872ab8a99ebd756c34bac0dff5 \
-                    size    55748
+version             2.10.68
+checksums           rmd160  1284fc36d92bca1a4b877cd6d54402e364888bc6 \
+                    sha256  7b2a3fd8e5f597a5aa1d614c3bd516fa065db01704c72a1efaaeec6ef23d8b45 \
+                    size    57856
 revision            0
 
 categories-append   devel
-platforms           darwin
 license             MIT
 supported_archs     noarch
+platforms           {darwin any}
 
-python.versions     27 35 36 37 38 39
+python.versions     27 37 38 39 310
 
 maintainers         {michaelld @michaelld} openmaintainer
 
@@ -32,7 +32,7 @@ homepage            https://construct.readthedocs.org
 
 if {${name} ne ${subport}} {
 
-    if { ${python.version} == 27 || ${python.version} == 35} {
+    if { ${python.version} == 27} {
         version         2.10.54
         checksums       rmd160 8ef31fe45319257ca905e25bee6a108a5f659e2a \
                         sha256  3c130a67f05610557dd1b27e062a7165f92b517f9ed50db880ebe068696fd712 \
@@ -44,9 +44,4 @@ if {${name} ne ${subport}} {
                         port:py${python.version}-setuptools
 
     depends_lib-append  port:py${python.version}-six
-
-    livecheck.type      none
 }
-
-master_sites        pypi:c/construct/
-distname            construct-${version}

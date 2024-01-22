@@ -8,6 +8,7 @@ PortGroup           gobject_introspection 1.0
 
 name                gdm
 version             3.16.4
+revision            1
 license             GPL-2
 set branch          [join [lrange [split ${version} .] 0 1] .]
 description         The Gnome Display Manager is a re-implementation of the well known xdm program.
@@ -32,7 +33,7 @@ depends_build       port:pkgconfig \
                     port:libtool
 
 depends_lib         port:desktop-file-utils \
-                    port:gtk3 \
+                    path:lib/pkgconfig/gtk+-3.0.pc:gtk3 \
                     port:dconf \
                     port:accountsservice \
                     port:nss \

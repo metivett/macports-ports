@@ -3,11 +3,14 @@
 PortSystem          1.0
 
 name                xterm
-version             366
+version             388
 revision            0
+checksums           rmd160  6713c0c73b33823f4a11fb1362ec147950bb2f1b \
+                    sha256  ac429345e6f937a5945a89d425a265fee6c215fc669dbdc6a0326e21f4c5f674 \
+                    size    1548336
+
 categories          x11
 license             X11
-platforms           darwin
 maintainers         {jeremyhu @jeremyhu} openmaintainer
 description         the ubiquitous X terminal emulator, stand-alone
 long_description    The xterm program is a terminal emulator for the X \
@@ -15,13 +18,8 @@ long_description    The xterm program is a terminal emulator for the X \
                     including colors, Unicode, etc.
 
 homepage            https://invisible-island.net/xterm/
-master_sites        ftp://ftp.invisible-island.net/pub/xterm/ \
-                    https://invisible-mirror.net/archives/xterm/
-
-checksums           rmd160  c3a18eeac36609c24f9ea1556fc630bb38dd90c8 \
-                    sha256  858b2885963fe97e712739066aadc1baeba2b33a0016303a7fec7d38bc73bf6e \
-                    size    1445992
-
+master_sites        https://invisible-island.net/archives/${name}/ \
+                    https://invisible-mirror.net/archives/${name}/
 extract.suffix      .tgz
 
 depends_build       port:xorg-xorgproto
@@ -36,12 +34,11 @@ depends_lib         port:ncurses \
 
 patchfiles          PR-7191532.patch
 
-patch.pre_args -p1
-
 configure.args      --mandir=${prefix}/share/man --enable-luit \
                     --enable-logging --enable-wide-chars \
                     --enable-256-color --enable-load-vt-fonts \
                     --enable-double-buffer \
+                    --enable-sixel-graphics --enable-regis-graphics \
                     --x-include=${prefix}/include --x-lib=${prefix}/lib \
                     --with-app-defaults=${prefix}/share/X11/app-defaults
 

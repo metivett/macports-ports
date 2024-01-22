@@ -1,0 +1,42 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran apolloChoiceModelling apollo 0.3.1
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             GPL-2
+description         Tools for choice model estimation and application
+long_description    {*}${description}
+homepage-append     http://www.apolloChoiceModelling.com
+checksums           rmd160  2ed8761b6bcfe3598332bd434d1cc1888f630655 \
+                    sha256  aaab81d146125fe237f79f70ca8cf9ba4eb509647ebbd4dc0f26dfe11468c046 \
+                    size    511914
+
+depends_lib-append  port:R-bgw \
+                    port:R-cli \
+                    port:R-coda \
+                    port:R-Deriv \
+                    port:R-matrixStats \
+                    port:R-maxLik \
+                    port:R-mnormt \
+                    port:R-mvtnorm \
+                    port:R-numDeriv \
+                    port:R-randtoolbox \
+                    port:R-Rcpp \
+                    port:R-RcppArmadillo \
+                    port:R-RcppEigen \
+                    port:R-RSGHB \
+                    port:R-Rsolnp \
+                    port:R-stringr \
+                    port:R-tibble
+
+compilers.setup     require_fortran
+
+depends_test-append port:R-knitr \
+                    port:R-rmarkdown \
+                    port:R-testthat
+
+test.run            yes

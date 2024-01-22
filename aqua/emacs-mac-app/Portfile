@@ -3,8 +3,8 @@
 PortSystem          1.0
 PortGroup           bitbucket 1.0
 
-set emacs_version   27.1
-set emacs_mac_ver   8.1
+set emacs_version   29.1
+set emacs_mac_ver   10.0
 
 bitbucket.setup     mituharu emacs-mac emacs-${emacs_version}-mac-${emacs_mac_ver}
 name                emacs-mac-app
@@ -15,20 +15,19 @@ maintainers         {amake @amake} openmaintainer
 
 description         Emacs Mac port
 
-long_description    ${name} is "Mac port" addition to GNU Emacs ${emacs_version}. \
-                    This provides a native GUI support for Mac OS X 10.6 - macOS 10.14.
+long_description    ${name} is the \"Mac port\" of GNU Emacs ${emacs_version}. \
+                    This provides a native GUI with tight OS integration.
 
 platforms           darwin
 license             GPL-3+
 
-checksums           rmd160  8c5f4110b4b541ab0b2117d79aa4d3249e70f33b \
-                    sha256  cae62f036be66ebcdada4d4563859b70825d2a8c91edd24e9e9794ece9f30dee \
-                    size    43579411
+checksums           rmd160  616d3c3d3dd1e175af7f06423f106b1534264d45 \
+                    sha256  54d7ba79157c8cb7c3e20be5ce0fbcddd3d5bd0b339b11bc628d7c67a4765b9b \
+                    size    49861317
 
 depends_lib         port:ncurses \
                     port:libxml2 \
-                    port:gnutls \
-                    port:dbus \
+                    path:lib/pkgconfig/gnutls.pc:gnutls \
                     port:lcms2 \
                     port:gmp \
                     port:jansson
@@ -37,9 +36,6 @@ patchfiles          patch-src_emacs.c.diff
 
 if {${subport} eq ${name}} {
     conflicts       emacs-mac-app-devel
-
-    patchfiles-append \
-                    patch-apple-silicon.diff
 }
 
 post-patch {
@@ -56,82 +52,83 @@ depends_build       port:autoconf \
                     port:automake \
                     port:libtool \
                     port:pkgconfig \
-                    port:texinfo
+                    port:texinfo \
+                    port:sqlite3 \
+                    port:webp
 
 # The Mac port uses CoreText instead of HarfBuzz
-configure.args      --with-mac \
-                    --enable-mac-app=${applications_dir} \
-                    --with-modules \
-                    --without-rsvg \
-                    --without-imagemagick \
+configure.args      --disable-silent-rules \
+                    --with-mac \
+                    --enable-mac-app=${worksrcpath} \
+                    --enable-mac-self-contained \
+                    --without-dbus \
+                    --without-gconf \
+                    --without-libotf \
+                    --without-m17n-flt \
                     --without-harfbuzz \
-                    --with-json
+                    --without-imagemagick \
+                    --without-rsvg \
+                    --without-xaw3d \
+                    --without-tree-sitter \
+                    --with-libgmp \
+                    --with-gnutls \
+                    --with-xml2 \
+                    --with-json \
+                    --with-lcms2 \
+                    --with-modules \
+                    --with-sqlite3 \
+                    --with-webp
 
-if {${os.major} >= 11 && ${os.platform} eq "darwin"} {
+platform darwin {
     configure.cflags-append -fobjc-arc
 }
 
-subport ${name}-devel {
-    set emacs_version   27.1.90
+if {${os.major} <= 13} {
+    known_fail  yes
+}
 
-    version         20201223
+subport ${name}-devel {
+    set emacs_version   29.1
+    set date            2023-11-16
+
+    version         [string map {- {}} ${date}]
     revision        0
 
     long_description \
-        ${name} is "Mac port" addition to GNU Emacs ${emacs_version}. \
-        This provides a native GUI support for Mac OS X 10.6 - macOS 10.14.
+        ${name} is the \"Mac port\" of GNU Emacs ${emacs_version}. \
+        This provides a native GUI with tight OS integration.
 
     fetch.type      git
-    git.url         --depth=1000 --branch work https://bitbucket.org/mituharu/emacs-mac.git
-    git.branch      8b46c72a14cd2496486d1bb82a75c3e6e05c366b
+    git.url         --shallow-since=${date}T00:00:00 --branch work https://bitbucket.org/mituharu/emacs-mac.git
+    git.branch      f07ef590bae37bfbe9fc13767288bd9614587335
+
+    # --shallow-since needs a newer version of git than on some older systems,
+    # so use MacPorts version
+    depends_fetch-append port:git
+    git.cmd         ${prefix}/bin/git
 
     conflicts       emacs-mac-app
 
-    # Bitbucket doesn't seem to have a good way to get the latest commit on a
-    # branch
-    livecheck.type  none
+    livecheck.version   ${git.branch}
+    bitbucket.livecheck work
 }
 
+destroot.destdir {}
+
 post-destroot {
-    # move files into the app bundle.
-    # https://github.com/railwaycat/emacs-mac-port/blob/master/build-emacs.app.sh
-    set app_dir ${destroot}${applications_dir}/Emacs.app/Contents/Resources
-    foreach d [glob ${destroot}${prefix}/share/emacs/${emacs_version}/*] {
-        move ${d} ${app_dir}
-    }
-    move ${destroot}${prefix}/share/info ${app_dir}
-    move ${destroot}${prefix}/share/man  ${app_dir}
-    move ${destroot}${prefix}/var        ${app_dir}
-    move ${destroot}${prefix}/bin        ${app_dir}/../MacOS
-    xinstall -d ${app_dir}/../MacOS/libexec
-    foreach f [glob ${destroot}${prefix}/libexec/emacs/${emacs_version}/*/*] {
-        move ${f} ${app_dir}/../MacOS/libexec
-    }
-    # Remove everything from ${destroot}${prefix} except ${app_dir}
-    if {0 != [string first ${destroot}${prefix} ${app_dir}]} {
-        # ${app_dir} is not a subdirectory of ${prefix}
-        delete ${destroot}${prefix}
-    } else {
-        foreach d [glob ${destroot}${prefix}/*] {
-            if {0 != [string first ${d} ${app_dir}]} {
-                delete ${d}
-            }
-        }
-    }
+    # Rename the app bundle to avoid a conflict with emacs-app
+    move ${worksrcpath}/Emacs.app ${destroot}${applications_dir}/EmacsMac.app
 
-    # make the application binary a hard link.
-    delete ${app_dir}/../MacOS/Emacs
-    file link -hard ${app_dir}/../MacOS/Emacs ${app_dir}/../MacOS/bin/emacs
-
-    # install site-start.el.
-    set site_lisp ${destroot}${applications_dir}/Emacs.app/Contents/Resources/site-lisp
+    # Install site-start.el
+    set site_lisp ${destroot}${applications_dir}/EmacsMac.app/Contents/Resources/site-lisp
     xinstall -d ${site_lisp}
     file copy ${filespath}/site-start.el ${site_lisp}
     reinplace "s|__PREFIX__|${prefix}|g" ${site_lisp}/site-start.el
 
-    # rename the app bundle to avoid a conflict with emacs-app.
-    move ${destroot}${applications_dir}/Emacs.app \
-         ${destroot}${applications_dir}/EmacsMac.app
+    # Install emacs-module.h header file
+    xinstall -m 0755 -d ${destroot}${prefix}/include/emacs-mac
+    xinstall -m 0644 ${worksrcpath}/src/emacs-module.h \
+        ${destroot}${prefix}/include/emacs-mac
 }
 
 variant multitty description {Enable Multi-TTY support} {
@@ -139,7 +136,7 @@ variant multitty description {Enable Multi-TTY support} {
 }
 
 variant rsvg description {Enable librsvg bindings} {
-    depends_lib-append     port:librsvg
+    depends_lib-append     path:lib/pkgconfig/librsvg-2.0.pc:librsvg
     configure.args-delete  --without-rsvg
     configure.args-append  --with-rsvg
 }
@@ -150,4 +147,48 @@ variant imagemagick description {Enable ImageMagick bindings} {
     configure.args-append  --with-imagemagick
 }
 
-livecheck.version   ${version}
+variant nativecomp description {Builds emacs with native compilation support} {
+    set gcc_v                      12
+    depends_lib-append             port:gcc${gcc_v}
+    configure.args-append          --with-native-compilation=aot
+    compiler.cpath-prepend         ${prefix}/include/gcc${gcc_v}
+    compiler.library_path-prepend  ${prefix}/lib/gcc${gcc_v}
+    configure.ldflags-append       "-Wl,-rpath ${prefix}/lib/gcc${gcc_v}"
+}
+
+variant treesitter description {Builds emacs with tree-sitter support} {
+    configure.args-delete   --without-tree-sitter
+    configure.args-append   --with-tree-sitter
+    depends_lib-append  port:tree-sitter
+    depends_run-append \
+        port:tree-sitter-typescript \
+        port:tree-sitter-javascript \
+        port:tree-sitter-tsx \
+        port:tree-sitter-c \
+        port:tree-sitter-cpp \
+        port:tree-sitter-java \
+        port:tree-sitter-python \
+        port:tree-sitter-css \
+        port:tree-sitter-json \
+        port:tree-sitter-c-sharp \
+        port:tree-sitter-bash \
+        port:tree-sitter-dockerfile \
+        port:tree-sitter-cmake \
+        port:tree-sitter-toml \
+        port:tree-sitter-go \
+        port:tree-sitter-go-mod \
+        port:tree-sitter-yaml \
+        port:tree-sitter-rust \
+        port:tree-sitter-ruby
+}
+
+variant metal description {Enable experimental Metal support} {
+    configure.args-append  --with-mac-metal
+}
+
+default_variants-append +nativecomp +treesitter
+
+if {${subport} eq ${name}} {
+    livecheck.regex     {"emacs-[0-9.]+-mac-([0-9.]+)"}
+    livecheck.version   ${version}
+}

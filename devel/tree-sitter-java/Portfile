@@ -1,0 +1,22 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           github 1.0
+PortGroup           tree_sitter 1.0
+
+github.setup        tree-sitter tree-sitter-java 0.20.2 v
+revision            0
+
+description         A tree-sitter parser for Java
+
+long_description    {*}${description}
+
+categories          devel
+license             MIT
+maintainers         {amake @amake} openmaintainer
+
+checksums           rmd160  95d5592f523469cc48653662bdb5a2f70711541e \
+                    sha256  469a8b1f2b602fdef6b870ac00dcbae48c056cf75ec6b9c92d1aa19fa8e441aa \
+                    size    200758
+
+worksrcdir          ${worksrcdir}/src

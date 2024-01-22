@@ -1,0 +1,22 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             github gagolews stringi 1.8.3 v
+revision            1
+categories-append   devel
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             BSD
+description         Fast and portable character string processing in R
+long_description    {*}${description} (with the Unicode ICU).
+homepage            https://stringi.gagolewski.com
+checksums           rmd160  f6feacbf84fad3f67efc08748b1feabebc517c23 \
+                    sha256  cbf3e3e3d5f0e30cf677c8ecadc69345f3c25c7fac09b7aa01eedc03b620b3c3 \
+                    size    118599900
+
+# ICU is an optional dependency, but it is linked to, if available.
+# Make it consistent. Anyway, R itself requires ICU installed.
+depends_lib-append  path:lib/pkgconfig/icu-uc.pc:icu
+
+test.run            yes

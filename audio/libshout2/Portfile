@@ -4,16 +4,16 @@ PortSystem      1.0
 
 name            libshout2
 set my_name     [strsed ${name} {g/[0-9]//}]
-version         2.4.4
+version         2.4.6
 revision        0
-checksums       rmd160  58b02b22f9fbb33f6a4bdd75e832a8a2386ddba0 \
-                sha256  8ce90c5d05e7ad1da4c12f185837e8a867c22df2d557b0125afaba4b1438e6c3 \
-                size    529863
+checksums       rmd160  ca6a5cbd1133aebf9c13e86a831ece12417e3940 \
+                sha256  39cbd4f0efdfddc9755d88217e47f8f2d7108fa767f9d58a2ba26a16d8f7c910 \
+                size    571153
 
 categories      audio net
 license         LGPL
-platforms       darwin
 maintainers     nomaintainer
+
 description     Data and connectivity lib for the icecast server
 
 long_description \
@@ -24,7 +24,7 @@ long_description \
     focus on feature sets instead of implementation details.
 
 homepage        https://www.icecast.org/
-master_sites    https://downloads.xiph.org/releases/libshout/
+master_sites    https://ftp.osuosl.org/pub/xiph/releases/libshout/
 distname        ${my_name}-${version}
 
 depends_build-append   \

@@ -3,25 +3,34 @@
 PortSystem          1.0
 PortGroup           perl5 1.0
 
-perl5.branches      5.26 5.28 5.30
-perl5.setup         IO-Compress-Lzma 2.100 ../../authors/id/P/PM/PMQS
+perl5.branches      5.28 5.30 5.32 5.34
+perl5.setup         IO-Compress-Lzma 2.206 ../../authors/id/P/PM/PMQS
 revision            0
-checksums           rmd160  2edd0f5a9d33a9f0c7bc99771fa16c7c1c2c1ec3 \
-                    sha256  25117139d6cb7c19ce645fa2a5e3b2b937187e581ec9544705fc505270c46556 \
-                    size    102359
+checksums           rmd160  dc0f4db0ac7893c5702ef327908e385d08faf326 \
+                    sha256  6c600f9bbb1a2d834b1decd0bd5863dcea52e0ac17de101b5085e0e3cb27285c \
+                    size    104596
 
-platforms           darwin
+platforms           {darwin any}
+supported_archs     noarch
 
 license             {Artistic-1 GPL}
 maintainers         {isi.edu:calvin @cardi} openmaintainer
 description         Perl interface to allow reading and writing of \
                     lzma files/buffers.
-long_description    ${description}
+long_description    {*}${description}
 
-if {${perl5.major} != ""} {
+if {${perl5.major} ne ""} {
     depends_lib-append \
                     port:p${perl5.major}-compress-raw-lzma \
                     port:p${perl5.major}-io-compress
 
-    supported_archs noarch
+    depends_test-append \
+                    port:lzip \
+                    port:p${perl5.major}-io-string \
+                    port:p${perl5.major}-test-cpan-meta \
+                    port:p${perl5.major}-test-cpan-meta-json \
+                    port:p${perl5.major}-test-pod \
+                    port:p7zip
+
+    perl5.link_binaries no
 }

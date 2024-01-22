@@ -1,0 +1,50 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           golang 1.0
+
+go.setup            github.com/cosmtrek/air 1.49.0 v
+github.tarball_from archive
+revision            0
+
+description         Live reload for Go apps
+
+long_description    {*}${description}. Just ${name} in your project root \
+                    directory, leave it alone, and focus on your code.
+
+categories          devel
+installs_libs       no
+license             GPL-3
+maintainers         {gmail.com:herby.gillot @herbygillot} \
+                    openmaintainer
+
+checksums           rmd160  052ef13c9a31303606e9a5dbf5cc6451f900b530 \
+                    sha256  2e328445deb1a953b85a874f846ea6b73f2886f36a5dc0ef4261b69bcf05d6d2 \
+                    size    1037150
+
+patch {
+    # Set the build version directly in the Makefile. Do not attempt to
+    # query for it using git. This is not a git checkout.
+    reinplace -W ${worksrcpath} \
+        "s|AIRVER :=.*|AIRVER := v${version}|" Makefile
+
+    # Just build. Do not run the check script which would run
+    # arbitrary commands.
+    reinplace -W ${worksrcpath} {s|build: check|build:|} Makefile
+
+    # Remove -r flag which isn't valid for macOS' sed
+    reinplace -W ${worksrcpath} {s|sed -r|sed -E|} Makefile
+
+    # Remove BuildTimestamp field to ensure build is more reproducible.
+    reinplace -W ${worksrcpath} {/BuildTimestamp/ d} Makefile
+}
+
+# Allow Go to fetch deps at build time
+go.offline_build no
+
+build.cmd           make
+build.target        build
+
+destroot {
+    xinstall -m 0755 ${worksrcpath}/${name} ${destroot}${prefix}/bin/
+}

@@ -2,13 +2,23 @@
 
 PortSystem          1.0
 PortGroup           github 1.0
-PortGroup           cmake 1.0
+PortGroup           cmake 1.1
+PortGroup           legacysupport 1.1
 
-github.setup        Yubico yubico-piv-tool 2.2.0 yubico-piv-tool-
+# strnlen
+legacysupport.newest_darwin_requires_legacy 10
+
+# see lib/internal.h
+if {(${os.platform} eq "darwin" && ${os.major} < 13) || ${os.platform} eq "linux"} {
+    PortGroup       openssl 1.0
+
+}
+
+github.setup        Yubico yubico-piv-tool 2.3.1 yubico-piv-tool-
+revision            0
 categories          security
-platforms           darwin
 license             BSD
-maintainers         {lbschenkel @lbschenkel} openmaintainer
+maintainers         nomaintainer
 
 description         Command line tool for the YubiKey PIV application
 long_description    \
@@ -18,10 +28,11 @@ long_description    \
     certificates, and create certificate requests, and other operations. \
     A shared library and a command-line tool is included.
 homepage            https://developers.yubico.com/yubico-piv-tool
+github.tarball_from archive
 
-checksums           rmd160  d066ceafba7d71d760a0901d253b7d1734e3d448 \
-                    sha256  6805ac57ebea973ea876d409f6f46d9089bcefdf281f86111edf48becf21310c \
-                    size    1309424
+checksums           rmd160  cdf8273fe002a3bd5b1890f060bb2e60e5ec3920 \
+                    sha256  11de1b708c6b917bec3da7d584f534a4314c51ccd461840fd16f15478ac2668f \
+                    size    1316046
 
 depends_build-append \
                     port:check \
@@ -29,10 +40,12 @@ depends_build-append \
                     port:help2man \
                     port:pkgconfig
 
-depends_lib         path:lib/libssl.dylib:openssl
+patchfiles-append   patch-older-systems.diff
 
-configure.args-replace \
-                    -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -DCMAKE_BUILD_WITH_INSTALL_RPATH=OFF
+compiler.c_standard 2011
+
+configure.pre_args-replace \
+                    -DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=ON -DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=OFF
 
 post-destroot {
     # symlink PKCS#11 module in the standard pkcs11 module directory

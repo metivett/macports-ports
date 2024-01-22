@@ -3,14 +3,12 @@
 
 PortSystem          1.0
 PortGroup           python 1.0
-PortGroup           github 1.0
 
-github.setup        dulwich dulwich 0.20.15 dulwich-
 name                py-dulwich
+version             0.21.7
 categories-append   devel
-maintainers         {lbschenkel @lbschenkel} openmaintainer
-platforms           darwin
-license             GPL-2+
+maintainers         {danchr @danchr} openmaintainer
+license             {GPL-2+ Apache-2+}
 
 description         Pure-Python Git Library
 long_description    Simple Pure-Python implementation of the Git file \
@@ -19,23 +17,18 @@ long_description    Simple Pure-Python implementation of the Git file \
 
 homepage            https://www.dulwich.io
 
-checksums           rmd160  6aa8f50ad52f73f6577f281e5e9f8dfe25292edf \
-                    sha256  d93b84d8aa818fe5c63c452035be03b7f95014666de4a4abcb562cf99eab0e07 \
-                    size    382437
+checksums           rmd160  c41234c8ecee0354fef5c4db29d40038c16f46f6 \
+                    sha256  a9e9c66833cea580c3ac12927e4b9711985d76afca98da971405d414de60e968 \
+                    size    448028
 
-python.versions     27 38 39
+python.versions     37 38 39 310 311 312
 
 if {${name} ne ${subport}} {
-    # 0.20 dropped support for Python 2.7
-    if {${python.version} == 27} {
-        github.setup            dulwich dulwich 0.19.16 dulwich-
-        livecheck.type          none
+    python.pep517           yes
 
-        checksums               rmd160  1029473c8fd18718ef7f4a3dea082a053ee92ca4 \
-                                sha256  6d225b7d5f5a293beb1d0855f41feef74230605ffde7929a5719eed4019cb6d1 \
-                                size    369717
-    } else {
-        livecheck.type          none
+    if {${python.version} < 310} {
+        depends_build-append \
+            port:py${python.version}-importlib-metadata
     }
 
     patchfiles      patch-archflags.diff \
@@ -44,7 +37,4 @@ if {${name} ne ${subport}} {
     depends_lib-append \
                     port:py${python.version}-setuptools \
                     port:py${python.version}-urllib3
-
-    build.target-append build_ext
-    build.args-append   --inplace
 }

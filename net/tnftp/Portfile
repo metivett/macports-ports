@@ -3,7 +3,8 @@
 PortSystem          1.0
 
 name                tnftp
-version             20200705
+version             20230507
+revision            1
 categories          net
 license             BSD
 maintainers         {samodelkin.net:fjoe @mkhon} openmaintainer
@@ -14,11 +15,13 @@ homepage            https://ftp.netbsd.org/pub/NetBSD/misc/tnftp/
 platforms           darwin
 
 master_sites        netbsd:misc/tnftp
-checksums           rmd160  437000579b82221708363a4262093e22f9f78753 \
-                    sha256  ba4a92b693d04179664524eef0801c8eed4447941c9855f377f98f119f221c03 \
-                    size    657735
+checksums           rmd160  0c06eeeb11975da6c9be44c1baa48c28fe11a42d \
+                    sha256  be0134394bd7d418a3b34892b0709eeb848557e86474e1786f0d1a887d3a6580 \
+                    size    702357
 
 depends_lib         path:lib/libssl.dylib:openssl
+
+configure.args      --with-openssl=${prefix}
 
 livecheck.url       http://ftp.netbsd.org/pub/NetBSD/misc/tnftp/
 livecheck.regex     ${name}-(\\d+)

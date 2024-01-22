@@ -1,0 +1,44 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+# Revert to GitHub once updated there.
+R.setup             cran r-lib lintr 3.1.1 v
+revision            0
+categories-append   devel textproc
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             MIT
+description         Linter for R code
+long_description    {*}${description}
+homepage            https://lintr.r-lib.org
+checksums           rmd160  299c86a41ed38d7d44b66cd6651a0c9021bd3812 \
+                    sha256  bcf146f4e74e6bf132fcbee7c9a43cd9c8abb4787e76a4164fa20468c180871d \
+                    size    2424354
+supported_archs     noarch
+
+depends_lib-append  port:R-backports \
+                    port:R-cyclocomp \
+                    port:R-digest \
+                    port:R-glue \
+                    port:R-knitr \
+                    port:R-rex \
+                    port:R-xml2 \
+                    port:R-xmlparsedata
+
+depends_test-append port:R-bookdown \
+                    port:R-crayon \
+                    port:R-data.table \
+                    port:R-httr \
+                    port:R-jsonlite \
+                    port:R-mockery \
+                    port:R-patrick \
+                    port:R-rlang \
+                    port:R-rmarkdown \
+                    port:R-rstudioapi \
+                    port:R-testthat \
+                    port:R-tibble \
+                    port:R-tufte \
+                    port:R-withr
+
+test.run            yes

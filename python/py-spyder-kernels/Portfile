@@ -4,38 +4,32 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-spyder-kernels
-version             1.10.1
+version             2.5.0
 revision            0
 epoch               1
 
 categories-append   devel
-platforms           darwin
+platforms           {darwin any}
 supported_archs     noarch
 license             MIT
 maintainers         {reneeotten @reneeotten} openmaintainer
 
 description         Jupyter kernels for Spyder's console.
-long_description    ${description}
+long_description    {*}${description}
 
 homepage            https://github.com/spyder-ide/spyder-kernels
 
-checksums           rmd160  b1985c87cf07c53cb1f591ea56d410b3ff53b9c5 \
-                    sha256  416534d7504c0f337e6e6e2cbd893d1866ad20d3bec99a94ad617d2fd60699ae \
-                    size    61507
+checksums           rmd160  8138f92b94592246d2786e7290d889e02091d14a \
+                    sha256  3368426c04457e0211884e9274fa47eb556252ba4c073df275e83c65df7ba2a1 \
+                    size    99908
 
-python.versions     27 35 36 37 38 39
+python.versions     38 39 310 311
 
 if {${name} ne ${subport}} {
-    if {${python.version} in "36 37 38"} {
-        conflicts       py${python.version}-spyder-kernels-devel
-    }
-
-    depends_build-append \
-                    port:py${python.version}-setuptools
-
     depends_lib-append \
                     port:py${python.version}-cloudpickle \
                     port:py${python.version}-ipykernel \
+                    port:py${python.version}-ipython \
                     port:py${python.version}-jupyter_client \
                     port:py${python.version}-wurlitzer \
                     port:py${python.version}-zmq
@@ -46,6 +40,4 @@ if {${name} ne ${subport}} {
         xinstall -m 0644 -W ${worksrcpath} AUTHORS.txt CHANGELOG.md \
             LICENSE.txt README.md ${destroot}${docdir}
     }
-
-    livecheck.type  none
 }

@@ -1,0 +1,41 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             github Bioconductor BiocCheck 7e7e07e1dfd8ddae8bf14d35e9df0add09aad61a
+version             1.39.0
+revision            0
+maintainers         nomaintainer
+license             Artistic-2
+description         Bioconductor-specific package checks
+long_description    {*}${description}
+homepage            https://bioconductor.org/packages/${R.package}
+checksums           rmd160  6ebe2e08e7a3005db3dba016da76f1fe7a453522 \
+                    sha256  9284956381683f6fd7db8d3baa9a2e828d3afb69569b76e1dcc54361c1202e76 \
+                    size    4136699
+supported_archs     noarch
+
+depends_lib-append  port:R-BiocBaseUtils \
+                    port:R-BiocFileCache \
+                    port:R-BiocManager \
+                    port:R-biocViews \
+                    port:R-callr \
+                    port:R-graph \
+                    port:R-httr \
+                    port:R-knitr \
+                    port:R-stringdist
+
+depends_test-append port:R-Biobase \
+                    port:R-BiocGenerics \
+                    port:R-BiocStyle \
+                    port:R-callr \
+                    port:R-devtools \
+                    port:R-downloader \
+                    port:R-jsonlite \
+                    port:R-rmarkdown \
+                    port:R-RUnit \
+                    port:R-usethis
+
+# One test fails on ppc: https://github.com/Bioconductor/BiocCheck/issues/188
+test.run            yes

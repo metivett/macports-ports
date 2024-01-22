@@ -4,29 +4,23 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-aenum
-version             3.0.0
+version             3.1.15
 revision            0
 categories-append   devel
-platforms           darwin
 license             BSD
 supported_archs     noarch
+platforms           {darwin any}
 
-python.versions     27 35 36 37 38 39
+python.versions     37 38 39 310 311
+python.pep517       yes
 
 maintainers         {stromnov @stromnov} openmaintainer
 
 description         Advanced Enumerations (compatible with Python's stdlib Enum), NamedTuples, and NamedConstants.
-long_description    ${description}
+long_description    {*}${description}
 
 homepage            https://github.com/ethanfurman/aenum
 
-checksums           rmd160  c169be16b4c019cf241a58a7f25a249502caee70 \
-                    sha256  17cd8cfed1ee4b617198c9fabbabd70ebd8f01e54ac29cd6c3a92df14bd86656 \
-                    size    118529
-
-if {${name} ne ${subport}} {
-    depends_build-append \
-                        port:py${python.version}-setuptools
-
-    livecheck.type      none
-}
+checksums           rmd160  d70e8ba63a3ebd47e47fd1be707ac87c53ab8e77 \
+                    sha256  8cbd76cd18c4f870ff39b24284d3ea028fbe8731a58df3aa581e434c575b9559 \
+                    size    134730

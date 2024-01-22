@@ -4,13 +4,12 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-psutil
-version             5.8.0
+version             5.9.7
 revision            0
 categories-append   devel sysutils
-platforms           darwin
 license             MIT
 
-python.versions     27 35 36 37 38 39
+python.versions     27 37 38 39 310 311 312
 
 maintainers         {stromnov @stromnov} openmaintainer
 
@@ -26,10 +25,6 @@ long_description    psutil is a module providing an interface for retrieving \
 
 homepage            https://github.com/giampaolo/psutil
 
-checksums           rmd160  ac0a0c786848276d50cfac4c5dfc67254c1d4763 \
-                    sha256  0c9ccb99ab76025f2f0bbecf341d4656e9c1351db8cc8a03ccd62e318ab4b5c6 \
-                    size    470886
-
-if {${name} ne ${subport}} {
-    livecheck.type      none
-}
+checksums           rmd160  b484207704227ad959b304e0c0c130562eb160ae \
+                    sha256  3f02134e82cfb5d089fddf20bb2e03fd5cd52395321d1c8458a9e58500ff417c \
+                    size    498429

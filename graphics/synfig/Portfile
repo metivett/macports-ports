@@ -2,25 +2,36 @@
 
 PortSystem          1.0
 PortGroup           github 1.0
+PortGroup           boost 1.0
 
-github.setup        synfig synfig 1.4.0 v
+github.setup        synfig synfig 1.4.4 v
 categories          graphics
-platforms           darwin
 maintainers         {ryandesign @ryandesign} openmaintainer
 license             GPL-2+
 
 homepage            https://www.synfig.org
-master_sites        sourceforge:project/synfig/releases/${version}/source/
+master_sites        sourceforge:project/synfig/stable/${version}/source/
 dist_subdir         ${subport}
 
 compiler.cxx_standard \
                     2011
 
+if {${subport} in [list ${name} ${name}studio]} {
+    depends_build       port:intltool \
+                        port:pkgconfig
+
+    # checking for XML::Parser... configure: error: XML::Parser perl module is required for intltool
+    # https://bugs.launchpad.net/intltool/+bug/1197875
+    use_autoreconf      yes
+    autoreconf.args     -fvi
+    configure.checks.implicit_function_declaration.whitelist-append strchr
+}
+
 if {${subport} eq ${name}} {
-    revision            1
-    checksums           rmd160  9e7d43ee4500a2e248d5ffa5b20591af63c0156d \
-                        sha256  7f36d57eba9dc959e1deae89e6908585a08db7f2d9399915a46a9eff33080c9c \
-                        size    5077795
+    revision            3
+    checksums           rmd160  35f55a26bdc7bce9a4675ed5ac259edb52d254ab \
+                        sha256  cd9882a091433e22e484e47d7bfe542aaefd3f62bfd746d306be4ce964756f06 \
+                        size    5177728
 
     description         vector-based 2-D animation package
 
@@ -32,11 +43,7 @@ if {${subport} eq ${name}} {
                         at any resolution or framerate), high dynamic range \
                         images, and a flexible plugin system.
 
-    depends_build       port:intltool \
-                        port:pkgconfig
-
-    depends_lib         port:boost \
-                        path:lib/pkgconfig/cairo.pc:cairo \
+    depends_lib         path:lib/pkgconfig/cairo.pc:cairo \
                         port:ETL \
                         path:lib/libavcodec.dylib:ffmpeg \
                         port:freetype \
@@ -55,7 +62,7 @@ if {${subport} eq ${name}} {
                         port:openexr \
                         path:lib/pkgconfig/pango.pc:pango
 
-    configure.args      --with-boost=${prefix}
+    configure.args      --with-boost=[boost::install_area]
 
     post-destroot {
         set docdir ${destroot}${prefix}/share/doc/${subport}
@@ -78,22 +85,25 @@ if {${subport} eq ${name}} {
 }
 
 subport ETL {
-    revision            0
-    checksums           rmd160  dc935e50faa4d707bc6e34efd1a21e4048ea1544 \
-                        sha256  d43396c0ac356114713469216a9257247c2588d5475590a46db63cf201d1a011 \
-                        size    271199
+    revision            1
+    checksums           rmd160  b1cc028d7211b7c757034ec91b6568a4ddad1270 \
+                        sha256  cc87e478d8e808b1a2266f8f6a3eb54396ba54ff63abb30ea5b9b7bcfb85caca \
+                        size    271762
 
     supported_archs     noarch
+    platforms           any
 
     description         multi-platform class and template library
 
-    long_description    ETL is a ${description} designed to add new datatypes \
+    long_description    ETL is a {*}${description} designed to add new datatypes \
                         and functions which combine well with the existing \
                         types and functions from the C++ Standard Template \
                         Library (STL).
 
+    depends_lib-append  port:glibmm
+
     # ETL-config is a wrapper around pkg-config
-    depends_run         port:pkgconfig
+    depends_lib-append  port:pkgconfig
 
     post-destroot {
         set docdir ${destroot}${prefix}/share/doc/${subport}
@@ -109,10 +119,10 @@ subport ETL {
 }
 
 subport synfigstudio {
-    revision            0
-    checksums           rmd160  cf0341a3fe0e03e93cea2d9b0aefafe330b460f1 \
-                        sha256  ca1eb1a3e2264c57974a576d1995e005079d96cee19d3dffaacded72c93fbd56 \
-                        size    6423859
+    revision            1
+    checksums           rmd160  ba177b494fc50ea99aca416980b9e76c03c2096c \
+                        sha256  8893c681ccda6bc34f173d5183e28fbf78feb348f26a7661bc3c038e837eb21f \
+                        size    6828795
 
     description         synfig animation studio
 
@@ -120,12 +130,11 @@ subport synfigstudio {
                         provides a GUI to create Synfig animations which are \
                         saved in Synfig .sif or .sifz format.
 
-    depends_build       port:intltool \
-                        port:pkgconfig
-
     depends_lib         port:ETL \
                         port:gtkmm3 \
                         port:synfig
+
+    configure.args      --disable-jack
 
     post-destroot {
         foreach f [glob ${destroot}${prefix}/share/mime/*] {

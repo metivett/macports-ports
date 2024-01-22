@@ -6,32 +6,27 @@ PortGroup           github           1.0
 
 name                py-wasabi
 # Don't upgrade past py-spaCy's highest supported version.
-version             0.8.0
+version             1.1.2
 revision            0
 github.setup        ines wasabi ${version} v
 
-checksums           rmd160  caf9c0092ad114f949b333d4e55a419243fefab3 \
-                    sha256  0a526ddb26bcc441998a650981b118ca16e84259ceda9e1e2f3554db48104e30 \
-                    size    19979
+checksums           rmd160  798870f334b89da19d61158e961c0d7f713332ea \
+                    sha256  2369b09dda60f8e63525dacb73fd3792e7fcf501d932d30d0e52fa1f0ff8b83f \
+                    size    24088
 
-platforms           darwin
-supported_archs     x86_64
+platforms           {darwin any}
+supported_archs     noarch
 
 license             MIT
 
 maintainers         {jonesc @cjones051073} openmaintainer
 
 description         A lightweight console printing and formatting toolkit
-long_description    ${description}
+long_description    {*}${description}
 
-# Support python versions
-python.versions     27 35 36 37 38 39
+python.versions     37 38 39 310 311
 
 if {${name} ne ${subport}} {
-
     depends_build-append \
         port:py${python.version}-setuptools
-
-    livecheck.type none 
-
 }

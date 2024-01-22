@@ -2,33 +2,30 @@
 
 PortSystem          1.0
 PortGroup           github 1.0
+PortGroup           makefile 1.0
 
-github.setup        JuliaStrings utf8proc 2.6.1 v
+github.setup        JuliaStrings utf8proc 2.9.0 v
 revision            0
 name                libutf8proc
 categories          textproc
-platforms           darwin
 license             MIT
-maintainers         nomaintainer
+maintainers         {judaew @judaew} openmaintainer
 description         library for processing UTF-8 encoded Unicode strings
 long_description    ${description}
 
 homepage            https://julialang.org/utf8proc/
 
-checksums           rmd160  560c11179579f152baac89c1ad0e47e6cd336c18 \
-                    sha256  130c67add02559f7b04b96bc11a3529a41d078f0b5acf2047aa92438d10b206d \
-                    size    182914
+checksums           rmd160  88f747bdd16720dfb1eb53e063f50848fc89c621 \
+                    sha256  38ed5036583222c275866b067914be6ccf9eae86d0d1c5559c2fbb597b0231a1 \
+                    size    193513
 
-use_configure       no
+patchfiles          remove-Wsign-conversion.diff
 
-variant universal   {}
+makefile.prefix_name \
+                    prefix
 
-build.args          prefix="${prefix}" \
-                    CC=${configure.cc} \
-                    CFLAGS="${configure.cflags} [get_canonical_archflags cc]" \
-                    LDFLAGS="${configure.ldflags} [get_canonical_archflags ld]"
-
-destroot.args       {*}${build.args}
+makefile.override-append \
+                    PREFIX
 
 post-destroot {
     set docdir ${destroot}${prefix}/share/doc/${name}
@@ -43,4 +40,3 @@ post-destroot {
 depends_test        bin:curl:curl
 test.run            yes
 test.target         check
-test.args           {*}${build.args}

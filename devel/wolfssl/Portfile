@@ -3,10 +3,11 @@
 PortSystem          1.0
 
 name                wolfssl
-version             3.15.3
+version             5.6.6
+revision            0
 categories          devel security
 platforms           darwin
-maintainers         yassl.com:chris
+maintainers         {wolfssl.com:facts @JacobBarthelmeh} openmaintainer
 homepage            https://wolfssl.com/wolfSSL/Products-wolfssl.html
 license             GPL-2
 description         wolfSSL Embedded SSL Library
@@ -24,11 +25,13 @@ long_description    \
 master_sites        https://www.wolfssl.com/
 use_zip             yes
 
-checksums           rmd160  140b84077a191727e5322540c189af90a76123e2 \
-                    sha256  4c9d931331fac773c656f2ae7c12ffb37ee142d3f525b96cb4bd94b2dad4343a \
-                    size    5609731
+checksums           rmd160  58f1f6a184c0d218dcb3006de5d22b4d1c8a02b2 \
+                    sha256  5a24b01f16957f0bec38e494e35617c0396928641aa897233e68c41268737f1b \
+                    size    24310150
 
-configure.args      --enable-distro
+configure.args      --enable-all \
+                    --disable-jobserver \
+                    --disable-silent-rules
 
 variant debug description {Enable wolfSSL debugging support} {
     configure.args-append \
@@ -47,16 +50,17 @@ variant sniffer description {Enable wolfSSL sniffer support} {
         --enable-sniffer
 }
 
-depends_build-append    port:coreutils
+depends_build-append    path:libexec/coreutils/libstdbuf.so:coreutils
 
 use_autoreconf  yes
 autoreconf.args -fvi
-
-test.run        yes
+configure.checks.implicit_function_declaration.whitelist-append strchr
 
 livecheck.url   https://www.wolfssl.com/wolfSSL/download/downloadForm.php
 livecheck.regex "${name}-((?!.*${name}.*|\\${extract.suffix}).*)\\${extract.suffix}"
 
 test.run    yes
-test.env    DYLD_LIBRARY_PATH=${worksrcpath}/src/.libs
-test.cmd    make check
+test.env    TMPDIR=/tmp RANDFILE=/tmp/wolfssl-unittest-rnd DYLD_LIBRARY_PATH=${worksrcpath}/src/.libs
+test.target check
+test.args   -j${build.jobs}
+

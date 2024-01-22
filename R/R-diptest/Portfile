@@ -1,0 +1,17 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran mmaechler diptest 0.77-0
+revision            0
+maintainers         nomaintainer
+license             GPL-2+
+description         Hartigan’s dip test statistic for unimodality – corrected
+long_description    {*}${description}
+homepage            https://github.com/mmaechler/diptest
+checksums           rmd160  73ca8c9655cc1e80f460e47656afd4e3eed89cc9 \
+                    sha256  c3c835155e6bddce730623c4e9b4eeed00624c26d493076e79db203a55f8ca32 \
+                    size    158168
+
+test.run            yes

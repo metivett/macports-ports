@@ -2,13 +2,17 @@
 
 PortSystem          1.0
 PortGroup           active_variants 1.1
+PortGroup           legacysupport 1.1
+
+# Availability.h
+legacysupport.newest_darwin_requires_legacy 8
 
 name                hwloc
-set branch          2.4
-version             ${branch}.0
+version             2.10.0
+set branch          [join [lrange [split ${version} .] 0 [llength [split ${version} .] ]-2 ] .]
+revision            0
 epoch               1
 categories          devel
-platforms           darwin
 maintainers         {i0ntempest @i0ntempest} openmaintainer
 description         Portable Hardware Locality
 license             BSD
@@ -23,16 +27,32 @@ long_description \
 homepage            https://www.open-mpi.org/projects/hwloc/
 master_sites        https://www.open-mpi.org/software/hwloc/v${branch}/downloads/
 
-checksums           rmd160  863d1f1f78b20f8d3d370be8b85aa1c636be9233 \
-                    sha256  30404065dc1d6872b0181269d0bb2424fbbc6e3b0a80491aa373109554006544 \
-                    size    6965149
+checksums           rmd160  6ebaf4fed98bba66929117c970dd9e9bd08a90bd \
+                    sha256  c7fd8a1404a9719c76aadc642864b9f77aed1dc1fc8882d6af861a9260ba240d \
+                    size    6065893
 
 depends_build       port:pkgconfig
 depends_lib-append  port:libxml2
-configure.args      --without-x --disable-cairo
+configure.args      --without-x \
+                    --disable-cairo \
+                    --disable-cuda \
+                    --disable-opencl
+
+configure.checks.implicit_function_declaration.whitelist-append strchr
+
+test.run            yes
+test.target         check
 
 livecheck.type      regex
-livecheck.regex     "${name} v(\[0-9.\]+) "
+livecheck.regex     "${name} (\[0-9.\]+)"
+
+variant cuda description {Enable CUDA support} {
+    configure.args-replace  --disable-cuda --enable-cuda
+}
+
+variant opencl description {Enable OpenCL support} {
+    configure.args-replace  --disable-opencl --enable-opencl
+}
 
 variant gui description {Add graphical output capability} {
     depends_lib-append      path:bin/openssl:openssl \
@@ -47,4 +67,8 @@ variant gui description {Add graphical output capability} {
                             --x-libraries=${prefix}/lib
 }
 
-default_variants    +gui
+notes {
+  * GUI support is now disabled by default. It can be enabled via variant gui.
+  * OpenCL and CUDA support is now disabled by default. It can be enabled by variants\
+  opencl and cuda, respectively.
+}

@@ -1,0 +1,25 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran YuLab-SMU aplot 0.2.2
+revision            0
+maintainers         nomaintainer
+license             Artistic-2
+description         Decorate a ggplot with associated information
+long_description    {*}${description}
+checksums           rmd160  50937f4ef844148eef64880a81305a2081091e78 \
+                    sha256  c7f163fb0010e3a2d742f79d5a220cbfa5be2a40ae577ac56c422f2f59fe8b24 \
+                    size    24184
+supported_archs     noarch
+
+depends_lib-append  port:R-ggfun \
+                    port:R-ggplot2 \
+                    port:R-ggplotify \
+                    port:R-magrittr \
+                    port:R-patchwork
+
+depends_test-append port:R-ggtree
+
+test.run            yes

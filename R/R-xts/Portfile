@@ -1,0 +1,26 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+# Revert to GitHub once updated there.
+R.setup             cran joshuaulrich xts 0.13.2
+revision            0
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             GPL-3
+description         eXtensible Time Series
+long_description    {*}${description}
+homepage            https://joshuaulrich.github.io/xts
+checksums           rmd160  6ec42e4aac6d808b17fa44d37648cbfdc689d619 \
+                    sha256  4ad590f65c4c9daa7fe920aee0274a23478daacbfcd6edc2566dc392460f1dfb \
+                    size    456969
+
+depends_lib-append  port:R-zoo
+
+depends_test-append port:R-chron \
+                    port:R-timeDate \
+                    port:R-timeSeries \
+                    port:R-tinytest \
+                    port:R-tseries
+
+test.run            yes

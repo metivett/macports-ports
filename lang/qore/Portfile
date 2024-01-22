@@ -1,10 +1,13 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
-PortSystem                1.0
-PortGroup           cxx11 1.1
+PortSystem          1.0
 
-name                qore
-version             0.9.12
+PortGroup           github 1.0
+github.setup        qorelanguage qore 1.19.1 release-
+github.tarball_from releases
+
+PortGroup           cmake 1.1
+
 categories          lang
 license             {LGPL-2.1 MIT}
 maintainers         {davidnichols @davidnich} openmaintainer
@@ -12,17 +15,19 @@ use_bzip2           yes
 description         multi-threaded embeddable scripting language
 long_description    Qore is a scripting language designed for multi-threading and SMP scalability
 homepage            http://qore.org
-platforms           darwin
-master_sites        https://github.com/qorelanguage/qore/releases/download/release-${version}
 
-checksums           rmd160 6ba11451b7c409e16a3a5b4cafe9dc603f409502 \
-                    sha256 25b503afd483b6825cf30b9cd4f396657565a12b1e49c09f7adbaca708ba5041 \
-                    size 43927208
+checksums           rmd160 33595406c8b0052875075a13093955907471e8d8 \
+                    sha256 f2902317bfe77da1015b114fd7c35ee8ac06d60bc0cc22dd36f8ac6bc9b642ec \
+                    size 50034482
 
-depends_build       port:flex \
-                    port:bison
+compiler.cxx_standard  2011
 
-depends_lib         path:lib/libssl.dylib:openssl \
+depends_build-append \
+                    port:bison \
+                    port:flex \
+                    port:pkgconfig
+
+depends_lib-append  path:lib/libssl.dylib:openssl \
                     port:pcre \
                     port:zlib \
                     port:bzip2 \
@@ -30,9 +35,12 @@ depends_lib         path:lib/libssl.dylib:openssl \
                     port:mpfr \
                     port:tbb
 
-# --disable-dependency-tracking is safe here. The build is always done in one run.
-#                               It's required to prevent autotools from using -M* options for multiple -arch options
-configure.args      --disable-debug --disable-static --disable-dependency-tracking
+compiler.thread_local_storage yes
 
-# the autoconf check for iconv() in libiconv fails with GNU iconv, but we need it, so we turn it on anyway
-configure.ldflags   -liconv
+configure.args-append -DSINGLE_COMPILATION_UNIT=1
+
+# check_function_exists doesn't catch tbb's function, enforce it
+configure.args-append \
+                    -DCMAKE_INCLUDE_PATH="${prefix}/include\;${prefix}/libexec/tbb/include" \
+                    -DCMAKE_LIBRARY_PATH="${prefix}/lib\;${prefix}/libexec/tbb/lib" \
+                    -DHAVE_TBBMALLOC=ON

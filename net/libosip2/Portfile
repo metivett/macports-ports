@@ -1,6 +1,6 @@
 PortSystem 1.0
 name             libosip2
-version          5.2.0
+version          5.3.1
 categories       net
 maintainers      {toby @tobypeterson} openmaintainer
 license          LGPL-2.1+
@@ -16,9 +16,9 @@ long_description \
 homepage         https://www.gnu.org/software/osip/
 platforms        darwin
 master_sites     gnu:osip
-checksums        rmd160 9301c1dedcd8d15b58272fbb6a739b08b55dc040 \
-                 sha256 4fb48b2ea568bb41c6244b0df2bb7175849ca93e84be53ceb268fdf9351bb375 \
-                 size   718388
+checksums        rmd160 d9437b9356a9696a8b25cbdf117121892e0f8c7f \
+                 sha256 fe82fe841608266ac15a5c1118216da00c554d5006e2875a8ac3752b1e6adc79 \
+                 size   725024
 configure.args	 --enable-mt --mandir=${prefix}/share/man
 
 livecheck.name   libosip2

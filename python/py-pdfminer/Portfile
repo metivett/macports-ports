@@ -2,39 +2,47 @@
 
 PortSystem          1.0
 PortGroup           python 1.0
-PortGroup           github 1.0
-github.setup        euske pdfminer 423f851
-version             20200118
-revision            1
+
 name                py-pdfminer
+version             20221105
+revision            0
 
-python.versions     36 37 38
+python.versions     37 38 39 310 311
 
-platforms           darwin
+platforms           {darwin any}
 supported_archs     noarch
 license             MIT
 maintainers         {eborisch @eborisch} \
                     openmaintainer
+homepage            https://pdfminersix.readthedocs.io/
 description         Python pdf extraction package
 
 long_description    \
-                    PDFMiner is a suite of programs that help extracting      \
-                    and analyzing text data of PDF documents. Unlike other    \
-                    PDF-related tools, it allows to obtain the exact location \
-                    of texts in a page, as well as other extra information    \
-                    such as font information or ruled lines. It includes a    \
-                    PDF converter that can transform PDF files into other     \
-                    text formats (such as HTML). It has an extensible PDF     \
-                    parser that can be used for other purposes instead of     \
-                    text analysis. (Currently tracking pdfminer.six fork.)
+                    Pdfminer.six is a community maintained fork of the \
+                    original PDFMiner. It is a tool for extracting \
+                    information from PDF documents. It focuses on getting \
+                    and analyzing text data. Pdfminer.six extracts the text \
+                    from a page directly from the sourcecode of the PDF. It \
+                    can also be used to get the exact location, font or \
+                    color of the text.  It is built in a modular way such \
+                    that each component of pdfminer.six can be replaced \
+                    easily. You can implement your own interpreter or \
+                    rendering device to use the power of pdfminer.six for \
+                    other purposes that text analysis.
 
+python.rootname     pdfminer.six
 checksums \
-    rmd160  99639a565fad7440a3e7b80a462ab7220149f9b0 \
-    sha256  190472d44e58b044fa636f07526e4257623d0475c06f79c5b152babcc0b9456b \
-    size    4199382
+    md5 1798136315c72a914c0731df4b2f4323 \
+    rmd160 49c158ad834f4bc267263324493c6c91c37e0018 \
+    sha256 8448ab7b939d18b64820478ecac5394f482d7a79f5f7eaa7703c6c959c175e1d \
+    size   7361391
 
 if {${name} ne ${subport}} {
-    depends_build-append    port:py${python.version}-setuptools
+    depends_lib port:py${python.version}-charset-normalizer \
+                port:py${python.version}-cryptography
+    if {${python.version} < 38} {
+        depends_lib-append  port:py${python.version}-typing_extensions
+    }
     livecheck.type          none
 
     post-destroot {
@@ -46,4 +54,7 @@ if {${name} ne ${subport}} {
             README.md \
             ${destroot}${docdir}
     }
+
+    notes-append    "To enable image support in $subport, you can\
+                    install py${python.version}-Pillow."
 }

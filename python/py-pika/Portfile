@@ -4,38 +4,23 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-pika
-version             1.1.0
+version             1.3.2
 revision            0
 categories-append   devel
-platforms           darwin
 license             {MPL-1.1 GPL-2+}
 supported_archs     noarch
+platforms           {darwin any}
 
-python.versions     27 35 36 37 38
+python.versions     37 38 39 310 311
+python.pep517       yes
 
 maintainers         {stromnov @stromnov} openmaintainer
 
 description         Pure-Python implementation of the AMQP 0-9-1 protocol.
-long_description    ${description}
+long_description    {*}${description}
 
 homepage            https://pika.readthedocs.org/
 
-checksums           rmd160  95c812ed71070a61a70fb590c1551c2423b95407 \
-                    sha256  9fa76ba4b65034b878b2b8de90ff8660a59d925b087c5bb88f8fdbb4b64a1dbf \
-                    size    139407
-
-if {${name} ne ${subport}} {
-    depends_build-append \
-                        port:py${python.version}-setuptools
-
-    if {${python.version} <= 35} {
-        version             0.12.0
-        revision            0
-        distname            ${python.rootname}-${version}
-        checksums           rmd160  ac7dab42681f4067938f4e470c693193348c1c77 \
-                            sha256  306145b8683e016d81aea996bcaefee648483fc5a9eb4694bb488f54df54a751 \
-                            size    100623
-    }
-
-    livecheck.type      none
-}
+checksums           rmd160  fd1e9655bff72cc6721e34b66210665f03913894 \
+                    sha256  b2a327ddddf8570b4965b3576ac77091b850262d34ce8c1d8cb4e4146aa4145f \
+                    size    145029

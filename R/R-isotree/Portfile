@@ -1,0 +1,30 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran david-cortes isotree 0.5.24-3
+revision            0
+categories-append   math
+maintainers         nomaintainer
+license             BSD
+description         Isolation-based outlier detection
+long_description    {*}${description}
+homepage            https://github.com/david-cortes/isotree
+checksums           rmd160  4544685eba50991c9b4a87d4b87c7ffb91ecb051 \
+                    sha256  d46dac42a4fca9d87c5dd46ffa84f4297c11f1831dc2ff6562bfb0897c9a9609 \
+                    size    1181768
+
+depends_lib-append  port:R-Rcpp
+
+depends_test-append port:R-jsonlite \
+                    port:R-kableExtra \
+                    port:R-kernlab \
+                    port:R-knitr \
+                    port:R-mlbench \
+                    port:R-MLmetrics \
+                    port:R-outliertree \
+                    port:R-rmarkdown \
+                    port:R-SparseM
+
+test.run            yes

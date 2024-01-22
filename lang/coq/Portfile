@@ -3,9 +3,8 @@
 PortSystem          1.0
 PortGroup           github 1.0
 
-github.setup        coq coq 8.8.2 V
-revision            1
-platforms           darwin
+github.setup        coq coq 8.13.2 V
+revision            0
 categories          lang math
 license             LGPL-2.1
 maintainers         {pmetzger @pmetzger} openmaintainer
@@ -18,18 +17,16 @@ long_description    Coq is a proof assistant for higher-order logic, \
 homepage            https://coq.inria.fr/
 
 depends_lib         port:ocaml \
-                    port:camlp5 \
-                    port:ocaml-num
+                    port:ocaml-zarith
 
 depends_build       port:ocaml-findlib
 
-checksums           rmd160  fc62e3ec89ca563ea2ea3b50b9dfa469e1d6634f \
-                    sha256  ad68ccee8c95fe5c81e83d6d629cba56ffbd5d55446c7f4bac084bc1d1ec74c0 \
-                    size    5951293
+checksums           rmd160  72217233c8861e0d4a0219e1108c6c94c38d9ebb \
+                    sha256  3ab7414ea22f31845371a5c92225ac09f74fc931b88e15106d9de3094eff535c \
+                    size    6952237
 
 configure.pre_args  -prefix ${prefix}
-configure.args      -emacslib ${prefix}/share/emacs/site-lisp/ \
-                    -mandir ${prefix}/share/man \
+configure.args      -mandir ${prefix}/share/man \
                     -coqdocdir ${prefix}/share/coq/latex \
                     -browser "'open %s'" \
                     -coqide no \
@@ -38,6 +35,9 @@ build.target        world
 
 destroot.target     install
 destroot.destdir    COQINSTALLPREFIX=${destroot}
+
+test.run            yes
+test.target         test-suite
 
 # ocaml is not universal
 universal_variant   no
@@ -50,7 +50,7 @@ use it.
 "
 
 variant doc description {Build documentation} {
-    set pyversion           3.6
+    set pyversion           3.8
     set _pyversion          [string map {. ""} $pyversion]
     depends_build-append    port:hevea \
                             port:netpbm \
@@ -61,7 +61,6 @@ variant doc description {Build documentation} {
                             port:py${_pyversion}-antlr4-python3-runtime \
                             port:py${_pyversion}-beautifulsoup4 \
                             port:py${_pyversion}-sphinxcontrib-bibtex \
-                            port:py${_pyversion}-oset \
                             port:py${_pyversion}-pexpect
     configure.args-delete   -with-doc no
     configure.args-append   -with-doc yes
@@ -75,3 +74,5 @@ variant coqide description {Install CoqIDE} {
     configure.args-delete   -coqide none
     configure.args-append   -coqide opt
 }
+
+github.livecheck.regex  {([0-9.]+)}

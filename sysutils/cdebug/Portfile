@@ -1,0 +1,36 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           golang 1.0
+
+go.setup            github.com/iximiuz/cdebug 0.0.14 v
+github.tarball_from archive
+revision            0
+
+description         A swiss army knife of container debugging
+
+long_description    \
+    {*}${description}. With this tool you can troubleshoot containers lacking \
+    shell and/or debugging tools, forward unpublished or even localhost ports \
+    to your host system, expose endpoints from the host system to containers \
+    & Kubernetes networks, handily export image's and/or container's \
+    filesystem to local folders, and more.
+
+categories          sysutils
+installs_libs       no
+license             Apache-2
+maintainers         {gmail.com:herby.gillot @herbygillot} \
+                    openmaintainer
+
+checksums           rmd160  1fb82b72e3f69e543ce2aac22f119bde271f1b33 \
+                    sha256  6133fb7286fba476674b54e2f008c35a4b28f209e3072c3e0a75c69c5deeee81 \
+                    size    308525
+
+go.offline_build no
+
+build.args-append   \
+    -ldflags=\" -X \'main.version=${github.tag_prefix}${version}\' \"
+
+destroot {
+    xinstall -m 0755 ${worksrcpath}/${name} ${destroot}${prefix}/bin/
+}

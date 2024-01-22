@@ -1,20 +1,22 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
+PortGroup           legacysupport 1.0
 PortGroup           compiler_blacklist_versions 1.0
 PortGroup           github 1.0
 PortGroup           makefile 1.0
 
 # Need openat(), unlinkat(), fdopendir()
-PortGroup           legacysupport 1.0
 legacysupport.newest_darwin_requires_legacy 13
 
-github.setup        tavianator bfs 2.0
+github.setup        tavianator bfs 3.0.4
+github.tarball_from archive
 
 categories          sysutils
 platforms           darwin freebsd linux
 license             BSD
-maintainers         {@ylluminarious orbitalimpact.com:georgedp} openmaintainer
+maintainers         {@ylluminarious orbitalimpact.com:georgedp} \
+                    {@judaew judaew} openmaintainer
 description         A breadth-first version of the UNIX find command.
 homepage            https://tavianator.com/projects/bfs.html
 
@@ -23,14 +25,16 @@ long_description    bfs is a variant of the UNIX find command that operates brea
     versions of find, including: POSIX find, GNU find, BSD find and macOS find. \
     If you're not familiar with find, the GNU find manual provides a good introduction.
 
-checksums           rmd160   aa04ecc2881d973bcc042b7738cd4d672e023042 \
-                    sha256   e2b8f1fe332ba12656935313c3e2fe65089b25799766534217a3e3366565522c \
-                    size     127487
+checksums           rmd160  03f5e1e00fe0ee8a1bafd8bb9d8acf87bb5c1bc4 \
+                    sha256  7196f5a624871c91ad051752ea21043c198a875189e08c70ab3167567a72889d \
+                    size    212022
 
 # clang: error: unable to execute command: Segmentation fault: 11
 compiler.blacklist  {clang < 500}
 
 configure.cppflags  -DNDEBUG
+
+depends_lib         port:oniguruma6
 
 build.target        bfs
 

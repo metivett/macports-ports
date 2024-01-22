@@ -1,0 +1,29 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             github gregorkastner stochvol 3.2.3 v
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             GPL-2+
+description         Efficient Bayesian inference for stochastic volatility (SV) models
+long_description    {*}${description}
+homepage            https://gregorkastner.github.io/stochvol
+checksums           rmd160  56b0eea6bb9f0d7d42cf6eb5773b9b107a0a8148 \
+                    sha256  4886773277eb62851a40f64249933547eb302148b4909ae58068bd4c24e55ae4 \
+                    size    1135321
+github.tarball_from archive
+
+depends_lib-append  port:R-coda \
+                    port:R-Rcpp \
+                    port:R-RcppArmadillo
+
+compilers.setup     require_fortran
+
+depends_test-append port:R-knitr \
+                    port:R-mvtnorm \
+                    port:R-testthat
+
+test.run            yes

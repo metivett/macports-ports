@@ -4,48 +4,46 @@ PortSystem          1.0
 PortGroup           github 1.0
 PortGroup           python 1.0
 
-github.setup        reclosedev requests-cache 6717a336430eb7e6fe17e75c5517f3076ca85b42
-version             0.5.2
+github.setup        requests-cache requests-cache 0.9.7 v
 revision            0
+checksums           rmd160  906efa0234086b9041b5cfe5314d50ef75bbfa9f \
+                    sha256  b9237e58de2c75265892325e8b9876b17110137df8f7f6385b262c3384402faf \
+                    size    1543984
 name                py-requests-cache
 
 categories-append   devel
-platforms           darwin
 license             BSD
 supported_archs     noarch
+platforms           {darwin any}
 maintainers         nomaintainer
 
 description         Transparent persistent cache for py-requests
-long_description    ${description}
+long_description    {*}${description}
 
-checksums           rmd160  511d993d81abeffca4d13414a036be94c5c9ce23 \
-                    sha256  1ea8b866db2b16a9b058626c7e1bde0cf669e96abc436cdef352f60237e23ab9 \
-                    size    29527
+homepage            https://requests-cache.readthedocs.io/en/stable/
 
-python.versions     27 35 36 37 38
+python.versions     37 38 39 310
+python.pep517       yes
+python.pep517_backend poetry
 
 if {${name} ne ${subport}} {
     depends_build-append \
                     port:py${python.version}-setuptools
 
     depends_lib-append \
-                    port:py${python.version}-requests
+                    port:py${python.version}-appdirs       \
+                    port:py${python.version}-attrs         \
+                    port:py${python.version}-cattrs        \
+                    port:py${python.version}-requests      \
+                    port:py${python.version}-url-normalize \
+                    port:py${python.version}-urllib3
 
     post-destroot {
         set docdir ${prefix}/share/doc/${subport}
+
         xinstall -d ${destroot}${docdir}
-        xinstall -m 0644 -W ${worksrcpath} README.rst CONTRIBUTORS.rst \
-            LICENSE HISTORY.rst ${destroot}${docdir}
+
+        xinstall -m 0644 -W ${worksrcpath} README.md CONTRIBUTORS.md \
+            LICENSE HISTORY.md ${destroot}${docdir}
     }
-
-    depends_test-append \
-                    port:py${python.version}-mock \
-                    port:py${python.version}-pytest
-
-    test.run        yes
-    test.cmd        py.test-${python.branch}
-    test.target
-    test.env        PYTHONPATH=${worksrcpath}/build/lib
-
-    livecheck.type  none
 }

@@ -3,12 +3,17 @@
 PortSystem          1.0
 
 name                parallel
-version             20200922
+version             20230422
+revision            0
+checksums           rmd160  dab7478eb43581b9d0d610799c8725c7eb4aa269 \
+                    sha256  9106593d09dc4de0e094b7b14390a309d8fcb1d27104a53814d16937dcbae3c2 \
+                    size    2483116
+
 categories          sysutils
-platforms           darwin
 license             GPL-3+
-maintainers         {ciserlohn @ci42}
+maintainers         {ciserlohn @ci42} openmaintainer
 supported_archs     noarch
+platforms           any
 
 description         GNU parallel: Shell command parallelization utility
 
@@ -19,10 +24,6 @@ master_sites        gnu
 use_bzip2           yes
 
 depends_lib         port:perl5
-
-checksums           rmd160  0cdc3d4ab93ab4d4588bcb8408835619d11d6d69 \
-                    sha256  2810412b616b59dcf6a6bd172f2b2561807cf370ccf93417aa1c8229f94c4172 \
-                    size    2101918
 
 post-patch {
     set perl_bin ${prefix}/bin/perl

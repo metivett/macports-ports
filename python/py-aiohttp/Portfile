@@ -4,12 +4,11 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-aiohttp
-version             3.7.3
+version             3.9.1
 categories-append   devel
-platforms           darwin
 license             Apache-2
 
-python.versions     36 37 38 39
+python.versions     37 38 39 310 311 312
 
 maintainers         {ipglider.org:miguel @ipglider} openmaintainer
 
@@ -20,29 +19,38 @@ long_description    aiohttp key futures are the support for both client and \
                     and Web-server's middlewares and pluggable routing.
 
 homepage            https://github.com/aio-libs/aiohttp
-master_sites        pypi:a/aiohttp
 
-distname            aiohttp-${version}
-
-checksums           rmd160  8a50b3123a887a447fd806905d283c0a4f639762 \
-                    sha256  9c1a81af067e72261c9cbe33ea792893e83bc6aa987bfbd6fdc1e5e7b22777c4 \
-                    size    1113127
+checksums           rmd160  b1040f43478d8650e8f9fc53131a7785de2664fb \
+                    sha256  8fc49a87ac269d4529da45871e2ffb6874e87779c3d0e2ccd813c0899221239d \
+                    size    7482118
 
 if {${name} ne ${subport}} {
+    if {${python.version} < 38} {
+        version     3.8.6
+        revision    0
+        checksums   rmd160  2216d4d875399ba40d9849de0fa80cf8ef5d31f8 \
+                    sha256  b0cf2a4501bff9330a8a5248b4ce951851e415bdcce9dc158e76cfd55e15085c \
+                    size    7352172
+    }
+
     depends_build-append    port:py${python.version}-setuptools
+
     depends_lib-append      port:py${python.version}-aiodns \
-                            port:py${python.version}-async-timeout \
+                            port:py${python.version}-aiosignal \
                             port:py${python.version}-attrs \
                             port:py${python.version}-brotli \
-                            port:py${python.version}-cchardet \
+                            port:py${python.version}-frozenlist \
                             port:py${python.version}-multidict \
                             port:py${python.version}-yarl
 
-    if {${python.version} < 37} {
-        depends_lib-append    port:py${python.version}-idna-ssl
+    if {${python.version} < 38} {
+        depends_lib-append  port:py${python.version}-asynctest \
+                            port:py${python.version}-cchardet \
+                            port:py${python.version}-charset-normalizer \
+                            port:py${python.version}-typing_extensions
     }
 
-    livecheck.type          none
-} else {
-    livecheck.type          pypi
+    if {${python.version} < 311} {
+        depends_lib-append  port:py${python.version}-async-timeout
+    }
 }

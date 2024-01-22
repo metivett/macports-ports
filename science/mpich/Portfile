@@ -1,21 +1,33 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
-PortGroup           select 1.0
 PortGroup           compilers 1.0
-PortGroup           muniversal 1.0
-PortGroup           legacysupport 1.1
+PortGroup           mpiutil 1.0
+
+#===============================================================================
+#
+# *** IMPORTANT NOTE ***
+#
+# When making logic changes to this port, PLEASE review port 'openmpi' to see
+# if the same changes should be applied. While the subports and variants aren't
+# exactly the same between the two - and things like configure arguments
+# certainly differ, as they're different code bases - much of the core logic
+# is very similar. (And often identical.)
+#
+# Please help us avoid divergent MPI ports, which cause serious migraines.
+#
+#===============================================================================
 
 # make sure to keep in sync with mpi-doc
 name                mpich
-version             3.4.1
-revision            1
+version             4.1.2
+revision            0
 
 license             BSD
 categories          science parallel net
 platforms           darwin
 maintainers         {eborisch @eborisch} \
-                    openmaintainer
+                    {mascguy @mascguy}
 
 description         Message Passing Interface (MPI) Library
 
@@ -35,115 +47,119 @@ long_description    MPICH is a high-performance and widely portable\
 homepage            https://www.mpich.org/
 master_sites        ${homepage}static/downloads/${version}
 
-checksums \
-    rmd160  e1ada31903d2ad7a6331aabbbf67eb058366d9d7 \
-    sha256  8836939804ef6d492bcee7d54abafd6477d2beca247157d92688654d13779727 \
-    size    30720928
+checksums           rmd160  b4bc2115f5080ef93595597afc6d3f9f1665e051 \
+                    sha256  3492e98adab62b597ef0d292fb2459b6123bc80070a8aa0a30be6962075a12f0 \
+                    size    39250122
 
-livecheck.type      regex
-livecheck.regex     {href=.([0-9.p]+)/}
-livecheck.url       ${homepage}/static/downloads/
+# Disable livecheck for all subports; only enabled for main port, at end of portfile
+livecheck.type      none
 
-if {[string first "-devel" $subport] > 0} {
-    # Delete all traces of -devel Janurary 2022
-    PortGroup       obsolete 1.0
-
-    replaced_by     [regsub -- "-devel" $subport ""]
-}
+#-------------------------------------------------------------------------------
+# Target Compiler Logic
+#-------------------------------------------------------------------------------
 
 # As MPICH creates compiler wrappers, there are lots of
 # variants for what compiler the user would like to wrap.
 
 # Please update the mpi portgroup whenever clist is changed.
 
-# Sub-ports names and corresponding configure.compiler value
-array set clist {
-    clang   {clang}
-    clang50 {macports-clang-5.0}
-    gcc5    {macports-gcc-5}
-    gcc6    {macports-gcc-6}
-    gcc7    {macports-gcc-7}
-    gcc8    {macports-gcc-8}
-}
-# gcc 4.x not supported on mac OS 10.12 (Darwin16) or newer
-if { ${os.major} < 16 } {
-    # Only provide gcc 4.9, as older versions do not build.
-    set clist(gcc49)   {macports-gcc-4.9}
-}
-# gcc 9+ only available on macOS10.7 (Darwin11) and newer
-if { ${os.major} > 10 } {
-    set clist(gcc9)    {macports-gcc-9}
-    set clist(gcc10)    {macports-gcc-10}
-    set clist(gccdevel)    {macports-gcc-devel}
-}
-# clang 6+ only available on macOS10.9 (Darwin13) and newer
-if { ${os.major} > 12 } {
-    set clist(clang60) {macports-clang-6.0}
-    set clist(clang70) {macports-clang-7.0}
-    set clist(clang80) {macports-clang-8.0}
-    set clist(clang90) {macports-clang-9.0}
-    set clist(clang10) {macports-clang-10}
+# Subport names and corresponding configure.compiler value
+set clist [dict create]
+set clist_unsupported [list]
+set clist_obsolete [list]
+
+# Compilers supported across-the-board
+dict set clist gcc7    {macports-gcc-7}
+dict set clist gcc10   {macports-gcc-10}
+dict set clist gcc11   {macports-gcc-11}
+dict set clist gcc12   {macports-gcc-12}
+dict set clist gcc13   {macports-gcc-13}
+dict set clist clang11 {macports-clang-11}
+dict set clist clang12 {macports-clang-12}
+dict set clist clang13 {macports-clang-13}
+dict set clist clang14 {macports-clang-14}
+dict set clist clang15 {macports-clang-15}
+dict set clist clang16 {macports-clang-16}
+dict set clist clang17 {macports-clang-17}
+
+# Only enable default (gcc), and Xcode clang, for MacOS 10.7 and later
+if { ${os.major} >= 11 } {
+    dict set clist default {}
+    dict set clist clang   {clang}
+} else {
+    lappend clist_unsupported \
+        default clang
 }
 
-foreach key [array name clist] {
-    subport ${name}-${key} {}
-    subport ${name}-devel-${key} {}
+# Clang 9 and 10 not supported on ARM
+if { ${os.arch} eq "arm" } {
+    lappend clist_unsupported \
+        clang90 clang10
+} else {
+    dict set clist clang90 {macports-clang-9.0}
+    dict set clist clang10 {macports-clang-10}
 }
-subport ${name}-default {}
-subport ${name}-devel {}
-subport ${name}-devel-default {}
 
-if {${name} ne ${subport} && [string first "-devel" $subport] < 0} {
-    set key                  [lindex [split ${subport} -] end]
-    if {${key} eq "default"} {
-        # make every attempt to avoid MacPorts compilers
+# GCC 9 only supported for macOS 10.6 through 10.10
+if { ${os.major} >= 10 && ${os.major} <= 14 } {
+    dict set clist gcc9  {macports-gcc-9}
+} else {
+    lappend clist_unsupported \
+        gcc9
+}
+
+#-------------------------------------------------------------------------------
+# Subport Creation/Validation
+#-------------------------------------------------------------------------------
+
+set cname \
+    [lindex [split ${subport} -] end]
+
+mpiutil_add_subports \
+    ${name} ${subport} \
+    ${clist} ${clist_unsupported} ${clist_obsolete}
+
+set subport_enabled \
+    [mpiutil_validate_subport \
+        ${name} ${subport} ${cname} \
+        ${clist} ${clist_unsupported} ${clist_obsolete} \
+    ]
+
+#-------------------------------------------------------------------------------
+# General Subport Logic
+#-------------------------------------------------------------------------------
+
+if {${subport_enabled}} {
+    PortGroup select 1.0
+    PortGroup muniversal 1.0
+    PortGroup legacysupport 1.1
+
+    if {${cname} eq "default"} {
+        set cname "mp"
+    }
+
+    # Add various dependencies: build, lib, and run
+    mpiutil_add_depends \
+        ${subport} ${cname}
+
+    # Determine whether buildbot binaries should be used, and disable if necessary
+    mpiutil_set_binary_eligibility \
+        ${subport} ${cname}
+
+    depends_build-append        port:pkgconfig
+    depends_lib-append          port:libxml2
+
+    if {${cname} eq "mp"} {
         if {${os.major} == 10} {
+            # Make every attempt to avoid MacPorts compilers on 10.6
             configure.cxx_stdlib libstdc++
         }
-        set compiler         "default"
-        set compiler_version [compiler.command_line_tools_version ${configure.compiler}]
-    } else {
-        set compiler         [lindex [split $clist($key) -] 1]
-        set compiler_version [lindex [split $clist($key) -] 2]
     }
-    set fail no
-    if {${compiler} eq "gcc"} {
-        if { ${os.major} >= 16 && [vercmp ${compiler_version} 5] < 0 } {
-            # gcc 4.x not supported on mac OS 10.12 (Darwin16) or newer
-            set fail yes
-        }
-        if { ${os.major} < 11 && [vercmp ${compiler_version} 9] >= 0 } {
-            set fail yes
-        }
-        if { ${os.major} < 10 && [vercmp ${compiler_version} 8] >= 0 } {
-            set fail yes
-        }
-    }
-    if {${compiler} eq "clang"} {
-        if { ${os.major} < 10 && [vercmp ${compiler_version} 8] >= 0 } {
-            set fail yes
-        }
-        if { ${os.major} <  9 && [vercmp ${compiler_version} 5] >= 0 } {
-            set fail yes
-        }
-    }
-    if {${compiler} eq "default" && ${configure.compiler} eq "clang"} {
-        if {[vercmp 421.11.66 ${compiler_version}] <= 0 && [vercmp ${compiler_version} 425.0.24] < 0} {
-            # Linker for Apple clang version 421.11.66 segfaults
-            # See https://trac.macports.org/ticket/36654#comment:9
-            set fail yes
-        }
-    }
-    if {${fail}} {
-        known_fail yes
-        pre-fetch {
-            ui_error "${subport} fails on OS ${os.major} with compiler ${compiler}, version ${compiler_version}"
-            return -code error "incompatible macOS version"
-        }
-    }
-}
 
-configure.args      --disable-dependency-tracking    \
+    # ch4 is hanging in finalize https://github.com/pmodels/mpich/issues/6584
+    # always use ch3 for now.
+
+    configure.args  --disable-dependency-tracking    \
                     --disable-fortran                \
                     --disable-silent-rules           \
                     --enable-base-cache              \
@@ -152,82 +168,55 @@ configure.args      --disable-dependency-tracking    \
                     --enable-fast=O2                 \
                     --enable-shared                  \
                     --enable-versioning              \
+                    --enable-timer-type=mach_absolute_time \
                     --with-pm=hydra                  \
                     --with-thread-package=posix      \
                     --with-hwloc-prefix=${prefix}    \
-                    --enable-alloca                  \
-                    "F90FLAGS='' F90=''"
+                    --disable-collalgo-tests         \
+                    --with-device=ch3:nemesis        \
+                    --enable-nemesis-shm-collectives
 
-variant threads description {Build with full thread support} {
-    configure.args-append   --enable-threads=multiple
-}
-
-platform darwin {
-    configure.args-append   --enable-timer-type=mach_absolute_time
 
     if {${os.major} < 12} {
         # MPICH requires OpenCL version 1.2, which was not introduced until OS X Mountain Lion
-        configure.args-append --enable-opencl=no
+        configure.args-append \
+                    --enable-opencl=no
     }
 
-    if {${name} ne ${subport}} {
-        patchfiles-append       patch-no_qmkshrobj.diff \
-                                patch-ch4-ipv6.diff
-    }
-}
+    patchfiles-append \
+                    patch-no_qmkshrobj.diff \
+                    patch-ch4-ipv6.diff \
+                    patch-mpich-darwin-powerpc.diff
 
-# We're making compiler wrappers here... don't default to -O2 for wrappers.
-# Actual library code is compiled with -O2 via --enable-fast=O2 configure arg
-configure.optflags-delete   -O2 -Os
-configure.cppflags-delete   -I${prefix}/include
-configure.ldflags-delete    -L${prefix}/lib
-
-if {${name} ne ${subport} && [string first "-devel" $subport] < 0} {
-    set cname                   [lindex [split ${subport} -] end]
-    if {${cname} == "default"} {
-        set cname                   mp
+    platform darwin powerpc {
+        # libfabric calls for atomicops, on PPC at least
+        configure.ldflags-append \
+                    -latomic
     }
 
-    set all_name [split ${subport} -]
-    conflicts-append mpich-devel-[join [lrange ${all_name} 1 end] -]
+    # We're making compiler wrappers here... don't default to -O2 for wrappers.
+    # Actual library code is compiled with -O2 via --enable-fast=O2 configure arg
+    configure.optflags-delete   -O2 -Os
+    configure.cppflags-delete   -I${prefix}/include
+    configure.ldflags-delete    -L${prefix}/lib
 
-    # As we are making wrappers, we depend on the compilers to exist. The
-    # compilers group already does this for gcc, but not clangXX.  This adds
-    # clang-X.X to the depends_lib (not just depends_build)
-    if {[regexp {clang[5-9]\d} ${cname}] == 1} {
-        set cport_name          [regsub {(\d)(\d)} ${cname} {-\1.\2}]
-        depends_lib-append      port:${cport_name}
-    } elseif {[regexp {clang\d\d} ${cname}] == 1} {
-        set cport_name          [regsub {(\d)(\d)} ${cname} {-\1\2}]
-        depends_lib-append      port:${cport_name}
-    }
-
-    if {[lsearch -exact {mp llvm clang} ${cname}] != -1} {
-        # Force local builds with Xcode-provided compilers (avoid issues with
-        # different Xcode versions on buildbot and user machines)
-        archive_sites
-    }
-
-    depends_build-append        port:pkgconfig
-    depends_lib-append          port:libxml2
-    depends_run-append          port:mpi_select
     select.group                mpi
-    select.file                 ${filespath}/${name}-${cname}
-    depends_run-append      port:mpi-doc
+    select.file                 ${filespath}/portselect/${name}-${cname}
 
     # Prevent "ccache" and "distcc" from being baked into the wrapper scripts.
     configure.ccache            no
     configure.distcc            no
 
-    # don't need to livecheck all the subports, just the port
-    livecheck.type              none
+    if {${cname} ne "mp"} {
+        set compiler            [dict get ${clist} ${cname}]
+        configure.compiler      [lindex ${compiler} 0]
+        unset compiler
 
-    if {[string first "-default" $subport] < 0} {
-        configure.compiler      [lindex $clist($cname) 0]
-        append long_description "\\n\\nTHIS SUBPORT WRAPS ${cname}'s C/C++"
+        long_description-append \
+            "\n\nTHIS SUBPORT WRAPS ${cname}'s C/C++"
     } else {
-        append long_description \
-"\\n\\nTHIS SUBPORT WRAPS MACPORTS' DEFAULT COMPILER FOR C/C++"
+        long_description-append \
+            "\n\nTHIS SUBPORT WRAPS MACPORTS' DEFAULT COMPILER FOR C/C++"
     }
 
     configure.args-append   \
@@ -239,18 +228,6 @@ if {${name} ne ${subport} && [string first "-devel" $subport] < 0} {
     # avoid dependency on port:bash
     configure.env-append \
         BASH_SHELL=/bin/bash
-
-    # Renamed to standardaized 'native' name; remove 2022/02
-    variant tuned requires native description {Build with more optimizations} {
-    }
-
-    variant native description {Build for local machine} {
-        configure.args-replace      --enable-fast=O2 \
-                                    --enable-fast=all
-        # Note these need to be above the following foreach
-        configure.cflags-append     -march=native
-        configure.cxxflags-append   -march=native
-    }
 
     # setting xFLAGS resulting in mpicc, etc. always using these flags
     # setting MPICHLIB_xFLAGS only uses them for building the library
@@ -281,6 +258,86 @@ if {${name} ne ${subport} && [string first "-devel" $subport] < 0} {
             }
         }
     }
+
+    post-destroot {
+        # This version doesn't supply doc/manpages
+        if {[file isdirectory ${destroot}${prefix}/share/man]} {
+            delete ${destroot}${prefix}/share/man
+        }
+        if {[file isdirectory ${destroot}${prefix}/share/doc]} {
+            delete ${destroot}${prefix}/share/doc
+        }
+    }
+
+    #---------------------------------------------------------------------------
+    # Fortran Support
+    #---------------------------------------------------------------------------
+
+    set fortran_enabled no
+
+    if { [string first gcc $cname] == 0 } {
+        set fortran_enabled yes
+
+        long_description-append "AND FORTRAN COMPILERS"
+
+        variant fortran description {Stub : fortran always enabled for gcc-based version} {}
+        default_variants-append     +fortran
+
+        if {${cname} eq "gcc10" ||
+            ${cname} eq "gcc11" ||
+            ${cname} eq "gcc12" ||
+            ${cname} eq "gcc13"} {
+            # see https://lists.mpich.org/pipermail/discuss/2020-January/005862.html
+            # see https://github.com/pmodels/mpich/issues/4300
+            # see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=91556
+            configure.fflags-append -fallow-argument-mismatch
+            configure.fcflags-append -fallow-argument-mismatch
+        }
+
+        # GCC C++ always uses libstdc++
+        # see https://trac.macports.org/ticket/59185
+        configure.cxx_stdlib libstdc++
+    } else {
+        long_description-append "(AND THE FORTRAN COMPILER SELECTED BY THE VARIANT, IF ANY)"
+
+        compilers.allow_arguments_mismatch yes
+        compilers.choose   fc f77 f90
+        compilers.setup    default_fortran
+
+        if {[fortran_variant_isset]} {
+            set fortran_enabled yes
+
+            # Ask the portgroup for the correct dependency - the Fortran
+            # variants gccX and g95 match the name of the ports but
+            # gccdevel does not.
+            depends_lib-append      [fortran_variant_depends]
+
+            if {[variant_isset g95]} {
+                configure.args-append lt_cv_ld_force_load=no
+            }
+        }
+    }
+
+    if {${fortran_enabled}} {
+        configure.args-replace  --disable-fortran \
+                                --enable-fortran
+
+        # avoid
+        #     Python 3 is required to generate F90 bindings but not found!
+        set python_branch       3.11
+        set python_version      [string map {. {}} ${python_branch}]
+        depends_build-append    port:python${python_version}
+        depends_skip_archcheck-append   port:python${python_version}
+        configure.python        ${prefix}/bin/python${python_branch}
+
+        select.file             ${filespath}/portselect/${name}-${cname}-fortran
+    }
+
+    unset fortran_enabled
+
+    #---------------------------------------------------------------------------
+    # Universal Build Support
+    #---------------------------------------------------------------------------
 
     if {![info exists universal_possible]} {
         set universal_possible [expr {${os.universal_supported} && [llength ${configure.universal_archs}] >= 2}]
@@ -322,119 +379,45 @@ if {${name} ne ${subport} && [string first "-devel" $subport] < 0} {
         }
     }
 
-    post-destroot {
-        # This version doesn't supply doc/manpages
-        if {[file isdirectory ${destroot}${prefix}/share/man]} {
-            delete ${destroot}${prefix}/share/man
-        }
-        if {[file isdirectory ${destroot}${prefix}/share/doc]} {
-            delete ${destroot}${prefix}/share/doc
-        }
+    #---------------------------------------------------------------------------
+    # Variants
+    #---------------------------------------------------------------------------
+
+    variant threads description {Build with full thread support} {
+        configure.args-append   --enable-threads=multiple
     }
 
-    if { [string first gcc $cname] == 0 } {
-        append long_description " AND FORTRAN COMPILERS"
-        configure.args-replace  --disable-fortran \
-                                --enable-fortran
-        select.file             ${filespath}/${name}-${cname}-fortran
-        variant fortran description {
-            Stub : fortran always enabled for gcc-based version
-        } {}
-        default_variants-append     +fortran
-
-        if {${cname} eq "gcc10" || ${cname} eq "gccdevel"} {
-            # see https://lists.mpich.org/pipermail/discuss/2020-January/005862.html
-            # see https://github.com/pmodels/mpich/issues/4300
-            # see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=91556
-            configure.fflags-append -fallow-argument-mismatch
-        }
-
-        # GCC C++ always uses libstdc++
-        # see https://trac.macports.org/ticket/59185
-        configure.cxx_stdlib libstdc++
-    } else {
-        append long_description " (AND THE FORTRAN COMPILER SELECTED BY THE VARIANT, IF ANY)"
-
-        compilers.choose   fc f77 f90
-        compilers.setup    default_fortran
-
-        if {[fortran_variant_isset]} {
-            configure.args-replace  --disable-fortran \
-                                    --enable-fortran
-            select.file             ${filespath}/${name}-${cname}-fortran
-
-            # Ask the portgroup for the correct dependency - the Fortran
-            # variants gccX and g95 match the name of the ports but
-            # gccdevel does not.
-            depends_lib-append      [fortran_variant_depends]
-
-            if {[variant_isset g95]} {
-                configure.args-append lt_cv_ld_force_load=no
-            }
-
-            if {[variant_isset gcc10] || [variant_isset gccdevel]} {
-                # see https://lists.mpich.org/pipermail/discuss/2020-January/005862.html
-                # see https://github.com/pmodels/mpich/issues/4300
-                # see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=91556
-                configure.fflags-append -fallow-argument-mismatch
-            }
-        }
-    }
-
-notes "
-
-+--- MPICH Usage note ----
-| The mpicc wrapper (and friends) are installed as:
-|
-|   ${prefix}/bin/mpicc-${name}-${cname} (likewise mpicxx, ...)
-|
-| To make ${subport}'s wrappers the default (what you get when
-| you execute 'mpicc' etc.) please run:
-|
-|   sudo port select --set mpi [file tail ${select.file}]
-+-------------------------
-
-"
-
-    if {[variant_isset gcc48] ||
-        [variant_isset gcc49] ||
-        [variant_isset gcc5] ||
-        [variant_isset gcc6] ||
-        [variant_isset gcc7] ||
-        [variant_isset gcc8] ||
-        [variant_isset gcc9] } {
-        set DEFAULT_MSG "
-NOTE: Default fortran changed to +gcc10; consider switching variants to enable
-pre-built packages for ${subport} by running:
-\"sudo port clean ${subport} && sudo port upgrade ${subport} +gcc10 -[gcc_variant_name]\"
-"
-        notes-append    ${DEFAULT_MSG}
-
-        pre-fetch {
-            ui_msg ${DEFAULT_MSG}
-            system "sleep 3"
-            ui_msg "Continuing with local build."
-        }
-    }
-
-    variant gforker description {
-        Use gforker process manager instead of the default hydra
-    } {
+    variant gforker description {Use gforker process manager instead of the default hydra} {
         configure.args-replace  --with-pm=hydra \
                                 --with-pm=gforker
     }
 
-} else {
-    depends_lib-append  port:${name}-default
-    conflicts-append    mpich-devel
-    distfiles
-    patchfiles
-    supported_archs         noarch
-    use_configure           no
-    build {}
-    destroot {
-        set docdir          ${destroot}${prefix}/share/doc/${name}
-        xinstall -d ${docdir}
-        system "echo $name is a stub port > ${docdir}/README"
+    variant native description {Build for local machine} {
+        configure.args-replace      --enable-fast=O2 \
+                                    --enable-fast=all
+        # Note these need to be above the following foreach
+        if {${build_arch} in [list ppc ppc64]} {
+            configure.cflags-append     -mtune=native
+            configure.cxxflags-append   -mtune=native
+        } else {
+            configure.cflags-append     -march=native
+            configure.cxxflags-append   -march=native
+        }
     }
+
+    #---------------------------------------------------------------------------
+    # Notes
+    #---------------------------------------------------------------------------
+
+    mpiutil_add_notes \
+        ${name} ${subport} ${cname} ${select.file}
+
+} elseif {${subport} eq ${name}} {
+    PortGroup               stub 1.0
+
+    depends_lib-append      port:${name}-default
+
+    livecheck.type          regex
+    livecheck.regex         {href=.([0-9.p]+)/}
+    livecheck.url           ${homepage}/static/downloads/
 }

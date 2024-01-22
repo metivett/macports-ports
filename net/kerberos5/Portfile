@@ -4,18 +4,17 @@ PortSystem                  1.0
 PortGroup                   compiler_blacklist_versions 1.0
 
 name                        kerberos5
-version                     1.19
+version                     1.21.2
 revision                    0
-checksums                   rmd160  d8a34f3b3e15c29b6052c8e763875a65c325b9ee \
-                            sha256  bc7862dd1342c04e1c17c984a268d50f29c0a658a59a22bd308ffa007d532a2e \
-                            size    8735572
+checksums                   rmd160  3d23db18d562a66accd4cdcac1281555832fe1e2 \
+                            sha256  9560941a9d843c0243a71b17a7ac6fe31c7cebb5bce3983db79e52ae7e850491 \
+                            size    8622513
 
 set branch                  [join [lrange [split ${version} .] 0 1] .]
 conflicts                   fbopenssl
 categories                  net security
 maintainers                 {ryandesign @ryandesign} openmaintainer
 license                     MIT BSD ISC OpenLDAP-2.8+
-platforms                   darwin
 
 description                 Kerberos is a network authentication protocol.
 
@@ -31,10 +30,10 @@ homepage                    http://web.mit.edu/kerberos/
 master_sites                ${homepage}dist/krb5/${branch}/
 distname                    krb5-${version}
 
-depends_build               port:pkgconfig \
-                            port:python38
+depends_build               port:gettext \
+                            port:pkgconfig
 
-depends_lib                 port:gettext \
+depends_lib                 port:gettext-runtime \
                             port:libcomerr \
                             port:libedit \
                             port:lmdb \
@@ -46,28 +45,21 @@ worksrcdir                  ${worksrcdir}/src
 patchfiles                  patch-util__verto__Makefile.in-use-nonzero-compat-version.diff \
                             patch-config__shlib.conf-do-not-pass-dylib-file-ldflags.diff \
                             patch-lib_rpc_Makefile.in-explicitly-link-krb5support.diff \
-                            libressl.patch \
                             no-Werror.patch
 
-# AI_NUMERICSERV not available for Leopard and earlier (OS X < 10.6)
-if {${os.major} < 10} {
-    patchfiles-append       patch-src-lib-apputils-net-server.c.diff
-}
-
 use_autoreconf              yes
+configure.checks.implicit_function_declaration.whitelist-append strchr
+
 # kerberos5 fails to build in its own presence, see #23769, #37944
 # remove ${prefix}/lib from configure.ldflags to allow linking against its own libs first
 # adding ${worksrcpath}/lib is not necessary and pollutes krb5-config --libs and pkg-config files
 configure.ldflags-delete    -L${prefix}/lib
-configure.python            ${prefix}/bin/python3.8
-configure.args              --mandir=${prefix}/share/man \
-                            --with-system-et \
+configure.python            false
+configure.args              --with-system-et \
                             --without-system-db \
                             --without-hesiod \
                             --without-ldap \
-                            --without-tcl \
                             --with-crypto-impl=openssl \
-                            --with-pkinit-crypto-impl=openssl \
                             --with-libedit \
                             --without-readline \
                             --without-system-verto \

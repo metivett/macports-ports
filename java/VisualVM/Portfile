@@ -6,7 +6,7 @@ PortGroup           java 1.0
 
 name                VisualVM
 
-github.setup        oracle visualvm 2.0.6
+github.setup        oracle visualvm 2.1.7
 github.tarball_from releases
 
 categories          java
@@ -17,16 +17,16 @@ maintainers         {gmx.net:lothar.haeger @lhaeger} openmaintainer
 
 description         All-in-One Java Troubleshooting Tool
 long_description    VisualVM is a visual tool integrating commandline JDK tools and lightweight profiling capabilities. \
-                    Designed for both development and production time use.
+                    Designed for both development and production time use
 
 homepage            https://visualvm.github.io
 
 distname            [strsed ${name}_${version} {g/[.]//}]
 use_dmg             yes
 
-checksums           rmd160  2b6be3a0ff14e06776c8783cc4f426ce15ee3cf2 \
-                    sha256  fc65863b25c3d5d79fdf79f866f0fba18e3dece9a59c871e1b1a7f89c09a6c57 \
-                    size    19980221
+checksums           rmd160  58f19861e7b49e7ebeb3be41285d24c2e3c99a05 \
+                    sha256  5fb5298734c2946b028f14e49fdb111d04757526a69c6f5dd8563094d7da7ee8 \
+                    size    22288657
 
 java.version        1.8+
 java.fallback       openjdk11

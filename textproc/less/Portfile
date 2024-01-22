@@ -1,7 +1,9 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
 PortSystem      1.0
 
 name            less
-version         563
+version         643
 revision        0
 categories      textproc
 platforms       darwin
@@ -17,17 +19,15 @@ long_description \
                 Less uses termcap (or terminfo on some systems), so it can run on \
                 a variety of terminals. There is even limited support for \
                 hardcopy terminals.
-homepage        http://www.greenwoodsoftware.com/less/
+homepage        https://www.greenwoodsoftware.com/less/
 master_sites    ${homepage}
 
-checksums       rmd160  ef4480307871e4c0a26a29738b9706788b616357 \
-                sha256  ce5b6d2b9fc4442d7a07c93ab128d2dff2ce09a1d4f2d055b95cf28dd0dc9a9a \
-                size    335508
+checksums       rmd160  d98f2761df3c9ac213e46e559f33ff19f9293677 \
+                sha256  2911b5432c836fa084c8a2e68f6cd6312372c026a58faaa98862731c8b6052e8 \
+                size    592291
 
 depends_lib     port:ncurses \
                 port:gettext
-
-patchfiles      patch-configure.diff
 
 configure.args  --with-regex=posix
 

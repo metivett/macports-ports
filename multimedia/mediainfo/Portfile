@@ -4,10 +4,10 @@ PortSystem          1.0
 PortGroup           github 1.0
 
 # normally update mediainfolib port at the same time
-github.setup        MediaArea MediaInfo 20.09 v
-checksums           rmd160  cceba19b48a1e2a05cca9a473bc16e623d31c7b6 \
-                    sha256  24c841297d2c8e4d4d50465f96dc36fc8462fb2aff39ebfd6165d28c19610a3d \
-                    size    3194008
+github.setup        MediaArea MediaInfo 23.11 v
+checksums           rmd160  7ec5e4e4dcadba9ac7158540b74cf9a43b0a81ac \
+                    sha256  43415765a19f0c380478ae4c62598eb264865dccac19fa8facc76ffcd7f40cd7 \
+                    size    3309288
 
 name                mediainfo
 categories          multimedia
@@ -21,6 +21,8 @@ long_description    MediaInfo supplies technical and tag information about a \
                     video or audio file via command line utility
 
 homepage            https://mediaarea.net
+installs_libs       no
+
 depends_build       port:pkgconfig
 depends_lib         port:zenlib port:zlib port:mediainfolib
 
@@ -37,11 +39,14 @@ autoreconf.args-append  --force --install
 # make pkg-config act like on Linux, no '-I/opt/local/include' in cflags
 configure.env-append    PKG_CONFIG_SYSTEM_INCLUDE_PATH=${prefix}/include
 
+compiler.cxx_standard 2011
+
 subport MediaInfo-gui {
     PortGroup           app 1.0
     PortGroup           wxWidgets 1.0
     wxWidgets.use       wxWidgets-3.2
 
+    revision            0
 
     description         Identifies audio and video codecs in a media file. GUI
     long_description    MediaInfo supplies technical and tag information about a \
@@ -51,6 +56,8 @@ subport MediaInfo-gui {
 
     configure.args      --with-wx-config=${wxWidgets.wxconfig} \
                         --with-wx-prefix=${wxWidgets.prefix}
+
+    compiler.cxx_standard 2011
 
     app.executable      mediainfo-gui
     app.name            MediaInfo

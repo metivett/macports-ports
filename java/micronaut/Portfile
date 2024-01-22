@@ -2,16 +2,16 @@
 
 PortSystem      1.0
 PortGroup       github 1.0
-PortGroup       java 1.0
 
-github.setup    micronaut-projects micronaut-starter 2.3.3 v
+github.setup    micronaut-projects micronaut-starter 4.2.3 v
 revision        0
 name            micronaut
 categories      java
-platforms       darwin
+platforms       {darwin any}
 maintainers     {breun.nl:nils @breun} openmaintainer
 license         Apache-2
 supported_archs x86_64
+universal_variant no
 
 description     Micronaut is a modern, JVM-based, full-stack framework \
                 for building modular, easily testable microservice and serverless applications.
@@ -53,14 +53,19 @@ homepage        https://micronaut.io
 github.tarball_from releases
 distname        mn-darwin-amd64-v${version}
 
-checksums       rmd160  971c4d105ffa4f69e3f217a92c8ce570f043c7a2 \
-                sha256  dd118d72862d1823af377e32add1978a52bc701ecc5d1700cdcbe110f3e28acf \
-                size    19525923
+checksums       rmd160  f226f8a768335a3222b0995bc1aee4a3ebdd462e \
+                sha256  698265df6629c5fd9faae46d8b6a8f3d6a7468825d62e4b647399c717464de41 \
+                size    20356316
 
 use_zip         yes
 use_configure   no
 
 build {}
+
+test.run    yes
+test.cmd    bin/mn
+test.target
+test.args   --version
 
 destroot {
     set target ${destroot}${prefix}/share/java/${name}

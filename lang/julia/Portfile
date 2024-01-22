@@ -4,15 +4,19 @@ PortSystem          1.0
 PortGroup           github 1.0
 PortGroup           gpg_verify 1.0
 PortGroup           compilers 1.0
+PortGroup           compiler_blacklist_versions 1.0
 
 compilers.choose    fc f77 f90
 compilers.setup     require_fortran -g95
+compiler.blacklist-append {clang < 900}
 
-github.setup        JuliaLang julia 1.5.3 v
+github.setup        JuliaLang julia 1.10.0 v
 revision            0
 categories-append   lang math science
-maintainers         {ieee.org:s.t.smith @essandess} openmaintainer
-platforms           darwin
+maintainers         {ieee.org:s.t.smith @essandess} \
+                    {b-data.ch:olivier.benz @benz0li} \
+                    openmaintainer
+platforms           {darwin >= 14}
 license             MIT
 homepage            http://julialang.org
 
@@ -26,9 +30,9 @@ github.tarball_from releases
 distfiles           ${name}-${version}-full${extract.suffix}
 
 checksums           ${name}-${version}-full${extract.suffix} \
-                    rmd160  df4f63f7d2db6df2143cf7b3e7d1a8c300f731d7 \
-                    sha256  fb69337ca037576758547c7eed9ae8f153a9c052318327b6b7f1917408c14d91 \
-                    size    138278314
+                    rmd160  eb03ef721bf5f24cadb0cefac715155bf027e42f \
+                    sha256  a5f8c0ce08cf132bdd919ca0b5b3b2b66c89e0e5f7e7fb2a81ffa7f225e3db4c \
+                    size    318571431
 
 extract.only        ${distfiles}
 
@@ -40,9 +44,7 @@ if {[option gpg_verify.use_gpg_verification]} {
                     ${name}-${version}-full${extract.suffix}.asc
     checksums-append \
                     ${name}-${version}-full${extract.suffix}.asc \
-                    size    866 \
-                    rmd160  aed07c2e553aec2a030491a2a9c69206b69292ad \
-                    sha256  3128c1ae0392008c92798b4e4cbd076088579fcbfbb11a2fdeb5a47a136c3857
+                    size    866
 
     post-checksum {
         gpg_verify.verify_gpg_signature \
@@ -88,14 +90,21 @@ post-destroot {
     move ${dpw}/julia-${version}/include/julia ${destroot}${prefix}/include
     move ${dpw}/julia-${version}/lib/julia ${destroot}${prefix}/lib
     move ${dpw}/julia-${version}/lib/libjulia.${short_version}.dylib ${destroot}${prefix}/lib
-    move ${dpw}/julia-${version}/lib/libjulia.${short_version}.dylib.dSYM ${destroot}${prefix}/lib
     move ${dpw}/julia-${version}/lib/libjulia.dylib ${destroot}${prefix}/lib
-    move ${dpw}/julia-${version}/lib/libjulia.${major_version}.dylib ${destroot}${prefix}/lib
+    move ${dpw}/julia-${version}/lib/libjulia.${version}.dylib ${destroot}${prefix}/lib
+    # see https://github.com/JuliaLang/julia/pull/48931
+    move ${dpw}/julia-${version}/libexec/julia ${destroot}${prefix}/libexec/julia
     move ${dpw}/julia-${version}/share/julia ${destroot}${prefix}/share
+    delete ${destroot}${prefix}/share/man
+    move ${dpw}/julia-${version}/share/man ${destroot}${prefix}/share
 
     delete ${destroot}${prefix}/var
 
     system -W ${destroot}${prefix}/bin "install_name_tool -add_rpath ${prefix}/lib julia"
+    if {${os.arch} eq "arm"} {
+        # manually fix code signature on arm
+        system -W ${destroot}${prefix} "/usr/bin/codesign --sign - --force lib/libjulia.${version}.dylib"
+    }
 }
 
 pre-test {
@@ -106,6 +115,17 @@ pre-test {
 }
 
 test.run            yes
+
+if {${os.arch} eq "arm"} {
+    notes-append \
+"
+On Apple Silicon machines, access the macOS Accelerate\
+and Metal frameworks using, respectively:\
+
+    using AppleAccelerate
+    using Metal
+"
+}
 
 if {${os.platform} eq "darwin" && ${os.major} < 14} {
     known_fail      yes

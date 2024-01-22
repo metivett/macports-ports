@@ -4,14 +4,15 @@ PortSystem          1.0
 PortGroup           github 1.0
 PortGroup           python 1.0
 
-github.setup        magenta magenta 2.1.0
+github.setup        magenta magenta 2.1.2 v
 revision            0
 name                py-${github.project}
 categories-append   audio
 
 license             Apache-2
 maintainers         nomaintainer
-platforms           darwin
+platforms           {darwin any}
+supported_archs     noarch
 
 description         Magenta: Music and Art Generation with Machine Intelligence
 
@@ -25,24 +26,14 @@ long_description    Magenta is a research project exploring the role\
                     artists and musicians to extend (not replace!)\
                     their processes using these models.
 
-checksums           rmd160  ba439f067e7974b5b508e1154599d1e82a4ca450 \
-                    sha256  f3cd8d8ef556cd1ca19ad1d307e79fd1089f0600738d4738b545b3b5b07151ba \
-                    size    19670492
+checksums           rmd160  69a2206915539effab4448b76e131c9f3ecd5c66 \
+                    sha256  75cdd463167e16b4cda21c4e89a5d17502d9d607c733a47f6e18f66689a34a10 \
+                    size    19676359
 
-python.versions     37 38
+python.versions     39
 
 if {${name} ne ${subport}} {
-    depends_build-append \
-                    port:py${python.version}-pip \
-                    port:py${python.version}-pyobjc \
-                    port:py${python.version}-pytest-runner \
-                    port:py${python.version}-wheel
-
     depends_lib-append \
-                    port:py${python.version}-pylint \
-                    port:py${python.version}-setuptools
-
-    depends_run-append \
                     port:py${python.version}-absl \
                     port:py${python.version}-apache-beam \
                     port:py${python.version}-dm-sonnet \
@@ -63,26 +54,21 @@ if {${name} ne ${subport}} {
                     port:py${python.version}-sk-video \
                     port:py${python.version}-sox \
                     port:py${python.version}-tensor2tensor \
-                    port:py${python.version}-tensorflow \
+                    path:${python.pkgd}/tensorflow:py${python.version}-tensorflow \
                     port:py${python.version}-tensorflow-datasets \
                     port:py${python.version}-tensorflow-probability \
                     port:py${python.version}-tf-slim \
                     port:py${python.version}-wheel \
-                    port:sox \
+                    port:sox
 
     depends_test-append \
-                    port:py${python.version}-pytest \
+                    port:py${python.version}-pydub \
                     port:py${python.version}-pytest-xdist
 
-    # diff -NaurdwB ./py-magenta-orig/setup.py ./py-magenta-new/setup.py | sed -E -e 's/\.\/py-magenta-(orig|new)*\/(setup\.py)(\.[[:alnum:]]+)*/\.\/setup.py/' > ./setup.py.patch
-    patchfiles      setup.cfg.patch \
-                    setup.py.patch
+    # diff -NaurdwB ./setup.py ./patch-setup.py | sed -E -e 's|patch-||' > ./patch-setup.py.diff
+    patchfiles      patch-setup.py.diff
 
     test.run        yes
-    test.cmd        py.test-${python.branch}
-    test.target
-    test.env-append \
-                    PYTHONPATH=${worksrcpath}/build/lib
 
     post-destroot {
         set docdir ${prefix}/share/doc/${subport}
@@ -91,5 +77,12 @@ if {${name} ne ${subport}} {
             ${destroot}${docdir}
     }
 
-    livecheck.type  none
+    notes "One example Magenta application is piano transcription:
+
+onsets_frames_transcription_transcribe-${python.branch} --model_dir=path/to/maestro_checkpoint piano_recording.wav
+
+See:
+* https://github.com/magenta/magenta/tree/master/magenta/models/onsets_frames_transcription
+* https://storage.googleapis.com/magentadata/models/onsets_frames_transcription/maestro_checkpoint.zip
+"
 }

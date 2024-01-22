@@ -1,0 +1,18 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             bioconductor Bioconductor GenomeInfoDbData 1.2.11
+revision            0
+maintainers         nomaintainer
+license             Artistic-2
+description         Species and taxonomy ID look-up tables used by R-GenomeInfoDb
+long_description    {*}${description}
+master_sites        https://bioconductor.org/packages/release/data/annotation/src/contrib/
+checksums           rmd160  6c473276a30a2a95f36eaab4c3231f3aaa6ac392 \
+                    sha256  311fe287842e6161f24fc1faaa824a6d5ce88afcbf4c0203f5e309456e667bc2 \
+                    size    12284235
+supported_archs     noarch
+
+test.run            yes

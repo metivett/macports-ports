@@ -5,9 +5,9 @@ PortSystem          1.0
 PortGroup           github 1.0
 PortGroup           wxWidgets 1.0
 
-github.setup        vslavik diff-pdf 0.4.1 v
+github.setup        vslavik diff-pdf 0.5.1 v
 github.tarball_from releases
-revision            10
+revision            0
 
 wxWidgets.use       wxWidgets-3.0
 
@@ -28,17 +28,16 @@ long_description \
 
 homepage            https://vslavik.github.io/diff-pdf
 
-checksums           rmd160  a43d407ec3e11818062e979d685d668155d9f29d \
-                    sha256  0eb81af6b06593488acdc5924a199f74fe3df6ecf2a0f1be208823c021682686 \
-                    size    137715
+checksums           rmd160  f5992676aa660332c1e7d9ce7ff4bb4b8c04e006 \
+                    sha256  017d52cb7ddabdbf63c6a47f39b2e5a1790022b95295b0d047817904e093245c \
+                    size    142541
 
 depends_lib         path:lib/libcairo.dylib:cairo \
-                    port:poppler \
+                    path:lib/pkgconfig/glib-2.0.pc:glib2 \
+                    path:lib/pkgconfig/poppler.pc:poppler \
                     port:${wxWidgets.port}
 
 depends_build       port:pkgconfig
-
-patchfiles          patch-poppler-20.12.diff
 
 use_autoconf        yes
 

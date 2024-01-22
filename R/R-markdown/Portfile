@@ -1,0 +1,25 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran rstudio markdown 1.12
+revision            0
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             GPL-2
+description         Render markdown with commonmark
+long_description    {*}${description}
+checksums           rmd160  ce594d137c203ddbb0b133b395c4311d5f97f320 \
+                    sha256  7ddce3e8f08ce2e5feaa9fab30b50671ea200a8cfe2be230a98601d940124ba0 \
+                    size    113037
+supported_archs     noarch
+
+depends_lib-append  port:R-commonmark \
+                    port:R-xfun
+
+depends_test-append port:R-knitr \
+                    port:R-RCurl \
+                    port:R-rmarkdown \
+                    port:R-yaml
+
+test.run            yes

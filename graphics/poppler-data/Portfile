@@ -3,10 +3,10 @@
 PortSystem      1.0
 
 name            poppler-data
-version         0.4.10
+version         0.4.12
 maintainers     {devans @dbevans} openmaintainer
 categories      graphics
-platforms       darwin
+platforms       any
 supported_archs noarch
 homepage        https://poppler.freedesktop.org/
 
@@ -17,13 +17,13 @@ installs_libs   no
 
 description     Poppler encoding data.
 long_description \
-                ${description}
+                {*}${description}
 
 master_sites    ${homepage}
 
-checksums       rmd160  0e93645a48280968eec64e0c2b814a11759b2ad3 \
-                sha256  6e2fcef66ec8c44625f94292ccf8af9f1d918b410d5aa69c274ce67387967b30 \
-                size    4497684
+checksums       rmd160  fbb400440d579e4c652a996c2f9acbd7ea068962 \
+                sha256  c835b640a40ce357e1b83666aabd95edffa24ddddd49b8daff63adb851cdab74 \
+                size    4504754
 
 use_configure   no
 build           {}

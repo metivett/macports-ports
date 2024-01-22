@@ -4,7 +4,7 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-pyviz_comms
-version             2.0.1
+version             2.3.2
 revision            0
 categories-append   devel
 license             BSD
@@ -12,23 +12,26 @@ maintainers         {mps @Schamschula} openmaintainer
 description         Offers a simple bidirectional communication architecture for PyViz \
                     tools including support for Jupyter comms in both the classic \
                     notebook and Jupyterlab.
-long_description    ${description}
-platforms           darwin
+long_description    {*}${description}
+supported_archs     noarch
+platforms           {darwin any}
 homepage            https://github.com/holoviz/pyviz_comms
 
-checksums           rmd160  7f37ae5b2065738501103ed7d39c2bbc4cd0de2e \
-                    sha256  be63957a49772895ddebeac02c697e1675e0bdf1515824f60fcc261914f23624 \
-                    size    125046
+checksums           rmd160  cf263048fcb1dc9eada8a724bc91997e843915bc \
+                    sha256  542a10fed8242d3a9d468ed0a14d6a2537e589c3f8a7986c79c374591254d6b4 \
+                    size    51347
 
-python.versions     36 37 38 39
+python.versions     38 39 310 311 312
 
 if {${name} ne ${subport}} {
-    depends_build   port:git
+    python.pep517   yes
 
-    depends_lib     port:py${python.version}-numpy \
+    depends_build-append \
+                    port:git \
+                    port:py${python.version}-jupyter_packaging
+
+    depends_lib-append  \
+                    port:py${python.version}-numpy \
                     port:py${python.version}-param \
-                    port:py${python.version}-pyobjc \
-                    port:py${python.version}-setuptools
-
-    livecheck.type      none
+                    port:py${python.version}-pyobjc
 }

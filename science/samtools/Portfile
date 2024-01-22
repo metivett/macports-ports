@@ -2,15 +2,18 @@
 
 PortSystem              1.0
 PortGroup               github 1.0
+PortGroup               legacysupport 1.1
 
-github.setup            samtools samtools 1.11
+# strnlen
+legacysupport.newest_darwin_requires_legacy 10
+
+github.setup            samtools samtools 1.19
 revision                0
-checksums               rmd160  6ca0d6f396949a6b9de449e55963fa9b16b5aa9a \
-                        sha256  e283cebd6c1c49f0cf8a3ca4fa56e1d651496b4d2e42f80ab75991a9ece4e5b6 \
-                        size    4757361
+checksums               rmd160  a85012a8b40734169642c76b125245fbcdf59532 \
+                        sha256  fa6b3b18e20851b6f3cb55afaf3205d02fcb79dae3b849fcf52e8fc10ff08b83 \
+                        size    9181032
 
 categories              science
-platforms               darwin
 maintainers             {ryandesign @ryandesign} openmaintainer
 license                 MIT
 
@@ -32,13 +35,9 @@ depends_lib             port:htslib \
 configure.args          --with-htslib=system
 
 post-destroot {
-    xinstall -m 0644 ${worksrcpath}/libbam.a ${destroot}${prefix}/lib
-    xinstall -d ${destroot}${prefix}/include/bam
-    xinstall -m 0644 {*}[glob ${worksrcpath}/*.h] ${destroot}${prefix}/include/bam
-
     xinstall -d ${destroot}${prefix}/share/doc/${name}
     xinstall -m 0644 -W ${worksrcpath} \
-        AUTHORS LICENSE NEWS README \
+        AUTHORS LICENSE NEWS.md README \
         ${destroot}${prefix}/share/doc/${name}
 }
 

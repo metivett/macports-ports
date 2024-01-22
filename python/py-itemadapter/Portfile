@@ -4,11 +4,12 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-itemadapter
-version             0.2.0
+version             0.8.0
 revision            0
 maintainers         {khindenburg @kurthindenburg} openmaintainer
-platforms           darwin
+platforms           {darwin any}
 license             BSD
+supported_archs     noarch
 
 description         Common interface for data container classes
 long_description    The `ItemAdapter` class is a wrapper for data \
@@ -18,19 +19,13 @@ long_description    The `ItemAdapter` class is a wrapper for data \
 
 
 homepage            https://pypi.python.org/pypi/${python.rootname}
-master_sites        pypi:[string index ${python.rootname} 0]/${python.rootname}/
-distname            ${python.rootname}-${version}
 
-checksums           rmd160  ee186ff5696cacd722fdbdae65959c7fcb47faaa \
-                    sha256  cb7aaa577fefe2aa6f229ccf4d058e05f44e0178a98c8fb70ee4d95acfabb423 \
-                    size    12197
+checksums           rmd160  fe6c1891f4cc3f25db516e92e0e2ed6922d5d95f \
+                    sha256  77758485fb0ac10730d4b131363e37d65cb8db2450bfec7a57c3f3271f4a48a9 \
+                    size    18791
 
-python.versions     35 36 37 38
+python.versions     37 38 39 310 311
 
 if {${name} ne ${subport}} {
     depends_build-append    port:py${python.version}-setuptools
-
-    livecheck.type          none
-} else {
-    livecheck.type          pypi
 }

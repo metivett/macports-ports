@@ -7,12 +7,12 @@ PortGroup           legacysupport 1.1
 # strndup
 legacysupport.newest_darwin_requires_legacy 10
 
-github.setup        aqbanking gwenhywfar 5.4.1
+github.setup        aqbanking gwenhywfar 5.10.2
 name                gwenhywfar5
 
-checksums           rmd160  fd1c2b3738a8d4eec25b1c59fc5ae791345bce73 \
-                    sha256  0d4246537bd16dc8cc8f8db5d7ad3942466440b1bb1067ae8d6334fc0bd42501 \
-                    size    1649895
+checksums           rmd160  195d2ac600be4e5caa4f9dc18558fd4aa0908937 \
+                    sha256  70e9dea57a0d9c80847e1fa14aadcc15a4fcee9b4506dc8f9154f2917b40094e \
+                    size    1757672
 
 categories          devel net finance
 maintainers         {dports @drkp} openmaintainer
@@ -30,7 +30,7 @@ depends_lib         path:lib/libssl.dylib:openssl \
                     port:libgcrypt \
                     port:gettext \
                     port:libxml2 \
-                    port:gnutls
+                    path:lib/pkgconfig/gnutls.pc:gnutls
 
 depends_build       port:libtool \
                     port:automake \
@@ -42,12 +42,12 @@ configure.args      --enable-static
 conflicts-delete  $subport
 
 subport gwenhywfar5-gtk2 {
-        depends_lib-append      port:gtk2
+        depends_lib-append      path:lib/pkgconfig/gtk+-2.0.pc:gtk2
         configure.args-append   --with-guis="gtk2 cpp" --disable-qt4 --disable-qt5
 }
 
 subport gwenhywfar5-gtk3 {
-        depends_lib-append      port:gtk3
+        depends_lib-append      path:lib/pkgconfig/gtk+-3.0.pc:gtk3
         configure.args-append   --with-guis="gtk3 cpp" --disable-qt4 --disable-qt5
 }
 

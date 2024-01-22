@@ -1,0 +1,28 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran wilsonfreitas bizdays 1.0.15
+revision            0
+categories-append   finance
+maintainers         nomaintainer
+license             MIT
+description         Business days calculations and utilities
+long_description    {*}${description}
+homepage            https://wilsonfreitas.github.io/R-bizdays
+checksums           rmd160  79ac5ee906ad1aa66127850bf23c75c9f106af54 \
+                    sha256  817617cb952e78dff53d8e8280f18d48026d38dd396d80f900f4743fa27f9e80 \
+                    size    212687
+supported_archs     noarch
+
+depends_lib-append  port:R-jsonlite
+
+depends_test-append port:R-covr \
+                    port:R-knitr \
+                    port:R-rmarkdown \
+                    port:R-RQuantLib \
+                    port:R-testthat \
+                    port:R-timeDate
+
+test.run            yes

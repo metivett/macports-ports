@@ -8,7 +8,7 @@ long_description tango-icon-theme is a collection of bright and vivid icons and 
                 emblems from the Tango Desktop Project. They can replace the gnome-icon-theme.
 maintainers     nomaintainer
 categories      x11
-platforms       darwin
+platforms       any
 license         public-domain
 supported_archs noarch
 
@@ -37,5 +37,5 @@ livecheck.regex ${name}-(\[0-9\]+\\.\[0-9\]+\\.\[0-9\]+)\\.tar\\.gz
 
 variant big_icons description {create 48,64,72,96,128 pixels icons; implies 20Mo more of png files} {
         configure.args-append --enable-png-creation
-        depends_build-append  port:librsvg
+        depends_build-append  path:lib/pkgconfig/librsvg-2.0.pc:librsvg
 }

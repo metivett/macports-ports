@@ -2,30 +2,30 @@
 
 PortSystem          1.0
 PortGroup           github 1.0
+PortGroup           legacysupport 1.1
 
-github.setup        p11-glue p11-kit 0.23.22
+github.setup        p11-glue p11-kit 0.25.3
+revision            0
 license             Permissive
 description         Provides a way to load and enumerate PKCS#11 modules and a standard \
                     configuration setup for installing PKCS#11 modules in such a way that \
                     they are discoverable.
 long_description    ${description}
-maintainers         {lbschenkel @lbschenkel} {devans @dbevans} openmaintainer
+maintainers         nomaintainer
 categories          security
-platforms           darwin
 
 github.tarball_from releases
 use_xz              yes
 
-checksums           rmd160  35bc18cde9610ceb1a4c1c167360b7ef4a81288d \
-                    sha256  8a8f40153dd5a3f8e7c03e641f8db400133fb2a6a9ab2aee1b6d0cb0495ec6b6 \
-                    size    830016
+checksums           rmd160  730afef28ce42efe59bb3af334df8d43f08e0ab2 \
+                    sha256  d8ddce1bb7e898986f9d250ccae7c09ce14d82f1009046d202a0eb1b428b2adc \
+                    size    991528
 
-patch.pre_args      -p1
-patchfiles-append   patch-include.diff
+depends_build       port:gettext \
+                    port:pkgconfig \
+                    port:python311
 
-depends_build       port:pkgconfig
-
-depends_lib         port:gettext \
+depends_lib         port:gettext-runtime \
                     port:libtasn1 \
                     port:libffi \
                     port:libxslt
@@ -36,7 +36,18 @@ configure.args      --disable-doc \
                     --disable-silent-rules \
                     --with-trust-paths=${prefix}/share/curl/curl-ca-bundle.crt:${prefix}/etc/openssl
 
+# /usr/bin/python is Python 2.7 for older systems, and
+# /usr/bin/python3 is too old (< 3.6) on older systems
+# https://trac.macports.org/ticket/68739
+configure.env       PYTHON=${prefix}/bin/python3.11
+
+# https://trac.macports.org/wiki/WimplicitFunctionDeclaration#strchr
+configure.checks.implicit_function_declaration.whitelist-append strchr
+
 variant doc description {Build man pages and documentation} {
     depends_build-append    port:gtk-doc
     configure.args-replace  --disable-doc --enable-doc
 }
+
+test.run            yes
+test.target         check

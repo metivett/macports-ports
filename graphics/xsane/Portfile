@@ -4,7 +4,7 @@ PortSystem 1.0
 
 name            xsane
 version         0.999
-revision        2
+revision        3
 license         GPL-2
 categories      graphics x11
 maintainers     {puffin.lb.shuttle.de:michael.klein @mklein-de} openmaintainer
@@ -39,9 +39,10 @@ checksums       rmd160  3799a599ddf06b0ca297b2270b50d4b93e1f0e12 \
 depends_build   port:pkgconfig
 depends_lib     path:lib/pkgconfig/gimp-2.0.pc:gimp2 \
                 path:include/turbojpeg.h:libjpeg-turbo \
-                port:gtk2 \
+                path:lib/pkgconfig/gtk+-2.0.pc:gtk2 \
                 port:libpng \
                 port:sane-backends \
+                port:tiff \
                 port:lcms
 
 patchfiles      patch-sane-options-handling-fix.diff \

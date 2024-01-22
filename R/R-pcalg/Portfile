@@ -1,0 +1,44 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran r-forge pcalg 2.7-9
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             GPL-2+
+description         Methods for graphical models and causal inference
+long_description    {*}${description}
+homepage            https://pcalg.r-forge.r-project.org
+checksums           rmd160  b3680b40e820a1cff0b82a16a6b811dfadb901c7 \
+                    sha256  b8b1d292e79a9bb495d195b730f99e1dc5a6686c39fb98fc1574982e882c1116 \
+                    size    4068555
+
+depends_lib-append  port:R-abind \
+                    port:R-bdsmatrix \
+                    port:R-BH \
+                    port:R-clue \
+                    port:R-corpcor \
+                    port:R-fastICA \
+                    port:R-ggm \
+                    port:R-graph \
+                    port:R-igraph \
+                    port:R-RBGL \
+                    port:R-Rcpp \
+                    port:R-RcppArmadillo \
+                    port:R-robustbase \
+                    port:R-sfsmisc \
+                    port:R-vcd
+
+# Remove a test dependency which needs V8:
+patchfiles          patch-no-dagitty.diff
+
+compilers.setup     require_fortran
+
+depends_test-append port:R-ggplot2 \
+                    port:R-huge \
+                    port:R-mvtnorm \
+                    port:R-Rgraphviz
+
+test.run            yes

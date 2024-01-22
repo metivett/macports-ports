@@ -4,7 +4,7 @@ PortSystem          1.0
 PortGroup           texlive 1.0
 
 name                texlive-fonts-extra
-version             54583
+version             66328
 revision            0
 
 categories          tex
@@ -13,18 +13,18 @@ license             Copyleft Permissive
 description         TeX Live: Additional fonts
 long_description    Additional fonts
 
-checksums           texlive-fonts-extra-54583-run.tar.xz \
-                    rmd160  0508d8a9c51f59be1db89e29b13e5a6aecd111ba \
-                    sha256  940c8aa6d4167c3c0b6f5f1f5d8eaa440c0c7529185e4a18e686bbba6024f43e \
-                    size    600917352 \
-                    texlive-fonts-extra-54583-doc.tar.xz \
-                    rmd160  27a3bab7533548f7031a84714c005a7057f36dd2 \
-                    sha256  89acae1c98e477d23f326dd468359ec77b56f2ccac7c9f571e2b4684ffef8880 \
-                    size    97007456 \
-                    texlive-fonts-extra-54583-src.tar.xz \
-                    rmd160  9ed970b2ffc4a80e92c7e853f61bc9ebf77d32fe \
-                    sha256  0da96e80e2e29a2d6d16b718341cba4ded06703d3a4d01548bce1c2f051b8f42 \
-                    size    7711100
+checksums           texlive-fonts-extra-66328-run.tar.xz \
+                    rmd160  931c44dae747326ebd87ea88e19d36c1c8e5c1fd \
+                    sha256  df33d3afd83776bf1646b233814d7559f61ec12f895e2a9073121508fb9a7852 \
+                    size    727420344 \
+                    texlive-fonts-extra-66328-doc.tar.xz \
+                    rmd160  4f6e1ca54839cc2b71aa7b316e39dd7d2cd484db \
+                    sha256  169b0fb362a6d70ae0895e73bba7ab57ed2b2ac05948078775ed2421041f2522 \
+                    size    172897120 \
+                    texlive-fonts-extra-66328-src.tar.xz \
+                    rmd160  8db03e984d939a4f51052ad35b60a005ac55d6c7 \
+                    sha256  479767f70e3e4e86d2e50db33bbb5d4f7ec3e24601fd1fcbc4f62b578fec7710 \
+                    size    9239036
 
 depends_lib         port:texlive-basic
 
@@ -33,25 +33,32 @@ texlive.maps      \
     {Map OrnementsADF.map} \
     {Map ArrowsADF.map} \
     {Map BulletsADF.map} \
+    {Map aesupp.map} \
     {Map Alegreya.map} \
+    {Map AlphaSlabOne.map} \
     {Map AlgolRevived.map} \
     {MixedMap allrunes.map} \
     {Map almendra.map} \
+    {Map andika.map} \
     {Map AnonymousPro.map} \
     {Map uaq.map} \
     {Map antt.map} \
     {Map archaicprw.map} \
+    {Map ArchivZero.map} \
     {Map arev.map} \
     {Map arimo.map} \
+    {Map Arvo.map} \
     {Map ascii.map} \
     {Map aspectratio.map} \
+    {Map atkinson.map} \
     {Map augie.map} \
     {Map auncial.map} \
     {Map aurical.map} \
     {Map ybv.map} \
-    {Map baskervaldx.map} \
+    {Map Baskervaldx.map} \
     {Map BaskervilleF.map} \
     {MixedMap bbold.map} \
+    {Map bboldx.map} \
     {Map belleek.map} \
     {Map bera.map} \
     {Map ybd.map} \
@@ -67,13 +74,16 @@ texlive.maps      \
     {Map cantarell.map} \
     {Map carlito.map} \
     {Map cmin.map} \
+    {Map CascadiaCodThree.map} \
     {Map ccicons.map} \
     {Map clm.map} \
+    {Map charssil.map} \
     {Map Chivo.map} \
     {Map cinzel.map} \
     {Map Clara.map} \
     {Map ClearSans.map} \
     {Map cm-lgc.map} \
+    {Map cmathbb.map} \
     {Map cmexb.map} \
     {MixedMap cmll.map} \
     {Map cmsrb.map} \
@@ -83,8 +93,10 @@ texlive.maps      \
     {Map comfortaa.map} \
     {Map ComicNeue.map} \
     {Map ComicNeueAngular.map} \
+    {Map CooperHewitt.map} \
     {Map CormorantGaramond.map} \
     {Map countriesofeurope.map} \
+    {Map CourierOneZeroPitch.map} \
     {Map crimson.map} \
     {Map CrimsonPro.map} \
     {Map cuprum.map} \
@@ -118,9 +130,10 @@ texlive.maps      \
     {Map fontawesome.map} \
     {Map fontawesome5.map} \
     {Map forum.map} \
-    {Map fourier.map} \
     {Map fourier-utopia-expert.map} \
+    {Map fourier.map} \
     {Map frcursive.map} \
+    {Map GaramondLibre.map} \
     {Map gentium-type1.map} \
     {Map gfsartemisia.map} \
     {Map gfsbodoni.map} \
@@ -131,9 +144,12 @@ texlive.maps      \
     {Map gillius.map} \
     {Map go.map} \
     {Map ugq.map} \
+    {Map Gudea.map} \
     {Map hacm.map} \
     {Map Heuristica.map} \
     {MixedMap hfbright.map} \
+    {Map HindMadurai.map} \
+    {Map ibarra.map} \
     {Map imfellEnglish.map} \
     {Map zi4.map} \
     {Map Acorn.map} \
@@ -161,8 +177,10 @@ texlive.maps      \
     {Map Zallman.map} \
     {Map InriaSans.map} \
     {Map InriaSerif.map} \
+    {Map Inter.map} \
     {Map ipaex-type1.map} \
     {Map iwona.map} \
+    {Map josefin.map} \
     {Map Junicode.map} \
     {Map kpfonts.map} \
     {Map kurier.map} \
@@ -180,6 +198,7 @@ texlive.maps      \
     {Map LinguisticsPro.map} \
     {Map LobsterTwo.map} \
     {MixedMap lxfonts.map} \
+    {Map Magra.map} \
     {Map marcellus.map} \
     {Map mathabx.map} \
     {Map mdbch.map} \
@@ -193,6 +212,7 @@ texlive.maps      \
     {Map merriweather.map} \
     {Map miama.map} \
     {Map mintspirit.map} \
+    {Map mlm.map} \
     {Map MnSymbol.map} \
     {Map Montserrat.map} \
     {Map newpx.map} \
@@ -202,21 +222,25 @@ texlive.maps      \
     {Map niceframe.map} \
     {Map nimbus15.map} \
     {Map noto.map} \
+    {Map NotoMath.map} \
+    {Map Nunito.map} \
     {Map cherokee.map} \
     {Map ocrb.map} \
     {Map oinuit.map} \
     {Map oasy.map} \
     {Map OldStandard.map} \
     {Map opensans.map} \
+    {Map Zeroswald.map} \
     {Map overlock.map} \
     {Map paratype-type1.map} \
     {Map phaistos.map} \
     {MixedMap pigpen.map} \
     {Map PlayfairDisplay.map} \
     {Map plex.map} \
+    {Map plimsoll.map} \
+    {Map PoiretOne.map} \
     {Map ap.map} \
     {Map prodint.map} \
-    {Map pxtx.map} \
     {Map quattrocento.map} \
     {Map Raleway.map} \
     {Map recycle.map} \
@@ -228,12 +252,16 @@ texlive.maps      \
     {Map sansmathfonts.map} \
     {Map ScholaX.map} \
     {MixedMap semaf.map} \
+    {Map simpleicons.map} \
     {Map SourceCodePro.map} \
     {Map SourceSansPro.map} \
     {Map SourceSerifPro.map} \
+    {Map spectral.map} \
+    {Map srbtiks.map} \
     {Map starfont.map} \
     {Map icelandic.map} \
     {Map STEP.map} \
+    {Map STEPGreekTest.map} \
     {Map SticksTooText.map} \
     {Map stix.map} \
     {Map stix2.map} \

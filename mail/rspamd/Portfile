@@ -4,72 +4,91 @@ PortSystem          1.0
 PortGroup           cmake 1.1
 PortGroup           compiler_blacklist_versions 1.0
 PortGroup           github 1.0
+PortGroup           legacysupport 1.1
 
-github.setup        rspamd rspamd 2.6
+github.setup        rspamd rspamd 3.7.5
 revision            0
-
 categories          mail
 license             BSD
 maintainers         nomaintainer
-platforms           darwin
 license             Apache-2
 homepage            https://rspamd.com
+github.tarball_from archive
 
-description         Rspamd filtering system is created as a \
-                    replacement of popular spamassassin spamd and is \
-                    designed to be fast, modular and easily extendable \
-                    system.
-long_description    ${description} Rspamd core is written in C \
-                    language using event driven\ paradigma. Plugins \
-                    for rspamd can be written in lua. Rspamd is \
-                    designed to\ process connections completely \
-                    asynchronous and do not block anywhere in code.
+description         Rapid spam filtering system.
+long_description    Rspamd is an advanced spam filtering system and \
+                    email processing framework that allows evaluation \
+                    of messages by a number of rules including regular \
+                    expressions, statistical analysis and custom \
+                    services such as URL black lists. Each message is \
+                    analysed by Rspamd and given a verdict that might \
+                    be used by MTA for further processing (e.g. to \
+                    reject a message, or add a special header \
+                    indicating spam) along with other information, \
+                    such as possible DKIM signature or modifications \
+                    suggested for a message. Rspamd can act as a \
+                    Milter allowing direct interaction with popular \
+                    MTA systems, such as Postfix or Sendmail. Rspamd \
+                    is designed to process hundreds of messages per \
+                    second simultaneously, and provides a number of \
+                    useful features including a comprehensive Lua API \
+                    that allows access to messages processing in \
+                    various aspects as well as asynchronous network \
+                    API to access external resources, such as DNS, \
+                    HTTP or even generic TCP/UDP services.
 
-checksums           rmd160  924da1ca84e6ae4e3c4e482bdcd8db45484a3ec1 \
-                    sha256  8ca3b2ec812adf4b6f3f8354f64520b54e04f509eb62443cd10819c51dc5cc69 \
-                    size    5080385
+checksums           rmd160  3ad5711028976602d1a2e5337b00806170f32596 \
+                    sha256  3fba8b0086fe68ac16146cfc25cfcff352bff52fa5cef7d277007ed008170330 \
+                    size    5903689
+
+# legacysupport needed for open_memstream and fmemopen, on 10.12 and earlier
+legacysupport.newest_darwin_requires_legacy 16
+legacysupport.use_mp_libcxx                 yes
 
 depends_build-append \
                     port:pkgconfig
 
-depends_lib-append  \
-                    port:fann \
+depends_lib-append  port:fann \
                     port:gd2 \
                     path:lib/pkgconfig/glib-2.0.pc:glib2 \
                     port:gmime \
                     port:hyperscan \
-                    port:icu \
+                    path:lib/pkgconfig/icu-uc.pc:icu \
                     port:libevent \
                     port:libmagic \
                     port:libsodium \
                     port:libstemmer \
                     port:libunwind \
                     port:lua \
-                    port:luajit \
+                    path:lib/libluajit-5.1.2.dylib:luajit \
                     path:lib/libopenblas.dylib:OpenBLAS \
                     path:lib/libssl.dylib:openssl \
+                    port:pcre2 \
                     port:perl5 \
                     port:ragel \
                     port:sqlite3 \
-                    port:zlib
+                    port:xxhashlib \
+                    port:zlib \
+                    port:zstd
 
-depends_run-append \
-                    port:hiredis \
+depends_run-append  port:hiredis \
                     port:redis
 
-# fatal error: error in backend: Cannot select: intrinsic %llvm.x86.aesni.aesenclast
-compiler.blacklist  {clang < 800}
+# Match requirements of dependency hyperscan.
+supported_archs     x86_64
 
-# Critical dependency note: port:pcre and port:pcre2 break the rspamd binary;
-# use native /usr/lib/libpcre.dylib.  See https://github.com/rspamd/rspamd/issues/2884
-# Do not use the library provided by port:pcre without pcre jit debugging
-# Do not use -DENABLE_PCRE2=ON without pcre jit debugging
-# # depends_build-append  port:pcre
-# # depends_build-append  port:pcre2
+compiler.cxx_standard 2020
+# MacPorts base 2.8.1 doesn't yet know about C++20.
+compiler.blacklist  {clang < 1103}
+
+# Previous issue note; see https://github.com/rspamd/rspamd/issues/2884
+# For issues with -DENABLE_PCRE2=ON, enable pcre jit debugging
 
 set rspamd_user     _rspamd
 set rspamd_group    ${rspamd_user}
-add_users ${rspamd_user} group=${rspamd_group} realname=Rspamd
+add_users           ${rspamd_user} \
+                    group=${rspamd_group} \
+                    realname=Rspamd
 
 libpath             ${prefix}/var/lib/${name}
 
@@ -77,37 +96,36 @@ libpath             ${prefix}/var/lib/${name}
 # See https://github.com/rspamd/rspamd/issues/2883
 cmake.set_osx_architectures no
 
+# Remove after this issue addressed:
+# https://github.com/rspamd/rspamd/issues/4752
+## diff -NaurdwB ./rspamd-orig ./rspamd-new | sed -E -e 's/\.\/.+-(orig|new)/\./' | sed -E -e 's|/opt/local|@@PREFIX@@|g' > patch-BackwardConfig_cmake.diff
+patchfiles-append   patch-BackwardConfig_cmake.diff
+
+
 # Reference: https://github.com/rspamd/rspamd/blob/master/CMakeLists.txt
 # Also see https://github.com/rspamd/rspamd/issues/2884
 configure.args-append \
-    -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-    -DCMAKE_INSTALL_PREFIX=${prefix} \
-    -DCONFDIR=${prefix}/etc/${name} \
-    -DDBDIR=${prefix}/var/lib/${name} \
-    -DENABLE_FANN=ON \
-    -DENABLE_GD=ON \
-    -DENABLE_HYPERSCAN=ON \
-    -DENABLE_LIBUNWIND=ON \
-    -DENABLE_LUAJIT=ON \
-    -DENABLE_SNOWBALL=ON \
-    -DENABLE_TORCH=ON \
-    -DINSTALL_EXAMPLES=ON \
-    -DLIBDIR=${prefix}/lib \
-    -DLOGDIR=${prefix}/var/log/${name} \
-    -DMANDIR=${prefix}/share/man \
-    -DNO_SHARED=ON \
-    -DPCRE_ROOT_DIR=/usr/lib \
-    -DRSPAMD_USER=${rspamd_user} \
-    -DRUNDIR=${prefix}/var/run/${name}
-
-# Critical dependency note: port:pcre and port:pcre2 break the rspamd binary;
-# use native /usr/lib/libpcre.dylib.  See https://github.com/rspamd/rspamd/issues/2884
-configure.args-append \
-    -DPCRE_ROOT_DIR=/usr/lib
-
-# Do not use -DENABLE_PCRE2=ON without pcre jit debugging
-# # configure.args-append \
-# #     -DENABLE_PCRE2=ON
+                    -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+                    -DCMAKE_INSTALL_PREFIX=${prefix} \
+                    -DCONFDIR=${prefix}/etc/${name} \
+                    -DDBDIR=${prefix}/var/lib/${name} \
+                    -DENABLE_FANN=ON \
+                    -DENABLE_GD=ON \
+                    -DENABLE_HYPERSCAN=ON \
+                    -DENABLE_LIBUNWIND=ON \
+                    -DENABLE_LUAJIT=ON \
+                    -DENABLE_PCRE2=ON \
+                    -DENABLE_SNOWBALL=ON \
+                    -DENABLE_TORCH=ON \
+                    -DINSTALL_EXAMPLES=ON \
+                    -DLIBDIR=${prefix}/lib \
+                    -DLOGDIR=${prefix}/var/log/${name} \
+                    -DMANDIR=${prefix}/share/man \
+                    -DNO_SHARED=ON \
+                    -DRSPAMD_USER=${rspamd_user} \
+                    -DRUNDIR=${prefix}/var/run/${name} \
+                    -DSYSTEM_XXHASH=ON \
+                    -DSYSTEM_ZSTD=ON
 
 # Build with -DENABLE_FULL_DEBUG=ON
 # configure.args-append \
@@ -118,32 +136,38 @@ test.target         run-test
 
 post-destroot {
     # create default directories
-    xinstall -o ${rspamd_user} -g ${rspamd_group} -m 0755 -d ${destroot}${prefix}/var/lib/${name}
-    xinstall -m 0755 -d ${destroot}${prefix}/share/doc/${name}
-    xinstall -o ${rspamd_user} -g ${rspamd_group} -m 0755 -d ${destroot}${prefix}/etc/${name}
-    xinstall -o ${rspamd_user} -g ${rspamd_group} -m 0755 -d ${destroot}${prefix}/var/run/${name}
-    xinstall -o ${rspamd_user} -g ${rspamd_group} -m 0755 -d ${destroot}${prefix}/var/log/${name}
+    xinstall -o ${rspamd_user} -g ${rspamd_group} -m 0755 -d \
+                    ${destroot}${prefix}/var/lib/${name}
+    xinstall -d     ${destroot}${prefix}/share/doc/${name}
+    xinstall -o ${rspamd_user} -g ${rspamd_group} -m 0755 -d \
+                    ${destroot}${prefix}/etc/${name}
+    xinstall -o ${rspamd_user} -g ${rspamd_group} -m 0755 -d \
+                    ${destroot}${prefix}/var/run/${name}
+    xinstall -o ${rspamd_user} -g ${rspamd_group} -m 0755 -d \
+                    ${destroot}${prefix}/var/log/${name}
 
     set docdir ${prefix}/share/doc/${name}
     xinstall -m 0755 -d ${destroot}${docdir}
-    xinstall -m 0444 -W ${worksrcpath} ChangeLog LICENSE.md README.md ${destroot}${docdir}
+    xinstall -m 0444 -W ${worksrcpath} ChangeLog LICENSE.md README.md \
+                    ${destroot}${docdir}
 
     # install the man pages
-    xinstall -m 0644 -W ${worksrcpath}/doc rspamadm.1 rspamc.1 ${destroot}${prefix}/share/man/man1
-    xinstall -m 0644 -W ${worksrcpath}/doc rspamd.8 ${destroot}${prefix}/share/man/man8
+    xinstall -m 0644 -W ${worksrcpath}/doc rspamadm.1 rspamc.1 \
+                    ${destroot}${prefix}/share/man/man1
+    xinstall -m 0644 -W ${worksrcpath}/doc rspamd.8 \
+                    ${destroot}${prefix}/share/man/man8
 }
 
 startupitem.create  yes
 startupitem.executable \
-    ${prefix}/bin/rspamd \
-    -u ${rspamd_user} \
-    -g ${rspamd_group} \
-    -f \
-    -c ${prefix}/etc/rspamd/rspamd.conf
+                    ${prefix}/bin/rspamd \
+                    -u ${rspamd_user} \
+                    -g ${rspamd_group} \
+                    -f \
+                    -c ${prefix}/etc/rspamd/rspamd.conf
 
-destroot.keepdirs \
-    ${destroot}${prefix}/etc/${name} \
-    ${destroot}${prefix}/var/run/${name} \
-    ${destroot}${prefix}/var/lib/${name} \
-    ${destroot}${prefix}/var/log/${name} \
-    ${destroot}${prefix}/share/doc/${name}
+destroot.keepdirs   ${destroot}${prefix}/etc/${name} \
+                    ${destroot}${prefix}/var/run/${name} \
+                    ${destroot}${prefix}/var/lib/${name} \
+                    ${destroot}${prefix}/var/log/${name} \
+                    ${destroot}${prefix}/share/doc/${name}

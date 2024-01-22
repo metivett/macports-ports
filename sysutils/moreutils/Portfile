@@ -2,10 +2,11 @@
 
 PortSystem              1.0
 PortGroup               legacysupport 1.0
+PortGroup               perl5 1.0
 
 name                    moreutils
 conflicts               ts
-version                 0.65
+version                 0.68
 revision                0
 categories              sysutils
 platforms               darwin
@@ -30,25 +31,24 @@ long_description        moreutils includes the following utilities: \
                         \n- vipe: insert a text editor into a pipe \
                         \n- zrun: automatically uncompress arguments to command
 
-homepage                http://joeyh.name/code/moreutils
-master_sites            freebsd
+homepage                https://joeyh.name/code/moreutils
+master_sites            https://git.joeyh.name/index.cgi/moreutils.git/snapshot
 
-checksums               rmd160  19864d86e9dbcdf13daf04e39bb54cdb09d920ca \
-                        sha256  60c9f6b55204e64cfcd12fd66e75cf7a061b6761f3d5b7797f2452cb17598881 \
-                        size    93180
+checksums               rmd160  5e3f32f1bcc8748d58af11caa8b99e63d5c13f3d \
+                       sha256  5eb14bc7bc1407743478ebdbd83772bf3b927fd949136a2fbbde96fa6000b6e7 \
+                       size    93732
 
-# set pbranch to desired perl version
-set pbranch             5.28
+perl5.major             5.34
 
-depends_run             port:perl${pbranch} \
-                        port:p${pbranch}-ipc-run \
-                        port:p${pbranch}-timedate \
-                        port:p${pbranch}-time-duration
+depends_run             port:perl${perl5.major} \
+                        port:p${perl5.major}-ipc-run \
+                        port:p${perl5.major}-timedate \
+                        port:p${perl5.major}-time-duration
 
 patchfiles              patch-Makefile.diff
 
 post-patch {
-    reinplace "s|/usr/bin/perl|${prefix}/bin/perl${pbranch}|" \
+    reinplace "s|/usr/bin/perl|${perl5.bin}|" \
         ${worksrcpath}/vidir ${worksrcpath}/vipe \
         ${worksrcpath}/ts ${worksrcpath}/combine \
         ${worksrcpath}/zrun ${worksrcpath}/chronic

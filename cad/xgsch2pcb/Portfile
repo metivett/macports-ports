@@ -16,7 +16,7 @@ long_description    xgsch2pcb provides an intuitive, user-friendly graphical int
                     creating new projects.
 
 homepage            http://wiki.geda-project.org/geda:download
-platforms           darwin
+platforms           {darwin any}
 supported_archs     noarch
 # upstream download site no longer available
 # use macports distfile mirrors instead
@@ -26,7 +26,7 @@ checksums           md5     caf84bc0f17b75a2984fea2a64fc2c81 \
 distname            geda-${name}-${version}
 depends_build       port:intltool
 depends_lib         port:desktop-file-utils \
-                    port:gtk2 \
+                    path:lib/pkgconfig/gtk+-2.0.pc:gtk2 \
                     port:pcb \
                     port:py27-pygtk \
                     port:dbus-python27

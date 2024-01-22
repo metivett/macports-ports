@@ -2,10 +2,10 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-SDL2
-version             0.9.7
+version             0.9.16
 categories-append   devel multimedia
 license             public-domain
-platforms           darwin
+platforms           {darwin any}
 supported_archs     noarch
 maintainers         {jmr @jmroot} openmaintainer
 description         a python wrapper around the SDL2 library
@@ -17,19 +17,22 @@ long_description \
 python.rootname     PySDL2
 homepage            https://pypi.org/project/${python.rootname}
 
-checksums           md5 e77e9c15589e15b6c877555f34a429ab \
-                    rmd160 e42e56957064a05ccfbbc133dc6615aae05e97bd \
-                    sha256 e4fcc8aa1108e4917cb56794575ee08c2a3d9c2c52620474e3ecc8538dadf209
+checksums           md5 b497f7f3562b665eb7c2c418ce701f5c \
+                    rmd160 acfb33680442d60226d0cdb97bb0fed26c636b94 \
+                    sha256 1027406badbecdd30fe56e800a5a76ad7d7271a3aec0b7acf780ee26a00f2d40
 
-python.versions     27 34 35 36 37 38 39
+python.versions     27 37 38 39 310 311 312
 
 if {$subport ne $name} {
-    # setuptools dep added after 0.9.7 tagged; possible mistake?
     depends_build       port:py${python.version}-setuptools
     depends_lib-append  port:libsdl2 \
                         port:libsdl2_image \
                         port:libsdl2_mixer \
                         port:libsdl2_ttf
+
+    if {${python.version} >= 36} {
+        python.pep517   yes
+    }
 
     patchfiles          dll.py.patch
     post-patch {

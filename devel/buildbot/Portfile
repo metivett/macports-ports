@@ -4,17 +4,18 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                buildbot
-version             2.8.4
+version             3.10.1
 revision            0
-checksums           rmd160  1330d1e0637b1142e012bda7c45cc3aeb919b798 \
-                    sha256  1bb314f29546b7973de0fb575868d8c2e570bdfe80463244f6627aac615f5a44 \
-                    size    3134447
+checksums           rmd160  e820a850aba7e6f43026a9bcb7207e9a38c1585f \
+                    sha256  fc9e235a821910e6d264ac34e086fa87802f26d7cdc33c28cd1bbe8057a4d439 \
+                    size    2520857
 
 categories          devel
-platforms           darwin
-maintainers         {ryandesign @ryandesign} {rajdeep @rajdeepbharati} {mojca @mojca} openmaintainer
+maintainers         {ryandesign @ryandesign} {rajdeep @rajdeepbh} {mojca @mojca} openmaintainer
 license             GPL-2
 supported_archs     noarch
+platforms           {darwin any}
+conflicts           buildbot-0.8
 
 description         buildmaster for Buildbot continuous integration system
 
@@ -25,15 +26,18 @@ long_description    Buildbot is a system to automate the compile/test \
 
 homepage            https://buildbot.net
 
+# Can't update to 311 due to missing dependency:
+# https://trac.macports.org/ticket/67849
 python.default_version \
-                    38
+                    310
 
 if {${subport} eq ${name}} {
 
 depends_build-append \
                     port:py${python.version}-setuptools
 
-depends_run-append  port:py${python.version}-autobahn \
+depends_run-append  port:py${python.version}-alembic \
+                    port:py${python.version}-autobahn \
                     port:py${python.version}-dateutil \
                     port:py${python.version}-jinja2 \
                     port:py${python.version}-jwt \
@@ -84,27 +88,20 @@ post-destroot {
         ${destroot}${sharedir}
 }
 
-variant console requires www description {Include console view web UI plugin} {
+variant angularjs description {Include old AngularJS-based web UI server} {
     depends_run-append \
-                    port:buildbot-console-view
-}
-
-variant grid requires www description {Include grid view web UI plugin} {
-    depends_run-append \
-                    port:buildbot-grid-view
-}
-
-variant waterfall requires www description {Include waterfall view web UI plugin} {
-    depends_run-append \
-                    port:buildbot-waterfall-view
-}
-
-variant www description {Include web UI server} {
-    depends_run-append \
+                    port:buildbot-console-view \
+                    port:buildbot-grid-view \
+                    port:buildbot-waterfall-view \
                     port:buildbot-www
 }
 
-default_variants    +console +grid +waterfall +www
+variant react description {Include new React-based web UI server} {
+    depends_run-append \
+                    port:buildbot-www-react
+}
+
+default_variants    +angularjs +react
 
 notes "
 An example launchd plist file is available in ${sharedir}. After you have\
@@ -115,20 +112,4 @@ launchd to run it with:
 sudo launchctl load -w /Library/LaunchDaemons/your.plist.name
 "
 
-}
-
-# These obsolete subports can be removed after August 2021.
-set old_subports [list ${name}-2 py-${name} py38-${name}]
-foreach old_subport ${old_subports} {
-    subport ${old_subport} {
-        PortGroup   obsolete 1.0
-        replaced_by ${name}
-    }
-}
-pre-activate {
-    foreach old_subport ${old_subports} {
-        if {![catch {set installed [lindex [registry_active ${old_subport}] 0]}]} {
-            registry_deactivate_composite ${old_subport} {} [list ports_nodepcheck 1]
-        }
-    }
 }

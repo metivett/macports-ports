@@ -4,48 +4,46 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-websocket-client
-version             0.56.0
+version             1.7.0
 revision            0
 
 categories-append   devel
-platforms           darwin
 supported_archs     noarch
+platforms           {darwin any}
 license             LGPL-2.1
 maintainers         nomaintainer
 
-description         websocket client for python
-long_description    websocket-client module is WebSocket client for python
+description         WebSocket client for Python with low level API options
+long_description    websocket-client is a WebSocket client for Python. It provides \
+                    access to low level APIs for WebSockets. websocket-client implements \
+                    version hybi-13 of the WebSocket procotol. This client does not currently \
+                    support the permessage-deflate extension from RFC 7692.
 
-homepage            https://github.com/websocket-client/websocket-client
-master_sites        pypi:w/${python.rootname}
-distname            websocket_client-${version}
+homepage            https://websocket-client.readthedocs.io/
 
-checksums           rmd160  9c9a12d55de6300790cab77e0fdc614f27180ebd \
-                    sha256  1fd5520878b68b84b5748bb30e592b10d0a91529d5383f74f4964e72b297fd3a \
-                    size    36951
+checksums           rmd160  015286c02db6b11cf8a9675bb494a95566466afc \
+                    sha256  10e511ea3a8c744631d3bd77e61eb17ed09304c413ad42cf6ddfa4c7787e8fe6 \
+                    size    54037
 
-python.versions     27 35 36 37 38
+python.versions     37 38 39 310 311 312
 
 if {${subport} ne ${name}} {
     depends_build-append \
                     port:py${python.version}-setuptools
 
-    depends_lib-append \
-                    port:py${python.version}-six
+    depends_test-append \
+                    port:py${python.version}-pytest \
+                    port:py${python.version}-socks
 
-    if {${python.version} eq 27} {
-        depends_test-append \
-                    port:py${python.version}-backports-ssl_match_hostname
-    }
     test.run        yes
-    test.env        TEST_WITH_INTERNET=1
+    test.cmd        py.test-${python.branch}
+    test.args       -vrP
+    test.target
 
     post-destroot {
         set docdir ${prefix}/share/doc/${subport}
         xinstall -d ${destroot}${docdir}
-        xinstall -m 0644 -W ${worksrcpath} README.rst LICENSE \
+        xinstall -m 0644 -W ${worksrcpath} README.md LICENSE \
             ChangeLog ${destroot}${docdir}
     }
-
-    livecheck.type  none
 }

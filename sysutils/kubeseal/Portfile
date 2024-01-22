@@ -3,34 +3,40 @@
 PortSystem          1.0
 PortGroup           golang 1.0
 
-go.setup            github.com/bitnami-labs/sealed-secrets 0.15.0 v
+go.setup            github.com/bitnami-labs/sealed-secrets 0.25.0 v
+go.offline_build    no
+github.tarball_from archive
 name                kubeseal
 revision            0
-
-categories          sysutils security
-platforms           darwin
-supported_archs     x86_64
-license             Apache-2
 
 description         Kubernetes tool for one-way encrypted Secrets
 long_description    CLI for {*}${description}
 
+categories          sysutils security
+installs_libs       no
+license             Apache-2
 maintainers         @tux-o-matic \
                     {gmail.com:herby.gillot @herbygillot} \
                     openmaintainer
 
-# Allow fetching deps at build time
-build.env-delete    GO111MODULE=off GOPROXY=off
+checksums           rmd160  3860ce39a98b7b812c5940e2d53a33b091d915c9 \
+                    sha256  15a08f29ee96fd1f88143529d02a5a767480095363338a843211bfa40a55fab3 \
+                    size    1316498
 
-build.pre_args      -ldflags \"-X main.VERSION=${version}\"
-build.args          ./cmd/${name}
+build.cmd           make
+build.target        ${name}
 
-checksums           rmd160  8d86e6e077a90d48bff326e8e9907f0828fb9ab7 \
-                    sha256  de9f1cc253942b5dc730f4b0f7291e4011822d12bae4921d4f6d50ab058ba9a9 \
-                    size    6523570
+use_parallel_build  no
 
-destroot {
-    xinstall -m 0755 ${worksrcpath}/kubeseal ${destroot}${prefix}/bin/kubeseal
+patch {
+    reinplace \
+        "s|^TAG = .*|TAG = ${github.tag_prefix}${version}|" \
+        ${worksrcpath}/Makefile
 }
 
-github.livecheck.regex  {([\d.]+)}
+destroot {
+    xinstall -m 0755 ${worksrcpath}/${name} ${destroot}${prefix}/bin/
+}
+
+github.livecheck.regex \
+                    {([\d.]+)}

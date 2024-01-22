@@ -3,11 +3,18 @@
 PortSystem          1.0
 PortGroup           github 1.0
 PortGroup           cmake 1.1
+PortGroup           legacysupport 1.1
 
-github.setup        rizsotto Bear 2.4.4
-checksums           rmd160  9a1ce3fd173b1d9a905844cef69f7a57c3b55464 \
-                    sha256  e9cb11c75c0cb621650ebfe0d84929286b144d4e6ab5aa4a996f24efd3fd9474 \
-                    size    50384
+# Needed for clock_gettime, std::filesystem
+legacysupport.newest_darwin_requires_legacy 19
+legacysupport.use_mp_libcxx                 yes
+
+github.setup        rizsotto Bear 3.1.3
+revision            0
+
+checksums           rmd160  909b90269b3528c4960a634c47b76a534e389a87 \
+                    sha256  389a5251a835cd156fad4f4e598d0bf8c66783a0d5835eba7f113ab5f26637f5 \
+                    size    127777
 
 maintainers         {cal @neverpanic} openmaintainer
 license             GPL-3+
@@ -22,9 +29,26 @@ long_description    {*}${description} \
     available then it is easy to re-run the compilation with different \
     programs.
 
-depends_lib-append  port:python38
+patchfiles          patch-spdlog-header-only.diff
 
-post-patch {
-    reinplace "s|/usr/bin/env @BEAR_PYTHON_EXECUTABLE@|${prefix}/bin/python3.8|g" \
-        ${worksrcpath}/bear/bear.py
-}
+set port_libfmt     libfmt9
+cmake.module_path-append \
+                    ${prefix}/lib/${port_libfmt}/cmake
+
+# Cxx 2017 needed, as of latest 3.1.x releases
+compiler.cxx_standard 2017
+
+depends_build-append \
+                    port:pkgconfig \
+                    port:spdlog \
+                    port:nlohmann-json \
+
+depends_lib-append  port:abseil \
+                    port:grpc \
+                    port:${port_libfmt} \
+                    port:protobuf3-cpp \
+                    port:re2
+
+configure.args-append \
+                    -DENABLE_UNIT_TESTS=Off \
+                    -DENABLE_FUNC_TESTS=Off

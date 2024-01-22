@@ -2,11 +2,11 @@
 
 PortSystem 1.0
 PortGroup       compiler_blacklist_versions 1.0
+PortGroup       muniversal 1.1
 
 name            grep
-version         3.6
+version         3.11
 revision        0
-platforms       darwin
 categories      sysutils
 license         GPL-3+
 installs_libs   no
@@ -16,13 +16,20 @@ long_description \
     Grep searches one or more input files for lines containing a match  \
     to a specified pattern. By default, grep prints the matching lines.
 homepage        https://www.gnu.org/software/grep/grep.html
-platforms       darwin
 master_sites    gnu
 use_xz          yes
 
-checksums       rmd160  fde111b6def6f56287565c055591f6b689390764 \
-                sha256  667e15e8afe189e93f9f21a7cd3a7b3f776202f417330b248c2ad4f997d9373e \
-                size    1589412
+checksums       rmd160  542c01270e5d80d08d6ab700beebec81ac12c3c9 \
+                sha256  1db2aedde89d0dea42b16d9528f894c8d15dae4e190b59aecc78f5a951276eab \
+                size    1703776
+
+post-patch {
+    # https://trac.macports.org/ticket/63381
+    platform darwin 8 {
+        reinplace "s|__ss.__r1|ss.r1|" lib/sigsegv.c
+        reinplace "s|__ss.__esp|ss.esp|" lib/sigsegv.c
+    }
+}
 
 # error: type name requires a specifier or qualifier
 # error: expected member name or ';' after declaration specifiers
@@ -33,10 +40,36 @@ compiler.blacklist {clang < 500}
 configure.env   PATH=/usr/bin:$env(PATH)
 
 configure.args  --disable-silent-rules \
-                --program-prefix=g \
-                ac_cv_libsigsegv=no
+                --program-prefix=g
 
-depends_lib     port:pcre port:gettext
+# error: this system appears to support timestamps after mid-January 2038,
+# but no mechanism for enabling wide 'time_t' was detected.
+configure.args.i386-append  --disable-year2038
+configure.args.ppc-append   --disable-year2038
+
+platform darwin 8 {
+    # Work around some /usr/include/sys/signal.h brokenness
+    configure.cflags-append -D_MCONTEXT64_T -D_UCONTEXT64_T
+}
+
+depends_build   port:gettext
+
+depends_lib     port:gettext-runtime \
+                port:pcre2
+
+configure.checks.implicit_function_declaration.whitelist-append \
+                __fpending \
+                MIN \
+                strchr \
+                unreachable
+
+# Fix for Rosetta: https://trac.macports.org/ticket/64497
+platform darwin 10 {
+    if {${build_arch} eq "ppc"} {
+        configure.args-append \
+                --build=powerpc-apple-darwin${os.major}
+    }
+}
 
 pre-test {
     reinplace "s|base64 -d|base64 --decode|g" ${worksrcpath}/tests/pcre-jitstack
@@ -61,8 +94,7 @@ variant libsigsegv description {Use libsigsegv} {
     depends_lib-append \
                 port:libsigsegv
 
-    configure.args-delete \
-                ac_cv_libsigsegv=no
+    configure.args-append   --with-libsigsegv
 }
 
 notes "

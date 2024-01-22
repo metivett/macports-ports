@@ -4,13 +4,14 @@ PortSystem          1.0
 PortGroup           python 1.0
 PortGroup           github 1.0
 
-github.setup        theskumar python-dotenv 0.13.0 v
+github.setup        theskumar python-dotenv 1.0.0 v
+github.tarball_from archive
 revision            0
 
 name                py-python-dotenv
 categories-append   devel
-platforms           darwin
 supported_archs     noarch
+platforms           {darwin any}
 license             BSD
 maintainers         {emcrisostomo @emcrisostomo} \
                     openmaintainer
@@ -21,11 +22,11 @@ long_description    $description \
                     environment variable. It is great for managing app settings \
                     during development and in production using 12-factor principles.
 
-checksums           rmd160  3a8e233b56505f2082e8824891792491c446aeb2 \
-                    sha256  ec60416200b606f91e1f953785f89f3cc5a342eff04132ed453fcf7476a4ea31 \
-                    size    21006
+checksums           rmd160  bb5dad62bb6f59198fa04b004d211e053d16bb85 \
+                    sha256  93fc54524656990bc9911ab224c991457cd8f39364c48cded2f1c4cb3846c0ac \
+                    size    24730
 
-python.versions     27 35 36 37 38
+python.versions     37 38 39 310 311 312
 
 if {${subport} ne ${name}} {
     depends_build-append \
@@ -34,11 +35,30 @@ if {${subport} ne ${name}} {
     depends_lib-append  \
                     port:py${python.version}-click
 
+    if {${python.version} < 38} {
+        depends_lib-append  \
+                    port:py${python.version}-importlib-metadata
+    }
+    if {${python.version} == 37 } {
+        github.setup        theskumar python-dotenv 0.21.1 v
+        revision            0
+
+        checksums           rmd160  bb5dad62bb6f59198fa04b004d211e053d16bb85 \
+                            sha256  93fc54524656990bc9911ab224c991457cd8f39364c48cded2f1c4cb3846c0ac \
+                            size    24730
+    }
+
+    # a few tests fail becuase the "dotenv" console_script hasn't been created yet...
+    depends_test-append \
+                    port:py${python.version}-ipython \
+                    port:py${python.version}-mock \
+                    port:py${python.version}-sh
+
+    test.run        yes
+
     post-destroot {
         xinstall -d ${destroot}${prefix}/share/doc/${subport}
         xinstall -m 0644 -W ${worksrcpath} CONTRIBUTING.md LICENSE \
             README.md ${destroot}${prefix}/share/doc/${subport}
     }
-
-    livecheck.type  none
 }

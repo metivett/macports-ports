@@ -18,28 +18,32 @@ default github.raw {https://raw.githubusercontent.com/${github.author}/${github.
 
 # Later code assumes that github.master_sites is a simple string, not a list.
 options github.master_sites
-default github.master_sites {${github.homepage}/tarball/${git.branch}}
+default github.master_sites {https://codeload.github.com/${github.author}/${github.project}/legacy.tar.gz/${git.branch}?dummy=}
 
 options github.tarball_from
 default github.tarball_from tarball
 option_proc github.tarball_from handle_tarball_from
 proc handle_tarball_from {option action args} {
-    global github.author github.project github.master_sites git.branch github.homepage
+    global extract.suffix git.branch github.author github.homepage github.master_sites github.project
 
     if {${action} eq "set"} {
         github.tarball_from ${args}
         switch ${args} {
             downloads {
                 github.master_sites https://github.com/downloads/${github.author}/${github.project}
+                default extract.rename no
             }
             releases {
                 github.master_sites ${github.homepage}/releases/download/${git.branch}
+                default extract.rename no
             }
             archive {
                 github.master_sites ${github.homepage}/archive/${git.branch}
+                default extract.rename {[expr {[llength ${extract.only}] == 1}]}
             }
             tarball {
-                github.master_sites ${github.homepage}/tarball/${git.branch}
+                github.master_sites https://codeload.github.com/${github.author}/${github.project}/legacy.tar.gz/${git.branch}?dummy=
+                default extract.rename {[expr {[llength ${extract.only}] == 1}]}
             }
             tags {
                 return -code error "the value \"tags\" is deprecated for github.tarball_from. Please use \"tarball\" instead."
@@ -58,8 +62,8 @@ options github.livecheck.regex
 default github.livecheck.regex {(\[^"]+)}
 
 proc github.setup {gh_author gh_project gh_version {gh_tag_prefix ""} {gh_tag_suffix ""}} {
-    global extract.suffix github.author github.project github.version github.tag_prefix github.tag_suffix
-    global github.homepage github.master_sites github.livecheck.branch PortInfo
+    global extract.suffix github.author github.project github.version github.tag_prefix github.tag_suffix \
+           github.homepage github.master_sites github.livecheck.branch PortInfo
 
     github.author           ${gh_author}
     github.project          ${gh_project}
@@ -67,7 +71,7 @@ proc github.setup {gh_author gh_project gh_version {gh_tag_prefix ""} {gh_tag_su
     github.tag_prefix       ${gh_tag_prefix}
     github.tag_suffix       ${gh_tag_suffix}
 
-    if {!([info exists PortInfo(name)] && (${PortInfo(name)} ne ${github.project}))} {
+    if {![info exists PortInfo(name)]} {
         name                ${github.project}
     }
 
@@ -78,29 +82,7 @@ proc github.setup {gh_author gh_project gh_version {gh_tag_prefix ""} {gh_tag_su
     default master_sites    {${github.master_sites}}
     distname                ${github.project}-${github.version}
 
-    post-extract {
-        # When fetching from a tag, the extracted directory name will contain a
-        # truncated commit hash. So that the port author need not specify what
-        # that hash is every time the version number changes, rename the
-        # directory to the value of distname (not worksrcdir: ports may want to
-        # set worksrcdir to a subdirectory of the extracted directory).
-        # It is assumed that github.master_sites is a simple string, not a list.
-        # Here be dragons.
-        if {![file exists ${worksrcpath}] && \
-                ${fetch.type} eq "standard" && \
-                ${github.master_sites} in ${master_sites} && \
-                [llength ${distfiles}] > 0 && \
-                [llength [glob -nocomplain ${workpath}/*]] > 0} {
-            if {[file exists [glob -nocomplain ${workpath}/${github.author}-${github.project}-*]] && \
-                [file isdirectory [glob -nocomplain ${workpath}/${github.author}-${github.project}-*]]} {
-                move [glob ${workpath}/${github.author}-${github.project}-*] ${workpath}/${distname}
-            } else {
-                # tarball is not "${github.author}-${github.project}-*"
-                ui_error "\n\ngithub PortGroup: Error: \${worksrcpath} does not exist after extracting distfiles. This might indicate that the author or project is different than set in the Portfile due to a rename at GitHub. Please examine the extracted directory in ${workpath} and try to correct the Portfile by either changing the author or project or adding the worksrcdir option with the correct directory name.\n"
-                return -code error "Unexpected github tarball extract."
-            }
-        }
-    }
+    default extract.rename  {[expr {[llength ${extract.only}] == 1}]}
 
     # If the version is composed entirely of hex characters, and is at least 7
     # characters long, and is not exactly 8 decimal digits (which might be a
@@ -117,7 +99,7 @@ proc github.setup {gh_author gh_project gh_version {gh_tag_prefix ""} {gh_tag_su
     } else {
         livecheck.type          regex
         default livecheck.url   {${github.homepage}/tags}
-        default livecheck.regex {[list archive/[join ${github.tag_prefix}][join ${github.livecheck.regex}][join ${github.tag_suffix}]\\.tar\\.gz]}
+        default livecheck.regex {[list archive/refs/tags/[quotemeta [join ${github.tag_prefix}]][join ${github.livecheck.regex}][quotemeta [join ${github.tag_suffix}]]\\.tar\\.gz]}
     }
     livecheck.version       ${github.version}
 }

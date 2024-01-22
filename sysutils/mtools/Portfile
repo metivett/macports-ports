@@ -4,11 +4,11 @@ PortSystem          1.0
 
 name                mtools
 conflicts           multimarkdown
-version             4.0.26
+version             4.0.43
 revision            0
-checksums           rmd160  0f128edfea32b95b858e3844f1b564c4c32411fe \
-                    sha256  d09cff66d7277ad36a7573fc3e9803bfa558cdda83baabaafbf7761317462283 \
-                    size    372666
+checksums           rmd160  5b5a3ab4def822ffda89a7c20990406d61268603 \
+                    sha256  997ffe4125a19de1fd433ed63f128f7d54bc1a5915f3cdb36da6491ef917f217 \
+                    size    383347
 
 categories          sysutils
 maintainers         {ryandesign @ryandesign} openmaintainer
@@ -17,12 +17,13 @@ description         MS-DOS disk access utilities
 long_description    Utilities to access MS-DOS disks from Unix without \
                     mounting them
 homepage            https://www.gnu.org/software/mtools
-platforms           darwin
 
 master_sites        gnu:mtools
 use_lzip            yes
 
 depends_lib         port:libiconv
+
+configure.checks.implicit_function_declaration.whitelist-append strchr
 
 configure.args      --without-x
 

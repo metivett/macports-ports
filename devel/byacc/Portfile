@@ -2,31 +2,31 @@
 
 PortSystem 1.0
 
-name             byacc
-version          20210109
-categories       devel
-maintainers      {toby @tobypeterson}
-license          public-domain
-description      Berkeley Yacc
+name            byacc
+version         20240109
+categories      devel
+maintainers     {toby @tobypeterson}
+license         public-domain
+description     Berkeley Yacc
 long_description \
-	Berkeley Yacc (byacc) is generally conceded to \
-	be the best yacc variant available. In contrast \
-	to bison, it is written to avoid dependencies \
-	upon a particular compiler.
-homepage         https://invisible-island.net/byacc/
-platforms        darwin
+    Berkeley Yacc (byacc) is generally conceded to \
+    be the best yacc variant available. In contrast \
+    to bison, it is written to avoid dependencies \
+    upon a particular compiler.
+homepage        https://invisible-island.net/byacc/
+platforms       darwin
 
-master_sites     ftp://ftp.invisible-island.net/pub/byacc/ \
-                 https://invisible-mirror.net/archives/byacc/
-extract.suffix   .tgz
+master_sites    https://invisible-island.net/archives/${name}/ \
+                https://invisible-mirror.net/archives/${name}/
+extract.suffix  .tgz
 
-checksums        rmd160 89e12c5f4439147faa7f14e229bd280e956c2c0c \
-                 sha256 9e7d7768587141e7784492615dfefc70a8e00410043b63901efedc1b50c19b97 \
-                 size   873282
+checksums       rmd160  fc2b09c2271fcf1a183bacb8a56cbfd8f51c8fc0 \
+                sha256  f2897779017189f1a94757705ef6f6e15dc9208ef079eea7f28abec577e08446 \
+                size    905961
 
-configure.args   --mandir=${prefix}/share/man \
-                 --program-prefix=b
+configure.args  --mandir=${prefix}/share/man \
+                --program-prefix=b
 
-livecheck.type   regex
-livecheck.url    [lindex ${master_sites} 0]
-livecheck.regex  byacc-(\[0-9\]+)
+livecheck.type  regex
+livecheck.url   [lindex ${master_sites} 0]
+livecheck.regex byacc-(\[0-9\]+)

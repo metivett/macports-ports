@@ -1,0 +1,48 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           python 1.0
+
+name                verde
+version             1.8.0
+revision            0
+categories-append   science
+license             BSD
+maintainers         {mps @Schamschula} openmaintainer
+description         Verde is a Python library for processing spatial data
+long_description    {*}${description} (bathymetry, geophysics surveys, etc) and \
+                    interpolating it on regular grids (i.e., gridding).
+supported_archs     noarch
+platforms           {darwin any}
+homepage            https://github.com/fatiando/verde
+
+checksums           rmd160  12dea203be9e1c61e459ac485cabc02243578393 \
+                    sha256  274d52f459e5e6f696bacab49b4630692825151c1b8a7be672bd89a95b48d0c2 \
+                    size    165682
+
+variant python38 conflicts python311 python39 python310 description {Use Python 3.8} {}
+variant python39 conflicts python311 python38 python310 description {Use Python 3.9} {}
+variant python310 conflicts python311 python38 python39 description {Use Python 3.10} {}
+variant python311 conflicts python38 python39 python310 description {Use Python 3.11} {}
+
+if {![variant_isset python38] && ![variant_isset python39] && ![variant_isset python310]} {
+    default_variants +python311
+}
+
+foreach pv {311 310 39 38} {
+    if {[variant_isset python${pv}]} {
+        python.default_version ${pv}
+        break
+    }
+}
+
+depends_build-append \
+                    port:py${python.version}-setuptools_scm
+
+depends_lib-append  port:py${python.version}-dask \
+                    port:py${python.version}-numpy \
+                    port:py${python.version}-pandas \
+                    port:py${python.version}-pooch \
+                    port:py${python.version}-scikit-learn \
+                    port:py${python.version}-scipy \
+                    port:py${python.version}-xarray

@@ -3,12 +3,15 @@
 PortSystem          1.0
 PortGroup           github 1.0
 
-github.setup        yarnpkg yarn 1.22.10 v
-revision            1
+github.setup        yarnpkg yarn 1.22.21 v
+revision            0
+checksums           rmd160  8db4f55a58604327c87e8112fd2ef947d511984d \
+                    sha256  a55bb4e85405f5dfd6e7154a444e7e33ad305d7ca858bad8546e932a6688df08 \
+                    size    1243124
 
 categories          devel
 
-platforms           darwin
+platforms           any
 supported_archs     noarch
 
 license             BSD
@@ -24,19 +27,14 @@ long_description    Created by Facebook to replace NPM, yarn boasts about its \
                     NPM's dependencies are not.
 
 homepage            https://yarnpkg.com/
-
 github.tarball_from releases
 distname            ${name}-${git.branch}
 
-checksums           rmd160  93f551f2f987a454a7f5295eb62bcc26a0e01eb2 \
-                    sha256  7e433d4a77e2c79e6a7ae4866782608a8e8bcad3ec6783580577c59538381a6e \
-                    size    1244965
-
-depends_run         path:bin/node:nodejs15
+depends_run         path:bin/node:nodejs16
 
 platform darwin {
     if {${os.major} < 13} {
-        depends_run-replace path:bin/node:nodejs15 path:bin/node:nodejs8
+        depends_run-replace path:bin/node:nodejs16 path:bin/node:nodejs14
     }
 }
 

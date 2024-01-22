@@ -1,0 +1,36 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+# GitHub version lags behind.
+R.setup             bioconductor aoles EBImage 4.44.0
+revision            0
+categories-append   graphics
+maintainers         nomaintainer
+license             LGPL
+description         Image processing and analysis toolbox for R
+long_description    {*}${description}
+homepage            https://github.com/aoles/EBImage
+checksums           rmd160  f29e82832b39fd7c01ea7e72ec610337c9410f71 \
+                    sha256  1ebeda2a0a718a8655613e672b6cbaa5592d0cf0dad0b1fa2094964d2c2bb149 \
+                    size    5462541
+
+depends_lib-append  port:R-abind \
+                    port:R-BiocGenerics \
+                    port:R-htmltools \
+                    port:R-htmlwidgets \
+                    port:R-fftwtools \
+                    port:R-jpeg \
+                    port:R-locfit \
+                    port:R-png \
+                    port:R-RCurl \
+                    port:R-tiff
+
+depends_test-append port:R-BiocStyle \
+                    port:R-digest \
+                    port:R-knitr \
+                    port:R-rmarkdown \
+                    port:R-shiny
+
+test.run            yes

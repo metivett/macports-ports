@@ -1,0 +1,33 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+# Revert to GitHub once updated there.
+R.setup             cran jeroen curl 5.2.0
+revision            0
+categories-append   net
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             MIT
+description         Modern and flexible web client for R
+long_description    {*}${description}
+homepage            https://jeroen.r-universe.dev/curl
+checksums           rmd160  c56892eaa1210ddaa0f4f3edcc0d6f5efb26768e \
+                    sha256  bfdba4115f9fc6bc92e5287cee38ae33317c5996372c0aa0a9bc4d375b6bf489 \
+                    size    715878
+
+depends_build-append \
+                    port:pkgconfig
+depends_lib-append  port:curl
+
+depends_test-append port:R-httpuv \
+                    port:R-jsonlite \
+                    port:R-knitr \
+                    port:R-later \
+                    port:R-magrittr \
+                    port:R-rmarkdown \
+                    port:R-spelling \
+                    port:R-testthat \
+                    port:R-webutils
+
+test.run            yes

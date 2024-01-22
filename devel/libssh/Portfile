@@ -5,18 +5,17 @@ PortGroup           cmake 1.1
 
 name                libssh
 epoch               1
-version             0.8.9
+version             0.10.6
 revision            0
 set major           [join [lrange [split ${version} .] 0 1] .]
 master_sites        https://www.libssh.org/files/${major}
 use_xz              yes
 
-checksums           rmd160  a9192aef56b6b4113bdcc1ec657f9cce83f96e38 \
-                    sha256  8559e19da0c40b6f93482b6160219ad77a4d9f1dc190bf174757455c6ae26825 \
-                    size    432084
+checksums           rmd160  3658660160ae13547a3fb5f3d4b137415db513af \
+                    sha256  1861d498f5b6f1741b6abc73e608478491edcf9c9d4b6630eef6e74596de9dc1 \
+                    size    561036
 
 categories          devel security net
-platforms           darwin
 maintainers         {ionic @Ionic} openmaintainer
 license             LGPL-2.1
 
@@ -26,16 +25,14 @@ long_description    The ssh library was designed to be used by \
                     programmers needing a working SSH implementation \
                     by the mean of a library.
 
-homepage            http://www.libssh.org
+homepage            https://www.libssh.org
 
 depends_build-append \
                     port:pkgconfig \
-                    port:doxygen
+                    path:bin/doxygen:doxygen
 
 depends_lib         path:lib/libssl.dylib:openssl \
                     port:zlib
-
-patchfiles-append   support-older-ssh-agent.patch
 
 default_variants    +kerberos5
 

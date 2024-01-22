@@ -3,7 +3,7 @@
 PortSystem                                             1.0
 PortGroup                github                        1.0
 PortGroup                compiler_blacklist_versions   1.0
-PortGroup                legacysupport                 1.0
+PortGroup                legacysupport                 1.1
 PortGroup                cmake                         1.1
 
 # link legacysupport statically for compilers
@@ -17,15 +17,21 @@ name                     ispc
 categories               lang parallel               
 platforms                darwin
 supported_archs          x86_64
-maintainers              {takeshi @tenomoto} openmaintainer
+maintainers              nomaintainer
+
+set py_ver               3.11
+set py_ver_nodot         [string map {. {}} ${py_ver}]
+
+# For build instructions see https://github.com/ispc/ispc/wiki/Building-ispc
 
 if { ${subport} eq ${name} } {
 
-    github.setup         ispc ispc 1.14.1 v
+    github.setup         ispc ispc 1.19.0 v
+    revision             0
 
-    checksums            rmd160  f56581854e80e099d328c74c79dad2d77158f3e5 \
-                         sha256  ca12f26dafbc4ef9605487d03a2156331c1351a4ffefc9bab4d896a466880794 \
-                         size    19454277
+    checksums            rmd160  90bb1d6aef518ef457114edcd84131a87a37f158 \
+                         sha256  c1aeae4bdfb28004a6949394ea1b3daa3fdf12f646e17fcc0614861077dc8b6a \
+                         size    19578123
 
     license              BSD
  
@@ -33,16 +39,15 @@ if { ${subport} eq ${name} } {
     long_description     ${name} is a compiler for a variant of the C programming language, \
                          with extensions for single program, multiple data programming. 
 
-    set py_ver           3.8
-    set py_ver_nodot     [string map {. {}} ${py_ver}]
-
     depends_build-append port:bison \
+                         port:cctools \
                          port:flex \
                          port:ispc-clang \
                          port:python${py_ver_nodot}
 
-    patchfiles           patch-CMakeLists.txt.diff \
-                         unknown-architecture-i386.patch
+    depends_lib-append   port:ncurses \
+                         port:zlib \
+                         port:zstd
 
     post-patch {
         if {${os.platform} eq "darwin" && ${os.major} >= 18} {
@@ -57,7 +62,7 @@ if { ${subport} eq ${name} } {
     }
 
     # Need to use a recent MacPorts build.
-    compiler.cxx_standard  2014
+    compiler.cxx_standard  2017
     compiler.blacklist     *gcc* clang {macports-clang-[5-8].0} macports-clang-3.*
 
     use_xcode              yes
@@ -69,32 +74,34 @@ if { ${subport} eq ${name} } {
                            -DLLVM_DIR=${prefix}/libexec/ispc-clang/lib/cmake/llvm \
                            -DISPC_INCLUDE_TESTS=OFF
 
+    # Build has problems finding zlib
+    configure.ldflags-append  ${prefix}/lib/libz.a
+    configure.args-append  -DZLIB_INCLUDE_DIR=${prefix}/include \
+                           -DZLIB_LIBRARY=${prefix}/lib/libz.a
+
     test.run               yes
     test.dir               ${worksrcpath}
     test.cmd               ./run_tests.py
     test.args              --verbose --non-interactive --compiler=[file tail ${configure.cc}]
     test.target            ""
     depends_test-append    port:python${py_ver_nodot}
-    
-    post-destroot {
-        xinstall -d -m 755 ${destroot}${prefix}/share/${name}
-        move ${destroot}${prefix}/examples ${destroot}${prefix}/share/${name}
-    }
 
 }
 
 subport ispc-clang {
 
-    github.setup           llvm llvm-project 10.0.1 llvmorg-
+    # See ispc release notes for LLVM version each release is based on
+    # https://github.com/ispc/ispc/releases
+    github.setup           llvm llvm-project 14.0.6 llvmorg-
 
-    checksums              rmd160  6368fe23eec894cf34bf3d894ce4e4538383084e \
-                           sha256  b53a262e7598c47fae7315d957429757dd8f341d3492793e77cbe6b4b6c0c931 \
-                           size    120879075
+    checksums              rmd160  1a92ac23507901e13fc26aea7dca33b8c6cb2d2c \
+                           sha256  8e9e1948974cdcd642793f1fe195369d13950623c47f27d4266396d3576e4f5b \
+                           size    158100103
 
     license                NCSA
 
     description            Clang build specifically for ispc compiler. 
-    long_description       ${description} NOT TO BE USED IN GENERAL. This build is specifically tuned \
+    long_description       {*}${description} NOT TO BE USED IN GENERAL. This build is specifically tuned \
                            to satisfy the requirements of ispc which uses it as a build dependency only. \
                            Has assertions and dump enabled by default, which is not the case in the \
                            primary MacPorts LLVM/Clang builds.
@@ -103,14 +110,23 @@ subport ispc-clang {
     # then simplified and adapted for usage here
 
     patchfiles             patch-compilerrtdarwinutils-find-macosxsdkversion.diff
-    
-    set py_ver             2.7
-    set py_ver_nodot       [string map {. {}} ${py_ver}]
-    
+    if {${os.platform} eq "darwin" && ${os.major} < 16} {
+        # Avoid attempts to use 'clonefile'
+        # llvm/lib/Support/Unix/Path.inc:1476:10: error: use of undeclared identifier 'clonefile'
+        patchfiles-append  0031-Avoid-Use-Of-Clonefile.patch
+    }
+
+    # From https://github.com/ispc/ispc/tree/main/llvm_patches
+    patchfiles-append      14_0_15_0_disable-DIArgList-in-SPIR-V.patch \
+                           14_0_AVX512VP2INTERSECT.patch \
+                           14_0_fp16_converts.partial.fix.patch
+
     depends_lib-append     port:libedit \
-                           port:ncurses port:z3 \
+                           port:ncurses \
                            path:lib/libxar.dylib:xar \
+                           port:z3 \
                            port:zlib \
+                           port:zstd \
                            port:libxml2 \
                            port:libomp \
                            bin:perl:perl5 \
@@ -120,7 +136,8 @@ subport ispc-clang {
                            port:python${py_ver_nodot}
 
     compiler.cxx_standard  2014
-    compiler.blacklist     *gcc* {clang < 801} macports-clang-3.* {macports-clang-[4-8].0}
+    compiler.blacklist     *gcc* {clang < 1204} macports-clang-3.* {macports-clang-[4-6].0} {macports-clang-1[0-2]}
+    compiler.fallback      clang macports-clang-13 macports-clang-14
 
     cmake.install_prefix   ${prefix}/libexec/${subport}
     cmake.build_type       Release
@@ -135,7 +152,8 @@ subport ispc-clang {
     configure.args-replace -DCMAKE_SYSTEM_PREFIX_PATH="${prefix}\;/usr" \
                            -DCMAKE_SYSTEM_PREFIX_PATH="${cmake.install_prefix}\;${prefix}\;/usr"
 
-    configure.args-append  -DLLVM_ENABLE_PROJECTS="clang\;libcxx\;compiler-rt" \
+    configure.args-append  -DLLVM_ENABLE_PROJECTS="clang" \
+                           -DLLVM_TARGETS_TO_BUILD="AArch64\;ARM\;X86" \
                            -DLLVM_LINK_LLVM_DYLIB=ON \
                            -DLLVM_ENABLE_ASSERTIONS=ON \
                            -DLLVM_ENABLE_DUMP=ON \
@@ -153,9 +171,10 @@ subport ispc-clang {
                            -DLIBCXX_ENABLE_SHARED=OFF \
                            -DLIBCXX_INSTALL_LIBRARY=OFF \
                            -DCOMPILER_RT_BUILD_SANITIZERS=OFF \
+                           -DCOMPILER_RT_ENABLE_IOS=OFF \
+                           -DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD=WebAssembly \
                            -DPYTHON_EXECUTABLE=${prefix}/bin/python${py_ver}
 
-    livecheck.url          https://github.com/llvm/llvm-project/releases
-    livecheck.regex        "LLVM (\\d+(?:\\.\\d+)*) Release"
-
+    # Version determined by ispc release
+    livecheck.type         none
 }

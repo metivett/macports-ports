@@ -3,7 +3,8 @@
 PortSystem          1.0
 PortGroup           golang 1.0
 
-go.setup            github.com/achannarasappa/ticker 3.1.7 v
+go.setup            github.com/achannarasappa/ticker 4.5.14 v
+github.tarball_from archive
 revision            0
 
 description         Terminal stock ticker with live updates and position \
@@ -15,20 +16,22 @@ long_description    {*}${description}. Provides Live stock price quotes, \
                     post market price quotes.
 
 categories          finance
-license             GPL-3
 installs_libs       no
-
+license             GPL-3
 maintainers         {gmail.com:herby.gillot @herbygillot} \
                     openmaintainer
 
-checksums           rmd160  33c676f502aaed0042600d39ff920d04a11bf0b0 \
-                    sha256  82e2e8f0ac0327a959d20d80fbd0a0ae01e352f743584c16496f72ecdbce3c87 \
-                    size    145870
+checksums           rmd160  42f47437f996873d4d2bb1636c7a65e6c47ff98d \
+                    sha256  d95e286a2ecda18154e24b1b8a05b6e3bff9cc48d2a127217ba7ec7379e4c163 \
+                    size    181735
 
 # Building with go.vendors doesn't work very well as ticker is not using a
 # fully qualified module name in both go.mod and Go sources.  Allow to build
 # as it naturally would for now.
-build.env-delete    GO111MODULE=off GOPROXY=off
+go.offline_build no
+
+build.pre_args-append \
+                    -ldflags \"-X ${go.package}/cmd.Version=v${version}\"
 
 destroot {
     xinstall -m 0755 ${worksrcpath}/${name} ${destroot}${prefix}/bin/

@@ -1,0 +1,18 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran dusadrian admisc 0.34
+revision            0
+maintainers         nomaintainer
+license             GPL-3+
+description         Adrian Dusa’s Miscellaneous
+long_description    {*}${description}
+checksums           rmd160  c7601bc24c75c58756ecd60638b95944b391fb2f \
+                    sha256  fdcf875e6440fd049a78171db2594d6d963c484eca9387f852c5c8b3208a5bdf \
+                    size    64567
+
+depends_test-append port:R-QCA
+
+test.run            yes

@@ -3,12 +3,18 @@
 PortSystem        1.0
 PortGroup         perl5 1.0
 PortGroup         cmake 1.1
+PortGroup         boost 1.0
+PortGroup         legacysupport 1.1
+
+legacysupport.newest_darwin_requires_legacy 17
+legacysupport.use_mp_libcxx                 yes
 
 name              gnucash
 conflicts         gnucash gnucash-devel
 conflicts-delete  ${subport}
-version           4.4
-perl5.branches    5.28
+version           5.5
+revision          1
+perl5.branches    5.34
 categories        gnome x11
 license           GPL-2+
 maintainers       {dports @drkp} openmaintainer
@@ -26,25 +32,26 @@ long_description  GnuCash is a personal and small-business \
                   accounting principles to ensure balanced books and \
                   accurate reports.
 
-homepage          http://www.gnucash.org/
-master_sites      sourceforge \
-                  http://www.gnucash.org/pub/gnucash/sources/stable/
+homepage          https://www.gnucash.org
+default master_sites {sourceforge:project/gnucash/gnucash%20%28stable%29/${version}}
 
 use_bzip2         yes
 
 distname          ${name}-${version}
 worksrcdir        ${name}-${version}
 
-checksums         rmd160  18ed3c0deeaa9f142adf3d7ee464422b91ea4b1a \
-                  sha256  d91e0d126b461d71de1bc1b20d9cf142704353dec07d3e6599d138422759e67a \
-                  size    14430959
+checksums         rmd160  e67c3bf1e9868800a655406ce62302754c5e1a63 \
+                  sha256  b4daf67bb892b706323f62e9fa97242039d7dd0a2e1e10771e0c25817dd0ed3b \
+                  size    14986561
 
-patchfiles-append patch-python-include-dirs-typo-fix.diff
+patchfiles-append patch-CMakeLists.txt.diff
 #patchfiles-append patch-gnucash-remove-test-failing-to-build.diff
 post-patch {
     reinplace "s|set(HAVE_OSX_KEYCHAIN 1)||" ${worksrcpath}/CMakeLists.txt
     reinplace "s|-Werror||" ${worksrcpath}/CMakeLists.txt
     reinplace "s|if (WIN32 OR APPLE)|if (WIN32)|" ${worksrcpath}/CMakeLists.txt
+
+    reinplace "s|@@PYTHON_PKGD@@|${frameworks_dir}/Python.framework/Versions/${py_ver}/lib/python${py_ver}/site-packages|" ${worksrcpath}/CMakeLists.txt
 
     # Drop in a patched version of glibconfig.h via
     # https://git.gnome.org/browse/gtk-osx/plain/patches/glib-gint64-long-long.patch
@@ -57,7 +64,19 @@ post-patch {
 
 configure.env-append PKG_CONFIG_GLIB_2_0_LIBDIR=${workpath}
 
-compiler.cxx_standard       2011
+if { ${os.platform} eq "darwin" && ${os.major} <= [option legacysupport.newest_darwin_requires_legacy] &&
+        [option legacysupport.use_mp_libcxx] && ${configure.cxx_stdlib} eq "libc++" } {
+            # This is required when compiling with guile for older macos
+            # The env variable is used in common/cmake_modules/GncAddSchemeTargets.cmake
+            configure.env-append DYLD_LIBRARY_PATH=${prefix}/lib/libcxx
+        }
+
+boost.version               1.76
+
+compiler.cxx_standard       2017
+
+set py_ver                  3.11
+set py_ver_nodot            [string map {. {}} ${py_ver}]
 
 configure.cppflags-delete   -I${prefix}/include
 configure.cppflags-append   -isystem${prefix}/include
@@ -71,22 +90,21 @@ depends_build-append     port:pkgconfig \
                          port:gtest \
                          port:swig-guile \
                          port:swig-python \
-                         port:webkit2-gtk
+                         path:lib/pkgconfig/webkit2gtk-4.0.pc:webkit2-gtk
          
 depends_lib       port:guile \
                   port:perl${perl5.major} \
                   port:p${perl5.major}-date-manip \
                   port:p${perl5.major}-finance-quote \
-                  port:boost \
-                  port:gtk3 \
+                  port:p${perl5.major}-json-parse \
+                  path:lib/pkgconfig/gtk+-3.0.pc:gtk3 \
                   port:libdbi \
                   port:libdbi-drivers \
                   port:aqbanking6-gtk3 \
                   port:libofx \
-                  port:python36 \
-                  port:icu \
+                  port:python${py_ver_nodot} \
+                  path:lib/pkgconfig/icu-uc.pc:icu \
                   port:libxml2
-
 
 depends_run       port:gnucash-docs
 
@@ -99,10 +117,8 @@ configure.args    -DENABLE_BINRELOC=OFF \
                   -DPERL_EXECUTABLE:FILEPATH=${perl5.bin} \
                   -DPOD2MAN_EXECUTABLE:FILEPATH=${prefix}/bin/pod2man-${perl5.major}
 
-# force use of the requested python 3.6
-configure.args-append -DPYTHON_EXECUTABLE:FILEPATH=${prefix}/bin/python3.6
-configure.args-append -DPYTHON_INCLUDE_DIR:PATH=${frameworks_dir}/Python.framework/Versions/3.6/include/python3.6m
-configure.args-append -DPYTHON_LIBRARY:FILEPATH=${frameworks_dir}/Python.framework/Versions/3.6/lib/libpython3.6.dylib
+# force use of the requested python
+configure.args-append -DPython3_EXECUTABLE:FILEPATH=${prefix}/bin/python${py_ver}
 
 post-destroot {
     file delete ${destroot}${prefix}/lib/libgwengui-gtk3.dylib
@@ -114,7 +130,7 @@ post-activate {
     system "${prefix}/bin/glib-compile-schemas ${prefix}/share/glib-2.0/schemas"
 }
 
-if {$subport == $name} {
+if {$subport eq $name} {
     livecheck.regex "/${name} .*/(\[0-9\]+\\.\[0-9\]*\[0-9\])/"
 }
 

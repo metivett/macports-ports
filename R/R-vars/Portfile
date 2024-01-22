@@ -1,0 +1,23 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran bernhard vars 1.6-0
+revision            0
+categories-append   math finance
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             GPL-2+
+description         VAR modelling
+long_description    {*}${description}
+checksums           rmd160  edf7b621a3a465d22ce48b757d99f770537b6194 \
+                    sha256  ed7feed9d787cbcbb6883ee8dddbd6ff1032526303dfe4f55e28a8690bec822d \
+                    size    93851
+supported_archs     noarch
+
+depends_lib-append  port:R-lmtest \
+                    port:R-sandwich \
+                    port:R-strucchange \
+                    port:R-urca
+
+test.run            yes

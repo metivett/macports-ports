@@ -4,23 +4,23 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-aiofiles
-version             0.5.0
-platforms           darwin
+version             23.2.1
+revision            0
+
+supported_archs     noarch
+platforms           {darwin any}
 license             Apache-2
-maintainers         nomaintainer
+maintainers         {judaew @judaew} openmaintainer
 
 description         File support for asyncio.
 long_description    {*}${description}
 
 homepage            https://github.com/Tinche/aiofiles
 
-checksums           rmd160  9f71a47d9e6af23a3e665a2aafc578b9f47316e5 \
-                    sha256  98e6bcfd1b50f97db4980e182ddd509b7cc35909e903a8fe50d8849e02d815af \
-                    size    9543
+checksums           rmd160  a3e0af5b40a0a4dfe4fa88893d37aa64fad689b9 \
+                    sha256  84ec2218d8419404abcb9f0c02df3f34c6e0a68ed41072acfb1cef5cbc29051a \
+                    size    32072
 
-python.versions     38 39
-
-if {${name} ne ${subport}} {
-    depends_build-append \
-                    port:py${python.version}-setuptools
-}
+python.versions     37 38 39 310 311
+python.pep517       yes
+python.pep517_backend hatch

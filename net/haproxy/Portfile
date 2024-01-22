@@ -1,21 +1,23 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
+PortGroup           openssl 1.0
 PortGroup           legacysupport 1.1
+PortGroup           makefile 1.0
 
 name                haproxy
-version             2.2.6
+version             2.9.3
 revision            0
 
 set branch          [join [lrange [split ${version} .] 0 1] .]
 
 categories          net
-platforms           darwin
-maintainers         {gmail.com:jeremy.mcmillan @aphor} openmaintainer
+maintainers         {gmail.com:jeremy.mcmillan @aphor} \
+                    {judaew @judaew} \
+                    openmaintainer
 license             {GPL-2+ OpenSSLException}
 
 description         The Reliable, High Performance TCP/HTTP Load Balancer
-
 long_description    HAproxy is a high-performance and highly-robust TCP/HTTP \
                     load balancer which provides cookie-based persistence, \
                     automatic failover, header insertion, deletion, \
@@ -24,47 +26,58 @@ long_description    HAproxy is a high-performance and highly-robust TCP/HTTP \
                     and a few other features. It uses its own state machine \
                     to achieve up to ten thousands hits per second on modern \
                     hardware, even with thousands simultaneous connections.
-
 homepage            https://www.haproxy.org/
 master_sites        ${homepage}download/${branch}/src/ \
                     https://sources.openwrt.org/
 
-checksums           rmd160  b25ae5caf161dbfa63b670fa91a0356e4c9d751a \
-                    sha256  be1c6754cbaceafc4837e0c6036c7f81027a3992516435cbbbc5dc749bf5a087 \
-                    size    2890554
+checksums           rmd160  6c95a037d542e2d7ae5d400afa7e6bbc10befe58 \
+                    sha256  ed517c65abd86945411f6bcb18c7ec657a706931cb781ea283063ba0a75858c0 \
+                    size    4499271
 
-depends_lib         path:lib/libssl.dylib:openssl \
-                    port:pcre \
-                    port:zlib
+openssl.branch      3
+depends_lib         port:pcre port:zlib
 
-use_configure       no
+# https://trac.macports.org/ticket/65699
+compiler.thread_local_storage yes
 
-variant universal {}
+patchfiles-append   patch-older_systems.diff
+
+installs_libs       no
+
+# Disable compiler wrapping
+compwrap.compilers_to_wrap
 
 build.target        TARGET=osx
 
-build.args          CC="${configure.cc} [get_canonical_archflags]" \
+configure.cflags-append "-fwrapv"
+makefile.override   PREFIX \
+                    CC \
+                    LD \
+                    CFLAGS \
+                    LDFLAGS
+
+build.args-append   SSL_INC=[openssl::include_dir] \
+                    SSL_LIB=[openssl::lib_dir] \
                     USE_LIBCRYPT=1 \
                     USE_OPENSSL=1 \
                     USE_PCRE=1 \
+                    USE_PCRE_JIT=1 \
                     USE_THREAD=1 \
                     USE_ZLIB=1
 
+if {${os.platform} eq "darwin" && ${os.major} < 15} {
+    build.args-append   USE_TFO=0
+}
+
 variant lua description {Build with Lua support} {
-    depends_lib-append  port:lua
-    build.args-append   USE_LUA=1
+    PortGroup           lua 1.0
+
+    build.args-append   USE_LUA=1 \
+                        LUA_LIB_NAME=lua${lua.version} \
+                        LUA_INC=${lua.include}
 }
 
-if {${os.platform} eq "darwin" && ${os.major} < 11} {
-    build.args-delete   USE_THREAD=1
-}
-
-destroot.args       DOCDIR=${prefix}/share/doc/${name} \
-                    PREFIX=${prefix}
-
-platform i386 {
-    build.args-append USE_REGPARM=1
-}
+destroot.args           DOCDIR=${prefix}/share/doc/${name}
 
 destroot.keepdirs       ${destroot}${prefix}/etc/haproxy
 

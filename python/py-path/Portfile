@@ -4,14 +4,15 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-path
-version             15.1.0
+version             16.7.1
 revision            0
 categories-append   devel
-platforms           darwin
 license             MIT
 supported_archs     noarch
+platforms           {darwin any}
 
-python.versions     27 35 36 37 38 39
+python.versions     37 38 39 310 311
+python.pep517       yes
 
 maintainers         {stromnov @stromnov} openmaintainer
 
@@ -24,41 +25,14 @@ long_description    path (aka path pie, formerly path.py) implements\
 
 homepage            https://github.com/jaraco/path
 
-checksums           rmd160  0a6e2e7c6729d291994c3bd893c0579b0c47cdce \
-                    sha256  ecf8a58ee4e45bf68a3c96e9715cac8b542e9790485193ec92e34957637624f8 \
-                    size    48271
+checksums           rmd160  2ddfb24e2e3cd128a17e7af088b05c6a2f8f1225 \
+                    sha256  2b477f5887033f3cbea1cfd8553ee6a6a498eb2540a19f4aa082822aadcea30a \
+                    size    48974
 
 if {${name} ne ${subport}} {
     depends_build-append \
-                        port:py${python.version}-setuptools \
-                        port:py${python.version}-setuptools_scm \
-                        port:py${python.version}-toml
+                        port:py${python.version}-setuptools_scm
 
-    if {${python.version} < 38} {
-        depends_lib-append \
-                        port:py${python.version}-importlib-metadata
-    }
-
-    if {${python.version} eq 27} {
-        python.rootname path.py
-        version         11.5.2
-        revision        1
-        epoch           1
-        checksums       rmd160  44e201c63f60e25d9eb8035c32046807bc24abb9 \
-                        sha256  de7cd643affbc23e56533a6e8d551ecdee4983501a08c24e4e71565202d8cdaa \
-                        size    43542
-        depends_build-delete \
-                        port:py${python.version}-toml
-    } elseif {${python.version} eq 35} {
-        version         13.1.0
-        revision        0
-        epoch           1
-        checksums       rmd160  9720498a6bba5effbd34e8fd858cb123413bed4a \
-                        sha256  97249b37e5e4017429a780920147200a2215e268c1a18fa549fec0b654ce99b7 \
-                        size    44958
-        depends_build-delete \
-                        port:py${python.version}-toml
-    }
-
-    livecheck.type      none
+    test.run            yes
+    test.target         test_path.py
 }

@@ -3,40 +3,49 @@
 PortSystem          1.0
 PortGroup           golang 1.0
 
-go.setup            github.com/aquasecurity/trivy 0.16.0 v
+go.setup            github.com/aquasecurity/trivy 0.48.1 v
+go.offline_build    no
 revision            0
 
-description         A Simple and Comprehensive Vulnerability Scanner for \
-                    Containers, Suitable for CI
+description         \
+    A Simple and Comprehensive Vulnerability Scanner for Containers, Suitable \
+    for CI
 
-long_description    {*}${description}. Trivy detects vulnerabilities of OS \
-                    packages (Alpine, RHEL, CentOS, etc.) and application \
-                    dependencies (Bundler, Composer, npm, yarn, etc.). Trivy \
-                    is easy to use. Just install the binary and you're ready \
-                    to scan. All you need to do for scanning is to specify a \
-                    target such as an image name of the container.
+long_description    \
+    {*}${description}. Trivy detects vulnerabilities of OS packages (Alpine, \
+    RHEL, CentOS, etc.) and application dependencies (Bundler, Composer, npm, \
+    yarn, etc.). Trivy is easy to use. Just install the binary and you're \
+    ready to scan. All you need to do for scanning is to specify a target \
+    such as an image name of the container.
 
 categories          security sysutils
+installs_libs       no
 license             Apache-2
-
 maintainers         {gmail.com:herby.gillot @herbygillot} \
                     openmaintainer
+platforms           darwin linux freebsd
 
-checksums           rmd160  3312b55d52106ad88c0fb52728eacd4037059c2d \
-                    sha256  9e7b11cf954d73e829c8edcedce8a7ff977d15ced5bc3ba4dff5730052f7d96b \
-                    size    21441322
+fetch.type          git
 
-build.cmd           make
-build.args          VERSION=${version}
-build.target        build
+depends_build-append \
+                    port:goreleaser
 
-# FIXME: This port currently can't be built without allowing go mod to fetch
-# dependencies during the build phase. See
-# https://trac.macports.org/ticket/61192
-build.env-delete    GOPROXY=off GO111MODULE=off
+build.cmd           goreleaser
+build.args          build --single-target
 
-installs_libs       no
+platform darwin {
+    build.args-append --id=build-macos
+}
+
+platform linux {
+    build.args-append --id=build-linux
+}
+
+platform freebsd {
+    build.args-append --id=build-bsd
+}
 
 destroot {
-    xinstall -m 755 ${worksrcpath}/${name} ${destroot}${prefix}/bin/
+    xinstall -m 0755 \
+        [glob ${worksrcpath}/dist/build-*/${name}] ${destroot}${prefix}/bin/
 }

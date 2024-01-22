@@ -1,0 +1,36 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran rstudio sass 0.4.8
+revision            0
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             MIT
+description         Syntactically Awesome Style Sheets
+long_description    {*}${description}
+checksums           rmd160  19ee191792b5c254f41547c8384d9373ec88d557 \
+                    sha256  42ba2930cd22ad9f5e0022b9ac53bdbc4c9250f00e0646e6502f635a6db3c40c \
+                    size    3025474
+
+depends_lib-append  port:R-fs \
+                    port:R-htmltools \
+                    port:R-R6 \
+                    port:R-rappdirs \
+                    port:R-rlang
+
+if {[string match *gcc* ${configure.compiler}]} {
+    # error: unrecognized command-line option '-stdlib=libc++'
+    post-patch {
+        reinplace "s|-stdlib=libc++||g" ${worksrcpath}/src/libsass/Makefile
+    }
+}
+
+depends_test-append port:R-curl \
+                    port:R-knitr \
+                    port:R-rmarkdown \
+                    port:R-shiny \
+                    port:R-testthat \
+                    port:R-withr
+
+test.run            yes

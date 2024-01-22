@@ -1,0 +1,32 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           golang 1.0
+
+go.setup            github.com/terraform-linters/tflint 0.50.2 v
+github.tarball_from archive
+revision            0
+
+description         \
+    A Pluggable Terraform Linter
+
+long_description    \
+    ${name} is a framework and each feature is provided by plugins
+
+categories          sysutils
+installs_libs       no
+license             MIT
+maintainers         {gmail.com:herby.gillot @herbygillot} \
+                    openmaintainer
+
+checksums           rmd160  8f04771bbc3700cddd4280a5f6fc58c26eb294d7 \
+                    sha256  dffc6ec7e212e48c9a778e1f3255ce133d20b66bf30295aa9cbfcc1095ee7daf \
+                    size    1317695
+
+go.offline_build no
+build.cmd           make
+build.args          build
+
+destroot {
+    xinstall -m 0755 ${worksrcpath}/dist/${name} ${destroot}${prefix}/bin/
+}

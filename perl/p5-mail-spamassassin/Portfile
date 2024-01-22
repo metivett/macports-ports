@@ -3,12 +3,13 @@
 PortSystem          1.0
 PortGroup           perl5 1.0
 
-perl5.branches      5.26 5.28 5.30
-perl5.setup         Mail-SpamAssassin 3.4.4
-revision            1
+perl5.branches      5.28 5.30 5.32 5.34
+perl5.setup         Mail-SpamAssassin 4.0.0
+revision            0
 categories-append   mail
 license             Apache-2
-platforms           darwin
+platforms           {darwin any}
+supported_archs     noarch
 maintainers         nomaintainer
 description         mail filter to identify spam
 long_description    SpamAssassin(tm) is a mail filter to identify spam. \
@@ -19,34 +20,47 @@ long_description    SpamAssassin(tm) is a mail filter to identify spam. \
 
 homepage            https://spamassassin.apache.org/
 
-checksums           rmd160  414fdfcb544afd44f3e17dbced145f26fe827e2e\
-                    sha256  8ea27a165b81e3ce8c84ae85c3ecba1f2edfa04ef4a86f07fe28ab612fc8ff60\
-                    size    3274482
+checksums           rmd160 587d31400a22fb6009fc509802b5e75da3291ee6\
+                    sha256 65979da7d103e3c37563f23a1a24f470090afb33664348968a00bf3d09a84f36\
+                    size   6779828
 
 if {${perl5.major} != ""} {
+    depends_build-append \
+                    port:p${perl5.major}-devel-cycle \
+                    port:p${perl5.major}-perl-critic \
+                    port:p${perl5.major}-perl-critic-policy-perlsecret \
+                    port:p${perl5.major}-test-perl-critic \
+                    port:p${perl5.major}-test-simple \
+                    port:p${perl5.major}-text-diff
+
     depends_lib-append \
                     port:curl \
                     path:bin/gpg:gnupg2 \
+                    port:re2c \
+                    port:p${perl5.major}-archive-tar \
+                    port:p${perl5.major}-berkeleydb \
                     port:p${perl5.major}-dbi \
+                    port:p${perl5.major}-dbd-sqlite \
                     port:p${perl5.major}-encode-detect \
+                    port:p${perl5.major}-email-address-xs \
+                    port:p${perl5.major}-geo-ip \
                     port:p${perl5.major}-html-parser \
+                    port:p${perl5.major}-io-compress \
+                    port:p${perl5.major}-io-socket-ip \
+                    port:p${perl5.major}-io-string \
                     port:p${perl5.major}-libwww-perl \
-                    port:p${perl5.major}-mailtools \
-                    port:p${perl5.major}-mail-audit \
                     port:p${perl5.major}-mail-dkim \
                     port:p${perl5.major}-mail-spf \
+                    port:p${perl5.major}-mime-base64 \
+                    port:p${perl5.major}-net \
+                    port:p${perl5.major}-netaddr-ip \
                     port:p${perl5.major}-net-cidr-lite \
                     port:p${perl5.major}-net-dns \
+                    port:p${perl5.major}-net-libidn \
+                    port:p${perl5.major}-net-libidn2 \
                     port:p${perl5.major}-net-patricia \
-                    port:p${perl5.major}-geo-ip
-
-# use Time::HiRes 1.9739+ for Sierra+ compatibility
-# use Time::HiRes 1.9751+ for most recent macOS fixes
-# https://metacpan.org/changes/distribution/Time-HiRes
-# perl 5.24.2 core version is 1.9733 
-# perl 5.26.1 core version is 1.9741
-    depends_lib-append \
-                    port:p${perl5.major}-time-hires
+                    port:p${perl5.major}-time-hires \
+                    port:p${perl5.major}-time-local
 
     startupitem.create      yes
     startupitem.name        spamd
@@ -57,8 +71,11 @@ if {${perl5.major} != ""} {
         startupitem.executable  ${perl5.bindir}/spamd -l
     }
 
+    patchfiles      patch-Makefile.PL.diff
+
     post-patch {
         reinplace "s|return ''|return 'PRIV'|" ${worksrcpath}/Makefile.PL
+        reinplace "s|__MP_RE2C_BIN__|${prefix}/bin/re2c|" ${worksrcpath}/Makefile.PL
     }
 
     configure.args-append \
@@ -103,7 +120,7 @@ if {${perl5.major} != ""} {
     foreach file ${conf_files} {
         append conf_file_notes "cp ${file}.sample ${file}\n"
     }
-    
+
     notes "If you're running spamassassin for the first time, you should copy the\
 following configuration files and remove the .sample extension:\n\ncd\
 ${prefix}/etc/mail/spamassassin\n${conf_file_notes}"
@@ -122,4 +139,6 @@ ${prefix}/etc/mail/spamassassin\n${conf_file_notes}"
     variant vpopmail description {Use Spamassassin with vpopmail} {
         depends_lib-append      port:vpopmail
     }
+
+    default_variants +ssl
 }

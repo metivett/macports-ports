@@ -4,7 +4,8 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                barman
-version             2.11
+version             3.9.0
+revision            1
 categories          databases
 platforms           darwin
 license             GPL-3
@@ -21,16 +22,18 @@ long_description    Barman (Backup and Recovery Manager) is an open-source \
 
 homepage            https://www.pgbarman.org
 
-checksums           rmd160  19d2c539d9e6543e1c56c3cabac5d55481372657 \
-                    sha256  b9def4ca092426559c7983d10d26d17a1369d44b0057e19df569a9ad1481b470 \
-                    size    1260434
+checksums           rmd160  027d350fdb5dedab43eefb18148d3df83f886ae1 \
+                    sha256  c3d2cf12543741fb5b5bcbc52f1dd7cfc2bc7e0977890c1e8770adcddfbcd6ea \
+                    size    1589918
 
-python.default_version 38
+python.default_version 312
 
+# setuptools for distutils
+# https://github.com/EnterpriseDB/barman/issues/750
 depends_lib-append  port:py${python.version}-argcomplete \
-                    port:py${python.version}-argh \
                     port:py${python.version}-dateutil \
-                    port:py${python.version}-psycopg2
+                    port:py${python.version}-psycopg2 \
+                    port:py${python.version}-setuptools
 
 set conf_dir        ${prefix}/etc/barman.d
 set home_dir        ${prefix}/var/lib/${name}
@@ -40,7 +43,7 @@ add_users           ${name} group=${name} home=${home_dir} \
                     realname=Backup\ and\ Recovery\ Manager\ for\ PostgreSQL \
                     shell=/bin/sh
 
-post-extract {
+post-patch {
     reinplace "s|/etc/|${prefix}/etc/|g" \
         ${worksrcpath}/barman/config.py \
         ${worksrcpath}/doc/barman.conf \
@@ -55,14 +58,25 @@ destroot.keepdirs   ${destroot}${conf_dir} \
                     ${destroot}${log_dir}
 
 post-destroot {
-    xinstall ${worksrcpath}/doc/barman.conf \
-        ${destroot}${prefix}/etc/barman.conf
-    ln -s ${python.prefix}/share/man/man1/${name}.1 \
-        ${destroot}${prefix}/share/man/man1
-    ln -s ${python.prefix}/share/man/man5/${name}.5 \
-        ${destroot}${prefix}/share/man/man5
+    xinstall -d ${destroot}${prefix}/share/doc/${name}
+    copy ${worksrcpath}/doc/barman.conf ${destroot}${prefix}/share/doc/${name}
+
+    foreach p [glob ${destroot}${python.prefix}/share/man/man1/*.1] {
+        ln -s [string range $p [string length ${destroot}] end] \
+            ${destroot}${prefix}/share/man/man1/
+    }
+    foreach p [glob ${destroot}${python.prefix}/share/man/man5/*] {
+        ln -s [string range $p [string length ${destroot}] end] \
+            ${destroot}${prefix}/share/man/man5/
+    }
 
     xinstall -d ${destroot}${conf_dir}
     xinstall -o ${name} -g ${name} -d ${destroot}${home_dir}
     xinstall -o ${name} -g ${name} -d ${destroot}${log_dir}
+}
+
+post-activate {
+    if {![file exists ${prefix}/etc/barman.conf]} {
+        copy ${prefix}/share/doc/${name}/barman.conf ${prefix}/etc/
+    }
 }

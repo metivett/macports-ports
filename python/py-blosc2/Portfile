@@ -1,0 +1,44 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           python 1.0
+
+name                py-blosc2
+version             2.3.2
+categories-append   archivers devel
+maintainers         nomaintainer
+license             BSD
+
+description         Python wrapper for Blosc2
+
+long_description    A Python wrapper for the extremely fast Blosc2 \
+                    compression library
+
+homepage            https://pypi.python.org/pypi/blosc2/
+
+checksums           md5 1d90998934a60ff37301c8e47d5380a3 \
+                    rmd160 cc77bfc407d2170cb339a4abc631da172bfc7fbc \
+                    sha256 daf75a3ba973578732cb31848f1404fb5b465bdd821d437b6ff4b605e7f1e0c0
+
+python.versions     38 39 310 311
+
+if {$subport ne $name} {
+    depends_build-append    port:py${python.version}-cython \
+                        port:py${python.version}-scikit-build
+
+    depends_lib-append  port:py${python.version}-cpuinfo \
+                        port:py${python.version}-msgpack \
+                        port:py${python.version}-ndindex \
+                        port:py${python.version}-numpy \
+                        port:py${python.version}-rich
+
+    patchfiles          pyproject.toml.patch
+    post-destroot {
+        set docdir ${prefix}/share/doc/${subport}
+        xinstall -m 755 -d ${destroot}${docdir}
+        xinstall -m 644 -W ${worksrcpath} LICENSE.txt README.rst \
+            RELEASE_NOTES.md \
+            ${destroot}${docdir}
+    }
+    livecheck.type  none
+}

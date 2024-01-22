@@ -7,9 +7,9 @@ name                py-deprecation
 version             2.1.0
 revision            0
 
-platforms           darwin
 supported_archs     noarch
-license             Apache-2.0
+platforms           {darwin any}
+license             Apache-2
 maintainers         {reneeotten @reneeotten} openmaintainer
 
 description         A library to handle automated deprecations
@@ -21,14 +21,9 @@ checksums           rmd160  f13f95855e553811f683db63f9ee980be80b4b1a \
                     sha256  72b3bde64e5d778694b0cf68178aed03d15e15477116add3fb773e581f9518ff \
                     size    173788
 
-python.versions     37 38
+python.versions     37 38 39 310 311 312
 
 if {${name} ne ${subport}} {
-    depends_build-append \
-                    port:py${python.version}-setuptools
-
     depends_lib-append \
                     port:py${python.version}-packaging
-
-    livecheck.type  none
 }

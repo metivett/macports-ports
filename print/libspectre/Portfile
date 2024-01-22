@@ -3,7 +3,7 @@
 PortSystem          1.0
 
 name                libspectre
-version             0.2.9
+version             0.2.12
 revision            2
 description         Libspectre is a small library for rendering PostScript documents.
 long_description    ${description} \
@@ -16,9 +16,9 @@ platforms           darwin
 homepage            https://www.freedesktop.org/wiki/Software/libspectre/
 master_sites        https://libspectre.freedesktop.org/releases/
 
-checksums           rmd160  8407cc242696163990e77132386518a943f95c4b \
-                    sha256  49ae9c52b5af81b405455c19fe24089d701761da2c45d22164a99576ceedfbed \
-                    size    433384
+checksums           rmd160  a8913d7fd7ab07176d8928b7cf1c97097da1963a \
+                    sha256  55a7517cd3572bd2565df0cf450944a04d5273b279ebb369a895391957f0f960 \
+                    size    436264
 
 depends_build       port:pkgconfig
 
@@ -28,7 +28,7 @@ depends_lib         port:ghostscript \
 configure.args      --disable-silent-rules
 
 variant docs description "Build documentation" {
-    depends_build   port:doxygen \
+    depends_build   path:bin/doxygen:doxygen \
                     path:bin/dot:graphviz
 }
 

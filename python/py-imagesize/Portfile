@@ -1,36 +1,31 @@
-# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:filetype=tcl:et:sw=4:ts=4:sts=4
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-imagesize
-version             1.2.0
-revision            0
+version             1.4.1
+
 categories-append   devel graphics
-platforms           darwin
+platforms           {darwin any}
 supported_archs     noarch
 license             MIT
 maintainers         nomaintainer
 
 description         get size from image file headers
-long_description \
-   This module analyzes jpeg/jpeg2000/png/gif image headers and returns the \
-   image size.
+long_description    This module analyzes jpeg/jpeg2000/png/gif image headers \
+                    and returns the image size.
 
 homepage            https://github.com/shibukawa/imagesize_py
-master_sites        pypi:i/imagesize/
 
-checksums           rmd160  ecc5e8725ead3d02dbd7b5a1ede428519ecdf3cf \
-                    sha256  b1f6b5a4eab1f73479a50fb79fcf729514a900c341d8503d62a62dbc4127a2b1 \
-                    size    1274955
+checksums           md5 5a40586a25c07e1a8f16f6267252c321 \
+                    rmd160 ad86267becebc8ea811d77ee46570393629898be \
+                    sha256 69150444affb9cb0d5cc5a92b3676f0b2fb7cd9ae39e947a5e11a36b4497cd4a
 
-distname            ${python.rootname}-${version}
-
-python.versions     27 35 36 37 38 39
+python.versions     27 36 37 38 39 310 311 312
 
 if {$subport ne $name} {
-    depends_build-append \
-                    port:py${python.version}-setuptools
+    depends_build-append    port:py${python.version}-setuptools
 
     post-destroot {
         xinstall -d ${destroot}${prefix}/share/doc/${subport}
@@ -38,5 +33,6 @@ if {$subport ne $name} {
            ${destroot}${prefix}/share/doc/${subport}
     }
 
-    livecheck.type  none
+    test.run        yes
+    python.test_framework   unittest
 }

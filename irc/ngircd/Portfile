@@ -4,12 +4,12 @@ PortSystem          1.0
 
 name                ngircd
 version             26.1
-revision            0
+revision            1
 
 categories          irc
 platforms           darwin
 license             GPL-2+
-maintainers         {@xeron gmail.com:xeron.oskom} openmaintainer
+maintainers         nomaintainer
 
 description         next generation IRC daemon
 long_description    ngIRCd is a free open source daemon for Internet \
@@ -54,7 +54,7 @@ post-activate {
 
 variant gnutls conflicts openssl description {Build with GnuTLS} {
     configure.args-append   --with-gnutls
-    depends_lib-append      port:gnutls
+    depends_lib-append      path:lib/pkgconfig/gnutls.pc:gnutls
 }
 
 variant openssl conflicts gnutls description {Build with OpenSSL} {

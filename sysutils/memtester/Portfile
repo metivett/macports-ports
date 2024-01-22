@@ -3,19 +3,21 @@
 PortSystem          1.0
 
 name                memtester
-version             4.3.0
+version             4.6.0
 categories          sysutils
 maintainers         nomaintainer
-platforms           darwin
+license             GPL-2
 description         A userspace utility for testing the memory subsystem for \
                     faults.
-long_description    ${description}
+long_description    {*}${description}
 
-homepage            http://pyropus.ca/software/memtester/
-master_sites        ${homepage}/old-versions
+homepage            https://pyropus.ca/software/memtester
+master_sites        https://fossies.org/linux/misc/ \
+                    ${homepage}/old-versions
 
-checksums           rmd160  0fd3148d76f65516601e4d656dc239a164a190a8 \
-                    sha256  f9dfe2fd737c38fad6535bbab327da9a21f7ce4ea6f18c7b3339adef6bf5fd88
+checksums           rmd160 5dd0e6804fb5f375daa39246ceae65d1a388e07b \
+                    sha256 c9fe4eb7e80c8cef5202f9065c4c0682f5616647c0455e916a5700f98e3dbb2e \
+                    size   24229
 
 livecheck.url       ${homepage}/old-versions/
 livecheck.regex     "${name}-(\\d+(?:\\.\\d+)*)${extract.suffix}"
@@ -25,7 +27,13 @@ use_configure       no
 variant universal {}
 
 pre-patch {
-	reinplace "s|/usr/local|${destroot}${prefix}|" ${worksrcpath}/Makefile
-	reinplace "s|man/man|share/man/man|" ${worksrcpath}/Makefile
-	reinplace "s|^cc|${configure.cc} [get_canonical_archflags cc]|g" ${worksrcpath}/conf-cc ${worksrcpath}/conf-ld
+    reinplace "s|/usr/local|${destroot}${prefix}|" ${worksrcpath}/Makefile
+    reinplace "s|man/man|share/man/man|" ${worksrcpath}/Makefile
+    reinplace "s|^cc|${configure.cc} [get_canonical_archflags cc]|g" ${worksrcpath}/conf-cc ${worksrcpath}/conf-ld
+}
+
+post-destroot {
+    xinstall -d ${destroot}${prefix}/share/doc/${name}
+    xinstall -m 644 -W ${worksrcpath} BUGS CHANGELOG COPYING README \
+        README.tests ${destroot}${prefix}/share/doc/${name}
 }

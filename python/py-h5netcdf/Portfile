@@ -1,0 +1,45 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           python 1.0
+
+name                py-h5netcdf
+version             1.3.0
+revision            0
+categories          python
+license             BSD
+maintainers         {mps @Schamschula} openmaintainer
+description         A Python interface for the netCDF4 file-format
+long_description    {*}${description} that reads and writes local or remote HDF5 files \
+                    directly via h5py or h5pyd, without relying on the Unidata netCDF l\
+                    ibrary.
+supported_archs     noarch
+platforms           {darwin any}
+
+homepage            https://github.com/h5netcdf/h5netcdf
+
+python.versions     38 39 310 311 312
+
+checksums           rmd160  e7e0b06c32bfad8ee971d9eeeb65292f13061d80 \
+                    sha256  a171c027daeb34b24c24a3b6304195b8eabbb6f10c748256ed3cfe19806383cf \
+                    size    57781
+
+if {${name} ne ${subport}} {
+    if {${python.version} <= 38} {
+        version     1.1.0
+        revision    0
+
+        checksums   rmd160  b1f023a951d7cb20209c7f1022b6ca196626c365 \
+                    sha256  932c3b573bed7370ebfc9e802cd60f1a4da5236efb11b36eeff897324d76bf56 \
+                    size    56385
+    } else {
+        python.pep517   yes
+    }
+
+    depends_build-append \
+                    port:py${python.version}-setuptools_scm \
+                    port:py${python.version}-setuptools_scm_git_archive
+
+    depends_lib-append  \
+                    port:py${python.version}-h5py
+}

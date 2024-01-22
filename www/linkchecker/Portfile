@@ -1,14 +1,19 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
-PortGroup github    1.0
 PortGroup python    1.0
 
-github.setup        linkchecker linkchecker 10.0.1 v
+# For version 10.2.1 and new build system, we need to use pypi version
+name                linkchecker
+python.rootname     LinkChecker
+version             10.4.0
+revision            0
+
 categories          www python
 maintainers         {khindenburg @kurthindenburg} openmaintainer
 platforms           darwin freebsd
 license             GPL-2+
+supported_archs     noarch
 
 description         linkchecker for html pages
 long_description    linkchecker for html pages with recursive checking, \
@@ -22,22 +27,33 @@ long_description    linkchecker for html pages with recursive checking, \
                     exclusion protocol support, i18n support, CGI web interface. \
                     The gui portion is no longer included as it is not maintained.
 
-checksums           rmd160  72769023105b9b11e6cf1cdcd84c84313f349ab9 \
-                    sha256  83b0e4f91bf4067fd0fe9cb0884299f900ce2060550f02717d8887c3093dc177 \
-                    size    512670
+homepage            https://pypi.python.org/pypi/${python.rootname}/
 
-python.default_version  38
+checksums           rmd160  add15ce49266379eaee45a7d9d509076de23a02c \
+                    sha256  6250dd29261ddd6df4be9e979bd47a759a6cfafbcaf0f7926afbe2a230aa761a \
+                    size    543871
 
-depends_build-append    port:py${python.version}-setuptools
+python.default_version  311
+python.pep517           yes
 
-depends_lib-append  port:py${python.version}-dnspython \
+depends_build-append    port:py${python.version}-hatchling \
+                        port:py${python.version}-hatch-vcs
+
+depends_lib-append  port:py${python.version}-beautifulsoup4 \
+                    port:py${python.version}-dnspython \
                     port:py${python.version}-requests \
-                    port:py${python.version}-xdg
+                    port:py${python.version}-pyxdg
 
-# A few tests fail to missing python modules
-depends_test-append port:py${python.version}-py \
+pre-test {
+    # miniboa not in macports
+    delete ${worksrcpath}/tests/checker/test_telnet.py
+}
+
+depends_test-append port:py${python.version}-parameterized \
+                    port:py${python.version}-py \
                     port:py${python.version}-pytest \
-                    port:py${python.version}-beautifulsoup4 \
                     port:py${python.version}-openssl
 test.run            yes
+test.target
+test.cmd            pytest-${python.branch}
 test.env            PYTHONPATH=${worksrcpath}/build/lib

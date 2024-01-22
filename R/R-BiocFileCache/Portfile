@@ -1,0 +1,33 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             github Bioconductor BiocFileCache 7b7c4d379f71261d9352b5ddbbbe9992f1b6b944
+version             2.11.1
+revision            0
+maintainers         nomaintainer
+license             Artistic-2
+description         Manage files across sessions
+long_description    {*}${description}
+homepage            https://bioconductor.org/packages/${R.package}
+checksums           rmd160  c12369bda7557a207e4957aa32b4795724203807 \
+                    sha256  ea9616d44c929d14068ad67b63e623cf1dd3160c0ee3b627ac9fb8ed2fac7786 \
+                    size    52463
+supported_archs     noarch
+
+depends_lib-append  port:R-curl \
+                    port:R-DBI \
+                    port:R-dbplyr \
+                    port:R-dplyr \
+                    port:R-filelock \
+                    port:R-httr \
+                    port:R-RSQLite
+
+depends_test-append port:R-BiocStyle \
+                    port:R-knitr \
+                    port:R-rmarkdown \
+                    port:R-rtracklayer \
+                    port:R-testthat
+
+test.run            yes

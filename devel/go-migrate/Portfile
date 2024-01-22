@@ -3,13 +3,10 @@
 PortSystem          1.0
 PortGroup           golang 1.0
 
-go.setup            github.com/golang-migrate/migrate 4.14.1 v
+go.setup            github.com/golang-migrate/migrate 4.16.2 v
+github.tarball_from archive
 name                go-migrate
-
-categories          devel databases
-license             MIT
-platforms           darwin
-installs_libs       no
+revision            0
 
 description         CLI for Go library performing database migrations.
 
@@ -19,12 +16,15 @@ long_description    {*}${description} Migrate reads migrations from sources \
                     repositories, Gitlab repositories, AWS S3 & Google Cloud \
                     Storage.
 
+categories          devel databases
+installs_libs       no
+license             MIT
 maintainers         {gmail.com:herby.gillot @herbygillot} \
                     openmaintainer
 
-checksums           rmd160  9b2446c916e3e1b88ffc45d10a115905dd99b164 \
-                    sha256  51f80a9eb49f5905b303597a8a14b54b3fb405e954ba8feec72d7e5f53056d4f \
-                    size    159439
+checksums           rmd160  1fcd1800bca34e62012000437975f6e67efecf23 \
+                    sha256  df69eaf9a7850de282409f6a02284ddeb222c0ccbc8e7cc4719545ab62ef6d2d \
+                    size    210836
 
 build.cmd           make
 build.pre_args      VERSION=${version}
@@ -33,7 +33,7 @@ build.args          build-cli
 # FIXME: This port currently can't be built without allowing go mod to fetch
 # dependencies during the build phase. See
 # https://trac.macports.org/ticket/61192
-build.env-delete    GOPROXY=off GO111MODULE=off
+go.offline_build no
 
 post-extract {
     # Comment out builds for non-Darwin platforms
@@ -45,6 +45,7 @@ post-extract {
 }
 
 destroot {
-    xinstall -m 755 ${worksrcpath}/cli/build/migrate.darwin-amd64 \
-                    ${destroot}${prefix}/bin/migrate
+    xinstall -m 0755 \
+        ${worksrcpath}/cli/build/migrate.darwin-amd64 \
+        ${destroot}${prefix}/bin/migrate
 }

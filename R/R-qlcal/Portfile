@@ -1,0 +1,20 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran qlcal qlcal 0.0.9
+revision            0
+maintainers         nomaintainer
+license             GPL-2+
+description         R bindings to the calendaring functionality of QuantLib
+long_description    {*}${description}
+homepage            https://dirk.eddelbuettel.com/code/qlcal-r.html
+checksums           rmd160  e8180621d604a0c6e9c2e26137987fd9f9e052cd \
+                    sha256  6377f6eee6b833dbab767bd982044b188e27b27b1edb94814c08e2b4815e87de \
+                    size    121377
+
+depends_lib-append  port:R-BH \
+                    port:R-Rcpp
+
+test.run            yes

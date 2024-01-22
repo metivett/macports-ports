@@ -3,7 +3,7 @@
 PortSystem          1.0
 PortGroup           github 1.0
 
-github.setup        ocaml opam 2.0.7
+github.setup        ocaml opam 2.1.5
 
 name                opam
 revision            1
@@ -13,16 +13,17 @@ license             LGPL-2
 maintainers         {@pmetzger pmetzger} openmaintainer
 homepage            http://opam.ocaml.org/
 description         OPAM is a package manager for OCaml
-long_description    OPAM is a package manager for OCaml that can install \
-                    multiple versions of OCaml and libraries in a users home \
-                    directory.
+long_description    OPAM is a source-based package manager for OCaml.\
+                    It supports multiple simultaneous compiler installations,\
+                    flexible package constraints, and a Git-friendly\
+                    development workflow.
 
 github.tarball_from releases
 distname            opam-full-${version}
 
-checksums           rmd160  c6b472dd2d6cb14dd5066077fb08bb46e10845fe \
-                    sha256  9c0dac1094ed624158fff13000cdfa8edbc96798d32b9fab40b0b5330f9490a2 \
-                    size    7929123
+checksums           rmd160  82bc333e314439e8cf8a5f83e5b091c3ed275fab \
+                    sha256  09f8d9e410b2f5723c2bfedbf7970e3b305f5017895fcd91759f05e753ddcea5 \
+                    size    10801367
 
 depends_build       port:ocaml
 

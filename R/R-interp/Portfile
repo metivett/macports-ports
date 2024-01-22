@@ -1,0 +1,32 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran albrecht.gebhardt interp 1.1-5
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             GPL-2+
+description         Interpolation methods
+long_description    {*}${description}
+checksums           rmd160  953d7c22a3a0f0ac93c0fb13efd36a4e95c0b62b \
+                    sha256  0c520971a10156162e4430873066e73b798be2f45aa0f222d64c987aba0e4b20 \
+                    size    1089279
+
+depends_lib-append  port:R-deldir \
+                    port:R-Rcpp \
+                    port:R-RcppEigen
+
+compilers.setup     require_fortran
+
+depends_test-append port:R-Deriv \
+                    port:R-ggplot2 \
+                    port:R-gridExtra \
+                    port:R-Ryacas \
+                    port:R-scatterplot3d \
+                    port:R-sp \
+                    port:R-stringi \
+                    port:R-stringr
+
+test.run            yes

@@ -3,37 +3,55 @@
 PortSystem          1.0
 PortGroup           golang 1.0
 
-go.setup            github.com/prometheus/prometheus 2.25.0 v
+go.setup            github.com/prometheus/prometheus 2.48.1 v
+go.offline_build    no
+github.tarball_from archive
 revision            0
 
 homepage            https://prometheus.io
 
-description         The Prometheus monitoring system and time series database
+description         \
+    The Prometheus monitoring system and time series database
 
-long_description    Prometheus is an open-source systems monitoring and \
-                    alerting toolkit originally built at SoundCloud. Since \
-                    its inception in 2012, many companies and organizations \
-                    have adopted Prometheus, and the project has a very \
-                    active developer and user community.
+long_description    \
+    Prometheus is an open-source systems monitoring and alerting toolkit \
+    originally built at SoundCloud. Since its inception in 2012, many \
+    companies and organizations have adopted Prometheus, and the project has \
+    a very active developer and user community.
 
-platforms           darwin
 categories          sysutils
+installs_libs       no
 license             Apache-2
-
 maintainers         {gmail.com:herby.gillot @herbygillot} \
                     openmaintainer
 
-depends_build       port:promu \
-                    port:yarn
+patchfiles-append \
+                    patch-build-use-gnutar.diff
 
-build.env           PATH=${workpath}/bin:$env(PATH)
+depends_build-append \
+                    port:golangci-lint \
+                    path:bin/node:nodejs16 \
+                    path:bin/npm:npm8 \
+                    port:promu \
+                    port:yarn \
+                    port:gnutar
+
+platform darwin {
+    if {${os.major} < 13} {
+        depends_build-replace \
+                    path:bin/node:nodejs16 \
+                    path:bin/node:nodejs14
+    }
+}
 
 build.cmd           make
-build.target        build
+build.pre_args-append \
+                    GOLANGCI_LINT=${prefix}/bin/golangci-lint \
+                    PROMU=${prefix}/bin/promu
+build.args          build
 
-
-installs_libs       no
 use_parallel_build  no
+use_xcode           yes
 
 set prom_user       ${name}
 set prom_conf_dir   ${prefix}/etc/${name}
@@ -44,15 +62,13 @@ set prom_share_dir  ${prefix}/share/${name}
 set prom_log_dir    ${prefix}/var/log/${name}
 set prom_log_file   ${prom_log_dir}/${name}.log
 
-checksums           rmd160  d458fe45bb78d22379dc380ab429580e0f7aa0c2 \
-                    sha256  bb95b39870a1844483c0775c5122092b07006ae26f8961a881bebb7eafe52afa \
-                    size    5535969
+checksums           rmd160  3fe2275698b1320958d9cdf1a094f2147cdd8cb8 \
+                    sha256  59383d09f7a2a97461a7d3df4fd387d0a59229125bf52e8da2b075faa8cbdf81 \
+                    size    6350921
 
 add_users           ${prom_user} \
                     group=${prom_user} \
                     realname=Prometheus
-
-github.tarball_from archive
 
 # promu will fail if it cannot capture the current user using the USER
 # environment variable.  So if USER is not currently set in the environment,
@@ -62,13 +78,11 @@ if {! [info exists env(USER)]} {
 }
 
 post-extract {
-    # Link promu into the workpath
-    xinstall -d ${workpath}/bin
-    ln -s ${prefix}/bin/promu ${workpath}/bin/
-
     copy  ${filespath}/org.macports.prometheus.plist \
           ${workpath}/org.macports.prometheus.plist
+}
 
+pre-patch {
     reinplace "s|@NAME@|${name}|g" \
         ${workpath}/org.macports.prometheus.plist
 
@@ -95,17 +109,17 @@ destroot.keepdirs-append ${destroot}${prom_data_dir} \
                          ${destroot}${prom_conf_dir}
 
 destroot {
-    xinstall -m 755 ${worksrcpath}/${name}  ${destroot}${prefix}/bin/${name}
-    xinstall -m 755 ${worksrcpath}/promtool ${destroot}${prefix}/bin/promtool
+    xinstall -m 0755 ${worksrcpath}/${name}  ${destroot}${prefix}/bin/${name}
+    xinstall -m 0755 ${worksrcpath}/promtool ${destroot}${prefix}/bin/promtool
 
-    xinstall -d -m 755 ${destroot}${prom_conf_dir}
-    xinstall -d -m 755 ${destroot}${prom_doc_dir}
-    xinstall -d -m 755 ${destroot}${prom_share_dir}
+    xinstall -d -m 0755 ${destroot}${prom_conf_dir}
+    xinstall -d -m 0755 ${destroot}${prom_doc_dir}
+    xinstall -d -m 0755 ${destroot}${prom_share_dir}
 
-    xinstall -m 755 -o ${prom_user} -g ${prom_user} -d \
+    xinstall -m 0755 -o ${prom_user} -g ${prom_user} -d \
         ${destroot}${prom_data_dir}
 
-    xinstall -m 755 -o ${prom_user} -g ${prom_user} -d \
+    xinstall -m 0755 -o ${prom_user} -g ${prom_user} -d \
         ${destroot}${prom_log_dir}
 
     touch ${destroot}${prom_log_file}
@@ -118,13 +132,13 @@ destroot {
 
     copy {*}[glob ${worksrcpath}/docs/*] ${destroot}${prom_doc_dir}/
 
-    xinstall -d -m 755 \
+    xinstall -d -m 0755 \
         ${destroot}${prefix}/etc/LaunchDaemons/org.macports.${name}
 
     xinstall -m 0644 -o root -W ${workpath} org.macports.${name}.plist \
         ${destroot}${prefix}/etc/LaunchDaemons/org.macports.${name}
 
-    xinstall -d -m 755 ${destroot}/Library/LaunchDaemons
+    xinstall -d -m 0755 ${destroot}/Library/LaunchDaemons
 
     ln -s ${prefix}/etc/LaunchDaemons/org.macports.${name}/org.macports.${name}.plist \
         ${destroot}/Library/LaunchDaemons/org.macports.${name}.plist

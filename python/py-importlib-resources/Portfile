@@ -5,32 +5,31 @@ PortGroup           python 1.0
 
 name                py-importlib-resources
 python.rootname     importlib_resources
-version             5.1.0
-revision            0
+version             5.4.0
+revision            1
 
-platforms           darwin
+platforms           {darwin any}
 supported_archs     noarch
 license             PSF
-maintainers         {@rubendibattista gmail.com:rubendibattista} openmaintainer
+maintainers         {@rdbisme gmail.com:rubendibattista} openmaintainer
 
 description         A backport of Python standard library importlib.resources module for \
                     Python 2.7, and 3.4 through 3.8.
-long_description    ${description}
+long_description    {*}${description}
 
 homepage            https://importlib-resources.readthedocs.io
 
-checksums           rmd160  a936fb231deeec64f7bda7d937e3c25339d3500a \
-                    sha256  bfdad047bce441405a49cf8eb48ddce5e56c696e185f59147a8b79e75e9e6380 \
-                    size    31435
+checksums           rmd160  e39417855078deb5372174671f86475ed0b51339 \
+                    sha256  d756e2f85dd4de2ba89be0b21dba2a3bbec2e871a42a3a16719258a11f87506b \
+                    size    30554
 
-# keep version for PY27/PY34/PY35, these are (indirect) dependencies of py-virtualenv
-python.versions     27 34 35 36 37 38
+# keep version for < 3.4, these are (indirect) dependencies of py-virtualenv
+# See <https://trac.macports.org/wiki/Python#VersionPolicy>
+python.versions     27 36 37 38 39 310
 
 if {${name} ne ${subport}} {
     depends_build-append \
-                    port:py${python.version}-setuptools \
-                    port:py${python.version}-setuptools_scm \
-                    port:py${python.version}-toml
+                    port:py${python.version}-setuptools
 
     if {${python.version} == 27} {
         version     3.3.1
@@ -39,34 +38,35 @@ if {${name} ne ${subport}} {
                     sha256  0ed250dbd291947d1a298e89f39afcc477d5a6624770503034b72588601bcc05 \
                     size    29012
 
+        depends_build-append \
+                    port:py${python.version}-setuptools_scm \
+                    port:py${python.version}-toml
+
         depends_lib-append \
                     port:py${python.version}-contextlib2 \
                     port:py${python.version}-pathlib2 \
                     port:py${python.version}-singledispatch \
                     port:py${python.version}-typing
-    } elseif {${python.version} == 34} {
-        version     1.0.2
-        epoch       1
-        revision    0
-        checksums   rmd160  ccbed771125ab62eda228842bc87339dd9aa21a8 \
-                    sha256  d3279fd0f6f847cced9f7acc19bd3e5df54d34f93a2e7bb5f238f81545787078 \
-                    size    23602
-        depends_build-append \
-                    port:py${python.version}-wheel
-        depends_lib-append \
-                    port:py${python.version}-pathlib2 \
-                    port:py${python.version}-typing
-    } elseif {${python.version} == 35} {
-        version     3.2.1
-        revision    0
-        checksums   rmd160  5abb9e9bbae805089609dca64868d2ea7a8629fd \
-                    sha256  a9fe213ab6452708ec1b3f4ec6f2881b8ab3645cb4e5efb7fea2bbf05a91db3b \
-                    size    28884
     }
 
-    if {${python.version} < 38} {
+    if {${python.version} < 310} {
         depends_lib-append \
                     port:py${python.version}-zipp
+    }
+
+    if {${python.version} >= 36} {
+        depends_build-append \
+                    port:py${python.version}-setuptools_scm
+        python.pep517   yes
+    }
+    if {${python.version} == 36} {
+        # break circular dependency with python-install
+        python.add_dependencies no
+        depends_build-append   port:py-bootstrap-modules
+        depends_lib-append     port:python${python.version}
+        build.env-append    PYTHONPATH=${prefix}/share/py-bootstrap-modules
+        build.args      --skip-dependency-check
+        destroot.env-append PYTHONPATH=${prefix}/share/py-bootstrap-modules
     }
 
     test.run        yes

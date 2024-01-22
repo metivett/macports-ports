@@ -3,49 +3,49 @@
 PortSystem          1.0
 PortGroup           golang 1.0
 
-go.setup            github.com/naggie/dstask 0.24.1 v
+go.setup            github.com/naggie/dstask 0.26 v
+github.tarball_from archive
 revision            0
 
-description         Single binary terminal-based TODO manager with git-based \
-                    sync + markdown notes per task
+description         \
+    Single binary terminal-based TODO manager with git-based sync + markdown \
+    notes per task
 
-long_description    {*}${description}. Dstask is a personal task tracker \
-                    designed to help you focus. It is similar to taskwarrior \
-                    but uses git to synchronise instead of a special protocol.
+long_description    \
+    {*}${description}. Dstask is a personal task tracker designed to help you \
+    focus. It is similar to taskwarrior but uses git to synchronise instead \
+    of a special protocol.
 
 categories          office
+installs_libs       no
 license             MIT
-
 maintainers         {gmail.com:herby.gillot @herbygillot} \
                     openmaintainer
 
-checksums           rmd160  ff36e3ff7c150200ff688e56470607cb6ab58df4 \
-                    sha256  d9a20d52f89d5fcab85b0cef38907eb279fffaecb3f48382f8eb14573d1a44f3 \
-                    size    3289426
+checksums           rmd160  d87a9abdf573827e8b2c060569424bd62e8021e2 \
+                    sha256  ccd7afcb825eb799bdaaaf6eaf8150bbb8ceda02fec6c97f042b7bbc913a46fc \
+                    size    3297022
+
+use_parallel_build  no
 
 build.cmd           make
 build.args          dist/dstask
-
-installs_libs       no
-use_parallel_build  no
 
 test.run            yes
 test.cmd            ${worksrcpath}/dist/dstask help
 
 patch {
-    reinplace {s|golang.org/x/sys v0.0.0-20210119212857-b64e53b001e4|golang.org/x/sys v0.0.0-20201117222635-ba5294a509c7|} \
-        ${worksrcpath}/go.mod
-
     reinplace "s|go build|go build -ldflags \\\"-X github.com/naggie/dstask.VERSION=${version}\\\"|" \
         ${worksrcpath}/Makefile
 }
 
-# Allow Go to fetch dependencies at build time.
-# When dependencies are vendored, build fails due to an unsafeheader issue.
-build.env-delete    GO111MODULE=off GOPROXY=off
+# Enable Go modules. GOPROXY=off is still present to disable fetching
+# dependencies at build time, but we must re-enable Go modules in order
+# to enable building vendored dependencies (-mod=vendor).
+build.env-delete    GO111MODULE=off
 
 destroot {
     foreach dstask_bin [glob ${worksrcpath}/dist/*] {
-        xinstall -m 755 ${dstask_bin} ${destroot}${prefix}/bin/
+        xinstall -m 0755 ${dstask_bin} ${destroot}${prefix}/bin/
     }
 }

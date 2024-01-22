@@ -50,14 +50,27 @@ set mpidb(openmpi,descrip)  "OpenMPI"
 set mpidb(openmpi,name)     openmpi
 set mpidb(openmpi,conflict) ""
 
-# NOTE: Uncomment these if/when we re-enable openmpi-devel-* subports
-#set mpidb(openmpi_devel,variant)  openmpi_devel
-#set mpidb(openmpi_devel,descrip)  "OpenMPI-devel"
-#set mpidb(openmpi_devel,name)     openmpi-devel
-#set mpidb(openmpi_devel,conflict) ""
-
 foreach mpiname [array names mpidb *,variant] {
     lappend mpi.variants $mpidb($mpiname)
+}
+unset mpiname
+
+proc mpi.get_default_mpi_compiler {} {
+    # No MPI variant has been selected.
+    # Attempt to select the MPI port that is consistent with the compiler being used.
+    lassign [split [option configure.compiler] "-"] ismacports type ver
+    if {${ismacports} ne "macports"} {
+        # system compiler is being used, so use {mpich,openmpi}-default
+        return {mp default}
+    } else {
+        # macports compiler is being used, so use the corresponding MPI port
+        set mpiver [join [split ${ver} "."] ""]
+        if {"-${type}${mpiver}" ni ${::mpi.disabled_compilers}} {
+            return "${type}${mpiver} ${type}${mpiver}"
+        } else {
+            return ""
+        }
+    }
 }
 
 proc mpi.setup_variants {variants} {
@@ -84,35 +97,40 @@ proc mpi.setup_variants {variants} {
                 set p_name \$c_name
                 set d_name \$c_name
                 if {\$c_name eq {}} {
-                    set p_name mp
-                    set d_name default
+                    lassign \[mpi.get_default_mpi_compiler\] p_name d_name
                 } elseif {\[string match gcc* \$c_name\]} {
                     configure.cxx_stdlib macports-libstdc++
                 }
 
-                set path \"etc/select/mpi/${variant}-\${p_name}\"
-
-                if {\$f_name ne {}} {
-                    set path \"\$path-fortran\"
-                }
-
-                depends_lib-append path:\$path:$mpidb($variant,name)-\$d_name
-                set mpi.name $mpidb($variant,name)-\$d_name
-
-                foreach compiler {cc cxx f77 f90 exec} {
-                    set mpi.\$compiler mpi\${compiler}-$mpidb($variant,name)-\$p_name
-                }
-                set mpi.fc mpif90-$mpidb($variant,name)-\$p_name
-
-                # there is no mpicpp or mpiobj
-                # if more compilers are added in compilers portgroup, need to be added here
-                foreach compiler \${compilers.list} {
-                    if {\$compiler ne \"fc\" && \$compiler ne \"cpp\" && \$compiler ne \"objc\"} {
-                        configure.\$compiler \${prefix}/bin/mpi\${compiler}-$mpidb($variant,name)-\$p_name
+                if {\$p_name eq {}} {
+                    pre-configure {
+                        error \"No supported MPI compiler\"
                     }
-                }
-                if {\"fc\" in \${compilers.list}} {
-                    set configure.fc \${prefix}/bin/mpif90-$mpidb($variant,name)-\$p_name
+                } else {
+                    set path \"etc/select/mpi/${variant}-\${p_name}\"
+
+                    if {\$f_name ne {}} {
+                        set path \"\$path-fortran\"
+                    }
+
+                    depends_lib-append path:\$path:$mpidb($variant,name)-\$d_name
+                    set mpi.name $mpidb($variant,name)-\$d_name
+
+                    foreach compiler {cc cxx f77 f90 exec} {
+                        set mpi.\$compiler mpi\${compiler}-$mpidb($variant,name)-\$p_name
+                    }
+                    set mpi.fc mpif90-$mpidb($variant,name)-\$p_name
+
+                    # there is no mpicpp or mpiobj
+                    # if more compilers are added in compilers portgroup, need to be added here
+                    foreach compiler \${compilers.list} {
+                        if {\$compiler ne \"fc\" && \$compiler ne \"cpp\" && \$compiler ne \"objc\"} {
+                            configure.\$compiler \${prefix}/bin/mpi\${compiler}-$mpidb($variant,name)-\$p_name
+                        }
+                    }
+                    if {\"fc\" in \${compilers.list}} {
+                        set configure.fc \${prefix}/bin/mpif90-$mpidb($variant,name)-\$p_name
+                    }
                 }
 
             "
@@ -151,7 +169,7 @@ proc mpi_variant_name {} {
 
 proc mpi.enforce_variant {args} {
     global mpi.required_variants
-    lappend mpi.required_variants $args
+    append mpi.required_variants " $args"
 }
 
 proc mpi.action_enforce_variants {ports} {
@@ -214,6 +232,17 @@ pre-configure {
             return -code error "Install ${mpi.name} +$need"
         }
     }
+
+    if {[mpi_variant_isset] && ([mpi_variant_name] eq "mpich" || [mpi_variant_name] eq "mpich-devel")} {
+        # The new linker in Xcode 15 is buggy, causing build failures for many (but not all)
+        # ports that link to mpich. The -Wl,-ld_classic option below reverts to the
+        # classic linker.
+        #
+        # TODO: This is a temporary solution, the classic linker will be removed in a future release by Apple.
+        if { ( [vercmp ${xcodeversion} 15 ] >= 0 ) || ( [vercmp ${xcodecltversion} 15 ] >= 0 ) } {
+            configure.ldflags-append    -Wl,-ld_classic
+        }
+    }
 }
 
 proc mpi_variant_isset {} {
@@ -222,11 +251,11 @@ proc mpi_variant_isset {} {
 
 proc mpi.setup {args} {
     global cdb mpidb mpi.variants mpi.require mpi.default compilers.variants \
-        name os.major
+        name os.major os.arch
 
-    set add_list {}
+    set add_list [list]
     set remove_list ${mpi.variants}
-    set cl {}
+    set cl [list]
 
     foreach variant $args {
         # keep original commandname
@@ -267,7 +296,12 @@ proc mpi.setup {args} {
                         [info exists cdb($v,variant)]} {
                         set cl [add_from_list $cl $variant]
                     } else {
-                        return -code error "no such mpi package: $v"
+                        # If removing an already not available compiler just warn, otherwise hard error
+                        if { ${mode} eq "add" } {
+                            return -code error "MPI package ${v} not available for Darwin${os.major} ${os.arch}"
+                        } else {
+                            ui_debug "MPI package ${v} not available for Darwin${os.major} ${os.arch}"
+                        }
                     }
                 } else {
                     set ${mode}_list [${mode}_from_list [set ${mode}_list] $mpidb($v,variant)]
@@ -284,39 +318,42 @@ proc mpi.setup {args} {
     if {$cur_variant eq "" && ${mpi.default}} {
         set cur_variant mpich
     }
-    set disabled [list]
+    set ::mpi.disabled_compilers [list]
     if {$cur_variant ne ""} {
         set is_mpich [expr {$cur_variant in {mpich}}]
-        lappend disabled -gcc44 -gcc45 -gcc46 -gcc47 -gcc48
-        # gcc   4.x     not supported on macOS 10.12 (Darwin16) or newer
-        # clang 3.{3,4} not supported on macOS 10.12 (Darwin16) or newer
-        if {${os.major} >= 16} {
-            lappend disabled -gcc49
-        }
-        if {${os.major} >= 16 || $is_mpich} {
-            lappend disabled -clang33 -clang34
-        }
-        # clang 3.7,4.0 not supported on macOS 10.14 (Darwin18) or newer
-        if {${os.major} >= 18 || $is_mpich} {
-            lappend disabled -clang37
-        }
-        # gcc 9+ only available on OS X 10.7 (Darwin11) and newer
-        if {${os.major} <= 10} {
-            lappend disabled -gcc9
+
+        lappend ::mpi.disabled_compilers \
+            -gcc43 -gcc44 -gcc45 -gcc46 -gcc47 -gcc48
+
+        # All of the following are now obsolete for openmpi/mpich
+        lappend ::mpi.disabled_compilers \
+            -clang33 -clang34 -clang35 -clang37 \
+            -clang50 -clang60 -clang70 -clang80 \
+            -clangdevel \
+            -gcc49 -gcc5 -gcc6 -gcc8 \
+            -gccdevel
+
+        # GCC 9 only supported for macOS 10.6 through 10.10
+        if {${os.major} < 10 || ${os.major} > 14} {
+            lappend ::mpi.disabled_compilers -gcc9
         }
 
-        # this should probably be changed in mpich but we have to match it
-        if {${os.major} <= 12 && $is_mpich} {
-            lappend disabled -clang60 -clang70 -clang80 -clang90
+        # Clang 15 and 16 only available on 10.7 and later
+        if {${os.major} < 11} {
+            lappend ::mpi.disabled_compilers \
+                -clang15 -clang16 -clang17
         }
-        #if {$is_mpich} {
-        #    lappend disabled -clang10
-        #}
-        # not yet supported by any mpi port
-        lappend disabled -clang11 -gccdevel
+
+        if {${os.arch} eq "arm"} {
+            # Disable compilers not well supported on arm. Note: clang 9 and 10
+            # build on arm, but are not reliable so skip; use clang 11 instead.
+            lappend ::mpi.disabled_compilers \
+                -gcc7 -gcc9 \
+                -clang90 -clang10
+        }
     }
 
-    compilers.setup {*}$cl {*}$disabled
+    compilers.setup {*}$cl {*}${::mpi.disabled_compilers}
 
     # we need to check for a removed variant early so we can exit before
     # the wrong variant is passed up the dependency chain

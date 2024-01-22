@@ -1,0 +1,27 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           python 1.0
+
+name                py-aiosignal
+version             1.3.1
+license             Apache-2
+supported_archs     noarch
+platforms           {darwin any}
+maintainers         {toby @tobypeterson} openmaintainer
+description         manage callbacks in asyncio projects
+long_description    A project to manage callbacks in asyncio projects.
+
+homepage            https://github.com/aio-libs/aiosignal
+
+checksums           rmd160 fec675c4019a950e62fe2e302338406ff4afced8 \
+                    sha256 54cd96e15e1649b75d6c87526a6ff0b6c1b0dd3459f43d9ca11d48c339b68cfc \
+                    size 19422
+
+python.versions     37 38 39 310 311 312
+
+if {${name} ne ${subport}} {
+    depends_build-append    port:py${python.version}-setuptools
+
+    depends_lib-append      port:py${python.version}-frozenlist
+}

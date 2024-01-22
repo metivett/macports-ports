@@ -3,7 +3,7 @@
 PortSystem              1.0
 PortGroup               github 1.0
 
-github.setup            liberfa erfa 1.7.2 v
+github.setup            liberfa erfa 2.0.1 v
 revision                0
 categories              science
 maintainers             {mps @Schamschula} openmaintainer
@@ -13,8 +13,8 @@ platforms               darwin
 description             Essential Routines for Fundamental Astronomy
 long_description        {*}${description}
 
-github.tarball_from     releases
+use_autoreconf          yes
 
-checksums               rmd160  d0e7e01e112b1ab344f6a0c35ab9ef2ab1a00322 \
-                        sha256  b85ee6f723c8c01a7da85982a5f53838e8133f65ebf98ddf70a454e95cbaf96e \
-                        size    723450
+checksums               rmd160  bf3d9a0b00e0fb44d96098dc24391473eac741fe \
+                        sha256  8b900cfe1671fe731b19e3adc46142f64c59ace31ba72b930bc4418a2dad1a66 \
+                        size    345171

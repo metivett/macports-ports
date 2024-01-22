@@ -24,10 +24,12 @@ github.tarball_from releases
 use_xz              yes
 
 # Using the same python as MyPaint for consistency.
+set python_branch   3.8
+set python_version  [string map {. {}} ${python_branch}]
 
 depends_build       port:intltool \
                     port:pkgconfig \
-                    port:python37
+                    port:python${python_version}
 
 depends_lib         path:lib/pkgconfig/glib-2.0.pc:glib2 \
                     port:json-c
@@ -43,7 +45,7 @@ autoreconf.env      ACLOCAL=${prefix}/bin/aclocal \
                     AUTOHEADER=${prefix}/bin/autoheader \
                     AUTOMAKE=${prefix}/bin/automake \
                     LIBTOOLIZE=${prefix}/bin/glibtoolize \
-                    PYTHON=${prefix}/bin/python3.7
+                    PYTHON=${prefix}/bin/python${python_branch}
 
 depends_build-append \
                     port:autoconf \
@@ -51,22 +53,5 @@ depends_build-append \
                     port:libtool
 
 configure.args      --with-glib
-
-pre-activate {
-    # MyPaint and MyPaint-devel < 2.0.0 installed libmypaint files.
-    # This deactivate hack can be removed after June 2021.
-    if {![catch {set installed [lindex [registry_active MyPaint] 0]}]} {
-        set _version [lindex $installed 1]
-        if {[vercmp $_version 2.0.0] < 0} {
-            registry_deactivate_composite MyPaint "" [list ports_nodepcheck 1]
-        }
-    }
-    if {![catch {set installed [lindex [registry_active MyPaint-devel] 0]}]} {
-        set _version [lindex $installed 1]
-        if {[vercmp $_version 2.0.0] < 0} {
-            registry_deactivate_composite MyPaint-devel "" [list ports_nodepcheck 1]
-        }
-    }
-}
 
 github.livecheck.regex  {(\d+(?:\.\d+)+)}

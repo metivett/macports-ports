@@ -5,14 +5,14 @@ PortGroup           github 1.0
 PortGroup           python 1.0
 PortGroup           select 1.0
 
-github.setup        gotcha ipdb 0.13.2
+github.setup        gotcha ipdb 0.13.13
 revision            0
 name                py-ipdb
 
-platforms           darwin
+platforms           {darwin any}
 supported_archs     noarch
 license             BSD
-maintainers         nomaintainer
+maintainers         {@catap korins.ky:kirill} openmaintainer
 
 description         An enhanced Interactive Python shell
 long_description    Provide an interactive shell superior to Python's default. \
@@ -21,11 +21,11 @@ long_description    Provide an interactive shell superior to Python's default. \
                     other systems with Python as the underlying language.  \
                     Allow interactive testing of threaded graphical toolkits.
 
-checksums           rmd160  937ef96e6d9c3ee2413aed56484fde6a164b7274 \
-                    sha256  d6698ed37149bed6587dbcbab6d8d1f973fdb49a37b922e3314c569a4ae5f2a1 \
-                    size    10622
+checksums           rmd160  ea110bf740e026b06fe58e814b6d77268dd28d77 \
+                    sha256  9d21dd5d0ccc7c4538f71f704e8b5ae136c2da79913332eb323c5997e00fd48d \
+                    size    13456
 
-python.versions     27 35 36 37 38
+python.versions     37 38 39 310 311 312
 
 if {${name} ne ${subport}} {
     depends_lib-append \
@@ -52,6 +52,4 @@ when you execute the commands without a version suffix, e.g. 'ipdb', run:
 
 port select --set ${select.group} [file tail ${select.file}]
 "
-
-    livecheck.type  none
 }

@@ -3,12 +3,11 @@
 PortSystem                  1.0
 PortGroup                   github 1.0
 
-github.setup                danmar cppcheck 2.3
+github.setup                danmar cppcheck 2.13.1
 revision                    0
 
 categories                  devel
 license                     GPL-3
-platforms                   darwin
 maintainers                 {khindenburg @kurthindenburg} openmaintainer
 
 description                 Static analysis of C and C++ code.
@@ -21,29 +20,31 @@ long_description            Cppcheck is an analysis tool for C and C++ code. Unl
 
 github.tarball_from         archive
 
-checksums                   rmd160  3f655c3a4a92d9957cf1fc7e15876c786d9347ff \
-                            sha256  3c622628ebf46f68909c7a96743b07b6207894a0772fbe802603732152ab1035 \
-                            size    3594620
+checksums                   rmd160  7ee4324c2df4e8ca61c581cfa429f38c1a0136f0 \
+                            sha256  24ac191684d518a0a8aa44f48dabfba02daf6cd0f9a002e2d0735ed197b150b5 \
+                            size    3642653
 
-set python_branch   3.8
+set python_branch   3.12
 set python_version  [string map {"." ""} ${python_branch}]
 set python_bin      ${prefix}/bin/python${python_branch}
 
-depends_build               port:docbook-xsl-nons \
+depends_build-append        port:docbook-xsl-nons \
                             port:docbook-xml-4.5 \
                             port:libxslt
 
-depends_lib                 port:pcre \
+depends_lib-append          port:pcre \
                             port:python${python_version} \
                             port:py${python_version}-pygments
 
-post-patch {
-    reinplace -W ${worksrcpath} "/CXXFLAGS/s/-O2/${configure.cxxflags}/" Makefile
-    reinplace -W ${worksrcpath} "s|#!/usr/bin/env python|#!${python_bin}|" htmlreport/cppcheck-htmlreport
+# Jan 2023 - master base/github PG default to yes which errors
+if {[exists extract.rename]} { extract.rename no }
 
+post-patch {
+    reinplace -W ${worksrcpath} "s|#!/usr/bin/env python3|#!${python_bin}|" htmlreport/cppcheck-htmlreport
 }
 
 compiler.cxx_standard       2011
+compiler.thread_local_storage yes
 
 use_configure               no
 
@@ -52,13 +53,19 @@ variant universal {}
 set sharedir                ${prefix}/share/${name}
 
 build.target                all man
-build.args                  CXX="${configure.cxx} [get_canonical_archflags cxx]" \
+build.args                  CXX="${configure.cxx} [get_canonical_archflags cxx] ${configure.cxxflags}" \
                             DB2MAN=${prefix}/share/xsl/docbook-xsl-nons/manpages/docbook.xsl \
                             FILESDIR=${sharedir} \
                             HAVE_RULES=yes \
                             MATCHCOMPILER=yes \
                             PREFIX=${prefix} \
-                            PYTHON_INTERPRETER=${prefix}/bin/python3.8
+                            PYTHON_INTERPRETER=${python_bin}
+
+# https://trac.macports.org/ticket/66418
+platform darwin 8 {
+    depends_build-append    port:gmake-apple
+    build.cmd               gmake-apple
+}
 
 test.run                    yes
 test.target                 test
@@ -89,3 +96,5 @@ you may want to replace the included config files:
 
 sudo find ${sharedir} -type f -name \"*.dist\" -exec bash -c 'f=\"\{\}\"; cp \"\$f\" \"\$\{f%.dist\}\"' \\;
 "
+
+github.livecheck.regex  {([0-9.]+)}

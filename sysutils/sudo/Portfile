@@ -4,7 +4,7 @@ PortSystem          1.0
 
 name                sudo
 epoch               1
-version             1.9.5p2
+version             1.9.15p5
 revision            0
 categories          sysutils security
 license             ISC
@@ -23,12 +23,24 @@ homepage            http://www.sudo.ws/sudo/
 master_sites        ${homepage}dist/ \
                     ${homepage}dist/OLD/
 
-checksums           rmd160  5952aafd4e777196eb8af81c4cdc420e3d688684 \
-                    sha256  539e2ef43c8a55026697fb0474ab6a925a11206b5aa58710cb42a0e1c81f0978 \
-                    size    4012277
+checksums           rmd160  a0db5b9241428b4ad8732dc390e32d6b3a3a4b0c \
+                    sha256  558d10b9a1991fb3b9fa7fa7b07ec4405b7aefb5b3cb0b0871dbc81e3a88e558 \
+                    size    5306611
 
 patchfiles          patch-configure.diff \
+                    patch-lib-util-arc4random_buf.diff \
                     patch-sudoers.in.diff
+
+if {${os.platform} eq "darwin" && ${os.major} < 12} {
+    patchfiles-append \
+                    patch-environ.diff
+}
+
+depends_build       port:gettext
+
+depends_lib         port:gettext-runtime \
+                    path:lib/libssl.dylib:openssl \
+                    port:zlib
 
 configure.args      --infodir=${prefix}/share/info \
                     --mandir=${prefix}/share/man \
@@ -75,7 +87,7 @@ variant insults description {It can only be attributed to human error.} {
 }
 
 variant openldap description {Add ldap support via OpenLDAP.} {
-    depends_lib-append      port:openldap
+    depends_lib-append      path:lib/libldap.dylib:openldap
 
     configure.args-append   --with-ldap
 

@@ -2,18 +2,18 @@
 
 PortSystem                  1.0
 PortGroup                   legacysupport 1.0
+PortGroup                   lua 1.0
 
 name                        lighttpd
-version                     1.4.55
+version                     1.4.73
 revision                    0
-checksums                   rmd160  3ec0c81a6ee286efc998150690c9e39f9606ef28 \
-                            sha256  6a0b50e9c9d5cc3d9e48592315c25a2d645858f863e1ccd120507a30ce21e927 \
-                            size    765660
+checksums                   rmd160  7524652b92a75f2f536191f6acea1aecf5c05162 \
+                            sha256  818816d0b314b0aa8728a7076513435f6d5eb227f3b61323468e1f10dbe84ca8 \
+                            size    1086680
 
 set branch                  [join [lrange [split ${version} .] 0 1] .]
 categories                  www
-platforms                   darwin
-maintainers                 {ryandesign @ryandesign}
+maintainers                 {ryandesign @ryandesign} openmaintainer
 license                     BSD
 
 description                 A secure, fast, compliant and flexible web-server
@@ -24,16 +24,18 @@ long_description            lighttpd is a secure, fast, compliant and very \
                             memory footprint compared to other web servers \
                             and takes care of CPU load.
 
-homepage                    http://www.lighttpd.net/
-master_sites                http://download.lighttpd.net/lighttpd/releases-${branch}.x/
+homepage                    https://www.lighttpd.net/
+master_sites                https://download.lighttpd.net/lighttpd/releases-${branch}.x/
 use_xz                      yes
 
 depends_build-append        port:pkgconfig
 
-depends_lib                 port:bzip2 \
-                            port:pcre \
+depends_lib                 port:brotli \
+                            port:pcre2 \
                             port:spawn-fcgi \
-                            port:zlib
+                            port:xxhashlib \
+                            port:zlib \
+                            port:zstd
 
 patchfiles                  patch-conf.diff
 
@@ -41,19 +43,23 @@ post-patch {
     reinplace "s|@PREFIX@|${prefix}|g" \
         ${worksrcpath}/doc/config/conf.d/cgi.conf \
         ${worksrcpath}/doc/config/conf.d/fastcgi.conf \
-        ${worksrcpath}/doc/config/conf.d/mysql_vhost.conf \
         ${worksrcpath}/doc/config/conf.d/rrdtool.conf \
         ${worksrcpath}/doc/config/lighttpd.conf
 }
 
 configure.args-append       CC_FOR_BUILD="${configure.cc}" \
                             CFLAGS_FOR_BUILD="${configure.cflags}" \
+                            --with-brotli \
+                            --with-lua=lua \
+                            --with-pcre2 \
+                            --with-xxhash \
+                            --with-zlib \
+                            --with-zstd \
                             ac_cv_prog_AWK=/usr/bin/awk
 
 platform darwin {
-    depends_lib-append      port:libev
-    patchfiles-append       patch-conf-darwin.diff \
-                            patch-tigerfixes.diff
+    patchfiles-append       patch-conf-darwin.diff
+
     post-patch {
         if {${os.major} <= 8} {
             set user "www"
@@ -65,8 +71,11 @@ platform darwin {
         reinplace "s|@USER@|${user}|g" ${worksrcpath}/doc/config/lighttpd.conf
         reinplace "s|@GROUP@|${group}|g" ${worksrcpath}/doc/config/lighttpd.conf
     }
-    configure.args-append   --with-libev ac_cv_func_kqueue=no
 }
+
+test.run                    yes
+test.target                 check
+test.env                    SHELL=/bin/sh
 
 set lighttpd_config_dir     ${prefix}/etc/${name}
 
@@ -125,14 +134,6 @@ variant mysql57 description {Enable MySQL 5.7 support} {
 variant ssl description {Enable serving secure web sites with SSL} {
     depends_lib-append      path:lib/libssl.dylib:openssl
     configure.args-append   --with-openssl
-}
-
-variant cml description {Enable Cache Meta-Language (CML)} {
-    depends_lib-append      port:lua \
-                            port:libmemcache \
-                            port:memcached
-    configure.args-append   --with-lua \
-                            --with-memcache
 }
 
 variant davprops description {Enable mod_webdav} {

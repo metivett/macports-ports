@@ -1,0 +1,28 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           python 1.0
+
+name                py-linkify-it-py
+version             2.0.2
+platforms           {darwin any}
+supported_archs     noarch
+license             MIT
+maintainers         nomaintainer
+
+description         Links recognition library with full unicode support.
+long_description    {*}${description}
+
+homepage            https://github.com/tsutsu3/linkify-it-py
+
+checksums           rmd160  f702ac8d85af79111eb318f5496552a9f5bb9aad \
+                    sha256  19f3060727842c254c808e99d465c80c49d2c7306788140987a1a7a29b0d6ad2 \
+                    size    27825
+
+python.versions     37 38 39 310 311 312
+python.pep517       yes
+
+if {${name} ne ${subport}} {
+    depends_run-append \
+                    port:py${python.version}-uc-micro-py
+}

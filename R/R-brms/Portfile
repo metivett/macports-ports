@@ -1,0 +1,63 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             github paul-buerkner brms e122b45a2f5db953fe8be6c3ac96ed4c2dc67f47
+version             2.20.9
+revision            0
+categories-append   math economics
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             GPL-2
+description         Bayesian applied regression modeling via Stan
+long_description    {*}${description}
+homepage            https://paul-buerkner.github.io/brms
+checksums           rmd160  2f30c625c23843aa0e86a098386b2f09cbf7c74a \
+                    sha256  cc4fbd1bb36b66d8c8e1050252b25df68201cec5a098d16f163b4f40b75abee3 \
+                    size    5249660
+supported_archs     noarch
+
+depends_lib-append  port:R-abind \
+                    port:R-backports \
+                    port:R-bayesplot \
+                    port:R-bridgesampling \
+                    port:R-coda \
+                    port:R-future \
+                    port:R-ggplot2 \
+                    port:R-glue \
+                    port:R-loo \
+                    port:R-matrixStats \
+                    port:R-nleqslv \
+                    port:R-posterior \
+                    port:R-Rcpp \
+                    port:R-rlang \
+                    port:R-rstan \
+                    port:R-rstantools \
+                    port:R-shinystan
+
+depends_test-append port:R-ape \
+                    port:R-arm \
+                    port:R-cmdstanr \
+                    port:R-diffobj \
+                    port:R-digest \
+                    port:R-emmeans \
+                    port:R-extraDistr \
+                    port:R-gtable \
+                    port:R-knitr \
+                    port:R-lme4 \
+                    port:R-MCMCglmm \
+                    port:R-mice \
+                    port:R-mnormt \
+                    port:R-processx \
+                    port:R-projpred \
+                    port:R-R.rsp \
+                    port:R-rmarkdown \
+                    port:R-rtdists \
+                    port:R-RWiener \
+                    port:R-shiny \
+                    port:R-spdep \
+                    port:R-splines2 \
+                    port:R-statmod \
+                    port:R-testthat
+
+test.run            yes

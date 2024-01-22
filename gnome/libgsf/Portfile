@@ -4,7 +4,7 @@ PortSystem          1.0
 PortGroup           gobject_introspection 1.0
 
 name                libgsf
-version             1.14.47
+version             1.14.51
 revision            0
 license             LGPL-2.1
 set branch          [join [lrange [split $version .] 0 1] .]
@@ -23,17 +23,18 @@ master_sites        gnome:sources/$name/$branch/
 
 use_xz              yes
 
-checksums           rmd160  084aebcb6457498bba2c163005ef23c1f9432b66 \
-                    sha256  d188ebd3787b5375a8fd38ee6f761a2007de5e98fa0cf5623f271daa67ba774d \
-                    size    691448
+checksums           rmd160  d09812e0ec2f75c59e66c0197c25357cff7dfc52 \
+                    sha256  f0b83251f98b0fd5592b11895910cc0e19f798110b389aba7da1cb7c474017f5 \
+                    size    707488
 
 depends_build       port:pkgconfig \
+                    port:gettext \
                     port:gtk-doc
 
-depends_lib         port:gettext \
+depends_lib         port:gettext-runtime \
                     path:lib/pkgconfig/glib-2.0.pc:glib2 \
                     port:libxml2 \
-                    port:gdk-pixbuf2 \
+                    path:lib/pkgconfig/gdk-pixbuf-2.0.pc:gdk-pixbuf2 \
                     port:zlib \
                     port:bzip2
 
@@ -44,7 +45,7 @@ configure.args      --disable-silent-rules
 post-destroot {
     set docdir ${prefix}/share/doc/${name}
     xinstall -d ${destroot}${docdir}
-    xinstall -m 644 -W ${worksrcpath} AUTHORS COPYING COPYING.LIB NEWS README \
+    xinstall -m 644 -W ${worksrcpath} AUTHORS COPYING NEWS README \
         ${destroot}${docdir}
 }
 

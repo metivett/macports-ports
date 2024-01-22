@@ -4,7 +4,7 @@ PortSystem          1.0
 PortGroup           texlive 1.0
 
 name                texlive-lang-cyrillic
-version             54594
+version             64588
 revision            0
 
 categories          tex
@@ -13,18 +13,18 @@ license             Copyleft Permissive
 description         TeX Live: Cyrillic
 long_description    Support for Cyrillic scripts (Bulgarian, Russian, Serbian, Ukrainian), even if Latin alphabets may also be used.
 
-checksums           texlive-lang-cyrillic-54594-run.tar.xz \
-                    rmd160  54c26cf72d63e45df6f3b72f4f6ffdad8a140a95 \
-                    sha256  b71b173a812bfde06402eecef67dd13ae6ad8e9374774e906ba83c86dc8303c8 \
-                    size    20555428 \
-                    texlive-lang-cyrillic-54594-doc.tar.xz \
-                    rmd160  2feaab96f3d7d47b9f8f44893773e7ba158fb7d1 \
-                    sha256  df4c2d7150a1b9cc0502af1893f2563b7e7203902dcaa4eb20c8018393641764 \
-                    size    17324124 \
-                    texlive-lang-cyrillic-54594-src.tar.xz \
-                    rmd160  1c2b0342f236f0a8fa93a3668d87a9dc96307b1f \
-                    sha256  75f7ac0f1f6e3ae384571e9d38ec0ec04f6fb31dc6b03992fe5b13beb6ab914e \
-                    size    193632
+checksums           texlive-lang-cyrillic-64588-run.tar.xz \
+                    rmd160  d5da6e496e6ed6bdefcff3c42a7c3dd262975a69 \
+                    sha256  17a7e7280d47cb4dbb6c22a4041bf239595e2ef63dca8e97b3320c351e0cd75d \
+                    size    20821908 \
+                    texlive-lang-cyrillic-64588-doc.tar.xz \
+                    rmd160  fa2eb1abd2dfcd7ad16d5e1142f7fa6aeccb6ace \
+                    sha256  d374148f2056bc0b9d7c0f45cb8c3b3155befbc28e52bcc5dda69f8e12aedf70 \
+                    size    17538380 \
+                    texlive-lang-cyrillic-64588-src.tar.xz \
+                    rmd160  a5ede50ec9de4fd3895c911d2905d8160c47e7b6 \
+                    sha256  8ae5d91e1a53071a53e1ba5a0a36ddc423a0039e1cc3a3717ac4ae9e235df061 \
+                    size    201860
 
 depends_lib         port:texlive-basic port:texlive-latex
 
@@ -40,7 +40,7 @@ texlive.languages      \
     {ukrainian loadhyph-uk.tex 2 2 {} {hyph-uk.pat.txt} {} {} }
 
 texlive.maps      \
-    {Map cmcyr.map} \
+    {MixedMap cmcyr.map} \
     {MixedMap mongolian.map}
 
 texlive.binaries    rubibtex rumakeindex

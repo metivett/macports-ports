@@ -4,29 +4,28 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-pytest-qt
-version             3.3.0
+version             4.3.1
 revision            0
 
 categories-append   devel
-platforms           darwin
+platforms           {darwin any}
 supported_archs     noarch
 license             MIT
 maintainers         {reneeotten @reneeotten} openmaintainer
 
-description         pytest support for PyQt and PySide applications
+description         pytest plugin for Qt (PyQt5/PyQt6 and PySide2/PySide6) application testing
 long_description    ${description}
 
 homepage            https://github.com/pytest-dev/pytest-qt
 
-checksums           rmd160  4921d99da764e7e20ac092408b840e3892b1cbed \
-                    sha256  714b0bf86c5313413f2d300ac613515db3a1aef595051ab8ba2ffe619dbe8925 \
-                    size    113439
+checksums           rmd160  14a5f854ba8a0434121b3757e5378fcda756a3f5 \
+                    sha256  0256041af78082dfc08e22ccf860aaa878d8029557f03f4bfc2007fc291b1e61 \
+                    size    125223
 
-python.versions     27 35 36 37 38 39
+python.versions     38 39 310 311 312
 
 if {${name} ne ${subport}} {
     depends_build-append \
-                    port:py${python.version}-setuptools \
                     port:py${python.version}-setuptools_scm
 
     depends_lib-append \
@@ -38,6 +37,4 @@ if {${name} ne ${subport}} {
         xinstall -m 0644 -W ${worksrcpath} LICENSE CHANGELOG.rst \
             README.rst ${destroot}${docdir}
     }
-
-    livecheck.type  none
 }

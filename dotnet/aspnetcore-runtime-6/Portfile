@@ -1,0 +1,70 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+
+name                aspnetcore-runtime-6
+version             6.0.26
+revision            0
+categories          dotnet
+license             MIT
+maintainers         {@tsabirgaliev gmail.com:tair.sabirgaliev} \
+                    {@judaew judaew} openmaintainer
+
+description         ASP.NET Core is a cross-platform .NET framework for building modern \
+                    cloud-based web applications on Windows, Mac, or Linux.
+
+long_description    .NET is a free, cross-platform, open source developer platform \
+                    for building many different types of applications. \
+                    \
+                    With .NET, you can use multiple languages, editors, and libraries \
+                    to build for web, mobile, desktop, games, and IoT.
+
+homepage            https://dotnet.microsoft.com/
+platforms           {darwin any}
+supported_archs     x86_64 arm64
+
+switch ${build_arch} {
+    x86_64 {
+        distname            aspnetcore-runtime-${version}-osx-x64
+        checksums           rmd160  ac483b51ff5dc6899f22f42f73d07ef6c07d75af \
+                            sha256  5f35c68952da745802843e6333cdfddbbe72190f2a3b8060e4776510cd5a6382 \
+                            size    39202189
+    }
+    arm64 {
+        distname            aspnetcore-runtime-${version}-osx-arm64
+        checksums           rmd160  0ec3d350165607078ea525dde2d81f381b7cb06e \
+                            sha256  a143d17acc7edd0d3aed1d32b3fbb3ba2874b58d41f94e3d16354b29837ed0b9 \
+                            size    36952043
+    }
+    default {
+        known_fail yes
+        pre-fetch {
+            ui_error "${subport} @ ${version} only supported for architectures ${supported_archs}"
+            return -code error "Unsupported architecture: ${build_arch}"
+        }
+    }
+}
+
+master_sites        https://dotnetcli.azureedge.net/dotnet/aspnetcore/Runtime/${version}/
+
+worksrcdir          ${name}-${version}
+extract.mkdir       yes
+
+use_configure       no
+
+depends_run         port:dotnet-cli \
+                    port:dotnet-runtime-6
+
+build {}
+
+destroot {
+    set dotnet_home ${prefix}/share/dotnet
+    set runtime_dir /shared/Microsoft.AspNetCore.App
+    xinstall -d ${destroot}${dotnet_home}${runtime_dir}
+
+    move ${worksrcpath}${runtime_dir}/${version} ${destroot}${dotnet_home}${runtime_dir}
+}
+
+livecheck.type      regex
+livecheck.url       https://dotnet.microsoft.com/en-us/download/dotnet/6.0
+livecheck.regex     "ASP.NET Core Runtime (\\d+(?:\\.\\d+)*)"

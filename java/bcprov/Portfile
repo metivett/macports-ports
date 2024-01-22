@@ -4,27 +4,32 @@ PortSystem          1.0
 PortGroup           java 1.0
 
 name                bcprov
-version             1.68
+version             1.77
+revision            0
+
+checksums           rmd160  22b932e234bdce4a18b4ca034557e93e34f5ae8e \
+                    sha256  dabb98c24d72c9b9f585633d1df9c5cd58d9ad373d0cd681367e6a603a495d58 \
+                    size    8372360
 
 categories          java devel security
 license             MIT
 maintainers         nomaintainer
-platforms           darwin
+platforms           any
 supported_archs     noarch
 
 description         A Java implementation of cryptographic algorithms
-long_description    ${description}
+long_description    {*}${description}
 homepage            https://www.bouncycastle.org/java.html
 
-master_sites        https://search.maven.org/remotecontent?filepath=org/bouncycastle/${name}-jdk15on/${version}/
+master_sites        https://search.maven.org/remotecontent?filepath=org/bouncycastle/${name}-jdk18on/${version}/
 
-distname            ${name}-jdk15on-${version}
+distname            ${name}-jdk18on-${version}
 distfiles           ${distname}.jar
 worksrcdir          ${distname}
 
-checksums           rmd160  1fab9c406c06d5473494eae763e7ac1d549df80b \
-                    sha256  f732a46c8de7e2232f2007c682a21d1f4cc8a8a0149b6b7bd6aa1afdc65a0f8d \
-                    size    5961178
+java.version        1.8+
+java.fallback       openjdk11
+java.deptypes       run
 
 extract {
     file copy ${distpath}/${distname}.jar ${workpath}
@@ -41,5 +46,5 @@ destroot {
 }
 
 livecheck.type      regex
-livecheck.url       https://repo1.maven.org/maven2/org/bouncycastle/${name}-jdk15on/maven-metadata.xml
+livecheck.url       https://repo1.maven.org/maven2/org/bouncycastle/${name}-jdk18on/maven-metadata.xml
 livecheck.regex     >(\\d+\\.\\d+(\\.\\d+)*)</

@@ -3,9 +3,9 @@
 PortSystem          1.0
 
 name                wireshark-chmodbpf
-version             1.0
-revision            2
-platforms           darwin macosx
+version             1.1
+revision            0
+platforms           any
 categories          net
 license             {GPL-2 GPL-3}
 maintainers         {ra1nb0w @ra1nb0w} {darkart.com:opendarwin.org @ghosthound} openmaintainer

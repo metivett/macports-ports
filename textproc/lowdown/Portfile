@@ -1,22 +1,35 @@
-PortSystem              1.0
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
-name                    lowdown
-categories              textproc
-version                 0.3.2
-license                 BSD
+# Use legacysupport for provide the definition of AT_FDCWD for 10.9 and earlier.
+# See https://trac.macports.org/ticket/65265
+PortSystem          1.0
+PortGroup           legacysupport 1.1
 
-description             simple markdown translator
-long_description        lowdown translates markdown to either HTML \
-                        or a roff document using either -man or -ms
-homepage                http://kristaps.bsd.lv/lowdown/
-master_sites            http://kristaps.bsd.lv/lowdown/snapshots/
-maintainers             nomaintainer
-platforms               darwin
+# <fnctl.h> for identifier 'AT_FDCWD'
+# See https://trac.macports.org/ticket/65265
+legacysupport.newest_darwin_requires_legacy 13
 
-checksums \
-        rmd160 f105294316729f92b0f2dacf5559f49f86a1a677 \
-        sha256 740cf6025c43ceaae9bcc1ffc3e94986aa62d65d91ef8173d444a1977c562094
+name                lowdown
+categories          textproc
+version             1.1.0
+revision            0
+license             BSD
+
+description         simple markdown translator
+long_description    lowdown translates markdown to either HTML \
+                    or a roff document using either -man or -ms
+homepage            https://kristaps.bsd.lv/lowdown/
+master_sites        ${homepage}/snapshots/
+maintainers         {judaew @judaew} openmaintainer
+
+checksums           rmd160 7dcaf3a4c9721a5b86efb665b947c281b327c850 \
+                    sha256 f31e3950c4732b1e409174fa092eca40c55be77a448ee2818df987979d7b0879 \
+                    size   269632
 
 configure.universal_args
 configure.pre_args      PREFIX=${prefix}
 configure.args          MANDIR=${prefix}/share/man
+
+# The install target installs only binaries but does not install the library
+# and pkg-config pc file.
+destroot.target-append  install_lib_common install_shared

@@ -4,11 +4,17 @@ PortSystem      1.0
 PortGroup       github 1.0
 PortGroup       muniversal 1.0
 
-github.setup    libass libass 0.15.0
+github.setup    libass libass 0.17.1
+revision        0
+conflicts       libass-devel
+
+checksums       rmd160  a476eb0465a5b48e6a90c62d162bec8b04a557e3 \
+                sha256  4a5076fb33cce541304b1664a208bee168c0a6af7105c377dba2a6c76895d7f3 \
+                size    286049
+
 categories      multimedia
 license         ISC
 maintainers     nomaintainer
-platforms       darwin
 description     subtitle renderer for the ASS/SSA subtitle format
 
 long_description \
@@ -16,33 +22,44 @@ long_description \
     ASS/SSA (Advanced Substation Alpha/Substation Alpha) \
     subtitle format. It is mostly compatible with VSFilter.
 
+subport libass-devel {
+    github.setup        libass libass 9f21dbe6aeed336632dadd500c98b2ff7eab3cfa
+    version             2024.01.09
+    conflicts           libass
+    checksums           rmd160  3e917888ddc16c2497a9f7fd0b3ee7b044f32c9c \
+                        sha256  7b6e4847494bb18cf237f32c37fd7f22a660eaaf4a015540693c1607695cba6a \
+                        size    315152
+    github.tarball_from archive
+}
+
 depends_build   port:pkgconfig \
+                port:m4 \
                 port:nasm
+
 depends_lib     port:fribidi \
                 port:fontconfig \
-                port:harfbuzz
+                path:lib/pkgconfig/harfbuzz.pc:harfbuzz
 
 use_autoreconf  yes
 
 configure.args  --enable-fontconfig \
-                --disable-harfbuzz \
                 --disable-silent-rules
-
-checksums       rmd160  720cdd8659177cf7f301dc6956139d3284c03237 \
-                sha256  9cc813aece4e18d58c10074b103cfefe7bbf497a12e10eefcba803c160bfdbd9 \
-                size    243197
 
 # ass.h:421: error: wrong number of arguments specified for 'deprecated' attribute
 compiler.blacklist-append *gcc-3.* *gcc-4.*
 
-if {![info exists universal_possible]} {
-    set universal_possible [expr {${os.universal_supported} && [llength ${configure.universal_archs}] >= 2}]
+# https://trac.macports.org/ticket/65860
+platform darwin powerpc {
+    compiler.blacklist-append clang
 }
+
 if {${universal_possible} && [variant_isset universal]} {
     # Needed by configure to correctly set the yasm build flags.
-    foreach arch ${configure.universal_archs} {
-        set merger_host($arch) "${arch}-apple-${os.platform}${os.major}.${os.minor}.0"
-    }
+    set merger_host(arm64)  "aarch64-apple-${os.platform}${os.major}.${os.minor}.0"
+    set merger_host(i386)   "i386-apple-${os.platform}${os.major}.${os.minor}.0"
+    set merger_host(ppc)    "powerpc-apple-${os.platform}${os.major}.${os.minor}.0"
+    set merger_host(ppc64)  "powerpc64-apple-${os.platform}${os.major}.${os.minor}.0"
+    set merger_host(x86_64) "x86_64-apple-${os.platform}${os.major}.${os.minor}.0"
 
     # I don't feel safe using a *86* match here. Who knows what other arch could
     # be matching in the future.

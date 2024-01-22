@@ -1,0 +1,43 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           cmake 1.1
+PortGroup           github 1.0
+PortGroup           legacysupport 1.1
+
+# strndup, clock_gettime
+legacysupport.newest_darwin_requires_legacy 15
+
+github.setup        Softmotions iwnet 45e534d9104bb09617aaad37d5944fd79b45c689
+version             2023.10.26
+revision            0
+categories          net devel
+license             MIT
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+description         Pure C asynchronous HTTP framework providing websockets client/server, SSL, reverse proxy and routing
+long_description    {*}${description}
+# Due to: https://github.com/Softmotions/iwnet/issues/5
+platforms           {darwin > 9}
+checksums           rmd160  89f55b0f4f7e75d790c15ee000c0ae5147146333 \
+                    sha256  f1f514a4f6157fdd86b6aa55f2a46e78031bccda33293cf22c66aefae3d87eb9 \
+                    size    823431
+github.tarball_from archive
+
+depends_lib-append  port:iowow
+
+compiler.c_standard 2011
+
+configure.args-append \
+                    -DBUILD_SHARED_LIBS=ON \
+                    -DBUILD_TESTS:BOOL=ON
+
+# https://github.com/Softmotions/iwnet/issues/6
+if {[string match *gcc* ${configure.compiler}]} {
+    configure.ldflags-append \
+                    -latomic
+}
+
+# Only some tests run, while other freeze, at least on PowerPC.
+# Script-based ones wonʼt succeed due to a broken sed syntax:
+# https://github.com/Softmotions/iwnet/issues/7
+test.run            yes

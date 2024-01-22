@@ -1,27 +1,27 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem              1.0
+PortGroup               compiler_blacklist_versions 1.0
 PortGroup               muniversal 1.0
 
 name                    freetype
-version                 2.10.4
+version                 2.13.2
 revision                0
 set docdistname         ${name}-doc-${version}
 use_xz                  yes
 checksums               ${distname}${extract.suffix} \
-                        rmd160  daf8f00c3698b480c9beb8ce8059f30d98644c14 \
-                        sha256  86a854d8905b19698bbc8f23b860bc104246ce4854dcea8e3b0fb21284f75784 \
-                        size    2416620 \
+                        rmd160  8479042093263a5e1c09dc0784254cd7ecf7932f \
+                        sha256  12991c4e55c506dd7f9b765933e62fd2be2e06d421505d7950a132e4f1bb484d \
+                        size    2501764 \
                         ${docdistname}${extract.suffix} \
-                        rmd160  917ce3d499645cefb1815ec3160413c8361d5eac \
-                        sha256  cca1c19d1efa911bb685d919b5b0fe1279b0699bf8eb6a3d3bf9f02784758212 \
-                        size    2079084
+                        rmd160  d32f1bdd9829057c2340a5185fd40e3b99ef62e1 \
+                        sha256  685c25e1035a5076e5097186b3143b9c06878f3f9087d0a81e4d8538d5d15424 \
+                        size    2173920
 
 categories              print graphics
 maintainers             {ryandesign @ryandesign}
 license                 {FreeType GPL-2}
 homepage                https://www.freetype.org
-platforms               darwin
 use_parallel_build      yes
 
 description \
@@ -54,6 +54,12 @@ depends_lib             port:brotli \
                         port:libpng \
                         port:zlib
 
+# __builtin_bswap16
+# https://gitlab.freedesktop.org/freetype/freetype/-/issues/1260
+compiler.blacklist      {clang < 500}
+
+configure.checks.implicit_function_declaration.whitelist-append strchr
+
 # See http://trac.macports.org/ticket/18232
 configure.cppflags-replace  -I${prefix}/include -isystem${prefix}/include
 
@@ -62,6 +68,7 @@ configure.args          --with-brotli \
                         --with-png \
                         --with-zlib \
                         --without-harfbuzz \
+                        --without-librsvg \
                         ac_cv_prog_AWK=/usr/bin/awk
 
 variant no_freetype_config description {Don't install the freetype-config script} {}
@@ -85,13 +92,13 @@ post-destroot {
     
     xinstall -m 0644 -W ${worksrcpath} \
         ChangeLog \
+        LICENSE.TXT \
         README \
         ${destroot}${docdir}
     xinstall -m 0644 -W ${worksrcpath}/docs \
         CHANGES \
         FTL.TXT \
         GPLv2.TXT \
-        LICENSE.TXT \
         PROBLEMS \
         TODO \
         formats.txt \

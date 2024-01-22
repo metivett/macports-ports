@@ -5,7 +5,7 @@ PortGroup           conflicts_build 1.0
 
 name                mysql57
 set name_mysql      ${name}
-version             5.7.33
+version             5.7.44
 set boost_version   1.59.0
 # Set revision_client and revision_server to 0 on version bump.
 set revision_client 0
@@ -13,7 +13,6 @@ set revision_server 0
 set version_branch  [join [lrange [split ${version} .] 0 1] .]
 categories          databases
 platforms           darwin
-license             GPL-2
 maintainers         nomaintainer
 homepage            https://www.mysql.com/
 
@@ -21,13 +20,15 @@ if {$subport eq $name} {
     PortGroup           muniversal 1.0
     PortGroup           cmake 1.0
     PortGroup           select 1.0
-    PortGroup           legacysupport 1.0
+    PortGroup           legacysupport 1.1
+    PortGroup           openssl 1.0
 
     compiler.cxx_standard   2011
     configure.cxxflags-append -std=c++11
 
     revision            ${revision_client}
-    license             GPL-2
+    # https://downloads.mysql.com/docs/licenses/mysqld-5.7-gpl-en.pdf
+    license             {GPL-2 OpenSSLException}
     description         Multithreaded SQL database server
     long_description    MySQL is an open-source, multi-threaded SQL database.
 
@@ -45,9 +46,9 @@ if {$subport eq $name} {
                         ${boost_distname}${extract.suffix}:boost
 
     checksums           ${distname}${extract.suffix} \
-                        rmd160  b041f96c892083f03228eb2e4a24f05cce452f3f \
-                        sha256  ad3b8d80d7b6e307cdf9eb061cbecccfe78bb5ecef24f2b17818d8e3ea2063ad \
-                        size    56179381 \
+                        rmd160  fefc4259ace358f46bc325ff1bd072eed043d3b0 \
+                        sha256  d03d8ff688862c40da3488451072a4b2178a86b53b4a7546ee5f864bb15cd919 \
+                        size    56570597 \
                         ${boost_distname}${extract.suffix} \
                         rmd160  a7974be69a426e8a56b880a412d6c418e4cd751c \
                         sha256  47f11c8844e579d02691a607fbd32540104a9ac7a2534a8ddaef50daf502baac \
@@ -55,8 +56,9 @@ if {$subport eq $name} {
 
     depends_lib-append  port:ncurses \
                         port:libedit \
+                        port:libevent \
+                        port:lz4 \
                         port:cyrus-sasl2 \
-                        path:lib/libssl.dylib:openssl \
                         port:zlib
     depends_run-append  port:mysql_select
 
@@ -70,10 +72,10 @@ if {$subport eq $name} {
     patch.pre_args  -p1
     patchfiles      patch-cmake-install_layout.cmake.diff \
                     patch-configure.cmake.diff \
+                    patch-innodb_engine-fcommon.diff \
                     patch-innodb_memcached-daemon_memcached-include-memcached-util.h.diff \
                     patch-lockpool.diff \
-                    patch-cmake-fix-test-env.diff \
-                    patch-sql-locks-shared_spin_lock.cc.diff
+                    patch-cmake-fix-test-env.diff
 
     post-patch {
         reinplace "s|@NAME@|${name_mysql}|g" \
@@ -86,6 +88,18 @@ if {$subport eq $name} {
         reinplace "s|@PREFIX@|${prefix}|g" \
             ${cmake.build_dir}/macports/macports-default.cnf \
             ${cmake.build_dir}/macports/my.cnf
+
+        # don't force /usr/bin/libtool -- allow cctools' version to be used
+        reinplace "s|/usr/bin/libtool|libtool|g" \
+            ${worksrcpath}/cmake/merge_archives.cmake.in
+    }
+
+
+    patchfiles-append \
+                    patch-rename_version.diff
+    post-patch {
+        # avoid collision with C++17 header <version>
+        move ${worksrcpath}/VERSION ${worksrcpath}/VERSION.txt
     }
 
     configure.args-delete \
@@ -107,8 +121,11 @@ if {$subport eq $name} {
         -DENABLE_GCOV:BOOL=OFF \
         -DENABLE_DTRACE:BOOL=OFF \
         -DWITH_LIBWRAP:BOOL=OFF \
-        -DWITH_SSL:STRING=${prefix} \
         -DWITH_INNODB_MEMCACHED=1 \
+        -DWITH_LIBEVENT=system \
+        -DLIBEVENT_INCLUDE_PATH:PATH="${prefix}/include" \
+        -DLIBEVENT_LIB_PATHS:PATH="${prefix}/lib" \
+        -DWITH_LZ4=system \
         -DWITH_PARTITION_STORAGE_ENGINE=1 \
         -DDOWNLOAD_BOOST=1 \
         -DWITH_BOOST=${worksrcpath}/../${boost_distname} \
@@ -222,7 +239,7 @@ subport ${name_mysql}-server {
         reinplace "s|@GROUP@|${mysqluser}|g" \
             ${workpath}/org.macports.${subport}.plist
     }
-    
+
     use_configure       no
 
     build {}

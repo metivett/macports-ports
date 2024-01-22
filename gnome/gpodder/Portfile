@@ -1,13 +1,15 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
+PortGroup           python 1.0
 
 name                gpodder
-version             3.9.6
+version             3.11.0
 categories          gnome audio
 license             GPL-3
 maintainers         nomaintainer
-platforms           darwin
+platforms           {darwin any}
+supported_archs     noarch
 description         A media aggregator and podcast client
 
 long_description    gPodder is a standalone podcast manager. \
@@ -16,11 +18,12 @@ long_description    gPodder is a standalone podcast manager. \
                     the content, e.g. Apple QuickTime Player.
 
 homepage            http://gpodder.org
-master_sites        https://github.com/gpodder/gpodder/archive
+master_sites        https://github.com/gpodder/gpodder/archive/refs/tags
 distfiles           ${version}.tar.gz
 
-checksums           rmd160  a104f2f22e80c7f693b784bb190706ac3ff6d43d \
-                    sha256  5ae1c6d4337834fd29697250dffd439bd3f234a6878ef461b53cd218898b5e72
+checksums           rmd160 62e9e284c3c154b640b32735c764706b77f57bf3 \
+                    sha256 c96a3332e61e8277475497ec24fe0918c5cafc580a2f85fc7b34c2fd989873de \
+                    size 1155120
 
 
 depends_build       port:help2man\
@@ -28,75 +31,80 @@ depends_build       port:help2man\
 
 depends_lib         port:vorbis-tools\
                     port:lame \
-                    port:py27-podcastparser \
-                    port:dbus-python27 \
-                    port:py27-mygpoclient \
-                    port:py27-pygtk
+                    path:lib/pkgconfig/gtk+-3.0.pc:gtk3 \
+                    path:lib/pkgconfig/librsvg-2.0.pc:librsvg
 
-set python.version  27
-set python.branch   "[string range ${python.version} 0 end-1].[string index ${python.version} end]"
+# python group overrides
+destroot.cmd           make
+destroot.destdir       DESTDIR=${destroot}
+
+
+variant python38 conflicts python39 python310 python311 description {Use Python 3.8} {}
+variant python39 conflicts python38 python310 python311 description {Use Python 3.9} {}
+variant python310 conflicts python38 python39 python311 description {Use Python 3.10} {}
+variant python311 conflicts python38 python39 python310 description {Use Python 3.11} {}
+
+if {![variant_isset python38] && ![variant_isset python39] && ![variant_isset python310]} {
+    default_variants +python311
+}
+
+if {[variant_isset python38]} {
+    python.default_version  38
+} elseif {[variant_isset python39]} {
+    python.default_version  39
+} elseif {[variant_isset python310]} {
+    python.default_version  310
+} else {
+    python.default_version  311
+}
+python.pep517       no
+
 set my_python "${frameworks_dir}/Python.framework/Versions/${python.branch}"
+
+depends_lib-append \
+                    port:py${python.version}-gobject3 \
+                    port:dbus-python${python.version} \
+                    port:py${python.version}-mutagen \
+                    port:py${python.version}-mygpoclient \
+                    port:py${python.version}-podcastparser \
+                    port:youtube-dl
 
 post-patch {
     reinplace s|python|${my_python}/bin/python|g ${worksrcpath}/makefile
-    # DISPLAY is not needed with quartz
-    if {[variant_isset quartz]} {
-        reinplace -E {s|if not gpodder.ui.win32|if not gpodder.ui.osx|} \
-                 "bin/gpodder"
-    }
 }
 
-# install in python 2.7 prefix
+# install in python prefix
 destroot.args PREFIX=${my_python}
 
-# Install the apps in the standard path :
-post-destroot {
-    foreach {app} {gpodder gpo gpodder-backup gpodder-migrate2tres} {
-        ln -s ${my_python}/bin/${app} ${destroot}${prefix}/bin/${app}
-    }
-}
 
 variant quartz {
-    depends_lib-append  port:py27-gtk-osx-application-gtk2
-
     post-destroot {
-    	# Command-XX shortcuts in gPodder menus
-    	system "/usr/bin/xsltproc -o ${destroot}${my_python}/share/gpodder/ui/gtk/gpodder.ui \
-    		${filespath}/adjust-modifiers.xsl ${worksrcpath}/share/gpodder/ui/gtk/gpodder.ui"
+       # Command-XX shortcuts in gPodder menus
+       system "/usr/bin/xsltproc -o ${destroot}${my_python}/share/gpodder/ui/gtk/gpodder.ui \
+               ${filespath}/adjust-modifiers.xsl ${worksrcpath}/share/gpodder/ui/gtk/gpodder.ui"
     }
 }
-
-variant html_notes description {Use WebkitGtk+ to show episode notes in HTML format} {
-		notes-append "HTML shownotes are not available in this version of gPodder"
-}
-
-use_configure       no
 
 build {}
 
 post-destroot {
 
-    # build a MacOS X application
     set install_path "${my_python}"
+    set contents "${destroot}${applications_dir}/gPodder.app/Contents"
 
-	system "cd ${worksrcpath}/tools/mac-osx && make \
-		GPODDERSCRIPT=\"${install_path}/bin/gpodder\"\
-		APPLICATIONSDIR=\"${destroot}${applications_dir}\"\
-		VERSION=\"${version}\"\
-		OSXVERSION=\"${os.platform}${os.major}\" all"
-	
+    file mkdir ${contents}/MacOS ${contents}/Resources
+    copy ${worksrcpath}/tools/mac-osx/icon.icns ${contents}/Resources/gPodder.icns
+    copy ${worksrcpath}/tools/mac-osx/Info.plist ${contents}
+    reinplace "s|__VERSION__|${version}|g" ${contents}/Info.plist
+    reinplace "s|__COPYRIGHT__|© 2005-2022 The gPodder Team|g" ${contents}/Info.plist
+    ln -s ${install_path}/bin/gpodder ${contents}/MacOS/gpodder
+
     # ticket #39613 gPodder +x11 keeps bouncing otherwise
     if {![variant_isset quartz]} {
         reinplace -E {s|(<string>org.gpodder.gpodder</string>)|\1 <key>LSUIElement</key><string>1</string>|} \
                  "${destroot}${applications_dir}/gPodder.app/Contents/Info.plist"
     }
 }
-
-notes-append "
-To subscribe to YouTube user feeds (e.g. yt:gobelins),
-you must enter a google API key.
-See http://wiki.gpodder.org/wiki/Youtube for detailed instructions.
-"
 
 livecheck.type      regex
 livecheck.url       ${master_sites}

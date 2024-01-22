@@ -1,0 +1,101 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+### Notes
+# .NET File Hierarchy -- based on .NET 6.0
+# ${prefx}/share/dotnet
+# ├── LICENSE.txt                                   # provided by `dotnet-cli`
+# ├── ThirdPartyNotices.txt                         # provided by `dotnet-cli`
+# ├── dotnet                                        # main executable, provided by `dotnet-cli`
+# ├── host
+# │   └── fxr                                       # Host FX Resolver, provided by `dotnet-runtime-{version}`
+# ├── packs
+# │   ├── Microsoft.AspNetCore.App.Ref              # ASP.NET Core Targeting Pack, provided by `dotnet-sdk-{version}`
+# │   ├── Microsoft.NETCore.App.Host.{dotnet-rid}   # .NET AppHost Pack, provided by `dotnet-sdk-{version}`
+# │   ├── Microsoft.NETCore.App.Ref                 # .NET Targeting Pack, provided by `dotnet-sdk-{version}`
+# │   └── NETStandard.Library.Ref                   # .NET Standard Targeting Pack, not provided, see https://devblogs.microsoft.com/dotnet/the-future-of-net-standard/
+# ├── sdk                                           # provided by `dotnet-sdk-{version}`
+# ├── sdk-manifests                                 # provided by `dotnet-sdk-{version}`
+# ├── shared
+# │   ├── Microsoft.AspNetCore.App                  # provided by `aspnetcore-runtime-{version}`
+# │   └── Microsoft.NETCore.App                     # provided by `dotnet-runtime-{version}`
+# └── templates                                     # provided by `dotnet-sdk-{version}`
+###
+
+PortSystem          1.0
+
+name                dotnet-cli
+version             8.0.1
+revision            0
+categories          dotnet
+license             MIT
+maintainers         {@tsabirgaliev gmail.com:tair.sabirgaliev} \
+                    {@judaew judaew} openmaintainer
+
+description         The .NET command-line interface (CLI) is a cross-platform toolchain \
+                    for developing, building, running, and publishing .NET applications.
+
+long_description    .NET is a free, cross-platform, open source developer platform \
+                    for building many different types of applications. \
+                    \
+                    With .NET, you can use multiple languages, editors, and libraries \
+                    to build for web, mobile, desktop, games, and IoT.\
+                    \
+                    This port tracks either 'current' or 'LTS' version of dotnet-cli,\
+                    whichever is latest.
+
+homepage            https://dotnet.microsoft.com/
+platforms           darwin
+supported_archs     x86_64 arm64
+
+master_sites        https://dotnetcli.azureedge.net/dotnet/Runtime/${version}/
+
+switch ${build_arch} {
+    x86_64 {
+        distname            dotnet-runtime-${version}-osx-x64
+        checksums           rmd160  9a5bdc6f95482ef09dfb98eaad3773989264e01e \
+                            sha256  56423d42ea64914f79e45921fa5955aaf948077978332938366a9bdd9a3656db \
+                            size    30784588
+    }
+    arm64 {
+        distname            dotnet-runtime-${version}-osx-arm64
+        checksums           rmd160  8472d353364a11803a17086904bdc48785999c90 \
+                            sha256  9c679432f9349e04077257a77f864d869676c70fdba03757dc82adf018578e28 \
+                            size    29109617
+    }
+    default {
+        known_fail yes
+        pre-fetch {
+            ui_error "${subport} @ ${version} only supported for architectures ${supported_archs}"
+            return -code error "Unsupported architecture: ${build_arch}"
+        }
+    }
+}
+
+worksrcdir          ${name}-${version}
+extract.mkdir       yes
+
+use_configure       no
+
+build {}
+
+destroot {
+    set dotnet_home ${prefix}/share/dotnet
+    set target ${destroot}${dotnet_home}
+
+    # Create the target directory
+    xinstall -d ${target}
+
+    # Copy over the needed elements of our directory tree
+    move ${worksrcpath}/dotnet \
+         ${worksrcpath}/ThirdPartyNotices.txt \
+         ${worksrcpath}/LICENSE.txt \
+         ${target}
+
+    # Symlink dotnet into the bin directory
+    ln -s ${dotnet_home}/dotnet ${destroot}${prefix}/bin
+}
+
+set major_ver       [join [lrange [split ${version} .] 0 1] .]
+livecheck.type      regex
+livecheck.url       https://dotnet.microsoft.com/en-us/download/dotnet/${major_ver}
+livecheck.regex     ".NET Runtime (\\d+(?:\\.\\d+)*)"

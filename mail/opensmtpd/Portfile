@@ -1,13 +1,12 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
-PortGroup           legacysupport 1.0
+PortGroup           legacysupport 1.1
 
 name                opensmtpd
-version             6.8.0p2
-revision            1
+version             7.4.0p1
+revision            0
 categories          mail
-platforms           darwin
 license             ISC
 maintainers         {@ryanakca debian.org:rak}
 description         secure, reliable, lean, and easy-to configure SMTP server
@@ -23,9 +22,9 @@ homepage            https://www.opensmtpd.org
 
 master_sites        https://opensmtpd.org/archives/
 
-checksums           rmd160  740a0904594f47caa1261b4be3bc7de8165678e7 \
-                    sha256  51bf05312fe56764748faab9e63170bfbb7c7d84a37c4117b62b2681eb3a4d17 \
-                    size    860189
+checksums           rmd160  e62234e14c5288c8b3e73714224d99d216df9479 \
+                    sha256  9e82a2ec9419e181d4ca27d8e3ebe5d129fded5ba84022ff4d11a73f8edb70b5 \
+                    size    908307
 
 depends_build       port:bison
 
@@ -44,10 +43,9 @@ post-patch {
     reinplace "s|file:/etc/mail/aliases|file:${sysconfdir}/aliases|g" ${worksrcpath}/usr.sbin/smtpd/smtpd.conf
 }
 
-use_autoreconf      yes
-autoreconf.cmd      ./bootstrap
-
-
+#temp fix for 7.4.0p1. Already patched upstream, to be included in next release.
+patchfiles          configure.patch
+ 
 depends_build-append \
                     port:autoconf \
                     port:automake \

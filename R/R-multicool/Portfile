@@ -1,0 +1,18 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran j.curran multicool 1.0.0
+revision            0
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             GPL-2
+description         Permutations of multisets in Cool-lex order
+long_description    {*}${description}
+checksums           rmd160  839beb1266fb468e30a96ffc8f423176b7e354f7 \
+                    sha256  4fb08e97d59da8d53730bc72ddabcb04f84ac7965f1e590e5ed1973f7861913d \
+                    size    14680
+
+depends_lib-append  port:R-Rcpp
+
+test.run            yes

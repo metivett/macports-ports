@@ -3,12 +3,12 @@
 PortSystem          1.0
 PortGroup           github 1.0
 
-github.setup        aqbanking aqbanking 6.2.5
+github.setup        aqbanking aqbanking 6.5.4
 name                aqbanking6
 
-checksums           rmd160  3b6703a01f352c5ea99c695dabc68fe409e5c43b \
-                    sha256  07d26b743bed2d4e74bd075c0bfd9ba2d604b4d394c041fbaccec7306c103a90 \
-                    size    3229367
+checksums           rmd160  13f574c4dc90faf2dcfa65c37733cb66c0be0813 \
+                    sha256  3354bb3e2563398c58d12104a9112dc1580a50a450992f2f98319979a54e6ab0 \
+                    size    3289704
 
 categories          devel net finance
 maintainers         {dports @drkp} openmaintainer
@@ -31,7 +31,7 @@ conflicts           aqbanking6 aqbanking6-gtk2 aqbanking6-gtk3 \
 depends_lib         port:ktoblzcheck \
                     port:libofx \
                     port:gmp \
-                    port:gnutls
+                    path:lib/pkgconfig/gnutls.pc:gnutls
 
 depends_build       port:pkgconfig
 

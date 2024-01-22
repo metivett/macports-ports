@@ -18,37 +18,39 @@ long_description    \
     directory. This allows project-specific environment variables without \
     cluttering the \"~/.profile\" file.
 
-# deprecate the devel port, if installed
-# can be removed after 20210125
-subport direnv-devel {
+homepage            https://direnv.net/
 
-    PortGroup   obsolete 1.0
-    replaced_by direnv
-    version     20191231-ab4d188d
-    revision    1
-    depends_build
-    depends_lib
+go.setup            github.com/direnv/direnv 2.33.0 v
+revision            0
 
+destroot {
+    xinstall -m 0755 ${worksrcpath}/${name} ${destroot}${prefix}/bin/
 }
 
-if {${name} eq ${subport}} {
+checksums           ${distname}${extract.suffix} \
+                        rmd160  3e0c6233f6c9dcde6cd8928d28915716f3865eb2 \
+                        sha256  a081224fba92d4f0a2f393af8d83bfa3395c6085f65d5613fbc5e48620b1b8a6 \
+                        size    90794
 
-    go.setup  github.com/direnv/direnv 2.26.0 v
-    checksums rmd160 75709a28fb8aee1bb936c1c944ab06d2364a40dc \
-              sha256 2c31ec65f340b66654b1fa029db0a0ed7a52d40c1b7ab710256348b26158724f \
-              size   1378813
-    revision  0
-
-    depends_build-append port:shfmt
-
-    build.cmd make
-    build.target all
-
-    destroot {
-        system "cd ${worksrcpath} && make install DESTDIR=${destroot}${prefix}"
-    }
-}
-
-# override github information
-
-homepage https://direnv.net/
+# see ${WORKSRCPATH}/gopath/src/github.com/direnv/direnv/go.sum
+# pick the most recent version of each and verify downloading and building
+go.vendors          golang.org/x/sys \
+                        lock    v0.6.0 \
+                        rmd160  eed022d31d3cd2b2a5c7d1bad325b6667db1d831 \
+                        sha256  28b3d661c0b094ccb133bb2f30a2db8fcd64be036f4fc42ee6c2ab4b00867bd3 \
+                        size    1435230 \
+                    golang.org/x/mod \
+                        lock    v0.13.0 \
+                        rmd160  995441ddb549ed539535e747368a5e127e866921 \
+                        sha256  c08f2ff1b105ebfd0d0686e8290c7a86670d4706fa783f2b3457423e5478d013 \
+                        size    122050 \
+                    github.com/mattn/go-isatty \
+                        lock    v0.0.20 \
+                        rmd160  ef20ccdf87de8b704c0c7118625b2beb31d8f1b4 \
+                        sha256  397549e98cf5d40df585f31dc7902f017c37be88c64311dd2b4aeccab4009949 \
+                        size    4717 \
+                    github.com/BurntSushi/toml \
+                        lock    v1.3.2 \
+                        rmd160  d34d7e7532c67412d48f3777a5bba8cd5a04b0cd \
+                        sha256  ba788b5f21507f40faa972bc86cb87d8929c798959f7402152d86120ac357d05 \
+                        size    119417

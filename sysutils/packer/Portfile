@@ -3,47 +3,50 @@
 PortSystem          1.0
 PortGroup           golang 1.0
 
-go.setup            github.com/hashicorp/packer 1.7.0 v
+go.setup            github.com/hashicorp/packer 1.10.0 v
+github.tarball_from archive
 revision            0
 
 homepage            https://www.packer.io
 
-description         A tool for creating identical machine images for multiple \
-                    platforms from a single source configuration.
+description         \
+    A tool for creating identical machine images for multiple platforms from \
+    a single source configuration.
 
-long_description    ${description} \
-                    Packer is lightweight, runs on every major operating \
-                    system, and is highly performant, creating machine images \
-                    for multiple platforms in parallel. Packer comes out of \
-                    the box with support for many platforms, the full list of \
-                    which can be found at \
-                    https://www.packer.io/docs/builders/index.html.
+long_description    \
+    {*}${description} Packer is lightweight, runs on every major operating \
+    system, and is highly performant, creating machine images for multiple \
+    platforms in parallel. Packer comes out of the box with support for many \
+    platforms, the full list of which can be found at \
+    https://www.packer.io/docs/builders/index.html.
 
 categories          sysutils
-license             MPL-2
-platforms           darwin
-supported_archs     x86_64
 installs_libs       no
-
-checksums           rmd160  8f70d4b391007372c63096a20caf21164619f77c \
-                    sha256  85ec09a15173b1c967ce0608364491f5103919daba6b1422d67fd84e2e9239ce \
-                    size    17590041
-
+# Packer 1.10.0 onwards is licensed as per Hashicorp's Business Source License
+license             Commercial Permissive
 maintainers         {gmail.com:newtonne.github @newtonne} \
                     {gmail.com:herby.gillot @herbygillot} \
                     openmaintainer
 
-depends_build       port:realpath
+checksums           rmd160  0b61ab7148f0ffc0b7d22b4cf2f78fca8905b27d \
+                    sha256  d4f8c8741786c675b01a3be14dc24fb60baf69991908b1c4644277dae47cf946 \
+                    size    2288288
+
+depends_build-append port:realpath
 
 # Allow deps to be fetched at runtime
-build.env-delete    GO111MODULE=off GOPROXY=off
+go.offline_build no
 
-build.env-append    XC_ARCH=amd64 \
+build.env-append    XC_ARCH=${goarch} \
                     XC_OS=darwin
 
 build.cmd           make
 build.target        releasebin
 
 destroot {
-    xinstall -m 755 ${worksrcpath}/bin/${name} ${destroot}${prefix}/bin/${name}
+    xinstall -m 0755 \
+        ${worksrcpath}/bin/${name} ${destroot}${prefix}/bin/${name}
 }
+
+github.livecheck.regex \
+                    {([0-9.]+)}

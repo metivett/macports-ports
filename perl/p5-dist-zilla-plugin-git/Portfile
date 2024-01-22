@@ -3,22 +3,20 @@
 PortSystem          1.0
 PortGroup           perl5 1.0
 
-perl5.branches      5.26 5.28 5.30
-perl5.setup         Dist-Zilla-Plugin-Git 2.047
+perl5.branches      5.28 5.30 5.32 5.34
+perl5.setup         Dist-Zilla-Plugin-Git 2.049
 revision            0
-platforms           darwin
 maintainers         nomaintainer
 license             {Artistic-1 GPL}
+description         Update your git repository after release
+long_description    {*}${description}
 
+platforms           {darwin any}
 supported_archs     noarch
 
-description         Update your git repository after release
-
-long_description    ${description}
-
-checksums           rmd160  83d4b86d39ff93a40a66cc2b02c63871c86a4f54 \
-                    sha256  bf97e05f16e7e7ce1350c6db3759986784aa7f2ad83e76b1cd84bdb462597a50 \
-                    size    75517
+checksums           rmd160  8a124a324691b735f1efa9d99d76b5f6e5ab726d \
+                    sha256  c01a4f06ea4a5730205e46ef102a82a0d5edd385b29f4caa241e8cda5740aa64 \
+                    size    76263
 
 if {${perl5.major} != ""} {
     depends_build-append \

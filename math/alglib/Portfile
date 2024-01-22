@@ -4,12 +4,11 @@ PortSystem              1.0
 PortGroup               cmake 1.1
 
 name                    alglib
-version                 3.16.0
+version                 4.01.0
 revision                0
 categories              math
 license                 GPL-2+
 maintainers             {mcalhoun @MarcusCalhoun-Lopez} openmaintainer
-platforms               darwin
 description             a cross-platform numerical analysis and data processing library
 long_description        ALGLIB is ${description}.
 
@@ -18,16 +17,19 @@ master_sites            http://www.alglib.net/translator/re/
 
 extract.suffix          .cpp.gpl.tgz
 
-checksums               rmd160  ae334bf1300c847c61bed1a2313d48edc7445b6a \
-                        sha256  41fa15d25f7332f357ebecdec3e5370619361365b469b6c92401fec059b69867 \
-                        size    2970160
+checksums               rmd160  13d4d562f6953b23b19c66cf5fa4d3bc2f88c421 \
+                        sha256  95e8ea41b32c92346f49a694759e786c5f3a1087b401a9259ef592c0eea4befb \
+                        size    3651221
 
-worksrcdir              cpp
+worksrcdir              ${name}-cpp
 
 post-extract {
-    # CMakeLists.txt is taken from https://src.fedoraproject.org/rpms/alglib/raw/master/f/CMakeLists.txt
+    # CMakeLists.txt is taken from https://src.fedoraproject.org/rpms/alglib/raw/rawhide/f/CMakeLists.txt
     copy ${filespath}/CMakeLists.txt ${worksrcpath}/
 }
 
 configure.args-append   -DALGLIB_VERSION=${version} \
                         -DALGLIB_VERSION_MAJOR=[lindex [split ${version} .] 0]
+
+test.run                yes
+test.args-append        DYLD_LIBRARY_PATH=${cmake.build_dir}

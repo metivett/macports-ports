@@ -1,9 +1,9 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
-PortSystem 1.0
+PortSystem          1.0
 
 name                libcryptopp
-version             8.4.0
+version             8.9.0
 revision            0
 categories          devel security
 platforms           darwin
@@ -21,9 +21,9 @@ distname            cryptopp[strsed ${version} {g/\.//}]
 
 use_zip             yes
 
-checksums           rmd160  ce96bf48eb68263c1fe35e8a661ff97253a45be9 \
-                    sha256  c0f5e5cd2c693c8160e9c51666e95949a1c19fd4fe4fef874af2ec1e42757b9a \
-                    size    9124180
+checksums           rmd160  59cef763407ca6a0c6314f9a545be0a51c51f684 \
+                    sha256  4cc0ccc324625b80b695fcd3dee63a66f1a460d3e51b71640cdbfc4cd1a3779c \
+                    size    9288053
 
 extract.mkdir       yes
 

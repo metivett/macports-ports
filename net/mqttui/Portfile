@@ -1,0 +1,193 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           github 1.0
+PortGroup           cargo  1.0
+
+github.setup        EdJoPaTo mqttui 0.19.0 v
+revision            0
+
+categories          net
+license             GPL-3
+maintainers         {@sikmir disroot.org:sikmir} openmaintainer
+
+description         Simple lightweight terminal based MQTT monitor and publisher.
+long_description    {*}${description}
+
+checksums           ${distfiles} \
+                    rmd160  5a274e723ef3f90c6352f0ce87bc5eddaec43e0c \
+                    sha256  74a30d808bbdc59843515255583735c0aa73d55cf496574663cb59e3c3f0ec2a \
+                    size    191952
+
+destroot {
+    xinstall -m 0755 ${worksrcpath}/target/[option triplet.${muniversal.build_arch}]/release/${name} ${destroot}${prefix}/bin/
+}
+
+cargo.crates \
+    android_system_properties        0.1.5  819e7219dbd41043ac279b19830f2efc897156490d7fd6ea916720117ee66311 \
+    anstream                         0.3.2  0ca84f3628370c59db74ee214b3263d58f9aadd9b4fe7e711fd87dc452b7f163 \
+    anstyle                          1.0.0  41ed9a86bf92ae6580e0a31281f65a1b1d867c0cc68d5346e2ae128dddfa6a7d \
+    anstyle-parse                    0.2.0  e765fd216e48e067936442276d1d57399e37bce53c264d6fefbe298080cb57ee \
+    anstyle-query                    1.0.0  5ca11d4be1bab0c8bc8734a9aa7bf4ee8316d462a08c6ac5052f888fef5b494b \
+    anstyle-wincon                   1.0.1  180abfa45703aebe0093f79badacc01b8fd4ea2e35118747e5811127f926e188 \
+    anyhow                          1.0.71  9c7d0618f0e0b7e8ff11427422b64564d5fb0be1940354bfe2e0529b18a9d9b8 \
+    async-tungstenite               0.16.1  5682ea0913e5c20780fe5785abacb85a411e7437bf52a1bedb93ddb3972cb8dd \
+    async_io_stream                  0.3.3  b6d7b9decdf35d8908a7e3ef02f64c5e9b1695e230154c0e8de3969142d9b94c \
+    autocfg                          1.1.0  d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa \
+    base64                          0.13.1  9e1b586273c5702936fe7b7d6896644d8be71e6314cfe09d3167c95f712589e8 \
+    base64                          0.21.0  a4a4ddaa51a5bc52a6948f74c06d20aaaddb71924eab79b8c97a8c556e942d6a \
+    bitflags                         1.3.2  bef38d45163c2f1dde094a7dfd33ccf595c92905c8f8f4fdc18d06fb1037718a \
+    block-buffer                     0.9.0  4152116fd6e9dadb291ae18fc1ec3575ed6d84c29642d97890f4b4a3417297e4 \
+    bumpalo                         3.12.2  3c6ed94e98ecff0c12dd1b04c15ec0d7d9458ca8fe806cea6f12954efe74c63b \
+    byteorder                        1.4.3  14c189c53d098945499cdfa7ecc63567cf3886b3332b312a5b4585d8d3a6a610 \
+    bytes                            1.4.0  89b2fd2a0dcf38d7971e2194b6b6eebab45ae01067456a7fd93d5547a61b70be \
+    cassowary                        0.3.0  df8670b8c7b9dae1793364eafadf7239c40d669904660c5960d74cfd80b46a53 \
+    cc                              1.0.79  50d30906286121d95be3d479533b458f87493b30a4b5f79a607db8f5d11aa91f \
+    cfg-if                           1.0.0  baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd \
+    chrono                          0.4.24  4e3c5919066adf22df73762e50cffcde3a758f2a848b113b586d1f86728b673b \
+    clap                             4.2.7  34d21f9bf1b425d2968943631ec91202fe5e837264063503708b83013f8fc938 \
+    clap_builder                     4.2.7  914c8c79fb560f238ef6429439a30023c862f7a28e688c58f7203f12b29970bd \
+    clap_complete                    4.2.3  1594fe2312ec4abf402076e407628f5c313e54c32ade058521df4ee34ecac8a8 \
+    clap_derive                      4.2.0  3f9644cd56d6b87dbe899ef8b053e331c0637664e9e21a33dfcdc36093f5c5c4 \
+    clap_lex                         0.4.1  8a2dd5a6fe8c6e3502f568a6353e5273bbb15193ad9a89e457b9970798efbea1 \
+    colorchoice                      1.0.0  acbf1af155f9b9ef647e42cdc158db4b64a1b61f743629225fde6f3e0be2a7c7 \
+    core-foundation                  0.9.3  194a7a9e6de53fa55116934067c844d9d749312f75c6f6d0980e8c252f8c2146 \
+    core-foundation-sys              0.8.4  e496a50fda8aacccc86d7529e2c1e0892dbd0f898a6b5645b5561b89c3210efa \
+    cpufeatures                      0.2.7  3e4c1eaa2012c47becbbad2ab175484c2a84d1185b566fb2cc5b8707343dfe58 \
+    crossterm                       0.25.0  e64e6c0fbe2c17357405f7c758c1ef960fce08bdfb2c03d88d2a18d7e09c4b67 \
+    crossterm_winapi                 0.9.0  2ae1b35a484aa10e07fe0638d02301c5ad24de82d310ccbd2f3693da5f09bf1c \
+    digest                           0.9.0  d3dd60d1080a57a05ab032377049e0591415d2b31afd7028356dbf3cc6dcb066 \
+    ego-tree                         0.6.2  3a68a4904193147e0a8dec3314640e6db742afd5f6e634f428a6af230d9b3591 \
+    errno                            0.3.1  4bcfec3a70f97c962c307b2d2c56e358cf1d00b558d74262b5f929ee8cc7e73a \
+    errno-dragonfly                  0.1.2  aa68f1b12764fab894d2755d2518754e71b4fd80ecfb822714a1206c2aab39bf \
+    flume                          0.10.14  1657b4441c3403d9f7b3409e47575237dac27b1b5726df654a6ecbf92f0f7577 \
+    fnv                              1.0.7  3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1 \
+    form_urlencoded                  1.1.0  a9c384f161156f5260c24a097c56119f9be8c798586aecc13afbcbe7b7e26bf8 \
+    futures                         0.3.28  23342abe12aba583913b2e62f22225ff9c950774065e4bfb61a19cd9770fec40 \
+    futures-channel                 0.3.28  955518d47e09b25bbebc7a18df10b81f0c766eaf4c4f1cccef2fca5f2a4fb5f2 \
+    futures-core                    0.3.28  4bca583b7e26f571124fe5b7561d49cb2868d79116cfa0eefce955557c6fee8c \
+    futures-executor                0.3.28  ccecee823288125bd88b4d7f565c9e58e41858e47ab72e8ea2d64e93624386e0 \
+    futures-io                      0.3.28  4fff74096e71ed47f8e023204cfd0aa1289cd54ae5430a9523be060cdb849964 \
+    futures-macro                   0.3.28  89ca545a94061b6365f2c7355b4b32bd20df3ff95f02da9329b34ccc3bd6ee72 \
+    futures-sink                    0.3.28  f43be4fe21a13b9781a69afa4985b0f6ee0e1afab2c6f454a8cf30e2b2237b6e \
+    futures-task                    0.3.28  76d3d132be6c0e6aa1534069c705a74a5997a356c0dc2f86a47765e5617c5b65 \
+    futures-util                    0.3.28  26b01e40b772d54cf6c6d721c1d1abd0647a0106a12ecaa1c186273392a69533 \
+    generic-array                   0.14.7  85649ca51fd72272d7821adaf274ad91c288277713d9c18820d8499a7ff69e9a \
+    getrandom                        0.2.9  c85e1d9ab2eadba7e5040d4e09cbd6d072b76a557ad64e797c2cb9d4da21d7e4 \
+    heck                             0.4.1  95505c38b4572b2d910cecb0281560f54b440a19336cbbcb27bf6ce6adc6f5a8 \
+    hermit-abi                       0.3.1  fed44880c466736ef9a5c5b5facefb5ed0785676d0c02d612db14e54f0d84286 \
+    http                             0.2.9  bd6effc99afb63425aff9b05836f029929e345a6148a14b7ecd5ab67af944482 \
+    httparse                         1.8.0  d897f394bad6a705d5f4104762e116a75639e470d80901eed05a860a95cb1904 \
+    iana-time-zone                  0.1.56  0722cd7114b7de04316e7ea5456a0bbb20e4adb46fd27a3697adb812cff0f37c \
+    iana-time-zone-haiku             0.1.2  f31827a206f56af32e590ba56d5d2d085f558508192593743f16b2306495269f \
+    idna                             0.3.0  e14ddfc70884202db2244c223200c204c2bda1bc6e0998d11b5e024d657209e6 \
+    io-lifetimes                    1.0.10  9c66c74d2ae7e79a5a8f7ac924adbe38ee42a859c6539ad869eb51f0b52dc220 \
+    is-terminal                      0.4.7  adcf93614601c8129ddf72e2d5633df827ba6551541c6d8c59520a371475be1f \
+    itoa                             1.0.6  453ad9f582a441959e5f0d088b02ce04cfe8d51a8eaf077f12ac6d3e94164ca6 \
+    js-sys                          0.3.63  2f37a4a5928311ac501dee68b3c7613a1037d0edb30c8e5427bd832d55d1b790 \
+    json                            0.12.4  078e285eafdfb6c4b434e0d31e8cfcb5115b651496faca5749b88fafd4f23bfd \
+    libc                           0.2.144  2b00cc1c228a6782d0f076e7b232802e0c5689d41bb5df366f2a6b6621cfdfe1 \
+    linux-raw-sys                    0.3.7  ece97ea872ece730aed82664c424eb4c8291e1ff2480247ccf7409044bc6479f \
+    lock_api                         0.4.9  435011366fe56583b16cf956f9df0095b405b82d76425bc8981c0e22e60ec4df \
+    log                             0.4.17  abb12e687cfb44aa40f41fc3978ef76448f9b6038cad6aef4259d3c095a2382e \
+    memchr                           2.5.0  2dffe52ecf27772e601905b7522cb4ef790d2cc203488bbd0e2fe85fcb74566d \
+    mio                              0.8.6  5b9d9a46eff5b4ff64b45a9e316a6d1e0bc719ef429cbec4dc630684212bfdf9 \
+    nanorand                         0.7.0  6a51313c5820b0b02bd422f4b44776fbf47961755c74ce64afc73bfad10226c3 \
+    num-integer                     0.1.45  225d3389fb3509a24c93f5c29eb6bde2586b98d9f016636dff58d7c6f7569cd9 \
+    num-traits                      0.2.15  578ede34cf02f8924ab9447f50c28075b4d3e5b269972345e7e0372b38c6cdcd \
+    once_cell                       1.17.1  b7e5500299e16ebb147ae15a00a942af264cf3688f47923b8fc2cd5858f23ad3 \
+    opaque-debug                     0.3.0  624a8340c38c1b80fd549087862da4ba43e08858af025b236e509b6649fc13d5 \
+    openssl-probe                    0.1.5  ff011a302c396a5197692431fc1948019154afc178baf7d8e37367442a4601cf \
+    parking_lot                     0.12.1  3742b2c103b9f06bc9fff0a37ff4912935851bee6d36f3c02bcc755bcfec228f \
+    parking_lot_core                 0.9.7  9069cbb9f99e3a5083476ccb29ceb1de18b9118cafa53e90c9551235de2b9521 \
+    percent-encoding                 2.2.0  478c572c3d73181ff3c2539045f6eb99e5491218eae919370993b890cdbdd98e \
+    pharos                           0.5.3  e9567389417feee6ce15dd6527a8a1ecac205ef62c2932bcf3d9f6fc5b78b414 \
+    pin-project                      1.1.0  c95a7476719eab1e366eaf73d0260af3021184f18177925b07f54b30089ceead \
+    pin-project-internal             1.1.0  39407670928234ebc5e6e580247dd567ad73a3578460c5990f9503df207e8f07 \
+    pin-project-lite                 0.2.9  e0a7ae3ac2f1173085d398531c705756c94a4c56843785df85a60c1a0afac116 \
+    pin-utils                        0.1.0  8b870d8c151b6f2fb93e84a13146138f05d02ed11c7e7c54f8826aaaf7c9f184 \
+    ppv-lite86                      0.2.17  5b40af805b3121feab8a3c29f04d8ad262fa8e0561883e7653e024ae4479e6de \
+    proc-macro2                     1.0.58  fa1fb82fc0c281dd9671101b66b771ebbe1eaf967b96ac8740dcba4b70005ca8 \
+    quote                           1.0.27  8f4f29d145265ec1c483c7c654450edde0bfe043d3938d6972630663356d9500 \
+    rand                             0.8.5  34af8d1a0e25924bc5b7c43c079c942339d8f0a8b57c39049bef581b46327404 \
+    rand_chacha                      0.3.1  e6c10a63a0fa32252be49d21e7709d4d4baf8d231c2dbce1eaa8141b9b127d88 \
+    rand_core                        0.6.4  ec0be4795e2f6a28069bec0b5ff3e2ac9bafc99e6a9a7dc3547996c5c816922c \
+    redox_syscall                   0.2.16  fb5a58c1855b4b6819d59012155603f0b22ad30cad752600aadfcb695265519a \
+    ring                           0.16.20  3053cf52e236a3ed746dfc745aa9cacf1b791d846bdaf412f60a8d7d6e17c8fc \
+    rumqttc                         0.21.0  04483567c64bb8a9d64364a0a9437215a056a2b886140fd66e62a12394cf5998 \
+    rustc_version                    0.4.0  bfa0f585226d2e68097d4f95d113b15b83a82e819ab25717ec0590d9584ef366 \
+    rustix                         0.37.19  acf8729d8542766f1b2cf77eb034d52f40d375bb8b615d0b147089946e16613d \
+    rustls                          0.20.8  fff78fc74d175294f4e83b28343315ffcfb114b156f0185e9741cb5570f50e2f \
+    rustls-native-certs              0.6.2  0167bac7a9f490495f3c33013e7722b53cb087ecbe082fb0c6387c96f634ea50 \
+    rustls-pemfile                   1.0.2  d194b56d58803a43635bdc398cd17e383d6f71f9182b9a192c127ca42494a59b \
+    schannel                        0.1.21  713cfb06c7059f3588fb8044c0fad1d09e3c01d225e25b9220dbfdcf16dbb1b3 \
+    scopeguard                       1.1.0  d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd \
+    sct                              0.7.0  d53dcdb7c9f8158937a7981b48accfd39a43af418591a5d008c7b22b5e1b7ca4 \
+    security-framework               2.9.0  ca2855b3715770894e67cbfa3df957790aa0c9edc3bf06efa1a84d77fa0839d1 \
+    security-framework-sys           2.9.0  f51d0c0d83bec45f16480d0ce0058397a69e48fcdc52d1dc8855fb68acbd31a7 \
+    semver                          1.0.17  bebd363326d05ec3e2f532ab7660680f3b02130d780c299bca73469d521bc0ed \
+    sha-1                            0.9.8  99cd6713db3cf16b6c84e06321e049a9b9f699826e16096d23bbcc44d15d51a6 \
+    signal-hook                     0.3.15  732768f1176d21d09e076c23a93123d40bba92d50c4058da34d45c8de8e682b9 \
+    signal-hook-mio                  0.2.3  29ad2e15f37ec9a6cc544097b78a1ec90001e9f71b81338ca39f430adaca99af \
+    signal-hook-registry             1.4.1  d8229b473baa5980ac72ef434c4415e70c4b5e71b423043adb4ba059f89c99a1 \
+    slab                             0.4.8  6528351c9bc8ab22353f9d776db39a20288e8d6c37ef8cfe3317cf875eecfc2d \
+    smallvec                        1.10.0  a507befe795404456341dfab10cef66ead4c041f62b8b11bbb92bffe5d0953e0 \
+    socket2                          0.4.9  64a4a911eed85daf18834cfaa86a79b7d266ff93ff5ba14005426219480ed662 \
+    spin                             0.5.2  6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d \
+    spin                             0.9.8  6980e8d7511241f8acf4aebddbb1ff938df5eebe98691418c4468d0b72a96a67 \
+    strsim                          0.10.0  73473c0e59e6d5812c5dfe2a064a6444949f089e20eec9a2e5506596494e4623 \
+    syn                             2.0.16  a6f671d4b5ffdb8eadec19c0ae67fe2639df8684bd7bc4b83d986b8db549cf01 \
+    terminal_size                    0.2.6  8e6bf6f19e9f8ed8d4048dc22981458ebcf406d67e94cd422e5ecd73d63b3237 \
+    thiserror                       1.0.40  978c9a314bd8dc99be594bc3c175faaa9794be04a5a5e153caba6915336cebac \
+    thiserror-impl                  1.0.40  f9456a42c5b0d803c8cd86e73dd7cc9edd429499f37a3550d286d5e86720569f \
+    tinyvec                          1.6.0  87cc5ceb3875bb20c2890005a4e226a4651264a5c75edb2421b52861a0a0cb50 \
+    tinyvec_macros                   0.1.1  1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20 \
+    tokio                           1.28.1  0aa32867d44e6f2ce3385e89dceb990188b8bb0fb25b0cf576647a6f98ac5105 \
+    tokio-macros                     2.1.0  630bdcf245f78637c13ec01ffae6187cca34625e8c63150d424b59e55af2675e \
+    tokio-rustls                    0.23.4  c43ee83903113e03984cb9e5cebe6c04a5116269e900e3ddba8f068a62adda59 \
+    tui                             0.19.0  ccdd26cbd674007e649a272da4475fb666d3aa0ad0531da7136db6fab0e5bad1 \
+    tui-tree-widget                 0.11.0  64cd64e2088f26dd5f7e5239cdd7ee234098d3bda4dc214e4bb58c2049ce5af3 \
+    tungstenite                     0.16.0  6ad3713a14ae247f22a728a0456a545df14acf3867f905adff84be99e23b3ad1 \
+    typenum                         1.16.0  497961ef93d974e23eb6f433eb5fe1b7930b659f06d12dec6fc44a8f554c0bba \
+    unicode-bidi                    0.3.13  92888ba5573ff080736b3648696b70cafad7d250551175acbaa4e0385b3e1460 \
+    unicode-ident                    1.0.8  e5464a87b239f13a63a501f2701565754bae92d243d4bb7eb12f6d57d2269bf4 \
+    unicode-normalization           0.1.22  5c5713f0fc4b5db668a2ac63cdb7bb4469d8c9fed047b1d0292cc7b0ce2ba921 \
+    unicode-segmentation            1.10.1  1dd624098567895118886609431a7c3b8f516e41d30e0643f03d94592a147e36 \
+    unicode-width                   0.1.10  c0edd1e5b14653f783770bce4a4dabb4a5108a5370a5f5d8cfe8710c361f6c8b \
+    untrusted                        0.7.1  a156c684c91ea7d62626509bce3cb4e1d9ed5c4d978f7b4352658f96a4c26b4a \
+    url                              2.3.1  0d68c799ae75762b8c3fe375feb6600ef5602c883c5d21eb51c09f22b83c4643 \
+    utf-8                            0.7.6  09cc8ee72d2a9becf2f2febe0205bbed8fc6615b7cb429ad062dc7b7ddd036a9 \
+    utf8parse                        0.2.1  711b9620af191e0cdc7468a8d14e709c3dcdb115b36f838e601583af800a370a \
+    version_check                    0.9.4  49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f \
+    wasi                          0.11.0+wasi-snapshot-preview1  9c8d87e72b64a3b4db28d11ce29237c246188f4f51057d65a7eab63b7987e423 \
+    wasm-bindgen                    0.2.86  5bba0e8cb82ba49ff4e229459ff22a191bbe9a1cb3a341610c9c33efc27ddf73 \
+    wasm-bindgen-backend            0.2.86  19b04bc93f9d6bdee709f6bd2118f57dd6679cf1176a1af464fca3ab0d66d8fb \
+    wasm-bindgen-macro              0.2.86  14d6b024f1a526bb0234f52840389927257beb670610081360e5a03c5df9c258 \
+    wasm-bindgen-macro-support      0.2.86  e128beba882dd1eb6200e1dc92ae6c5dbaa4311aa7bb211ca035779e5efc39f8 \
+    wasm-bindgen-shared             0.2.86  ed9d5b4305409d1fc9482fee2d7f9bcbf24b3972bf59817ef757e23982242a93 \
+    web-sys                         0.3.63  3bdd9ef4e984da1187bf8110c5cf5b845fbc87a23602cdf912386a76fcd3a7c2 \
+    webpki                          0.22.0  f095d78192e208183081cc07bc5515ef55216397af48b873e5edcd72637fa1bd \
+    winapi                           0.3.9  5c839a674fcd7a98952e593242ea400abe93992746761e38641405d28b00f419 \
+    winapi-i686-pc-windows-gnu       0.4.0  ac3b87c63620426dd9b991e5ce0329eff545bccbbb34f3be09ff6fb6ab51b7b6 \
+    winapi-x86_64-pc-windows-gnu     0.4.0  712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f \
+    windows                         0.48.0  e686886bc078bc1b0b600cac0147aadb815089b6e4da64016cbd754b6342700f \
+    windows-sys                     0.42.0  5a3e1820f08b8513f676f7ab6c1f99ff312fb97b553d30ff4dd86f9f15728aa7 \
+    windows-sys                     0.45.0  75283be5efb2831d37ea142365f009c02ec203cd29a3ebecbc093d52315b66d0 \
+    windows-sys                     0.48.0  677d2418bec65e3338edb076e806bc1ec15693c5d0104683f2efe857f61056a9 \
+    windows-targets                 0.42.2  8e5180c00cd44c9b1c88adb3693291f1cd93605ded80c250a75d472756b4d071 \
+    windows-targets                 0.48.0  7b1eb6f0cd7c80c79759c929114ef071b87354ce476d9d94271031c0497adfd5 \
+    windows_aarch64_gnullvm         0.42.2  597a5118570b68bc08d8d59125332c54f1ba9d9adeedeef5b99b02ba2b0698f8 \
+    windows_aarch64_gnullvm         0.48.0  91ae572e1b79dba883e0d315474df7305d12f569b400fcf90581b06062f7e1bc \
+    windows_aarch64_msvc            0.42.2  e08e8864a60f06ef0d0ff4ba04124db8b0fb3be5776a5cd47641e942e58c4d43 \
+    windows_aarch64_msvc            0.48.0  b2ef27e0d7bdfcfc7b868b317c1d32c641a6fe4629c171b8928c7b08d98d7cf3 \
+    windows_i686_gnu                0.42.2  c61d927d8da41da96a81f029489353e68739737d3beca43145c8afec9a31a84f \
+    windows_i686_gnu                0.48.0  622a1962a7db830d6fd0a69683c80a18fda201879f0f447f065a3b7467daa241 \
+    windows_i686_msvc               0.42.2  44d840b6ec649f480a41c8d80f9c65108b92d89345dd94027bfe06ac444d1060 \
+    windows_i686_msvc               0.48.0  4542c6e364ce21bf45d69fdd2a8e455fa38d316158cfd43b3ac1c5b1b19f8e00 \
+    windows_x86_64_gnu              0.42.2  8de912b8b8feb55c064867cf047dda097f92d51efad5b491dfb98f6bbb70cb36 \
+    windows_x86_64_gnu              0.48.0  ca2b8a661f7628cbd23440e50b05d705db3686f894fc9580820623656af974b1 \
+    windows_x86_64_gnullvm          0.42.2  26d41b46a36d453748aedef1486d5c7a85db22e56aff34643984ea85514e94a3 \
+    windows_x86_64_gnullvm          0.48.0  7896dbc1f41e08872e9d5e8f8baa8fdd2677f29468c4e156210174edc7f7b953 \
+    windows_x86_64_msvc             0.42.2  9aec5da331524158c6d1a4ac0ab1541149c0b9505fde06423b02f5ef0106b9f0 \
+    windows_x86_64_msvc             0.48.0  1a515f5799fe4961cb532f983ce2b23082366b898e52ffbce459c86f67c8378a \
+    ws_stream_tungstenite            0.7.0  a672ec78525bf189cefa7f1b72c55f928b3edbdb967e680ca49748ab20821045

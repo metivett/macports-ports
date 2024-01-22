@@ -4,13 +4,16 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-seaborn
-version             0.11.1
+version             0.13.1
 revision            0
 categories-append   science
 license             BSD
-platforms           darwin
+platforms           {darwin any}
+supported_archs     noarch
 
-python.versions     27 35 36 37 38 39
+python.versions     37 38 39 310 311 312
+python.pep517       yes
+python.pep517_backend flit
 
 maintainers         {stromnov @stromnov} openmaintainer
 
@@ -25,30 +28,29 @@ long_description    Seaborn is a library for making attractive and \
 
 homepage            https://seaborn.pydata.org/
 
-checksums           rmd160  e8ce9479115dc905709a359b0f7db764fca9d737 \
-                    sha256  44e78eaed937c5a87fc7a892c329a7cc091060b67ebd1d0d306b446a74ba01ad \
-                    size    261397
+checksums           rmd160  5bcf60a2fcaf0a7e857ce9067fe74e3b7a57d7bc \
+                    sha256  bfad65e9c5989e5e1897e61bdbd2f22e62455940ca76fd49eca3ed69345b9179 \
+                    size    1457600
 
 if {${name} ne ${subport}} {
-
-    if {${python.version} <= 35} {
-        version             0.9.0
-        revision            0
-        distname            ${python.rootname}-${version}
-        checksums           rmd160  c6fc0b1181a177c1490585f6de6cf83f05df6750 \
-                            sha256  76c83f794ca320fb6b23a7c6192d5e185a5fcf4758966a0c0a54baee46d41e2f \
-                            size    198184
-        depends_lib-append  port:py${python.version}-statsmodels \
-                            port:py${python.version}-patsy
-    }
-
-    depends_build-append \
-                        port:py${python.version}-setuptools
-
     depends_lib-append  port:py${python.version}-numpy \
-                        port:py${python.version}-scipy \
                         port:py${python.version}-pandas \
                         port:py${python.version}-matplotlib
 
-    livecheck.type      none
+    if {${python.version} < 38} {
+        version         0.12.2
+        revision        0
+        checksums       rmd160  e124004ceb012ab3113e99b55367e1d1f0ab63ad \
+                        sha256  374645f36509d0dcab895cba5b47daf0586f77bfe3b36c97c607db7da5be0139 \
+                        size    1439798
+        
+        depends_lib-append  port:py${python.version}-typing_extensions
+    }
+
+    variant stats description {Install extra stats dependencies} {
+        depends_lib-append  port:py${python.version}-scipy \
+                            port:py${python.version}-statsmodels
+    }
+
+    test.run            yes
 }

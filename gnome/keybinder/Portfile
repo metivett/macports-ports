@@ -5,14 +5,13 @@ PortGroup           github 1.0
 PortGroup           gobject_introspection 1.0
 
 github.setup        kupferlauncher keybinder 0.3.1 v
-revision            1
+revision            2
 dist_subdir         ${name}/${version}_1
 checksums           rmd160  7be5b5c87993c5ee1535f7c8b778abb22d638a5e \
                     sha256  6073bb5f626f75c4a6f25291b32673af02d47e735b56f9d471150d678ac0b5fa \
                     size    31727
 
 categories          gnome devel
-platforms           darwin
 maintainers         {ryandesign @ryandesign} openmaintainer
 license             GPL-2+
 
@@ -31,7 +30,7 @@ depends_build       port:pkgconfig \
                     port:gnome-common \
                     port:gtk-doc
 
-depends_lib         port:gtk2
+depends_lib         path:lib/pkgconfig/gtk+-2.0.pc:gtk2
 
 patchfiles          patch-configure.ac.diff \
                     patch_python-keybinder_Makefile.am.diff
@@ -50,7 +49,7 @@ if {${name} eq ${subport}} {
 }
 
 set python.versions {27}
- 
+
 foreach v ${python.versions} {
     set python.version  ${v}
     set python.branch   [string range ${python.version} 0 end-1].[string index ${python.version} end]
@@ -58,6 +57,8 @@ foreach v ${python.versions} {
     set python.prefix   ${frameworks_dir}/Python.framework/Versions/${python.branch}
 
     subport py${python.version}-keybinder {
+        revision                3
+
         depends_lib-append      port:${name} \
                                 port:python${python.version} \
                                 port:py${python.version}-gobject \

@@ -6,30 +6,26 @@ PortGroup           python 1.0
 
 name                py-pyicu
 python.rootname     PyICU
-version             2.6
-revision            0
+version             2.12
+revision            1
 
 categories-append   textproc
-platforms           darwin
 license             MIT
 maintainers         nomaintainer
 
 description         Python extension wrapping the ICU C++ API
-long_description    ${description}
+long_description    {*}${description}
 
-homepage            https://github.com/ovalhub/pyicu
+homepage            https://gitlab.pyicu.org/main/pyicu
 
-checksums           rmd160  eb7526087021f6fcedaca42c3e951860112a914b \
-                    sha256  a9a5bf6833360f8f69e9375b91c1a7dd6e0c9157a42aee5bb7d6891804d96371 \
-                    size    233826
+checksums           rmd160  bb4488aa7dda6b3c423c6825e6d6f2bcb7d7bf2a \
+                    sha256  bd7ab5efa93ad692e6daa29cd249364e521218329221726a113ca3cb281c8611 \
+                    size    260041
 
-python.versions     27 35 36 37 38 39
+python.versions     38 39 310 311 312
 
 if {${name} ne ${subport}} {
-    depends_build-append \
-                        port:py${python.version}-setuptools
-
-    depends_lib-append  port:icu
+    depends_lib-append  path:lib/pkgconfig/icu-uc.pc:icu
 
     # icu requires C++11
     compiler.cxx_standard 2011
@@ -39,23 +35,14 @@ if {${name} ne ${subport}} {
     # #include <type_traits>
     compiler.blacklist-append {clang < 600.0.57}
 
-    pre-test {
-        test.env    PYTHONPATH=[glob -nocomplain ${worksrcpath}/build/lib*]
-    }
-
-    depends_test-append port:py${python.version}-pytest \
-                        port:py${python.version}-six
+    depends_test-append port:py${python.version}-six
 
     test.run            yes
-    test.cmd            py.test-${python.branch}
-    test.target
 
     post-destroot {
         set docdir ${prefix}/share/doc/${subport}
         xinstall -d ${destroot}${docdir}
-        xinstall -m 0644 -W ${worksrcpath} LICENSE CREDITS \
-            README.md CHANGES ${destroot}${docdir}
+        xinstall -m 0644 -W ${worksrcpath} README.md \
+            CHANGES ${destroot}${docdir}
     }
-
-    livecheck.type      none
 }

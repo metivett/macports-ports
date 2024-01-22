@@ -2,9 +2,10 @@
 
 PortSystem          1.0
 PortGroup           muniversal 1.0
+PortGroup           compiler_blacklist_versions 1.0
 
 name                nss
-version             3.62
+version             3.97
 revision            0
 set NSS_VMAJOR      [lindex [split ${version} .] 0]
 set NSS_VMINOR      [lindex [split ${version} .] 1]
@@ -21,16 +22,15 @@ description         Network Security Service libraries.
 long_description    {*}${description}
 use_configure       no
 homepage            https://developer.mozilla.org/en-US/docs/Mozilla/Projects/NSS
-platforms           darwin
 
-set my_release      NSS_[strsed ${version} {g/\./_/}]_RTM
+set my_release      NSS_[string map {. _} ${version}]_RTM
 
-master_sites        https://ftp.mozilla.org/pub/mozilla.org/security/nss/releases/${my_release}/src/ \
-                    ftp://ftp.mozilla.org/pub/mozilla.org/security/nss/releases/${my_release}/src/
+master_sites        https://ftp.mozilla.org/pub/security/nss/releases/${my_release}/src/ \
+                    ftp://ftp.mozilla.org/pub/security/nss/releases/${my_release}/src/
 
-checksums           rmd160  dcac4d4a32520fd63d4f3dc9e280a61417a49de8 \
-                    sha256  86d6df7cece25b8d4efa53e4c19af903c484eb79871163f37b5232bb406a5478 \
-                    size    82159506
+checksums           rmd160  e0b58e72f758ba4c1f6efb0463d953f9fc4e7980 \
+                    sha256  078efb8393f32e40b1fb4bf6930fff7f1aabed01287fcc5fe58aba736765fa0a \
+                    size    76664827
 
 # build fails with gcc-4.2 on Intel, but succeeds with gcc-4.2 on PPC
 # cc1: error: unrecognized command line option "-mpclmul"
@@ -38,6 +38,26 @@ checksums           rmd160  dcac4d4a32520fd63d4f3dc9e280a61417a49de8 \
 if {${configure.build_arch} in [list i386 x86_64]} {
     compiler.blacklist-append *gcc-4.* *gcc-3.*
 }
+
+patchfiles          undef-prefix.patch
+
+# VSX and Crypto have to be disabled, since they belong to post-G5 ISA.
+# See: https://bugzilla.mozilla.org/show_bug.cgi?id=1687164
+# gcc-4.2 does not recognize these flags:
+# cc1: error: unrecognized command line option "-mcrypto"
+# cc1: error: unrecognized command line option "-mvsx"
+# Recent gcc does, however build still fails: https://trac.macports.org/ticket/64900
+# Therefore approach is different from Intel case.
+if {${configure.build_arch} in [list ppc ppc64]} {
+    patchfiles-append patch-ppc.diff
+}
+
+# fails with clang-425: https://trac.macports.org/ticket/63245
+#   warning: implicit declaration of function '_mm_sha256xxxxx'
+# fails with clang < 800: https://trac.macports.org/ticket/67585
+#   error: "AES/PCLMUL instructions not enabled"
+# TODO: Latter blacklisting is a quick fix only; needs more investigation
+compiler.blacklist-append {clang < 800}
 
 depends_lib     port:nspr \
                 port:zlib \
@@ -110,12 +130,11 @@ configure.cflags-append -std=c99
 
 array set cpu_arch_map [list \
     arm64   aarch64 \
+    ppc     ppc \
+    ppc64   ppc64 \
     i386    x86 \
     x86_64  x86_64]
 
-if {![info exists universal_possible]} {
-    set universal_possible [expr {${os.universal_supported} && [llength ${configure.universal_archs}] >= 2}]
-}
 if {!${universal_possible} || ![variant_isset universal]} {
     if {${configure.build_arch} in [list arm64 ppc64 x86_64]} {
         build.args-append USE_64=1
@@ -179,12 +198,12 @@ if {${universal_possible} && [variant_isset universal]} {
 }
 
 platform darwin 8 {
-    depends_build-append port:gmake
-    build.cmd ${prefix}/bin/gmake
+    depends_build-append port:gmake-apple
+    build.cmd ${prefix}/bin/gmake-apple
 }
 
 livecheck.type    regex
-livecheck.url     http://ftp.mozilla.org/pub/mozilla.org/security/nss/releases/
+livecheck.url     https://ftp.mozilla.org/pub/security/nss/releases/
 if {${NSS_VPATCH} eq 0} {
     livecheck.version "${NSS_VMAJOR}_${NSS_VMINOR}"
 } else {

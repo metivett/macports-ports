@@ -11,7 +11,7 @@ name                gstreamer1-gst-plugins-bad
 set my_name         gst-plugins-bad
 # please only commit stable updates (even numbered releases)
 version             1.16.2
-revision            3
+revision            13
 description         A set of plug-ins for GStreamer that need more quality.
 long_description    GStreamer Bad Plug-ins is a set of plug-ins that aren't up to par compared \
                     to the rest. They might be close to being good quality, but they're missing \
@@ -30,23 +30,26 @@ checksums           rmd160  e42b51eee105a2c6181725ca801887ea64f3f4ce \
                     sha256  f1cb7aa2389569a5343661aae473f0a940a90b872001824bc47fa8072a041e74 \
                     size    4887812
 
-depends_build       port:pkgconfig
+depends_build       port:gtk-doc \
+                    port:pkgconfig
+
 depends_lib         port:gstreamer1-gst-plugins-base \
                     port:curl \
                     port:faad2 \
                     port:fluidsynth \
                     port:lcms2 \
-                    port:libass \
+                    path:lib/pkgconfig/libass.pc:libass \
                     port:libdca \
                     port:libde265 \
                     port:libdvdread \
                     port:libdvdnav \
                     port:libexif \
+                    port:libgsm \
                     port:libmms \
                     port:libmodplug \
                     port:libmpcdec \
                     port:libnice \
-                    port:librsvg \
+                    path:lib/pkgconfig/librsvg-2.0.pc:librsvg \
                     port:libssh2 \
                     port:mesa \
                     port:libGLU \
@@ -58,6 +61,7 @@ depends_lib         port:gstreamer1-gst-plugins-base \
                     port:rtmpdump \
                     port:soundtouch \
                     port:spandsp-devel \
+                    port:tiff \
                     port:neon \
                     port:webp \
                     port:x265
@@ -70,7 +74,14 @@ autoreconf.args     -fvi
 
 patchfiles          modplug.patch \
                     libressl.patch \
-                    no_pqueue_size.patch
+                    no_pqueue_size.patch \
+                    patch-openexr3.diff
+
+platform darwin 8 {
+    # Tiger uses a newer gmake. gmake >= 4.3 causes errors in this build #60721
+    # this patch can probably be used always, but is presently needed on Tiger only
+    patchfiles-append patch-gstreamer1-gst-plugins-bad-newer-gmake.diff
+}
 
 #
 # could depend on tons for multimedia stuff +variants
@@ -81,12 +92,16 @@ patchfiles          modplug.patch \
 # port:faac has a restrictive license, disable faac plugin by default
 # port:libfdk-aac has a restrictive license, disable fdkaac plugin by default
 # plugin frei0r (no dependency, seqfaults on load)
-# port:opencv (opencv plugin fails to configure with opencv 3.0.0+, can't find opencv2/bgsegm.hpp, now opencv2/video/background_segm.hpp)
+# path:lib/opencv3/libopencv_core.dylib:opencv3 (opencv plugin fails to configure with opencv 3.0.0+, can't find opencv2/bgsegm.hpp, now opencv2/video/background_segm.hpp)
 # plugin opus is now contained in gstreamer1-gst-plugins-base, disable this version
 # plugin ipcpipeline fails to build
 
 # requires support for C11 (redefinition of typedef ‘GstTestHTTPSrc’ at elements/test_http_src.c:101)
 compiler.c_standard 2011
+
+# OpenExr required C++11
+compiler.cxx_standard       2011
+configure.cxxflags-append   -std=gnu++11
 
 configure.args      --disable-silent-rules \
                     --disable-fatal-warnings \
@@ -150,10 +165,6 @@ variant x11 {
 }
 
 default_variants +x11
-
-if {![info exists universal_possible]} {
-    set universal_possible [expr {${os.universal_supported} && [llength ${configure.universal_archs}] >= 2}]
-}
 
 platform macosx {
     if {![variant_isset x11] && (!${universal_possible} || ![variant_isset universal]) && ${os.major} >= 13} {

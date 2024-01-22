@@ -1,0 +1,35 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran config-i1 greybox 2.0.0
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             LGPL-2.1
+description         Toolbox for model building and forecasting
+long_description    {*}${description}
+checksums           rmd160  bd1ae82c9eb5fc00667b42da7f3d631005897c7e \
+                    sha256  c89593b849d896baf070e178c9bab94a7c32e4402609cc22a4520970df25c290 \
+                    size    2242339
+
+depends_lib-append  port:R-generics \
+                    port:R-nloptr \
+                    port:R-pracma \
+                    port:R-Rcpp \
+                    port:R-statmod \
+                    port:R-texreg \
+                    port:R-xtable \
+                    port:R-zoo
+
+depends_test-append port:R-foreach \
+                    port:R-doMC \
+                    port:R-doParallel \
+                    port:R-knitr \
+                    port:R-rmarkdown \
+                    port:R-smooth \
+                    port:R-testthat \
+                    port:R-vars
+
+test.run            yes

@@ -5,14 +5,13 @@ PortGroup           compiler_blacklist_versions 1.0
 
 name                freetds
 epoch               1
-version             1.2.18
+version             1.4.10
 revision            0
-checksums           rmd160  d5dd33717125779931adb1f61b929702af54cc75 \
-                    sha256  10d47e60986cfc51f8170fa9eaba43114eebdde0ba6e6b1c4813d86f021aaadd \
-                    size    2249206
+checksums           rmd160  94970c248dbca603ddc35fdf53b20395a352942a \
+                    sha256  c7eaf226bdcb1cdc1b221696532ccd25f4e4e7754265a29777a3400084bde698 \
+                    size    2394706
 
 categories          databases
-platforms           darwin
 maintainers         {ryandesign @ryandesign} openmaintainer
 # libs are LGPL, tdspool executable is GPL
 license             {GPL-2+ LGPL}
@@ -33,10 +32,10 @@ homepage            http://www.freetds.org/
 master_sites        ftp://ftp.freetds.org/pub/${name}/stable/
 use_bzip2           yes
 
-depends_build       port:pkgconfig
+depends_build       path:bin/pkg-config:pkgconfig
 
 # Use gnutls to avoid openssl license conflict.
-depends_lib         port:gnutls \
+depends_lib         path:lib/pkgconfig/gnutls.pc:gnutls \
                     port:kerberos5 \
                     port:libiconv \
                     port:ncurses \
@@ -44,6 +43,14 @@ depends_lib         port:gnutls \
 
 # error: use of unknown builtin '__builtin_bswap16' [-Wimplicit-function-declaration]
 compiler.blacklist  {clang < 500}
+
+# Fix conflicting intptr_t definitions
+# https://trac.macports.org/ticket/63394
+compiler.c_standard 1999
+configure.cflags-append -std=c99
+
+# https://trac.macports.org/wiki/WimplicitFunctionDeclaration#strchr
+configure.checks.implicit_function_declaration.whitelist-append strchr
 
 configure.args      --disable-odbc \
                     --disable-silent-rules \

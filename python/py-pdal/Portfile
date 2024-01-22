@@ -1,0 +1,61 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           python 1.0
+
+name                py-pdal
+version             3.3.0
+revision            0
+
+categories-append   gis
+license             BSD
+maintainers         {yahoo.com:n_larsson @nilason} openmaintainer
+
+description         PDAL Python support
+long_description    {*}${description} allows you to process data with PDAL\
+                    into Numpy arrays. It provides a PDAL extension module to\
+                    control Python interaction with PDAL. Additionally, you\
+                    can use it to fetch schema and metadata from PDAL operations.
+
+homepage            https://www.pdal.io
+
+checksums           rmd160  50fb67708b007a4276f9d35898748a0031dcd1eb \
+                    sha256  08481ced6e3d1cbdf391282b4f450b84a566cebb077e680f4658c03ccbcb24c0 \
+                    size    246265
+
+python.versions     38 39 310 311 312
+python.pep517       no
+
+if {${name} ne ${subport}} {
+    PortGroup       cmake 1.1
+
+    compiler.cxx_standard \
+                    2017
+
+    depends_build-append \
+                    port:py${python.version}-setuptools \
+                    port:py${python.version}-scikit-build \
+                    port:pybind11 \
+                    port:ninja
+
+    depends_lib-append \
+                    port:pdal \
+                    port:py${python.version}-numpy
+
+    depends_test-append \
+                    port:py${python.version}-meshio
+
+    build.env-append \
+                    pybind11_DIR=${prefix}/share/cmake/pybind11
+    build.dir       ${worksrcpath}
+    build.post_args
+
+    destroot.dir    ${worksrcpath}
+    destroot.target install
+
+    pre-configure {
+        file delete -force {*}[glob -nocomplain ${worksrcpath}/_skbuild/linux*]
+    }
+
+    test.run        yes
+ }

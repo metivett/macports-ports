@@ -4,11 +4,12 @@ PortSystem          1.0
 PortGroup           muniversal 1.0
 PortGroup           github 1.0
 PortGroup           active_variants 1.1
+PortGroup           compiler_blacklist_versions 1.0
 
 github.setup        mltframework mlt 6.24.0 v
 github.tarball_from releases
 
-epoch               3
+epoch               4
 categories          multimedia
 maintainers         {dennedy.org:dan @ddennedy} {gmail.com:rjvbertin @RJVB} openmaintainer
 license             GPL-2+
@@ -49,10 +50,6 @@ variant qt5 conflicts qt4 description "build Qt5 version of ${name}" {
 
     qt5.depends_component \
                     qtsvg
-
-    compiler.cxx_standard 2011
-    configure.cxxflags-append \
-                    -std=c++11
 }
 
 # somewhat arbitrary boundary for Qt versions
@@ -64,8 +61,13 @@ if {![variant_isset qt4] && ![variant_isset qt5]} {
     }
 }
 
+compiler.cxx_standard      2011
+configure.cxxflags-append  -std=c++11
+# fatal error: 'stdatomic.h' file not found
+compiler.blacklist-append  {clang < 700}
+
 depends_build-append port:git \
-                    port:doxygen
+                    path:bin/doxygen:doxygen
 
 depends_lib-append  port:atk \
                     port:frei0r-plugins \
@@ -90,7 +92,7 @@ configure.args-append \
                     --disable-sdl \
                     --without-kde
 
-if {[string match *clang* ${configure.cxx}]} {
+if {[string match *clang* ${configure.cxx}] && ${configure.cxx_stdlib} ne ""} {
     configure.ldflags-append -stdlib=${configure.cxx_stdlib}
 }
 
@@ -128,9 +130,6 @@ post-configure {
 
 build.args-append           CC="${configure.cc}" CXX="${configure.cxx}" CPP="${configure.cpp}"
 
-if {![info exists universal_possible]} {
-    set universal_possible [expr {${os.universal_supported} && [llength ${configure.universal_archs}] >= 2}]
-}
 if {${universal_possible} && [variant_isset universal]} {
     foreach arch ${configure.universal_archs} {
         lappend merger_build_env(${arch})   "CFLAGS=${configure.cflags} -arch ${arch}"
@@ -145,7 +144,7 @@ if {${universal_possible} && [variant_isset universal]} {
 
 variant gtk2 description {include the gtk2 module (for additional image and text producers)} {
     configure.args-delete   --disable-gtk2
-    depends_lib-append      port:gtk2
+    depends_lib-append      path:lib/pkgconfig/gtk+-2.0.pc:gtk2
     require_active_variants gtk2 x11
 }
 
@@ -158,8 +157,12 @@ variant gpl3 description {enable GPLv3 components} {
 # the opencv dependency must match our choice of Qt version, which is
 # another reason why opencv support is provided through a variant.
 variant opencv description {enable OpenCV support} {
-    depends_lib-append      port:opencv
-    configure.args-delete   --disable-opencv
+    set opencv_ver          3
+    depends_lib-append      path:lib/opencv${opencv_ver}/libopencv_core.dylib:opencv${opencv_ver}
+    configure.env-append    PKG_CONFIG_PATH=${prefix}/lib/opencv${opencv_ver}/pkgconfig
+    configure.args-replace  --disable-opencv \
+                            --enable-opencv
+
     if {[variant_isset qt4]} {
         require_active_variants opencv qt4
     } elseif {[variant_isset qt5]} {

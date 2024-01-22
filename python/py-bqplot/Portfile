@@ -4,12 +4,12 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-bqplot
-version             0.12.1
+version             0.12.40
 revision            0
 
 categories-append   graphics math science
-platforms           darwin
 supported_archs     noarch
+platforms           {darwin any}
 license             Apache-2
 maintainers         {petr @petrrr} openmaintainer
 
@@ -24,23 +24,29 @@ long_description    \
     a complex and feature rich GUI from just a few simple lines of Python code.
 
 homepage            https://github.com/bloomberg/bqplot
-distname            ${python.rootname}-${version}
-master_sites        pypi:[string index ${python.rootname} 0]/${python.rootname}
 
-checksums           rmd160  53309f13420d6c529d0840e0b5a06c69054d5493 \
-                    sha256  52941875157f3e2c98134c867c018a27b6d3525dd1166f3fcd4eede7ef392da1 \
-                    size    2565392
+checksums           rmd160  4f6313a12a7d73dde54ac4ea9ff6d1b8deacd8fa \
+                    sha256  ecbfe8bf04f04458eee46dc2c2f8256b4c1521d46f94438e9be19389e4f86fb9 \
+                    size    1205355
 
-python.versions     27 35 36
+python.versions     39 310 311
+python.pep517       yes
 
 if {${name} ne ${subport}} {
-    depends_build-append    port:py${python.version}-setuptools
+    # allow current versions of jupyter_packaging
+    patchfiles      patch-pyproject.toml.diff
 
-    depends_lib-append      port:py${python.version}-numpy \
-                            port:py${python.version}-pandas \
-                            port:py${python.version}-ipywidgets \
-                            port:py${python.version}-traitlets \
-                            port:py${python.version}-traittypes
+    depends_build-append \
+                    port:py${python.version}-jupyter_packaging \
+                    port:py${python.version}-jupyterlab
+
+    depends_lib-append \
+                    port:py${python.version}-numpy \
+                    port:py${python.version}-pandas \
+                    port:py${python.version}-ipywidgets \
+                    port:py${python.version}-traitlets \
+                    port:py${python.version}-traittypes
+
     post-destroot {
         set docdir ${prefix}/share/doc/${subport}
         xinstall -d ${destroot}${docdir}
@@ -48,14 +54,5 @@ if {${name} ne ${subport}} {
             LICENSE ${destroot}${docdir}
     }
 
-    depends_test-append \
-                    port:py${python.version}-mock \
-                    port:py${python.version}-pytest
-
     test.run        yes
-    test.cmd        py.test-${python.branch}
-    test.target
-    test.env        PYTHONPATH=${worksrcpath}/build/lib
-
-    livecheck.type  none
 }

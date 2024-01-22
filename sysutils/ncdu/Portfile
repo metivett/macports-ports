@@ -3,10 +3,10 @@
 PortSystem          1.0
 
 name                ncdu
-version             1.15.1
 categories          sysutils
-maintainers         {snc @nerdling} openmaintainer
+maintainers         {snc @nerdling} {judaew @judaew} openmaintainer
 license             MIT
+
 description         NCurses Disk Usage
 long_description    ncdu is an ncurses version of the famous old 'du' unix \
                     command. It provides a fast and easy interface to your \
@@ -19,9 +19,48 @@ master_sites        https://dev.yorhel.nl/download/
 
 depends_lib         port:ncurses
 
-checksums           rmd160  66fbf2a62d9ac359360b3e3265486658e77786fd \
-                    sha256  b02ddc4dbf1db139cc6fbbe2f54a282770380f0ca5c17089855eab52a9ea3fb0 \
-                    size    148242
+subport ncdu1 {
+    version             1.19
+    revision            0
+    conflicts           ncdu
+
+    checksums           rmd160  915812515e107b0d5c30fb1c9f93dbb563c0a683 \
+                        sha256  30363019180cde0752c7fb006c12e154920412f4e1b5dc3090654698496bb17d \
+                        size    159917
+
+    livecheck.url       ${homepage}/changes
+}
+
+if {${subport} eq ${name}} {
+    version             2.3
+    revision            0
+    conflicts           ncdu1
+
+    checksums           rmd160  f09fce3f38afc24c90c70345f9322c9e3dcee971 \
+                        sha256  bbce1d1c70f1247671be4ea2135d8c52cd29a708af5ed62cecda7dc6a8000a3c \
+                        size    56608
+
+    depends_build       port:zig
+
+    use_configure       no
+
+    # Build manually using `zig cc`. The standard build with the patch that adds
+    # the --search-prefix option doesn't work. See:
+    # https://trac.macports.org/ticket/66044
+    build.cmd           ${prefix}/bin/zig cc
+    build.args          -I${prefix}/include -L${prefix}/lib -lncursesw
+    build.target        -o ncdu src/main.zig src/ncurses_refs.c
+
+    destroot {
+        xinstall -m 0755 ${worksrcpath}/${name} \
+            ${destroot}${prefix}/bin
+
+        xinstall -m 0644 ${worksrcpath}/${name}.1 \
+            ${destroot}${prefix}/share/man/man1
+    }
+
+    livecheck.url       ${homepage}/changes2
+}
 
 test.run            yes
 test.cmd            ./ncdu --version

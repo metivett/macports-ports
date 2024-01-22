@@ -5,7 +5,7 @@ PortGroup           gobject_introspection 1.0
 
 name                gmime
 version             2.6.23
-revision            1
+revision            2
 set branch          [join [lrange [split ${version} .] 0 1] .]
 
 description         GMime is a C/C++ library for parsing and creating messages using \
@@ -31,7 +31,7 @@ depends_build       port:pkgconfig
 
 depends_lib         port:libgpg-error \
                     port:gpgme \
-                    port:vala \
+                    path:bin/vala:vala \
                     port:libiconv \
                     path:lib/pkgconfig/glib-2.0.pc:glib2 \
                     port:gettext \

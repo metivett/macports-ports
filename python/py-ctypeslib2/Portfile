@@ -3,11 +3,12 @@
 PortSystem              1.0
 PortGroup               python 1.0
 PortGroup               github 1.0
-github.setup            trolldbois ctypeslib 2.2.2
+
+github.setup            trolldbois ctypeslib 2.3.4
 name                    py-ctypeslib2
-python.versions         27 36 37 38
-python.default_version  27
-platforms               darwin
+revision                0
+python.versions         37 38 39 310 311
+platforms               {darwin any}
 license                 MIT
 maintainers             {eborisch @eborisch} \
                         openmaintainer
@@ -20,12 +21,16 @@ long_description        This fork of ctypeslib is mainly about using the \
                         code from C source code, instead of gccxml.
 
 checksums \
-    rmd160  f99e20769f606d44ddb34aff6e20183fd186aaa2 \
-    sha256  e968d0c60101fdebbd51f392bd6402e5bad415fa62dff23de79cc467d24c1eee
+    rmd160  def394256eb62dd568fe2a5a550794d18287e9f1 \
+    sha256  0a7b7b8cf502034d303f37729a9b1c43fa23659e9a4095cbea01cfdd0fe2a16c \
+    size    93093
 
 if {${name} ne ${subport}} {
-    depends_build-append    port:py${python.version}-setuptools
-    depends_lib-append      port:py${python.version}-clang
+    depends_lib-append      port:py${python.version}-setuptools \
+                            port:py${python.version}-clang
+
+    # Use the libclang that is provided by pyXX-clang (via its +clangY variant)
+    patchfiles              init_py.patch pyproject.toml.patch
 
     post-destroot {
         set DOCDIR ${destroot}${prefix}/share/doc/${subport}
@@ -34,11 +39,4 @@ if {${name} ne ${subport}} {
             file copy ${worksrcpath}/${dfile} ${DOCDIR}
         }
     }
-}
-
-foreach {old new} {34 36 35 36} {
-    subport py${old}-${python.rootname} "
-        replaced_by py${new}-${python.rootname}
-        PortGroup obsolete 1.0
-    "
 }

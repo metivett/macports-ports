@@ -2,14 +2,12 @@
 
 PortSystem          1.0
 PortGroup           compiler_blacklist_versions 1.0
+PortGroup           github 1.0
 
-
-name                mod_gnutls
-version             0.11.0
-revision            0
+github.setup        airtower-luna mod_gnutls 0.12.1 mod_gnutls/
+revision            1
 categories          www security crypto
 license             Apache-2
-platforms           darwin
 maintainers         {mps @Schamschula} openmaintainer
 
 description         \
@@ -21,39 +19,29 @@ long_description    \
     encryption for Apache HTTPD. It is similar to mod_ssl in purpose, but does \
     not use OpenSSL.
 
-homepage            https://mod.gnutls.org
-master_sites        ${homepage}/downloads/
+homepage            https://github.com/airtower-luna/mod_gnutls/
 
-checksums           rmd160  7cf117bf2d4c13c324ea62b7671793d2a79d5490 \
-                    sha256  559658f56321f05c28760baf54b74e7f92974c6bc7131e3a30ab9812c4d40a3b \
-                    size    458966
+github.tarball_from releases
+
+checksums           rmd160  c6e016ae970866f0feadb4eb990d0c7ebff5a8c9 \
+                    sha256  5bb97f11edb31a399354027004d3b0e862bd8d85fb6ba86b3b54b340a5e2ed97 \
+                    size    454861
 
 use_bzip2           yes
 
-variant python37 conflicts python38 description {Build using Python 3.7} {
-    configure.env   PYTHON=${prefix}/bin/python3.7
-    depends_lib-append \
-                    port:python37 \
-                    port:py37-yaml
-}
+set python.version  312
 
-variant python38 conflicts python37 description {Build using Python 3.8} {
-    configure.env   PYTHON=${prefix}/bin/python3.8
-    depends_lib-append \
-                    port:python38 \
-                    port:py38-yaml
-}
+configure.python    ${prefix}/bin/python3.12
 
-if {![variant_isset python37] && ![variant_isset python38]} {
-    default_variants    +python38
-}
-
-depends_build       port:pkgconfig
+depends_build       port:pkgconfig \
+                    port:python${python.version} \
+                    port:py${python.version}-yaml
 
 depends_lib         port:apache2 \
-                    port:gnutls
+                    path:lib/pkgconfig/gnutls.pc:gnutls
 
 use_autoreconf      yes
+
 patchfiles          patch-src-gnutls_sni.c.diff
 
 set apxs            ${prefix}/bin/apxs
@@ -65,6 +53,8 @@ configure.args      --disable-silent-rules \
                     --disable-strict
 
 compiler.blacklist-append {clang < 800}
+
+configure.checks.implicit_function_declaration.whitelist-append strchr
 
 pre-destroot {
     xinstall -m 755 -d ${mdir}
@@ -81,10 +71,10 @@ variant memcache description {Distributed SSL Session Cache support} {
     configure.args-append   --with-apr-memcache-prefix=${prefix}
 }
 
-livecheck.regex     ${name}-(\[0-9.\]+)${extract.suffix}
-
 notes "
 To enable ${name}, add
     LoadModule gnutls_module modules/mod_gnutls.so
 to your ${httpd_conf} file.
 "
+
+github.livecheck.regex  {(\d\.\d+(\.\d+))}

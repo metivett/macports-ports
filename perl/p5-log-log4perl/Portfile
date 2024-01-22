@@ -3,8 +3,9 @@
 PortSystem          1.0
 PortGroup           perl5 1.0
 
-perl5.branches      5.26 5.28 5.30
-perl5.setup         Log-Log4perl 1.53
+perl5.branches      5.28 5.30 5.32 5.34
+perl5.setup         Log-Log4perl 1.57
+revision            0
 maintainers         {di.uminho.pt:jpo @jpoliv} openmaintainer
 license             {Artistic-1 GPL}
 
@@ -15,12 +16,12 @@ long_description    Log::Log4perl lets you remote-control and fine-tune the \
                     It implements the widely popular (Java-based) Log4j \
                     logging package in pure Perl.
 
-platforms           darwin
+platforms           {darwin any}
 supported_archs     noarch
 
-checksums           rmd160  acd8e0da9cb5cc4de38d7fcc569f8a46d7c6d1e8 \
-                    sha256  8fbfb48d016eec7344a539f3ad70870b4ac4638e49666bfa70d10f6ffd4ac38e \
-                    size    280026
+checksums           rmd160  15064c739ff5c9636412cb619962d37fea51c8f3 \
+                    sha256  0f8fcb7638a8f3db4c797df94fdbc56013749142f2f94cbc95b43c9fca096a13 \
+                    size    280072
 
 if {${perl5.major} != ""} {
     depends_lib-append \

@@ -1,13 +1,22 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
+PortGroup           cmake 1.1
 PortGroup           github 1.0
+PortGroup           legacysupport 1.1
 
+github.setup        google re2 2023-09-01
+github.tarball_from archive
 epoch               1
-github.setup        google re2 2021-02-02
-revision            0
+revision            1
+
+checksums           rmd160 713ac6a5a640b0820f2d10528b0b52675de55780 \
+                    sha256 5bb6875ae1cd1e9fedde98018c346db7260655f86fdb8837e3075103acd3649b \
+                    size   396555
+
 categories          devel textproc
-maintainers         nomaintainer
+maintainers         {gmail.com:herby.gillot @herbygillot} \
+                    openmaintainer
 
 description         an efficient, principled regular expression library
 
@@ -15,34 +24,29 @@ long_description    RE2 is a fast, safe, thread-friendly alternative to \
                     backtracking regular expression engines like those \
                     used in PCRE, Perl, and Python. It is a C++ library.
 
-platforms           darwin
 license             BSD
 
-checksums           rmd160  47471514269abd3b815358fa2e8934d4489985e3 \
-                    sha256  3fe6eecd1bc4a254a0eac1f63c4af2002da6ec157986307a364fe4647bae9792 \
-                    size    402998
+patchfiles          patch-re2pc-avoid-overlinking.diff
 
-use_configure       no
+# clock_gettime needed for abseil
+# https://github.com/macports/macports-ports/pull/19905#issuecomment-1680281240
+legacysupport.newest_darwin_requires_legacy 15
 
-variant universal   {}
+compiler.cxx_standard \
+                    2014
+compiler.thread_local_storage \
+                    yes
 
-compiler.cxx_standard   2011
-if {[string match *clang* ${configure.cxx}]} {
-    configure.ldflags-append -stdlib=${configure.cxx_stdlib}
-}
+configure.args-append \
+                    -DBUILD_SHARED_LIBS:BOOL=ON
 
-build.args          CXX="${configure.cxx}" \
-                    CXXFLAGS="${configure.cxxflags} [get_canonical_archflags cxx]" \
-                    LDFLAGS="${configure.ldflags} [get_canonical_archflags cxx]" \
-                    prefix=${prefix}
-
-destroot.args       {*}${build.args}
+depends_lib-append  port:abseil
 
 post-destroot {
     # install additional documents.
     set docdir ${prefix}/share/doc/re2
     xinstall -d ${destroot}${docdir}
-    xinstall -m 644 -W ${worksrcpath} \
+    xinstall -m 0644 -W ${worksrcpath} \
         AUTHORS CONTRIBUTORS LICENSE README doc/syntax.html doc/syntax.txt \
         ${destroot}${docdir}
 }

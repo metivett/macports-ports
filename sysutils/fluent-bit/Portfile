@@ -1,19 +1,20 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
-PortGroup           cmake 1.1
+PortGroup           cmake                       1.1
 PortGroup           compiler_blacklist_versions 1.0
+PortGroup           github                      1.0
+PortGroup           openssl                     1.0
 
 # Need clock_gettime()
-PortGroup           legacysupport 1.0
+PortGroup           legacysupport               1.1
 
-legacysupport.newest_darwin_requires_legacy 15
+legacysupport.newest_darwin_requires_legacy     15
 
-name                fluent-bit
-version             1.7.1
+github.setup        fluent fluent-bit 2.2.0 v
+github.tarball_from archive
 revision            0
 categories          sysutils
-platforms           darwin
 license             Apache-2
 
 homepage            https://fluentbit.io
@@ -31,17 +32,16 @@ maintainers         {l2dy @l2dy} \
                     {gmail.com:herby.gillot @herbygillot} \
                     openmaintainer
 
-set branch          [join [lrange [split ${version} .] 0 1] .]
-master_sites        ${homepage}/releases/${branch}/
-
-checksums           rmd160  01cb1ab724d2129d936c892e98b0568b461f9c40 \
-                    sha256  2a870d8b2f3455b83e4660f677c83a9403b75b148c7c33b1b198c63f555e4c16 \
-                    size    13833271
+checksums           rmd160  c77a228cbdc30368c9db7bcb9fc7ec7c25050b66 \
+                    sha256  c02497f95e5455c5cd587a00efe9d919ac6d0a7d26ad6b5320b25bbc664c04cd \
+                    size    23904569
 
 # /usr/bin/ranlib: unknown option character `n' in: -no_warning_for_no_symbols
 compiler.blacklist-append   {clang < 700}
 
 depends_build-append        port:bison
-depends_lib                 port:zlib
+depends_lib-append          port:libyaml \
+                            port:sqlite3 \
+                            port:zlib
 
-livecheck.url       ${homepage}/download/
+github.livecheck.regex      {([0-9.]+)}

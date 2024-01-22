@@ -1,0 +1,18 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran c.bloetner diffcor 0.8.2
+revision            0
+categories-append   math
+maintainers         nomaintainer
+license             GPL-2+
+description         Fisher’s z-tests concerning difference of correlations
+long_description    {*}${description}
+checksums           rmd160  dc2bebc92b181417516120096a21988912c1015d \
+                    sha256  59c076b673dd13f2a84dd74162c24a45c9d32520e4db8a132c555f0b55cbfb4a \
+                    size    7867
+supported_archs     noarch
+
+test.run            yes

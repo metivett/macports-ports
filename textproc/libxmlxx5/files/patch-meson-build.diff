@@ -1,0 +1,11 @@
+--- meson.build.orig	2023-03-22 19:19:05.000000000 +0700
++++ meson.build	2023-09-10 03:08:32.000000000 +0700
+@@ -44,7 +44,7 @@
+ cpp_compiler = meson.get_compiler('cpp')
+ is_msvc = cpp_compiler.get_id() == 'msvc'
+ 
+-python3 = find_program('python3', version: '>=3.5')
++python3 = import('python').find_installation('')
+ 
+ # Do we build from a git repository?
+ # Suppose we do if and only if the meson.build file is tracked by git.

@@ -1,0 +1,23 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+# GitHub version is old.
+R.setup             cran andrea-luciani bimets 3.0.2
+revision            0
+categories-append   economics
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             GPL-3
+description         Time series and econometric modelling
+long_description    {*}${description}
+homepage            https://github.com/andrea-luciani/bimets
+checksums           rmd160  290d53fe5d68fd59da1b6a12ada971ecfab993c0 \
+                    sha256  69dfdcd3e4b0b6737ed4dd35b177eb01df9eec5221d1b7618131cd2898e8d732 \
+                    size    1224244
+supported_archs     noarch
+
+depends_lib-append  port:R-xts \
+                    port:R-zoo
+
+test.run            yes

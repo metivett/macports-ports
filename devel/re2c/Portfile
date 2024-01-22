@@ -3,14 +3,25 @@
 PortSystem          1.0
 PortGroup           github 1.0
 
-github.setup        skvadrik re2c 2.0.3
+github.setup        skvadrik re2c 3.1
 revision            0
-checksums           rmd160  587747ef5f73aeff4421ff281b87b3e269163fde \
-                    sha256  b2bc1eb8aaaa21ff2fcd26507b7e6e72c5e3d887e58aa515c2155fb17d744278 \
-                    size    1288996
+checksums           rmd160  7b7e91c25b35e18ae1a718f1093b1be9b2529d24 \
+                    sha256  0ac299ad359e3f512b06a99397d025cfff81d3be34464ded0656f8a96676c029 \
+                    size    1448624
+
+# The datetime parsers in php must be generated with this version or older.
+subport ${name}-0.15 {
+    github.setup    ${github.author} ${github.project} 0.15.3
+    revision        0
+    checksums       rmd160  a8867ba92ad3a9712a814b15a0cc7b6d0b51e995 \
+                    sha256  f9d2a96c60a8c60d9c6c70e10590cbceaf0776d3115e7b3b35c7d7240cc1613b \
+                    size    4881197
+
+    configure.args-append \
+                    --program-suffix=-0.15
+}
 
 categories          devel
-platforms           darwin
 license             public-domain
 maintainers         {ryandesign @ryandesign} openmaintainer
 
@@ -22,13 +33,26 @@ long_description    re2c is a tool for generating C-based recognizers from \
                     re2c-based scanner is said to be typically almost twice as fast as \
                     a flex-based scanner with little or no increase in size.
 
-homepage            http://re2c.org/
+homepage            https://re2c.org
 github.tarball_from releases
-use_xz              yes
+if {${subport} eq ${name}} {
+    use_xz          yes
 
-depends_build       port:bison
+    compiler.cxx_standard       2011
 
-configure.args      --disable-silent-rules
+    if {${os.platform} eq "darwin" && ${os.major} < 19} {
+        depends_build-append    port:python311
+        configure.python        ${prefix}/bin/python3.11
+    } else {
+        configure.python        /usr/bin/python3
+    }
+}
+
+depends_build-append \
+                    port:bison
+
+configure.args-append \
+                    --disable-silent-rules
 
 # If future versions exhibit compile errors like
 # "error: no match for 'operator!='" (gcc-4.2) or
@@ -40,3 +64,7 @@ test.run            yes
 test.target         check
 # make sed happy
 test.env            LANG=C
+
+if {${subport} ne ${name}} {
+    livecheck.type  none
+}

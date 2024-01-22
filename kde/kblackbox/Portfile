@@ -8,7 +8,7 @@ version             4.14.3
 revision            4
 categories          kde kde4 games
 license             GPL-2+
-maintainers         {nicos @NicosPavlov} openmaintainer
+maintainers         nomaintainer
 description         KBlackbox is a game of hide and seek played on a grid of \
                     boxes where the computer has hidden several balls.
 long_description    ${description}
@@ -27,6 +27,10 @@ depends_lib-append  port:kdelibs4 \
                     port:libkdegames
 
 patchfiles-append   patch-CMakeLists-icons.diff
+
+pre-configure {
+    move ${worksrcpath}/VERSION ${worksrcpath}/VERSION.txt
+}
 
 if {![variant_isset docs]} {
     patchfiles-append   patch-CMakeLists.diff

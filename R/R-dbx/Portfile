@@ -1,0 +1,34 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+# Revert to GitHub once updated there.
+R.setup             cran ankane dbx 0.3.1 v
+revision            0
+categories-append   databases
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             MIT
+description         Fast and easy-to-use database interface for R
+long_description    Provides select, insert, update, upsert and delete database operations.
+homepage            https://ggforce.data-imaginist.com
+checksums           rmd160  2b929dd2ef49b0babaf099b34486630026c78967 \
+                    sha256  0fa642d28dbbef058680c438986ea57c36a42888382152dc734b4091f8a0d697 \
+                    size    21450
+supported_archs     noarch
+
+depends_lib-append  port:R-DBI
+
+depends_test-append port:R-blob \
+                    port:R-hms \
+                    port:R-jsonlite \
+                    port:R-odbc \
+                    port:R-RMariaDB \
+                    port:R-RMySQL \
+                    port:R-RPostgres \
+                    port:R-RPostgreSQL \
+                    port:R-RSQLite \
+                    port:R-testthat \
+                    port:R-urltools
+
+test.run            yes

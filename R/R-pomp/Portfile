@@ -1,0 +1,33 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+# Revert to GitHub once updated there.
+R.setup             cran kingaa pomp 5.5
+revision            0
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             GPL-3
+description         Statistical inference for partially observed Markov processes
+long_description    {*}${description}
+homepage            https://kingaa.github.io/pomp
+checksums           rmd160  d423df6eda8c696acea671ad233fb61a71f2b021 \
+                    sha256  299bb4fd0a3699ae21b2a450458b178384f1227fdeead5ed13d459c66e27f850 \
+                    size    411514
+
+depends_lib-append  port:R-coda \
+                    port:R-data.table \
+                    port:R-deSolve \
+                    port:R-digest \
+                    port:R-mvtnorm
+
+compilers.setup     require_fortran
+
+depends_test-append port:R-dplyr \
+                    port:R-ggplot2 \
+                    port:R-knitr \
+                    port:R-nloptr \
+                    port:R-subplex \
+                    port:R-tidyr
+
+test.run            yes

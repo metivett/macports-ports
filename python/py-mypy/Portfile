@@ -5,10 +5,9 @@ PortGroup python 1.0
 PortGroup select 1.0
 
 name                py-mypy
-version             0.812
+version             1.8.0
 revision            0
 license             MIT
-platforms           darwin
 maintainers         {toby @tobypeterson} openmaintainer
 description         Optional static typing for Python
 long_description    Add type annotations to your Python programs, and use mypy to \
@@ -18,25 +17,53 @@ long_description    Add type annotations to your Python programs, and use mypy t
                     type system with features such as type inference, gradual typing, \
                     generics and union types.
 
-homepage            http://www.mypy-lang.org
+homepage            https://www.mypy-lang.org
 
-checksums           rmd160  846742c711725c39a0befce8c42ce267330bb3f8 \
-                    sha256  cd07039aa5df222037005b08fbbfd69b3ab0b0bd7a07d7906de75ae52c4e3119 \
-                    size    2645818
+checksums           rmd160  c0240de0bcb9cab944a8ce41bae1abaa5de6813d \
+                    sha256  6ff8b244d7085a0b425b56d327b480c3b29cafbd2eff27316a004f9a7391ae07 \
+                    size    2990299
 
-python.versions     37 38 39
+python.versions     37 38 39 310 311 312
+python.pep517       yes
 
 if {${name} ne ${subport}} {
-    depends_build-append    port:py${python.version}-setuptools
+    depends_build-append    port:py${python.version}-setuptools \
+                            port:py${python.version}-types-psutil \
+                            port:py${python.version}-types-setuptools
     depends_lib-append      port:py${python.version}-mypy_extensions \
-                            port:py${python.version}-typed-ast \
                             port:py${python.version}-typing_extensions
     depends_run-append      port:mypy_select
+
+    if {${python.version} < 311} {
+        depends_lib-append  port:py${python.version}-tomli
+    }
+    if {${python.version} < 38} {
+        version             1.4.1
+        revision            2
+        checksums           rmd160  a674dd1c44e7112b78eadba93fbcde91c2eac640 \
+                            sha256  9bbcd9ab8ea1f2e1c8031c21445b511442cc45c89951e49bbf852cbb70755b1b \
+                            size    2855162
+
+        depends_build-append \
+                            port:py${python.version}-types-typed-ast
+        depends_lib-append  port:py${python.version}-typed-ast
+    }
+
+    compiler.blacklist-append \
+                            *gcc-4.0 *gcc-4.2
+
+    build.env-append        MYPY_USE_MYPYC=1
+
+    # https://trac.macports.org/ticket/68943
+    # https://github.com/python/mypy/issues/16684
+    # https://github.com/python/mypy/issues/11507
+    if {${configure.build_arch} in [list arm i386 ppc]} {
+        build.env-append    MYPYC_DEBUG_LEVEL=0 \
+                            MYPYC_MULTI_FILE=1
+    }
 
     select.group            mypy
     select.file             ${filespath}/mypy${python.version}
 
     livecheck.type          none
-} else {
-    livecheck.type          pypi
 }

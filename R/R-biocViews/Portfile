@@ -1,0 +1,32 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             github Bioconductor biocViews e4a1a5ac568fb07e03f7b700c2fcda049f367a37
+version             1.71.1
+revision            0
+maintainers         nomaintainer
+license             Artistic-2
+description         Categorized views of R package repositories
+long_description    {*}${description}
+homepage            https://bioconductor.org/packages/${R.package}
+checksums           rmd160  2fbc2a87b5c9378944d745f5dda69e19b06e71d8 \
+                    sha256  d2d75813d6f9c69cc0de822c7ea7636f47afb1ddb69fd90583a2f6d26462cc81 \
+                    size    75090
+supported_archs     noarch
+
+depends_lib-append  port:R-Biobase \
+                    port:R-BiocManager \
+                    port:R-graph \
+                    port:R-RBGL \
+                    port:R-RCurl \
+                    port:R-RUnit \
+                    port:R-XML
+
+depends_test-append port:R-BiocGenerics \
+                    port:R-BiocStyle \
+                    port:R-commonmark \
+                    port:R-knitr
+
+test.run            yes

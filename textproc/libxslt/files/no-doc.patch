@@ -1,0 +1,11 @@
+--- doc/Makefile.in.orig	2023-11-16 06:58:36.000000000 -0600
++++ doc/Makefile.in	2023-12-27 22:28:19.000000000 -0600
+@@ -755,7 +755,7 @@
+ 
+ info-am:
+ 
+-install-data-am: install-man install-nobase_dist_docDATA
++install-data-am: install-man
+ 
+ install-dvi: install-dvi-recursive
+ 

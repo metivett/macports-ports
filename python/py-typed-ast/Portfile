@@ -4,11 +4,10 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-typed-ast
-version             1.4.2
+version             1.5.5
 revision            0
 
 categories-append   devel
-platforms           darwin
 license             Apache-2
 maintainers         {reneeotten @reneeotten} openmaintainer
 
@@ -18,26 +17,17 @@ long_description    ${description}
 homepage            https://github.com/python/typed_ast
 distname            typed_ast-${version}
 
-checksums           rmd160  583e28d8d92c7fe48934b179b4bd7d385a4b237e \
-                    sha256  9fc0b3cb5d1720e7141d103cf4819aea239f7d136acf9ee4a69b047b7986175a \
-                    size    208583
+checksums           rmd160  bbe01e0298a7ba0cf6c76045665b4ff3711f28c1 \
+                    sha256  94282f7a354f36ef5dbce0ef3467ebf6a258e370ab33d5b40c249fa996e590dd \
+                    size    252841
 
-python.versions     35 36 37 38 39
+python.versions     37
 
 if {${name} ne ${subport}} {
     depends_build-append \
                     port:py${python.version}-setuptools
 
-    depends_test-append \
-                    port:py${python.version}-pytest
-
-    pre-test {
-        test.env    PYTHONPATH=[glob -nocomplain ${worksrcpath}/build/lib*]
-    }
-
     test.run        yes
-    test.cmd        py.test-${python.branch}
-    test.target
 
     post-destroot {
         set docdir ${prefix}/share/doc/${subport}
@@ -45,6 +35,4 @@ if {${name} ne ${subport}} {
         xinstall -m 0644 -W ${worksrcpath} README.md LICENSE \
           ${destroot}${docdir}
        }
-
-    livecheck.type  none
 }

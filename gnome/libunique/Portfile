@@ -5,7 +5,7 @@ PortGroup           gobject_introspection 1.0
 
 name                libunique
 version             1.1.6
-revision            9
+revision            10
 set branch          [join [lrange [split ${version} .] 0 1] .]
 description         Unique is a library for writing single instance applications.
 long_description    Unique is a library for writing single instance applications. \
@@ -27,7 +27,7 @@ patch.pre_args      -p1
 
 depends_build       port:pkgconfig
 
-depends_lib         port:gtk2 \
+depends_lib         path:lib/pkgconfig/gtk+-2.0.pc:gtk2 \
                     port:dbus-glib
 
 gobject_introspection yes

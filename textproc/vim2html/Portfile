@@ -4,7 +4,7 @@ name			vim2html
 version			1.46
 categories		textproc
 license			GPL-2
-platforms		darwin
+platforms		any
 supported_archs	noarch
 maintainers		nomaintainer
 description		vim2html converts any Vim-editable file into well-formed HTML
@@ -24,7 +24,7 @@ depends_run		bin:bash:bash \
 				bin:vim:vim
 
 configure {
-	reinplace "s|/usr/share/vim|${prefix}/share/vim /Applications/MacPorts/Vim/Vim.app/Contents/Resources/vim/ /usr/share/vim|g" \
+	reinplace "s|/usr/share/vim|${prefix}/share/vim ${applications_dir}/Vim/Vim.app/Contents/Resources/vim/ /usr/share/vim|g" \
 		${worksrcpath}/vim2html
 }
 

@@ -4,14 +4,15 @@ PortSystem          1.0
 PortGroup           python 1.0
 PortGroup           github 1.0
 
-github.setup        pymc-devs pymc3 3.11.1 v
-revision            0
+github.setup        pymc-devs pymc 3.11.4 v
+github.tarball_from archive
+revision            1
 name                py-pymc3
 
-platforms           darwin
 maintainers         {reneeotten @reneeotten} openmaintainer
 license             Apache-2
 supported_archs     noarch
+platforms           {darwin any}
 
 description         Bayesian statistical modeling and Probabilistic Machine Learning in Python
 long_description    PyMC3 is a Python package for Bayesian statistical modeling and \
@@ -20,37 +21,33 @@ long_description    PyMC3 is a Python package for Bayesian statistical modeling 
                     Its flexibility and extensibility make it applicable to a large \
                     suite of problems.
 
-checksums           rmd160  0cc3a5beba4d8937f8af531246afadc7c0806777 \
-                    sha256  d5fdae66017927b9948f32775ec2ba217af8c18228bc9cc2107dec4d1870b95b \
-                    size    1955870
+checksums           rmd160  7d9e53b90bb741925b3a37992b0300cda8fb73a7 \
+                    sha256  9e534a1c29a12d5e1900b5e6fddea4bf5c1e7e26af4a6ca91b29f247a1805e67 \
+                    size    1958459
 
-python.versions     36 37 38 39
+# upstream renamed their repository, and checksums have changed.... remove upon next update
+dist_subdir   ${name}/${version}_1
+
+python.versions     38 39 310
 
 if {${name} ne ${subport}} {
-   depends_lib-append \
+    conflicts       py${python.version}-pymc
+
+    depends_lib-append \
                     port:py${python.version}-arviz \
+                    port:py${python.version}-cachetools \
                     port:py${python.version}-dill \
                     port:py${python.version}-fastprogress \
                     port:py${python.version}-numpy \
                     port:py${python.version}-pandas \
                     port:py${python.version}-patsy \
                     port:py${python.version}-scipy \
+                    port:py${python.version}-semver \
                     port:py${python.version}-theano-pymc \
                     port:py${python.version}-typing_extensions
 
-    if {${python.version} == 36} {
-        github.setup    pymc-devs pymc3 3.10.0 v
-        revision        0
-        checksums       rmd160  52e9e6990d31c58087465455c9ba3769af2e29e9 \
-                        sha256  1a586003856fd3d17764e2ef538e2c362d854c5f92caafe8e4502b90fa6333f6 \
-                        size    104562192
-
-        depends_lib-append \
-                        port:py${python.version}-contextvars \
-                        port:py${python.version}-dataclasses
-    }
-
-    livecheck.type      none
-} else {
-    github.livecheck.regex  {([0-9.]+)}
+    notes "The latest PyMC release (v4.0.0) is packaged as py-pymc; so please install\
+        the py${python.version}-pymc port if you want to update to the newest version."
 }
+
+livecheck.type      none

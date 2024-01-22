@@ -1,20 +1,11 @@
---- meson.build.orig	2020-08-30 20:01:01.000000000 -0700
-+++ meson.build	2020-08-30 20:02:07.000000000 -0700
-@@ -36,7 +36,7 @@
- 
- if introspection_available
-   if python2_girdir != 'no'
--    python2 = find_program('python2', required : false)
-+    python2 = find_program('@@PYTHON2_BIN@@', required : false)
-     if python2.found()
-       py2gi = run_command(python2, python_gi_test_args)
-       if py2gi.returncode() == 0
-@@ -50,7 +50,7 @@
+--- meson.build.orig	2023-05-06 04:50:03.000000000 -0400
++++ meson.build	2023-06-16 14:50:46.326477922 -0400
+@@ -51,7 +51,7 @@
+   if get_option('introspection') == false
+     error('Build option \'python3\' requires \'introspection\' to be enabled.')
    endif
- 
-   if python3_girdir != 'no'
--    python3 = find_program('python3', required : false)
-+    python3 = find_program('@@PYTHON3_BIN@@', required : false)
-     if python3.found()
-       py3gi = run_command(python3, python_gi_test_args)
-       if py3gi.returncode() == 0
+-  python3 = import('python').find_installation('python3', modules: 'gi')
++  python3 = import('python').find_installation('@@PYTHON3_BIN@@', modules: 'gi')
+   python3.install_sources('GExiv2.py', subdir: 'gi/overrides')
+ else
+   python3 = disabler()

@@ -3,27 +3,27 @@
 PortSystem          1.0
 
 name                1password-cli
-version             1.8.0
+version             2.24.0
+revision            0
 
-categories          security
-license             Restrictive/Distributable
-platforms           darwin
-supported_archs     x86_64
+homepage            https://support.1password.com/command-line
 
 description         Official 1Password command-line tool
 
 long_description    View and manage 1password.com users, groups and objects \
                     from the command-line.
 
-homepage            https://support.1password.com/command-line
-
+categories          security
+installs_libs       no
+license             Restrictive/Distributable
 maintainers         {gmail.com:newtonne.github @newtonne} \
                     {gmail.com:herby.gillot @herbygillot} \
                     openmaintainer
 
 set bin_name        op
-set archive         ${bin_name}_darwin_amd64_v
+set archive         ${bin_name}_apple_universal
 set pkg_path        ${workpath}/pkg
+set pkg_workpath    ${pkg_path}/op.pkg
 
 extract.cmd         pkgutil
 extract.pre_args    --expand
@@ -31,28 +31,30 @@ extract.post_args   ${pkg_path}
 extract.mkdir       yes
 extract.suffix      .pkg
 
-master_sites        https://cache.agilebits.com/dist/1P/op/pkg/v${version}/
-distfiles           ${archive}${version}${extract.suffix}
+master_sites        https://cache.agilebits.com/dist/1P/op2/pkg/v${version}/
+distfiles           ${archive}_v${version}${extract.suffix}
+supported_archs     arm64 x86_64
 
-checksums           rmd160  f308a500fe26dad1b6f61f20af21142533e78e20 \
-                    sha256  6decb453be4e507336b004a0169befcee7dc9918198ae6fa33d0b55d8e8acc5f \
-                    size    4829950
+checksums           rmd160  455b5cfbcc2c0661198a44db286ad59ac6e5a2f0 \
+                    sha256  47480652037e7f90d0179ec0c8023a3f85f7c9292dc50eb40c23c93e49f0c4f6 \
+                    size    17080299
 
 # Pre-built binary
 use_configure       no
 build               {}
 
 post-extract {
-    system -W ${pkg_path} "tar -xzf ${pkg_path}/Payload"
+    system -W ${pkg_workpath} "cat ./Payload | gzip -d > ./Payload.cpio"
+    system -W ${pkg_workpath} "cat ./Payload.cpio | cpio -i"
 }
 
 destroot {
-    xinstall -m 755 ${pkg_path}/${bin_name} ${destroot}${prefix}/bin
+    xinstall -m 0755 ${pkg_workpath}/${bin_name} ${destroot}${prefix}/bin
 }
 
 livecheck.type      regex
-livecheck.url       https://app-updates.agilebits.com/product_history/CLI
-livecheck.regex     ${archive}(\\d+(\\.\\d+)+)${extract.suffix}
+livecheck.url       https://app-updates.agilebits.com/product_history/CLI2
+livecheck.regex     ${archive}_v(\\d+(\\.\\d+)+)${extract.suffix}
 
 notes "
 1Password CLI has been installed as ${bin_name}

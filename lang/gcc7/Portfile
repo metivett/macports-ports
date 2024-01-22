@@ -10,9 +10,9 @@ PortGroup xcode_workaround             1.0
 name                gcc7
 epoch               3
 version             7.5.0
-revision            2
-subport             libgcc7 { revision 0 }
-platforms           darwin
+revision            4
+subport             libgcc7 { revision 1 }
+platforms           {darwin < 15}
 categories          lang
 maintainers         nomaintainer
 # an exception in the license allows dependents to not be GPL
@@ -42,6 +42,33 @@ checksums           rmd160  91d46ec088badec75f41a2ad2a0ba228a6715107 \
 # what is missing from newer libgccX builds.
 # NOTE : The logic here must match that in the libgcc port.
 set isLastSupported [ expr ${os.major} < 10 ]
+
+if { ${configure.build_arch} eq "i386" && ${os.major} >= 10 } {
+
+    # fix no-pie clang bug bootstrapping gcc on i386
+    # https://trac.macports.org/ticket/63161
+    patchfiles-append  patch-gcc7-i686-clang-bootstrap-fix.diff
+}
+
+# Since GCC 7.4.0, during configure, it detects features supported by target-as.
+# On the other hand, MacPorts cctools contain a proxy for 'as' that runs system
+# 'as' or one of the supported MacPorts clang's 'as' if it is installed. Here,
+# we may encounter a misconfiguration when GCC builds on a system with some
+# MacPorts clang, and 'as' is using it. However, on a clean system, it uses
+# system 'as' if no MacPorts clang is installed, which may behave differently.
+# This can make GCC broken until MacPorts clang is installed. To avoid a stealth
+# dependency on the used clang, I enforce building with system 'as'.
+# See:
+#  - https://trac.macports.org/ticket/68683
+#  - https://github.com/gcc-mirror/gcc/commit/b410cf1dc056aab195c5408871ffca932df8a78a
+patchfiles-append   patch-gcc7-disable-macports-cctools-as-changes.diff
+
+configure.env-append \
+                    DISABLE_MACPORTS_AS_CLANG_SEARCH=1 \
+                    DISABLE_XCODE_AS_CLANG_SEARCH=1
+
+build.env-append    DISABLE_MACPORTS_AS_CLANG_SEARCH=1 \
+                    DISABLE_XCODE_AS_CLANG_SEARCH=1
 
 depends_lib         port:cctools \
                     port:gmp \
@@ -163,23 +190,6 @@ build.target        bootstrap-lean
 use_parallel_build  yes
 
 destroot.target     install install-info-host
-
-# On Darwin19+ fails to build for Xcode < 11.3
-# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90835
-# https://trac.macports.org/ticket/59351
-# for more background on the issue.
-if { ${os.major} >= 19 } {
-    if {[vercmp ${xcodeversion} 11.3] < 0} {
-        known_fail  yes
-        pre-fetch {
-            ui_error "${name} ${version} is (currently) not supported on Darwin ${os.major} Xcode ${xcodeversion}"
-            ui_error "See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90835 and"
-            ui_error "    https://trac.macports.org/ticket/59351 for more details"
-            ui_error "To install this port upgrade Xcode to 11.3 or newer"
-            return -code error "incompatible Xcode version"
-        }
-    }
-}
 
 # List of all dylibs to possibly be installed
 set alldylibs {libgcc_ext.10.4.dylib libgcc_ext.10.5.dylib libgcc_s.1.dylib libgfortran.4.dylib libquadmath.0.dylib libstdc++.6.dylib libobjc-gnu.4.dylib libgomp.1.dylib libitm.1.dylib libssp.0.dylib libasan.4.dylib libubsan.0.dylib libcilkrts.5.dylib libatomic.1.dylib}

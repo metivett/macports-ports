@@ -5,12 +5,12 @@ PortGroup           python 1.0
 PortGroup           select 1.0
 
 name                py-flake8
-version             3.8.4
+version             7.0.0
 revision            0
 
 categories-append   devel
-platforms           darwin
 supported_archs     noarch
+platforms           {darwin any}
 license             MIT
 maintainers         {petr @petrrr} openmaintainer
 
@@ -24,29 +24,16 @@ long_description    \
 
 homepage            https://flake8.readthedocs.org/
 
-checksums           rmd160  be4a5419587b2685198ecde6733566082522e0e4 \
-                    sha256  aadae8761ec651813c24be05c6f7b4680857ef6afaae4651a4eccaef97ce6c3b \
-                    size    163583
+checksums           rmd160  c55b34b842eeaf5886582d74a2686fb3f8fd5379 \
+                    sha256  33f96621059e65eec474169085dc92bf26e7b2d47366b70be2f67ab80dc25132 \
+                    size    48219
 
-python.versions     27 35 36 37 38 39
+python.versions     38 39 310 311 312
 
 if {${name} ne ${subport}} {
     depends_lib-append      port:py${python.version}-codestyle \
-                            port:py${python.version}-entrypoints \
                             port:py${python.version}-flake8-mccabe \
-                            port:py${python.version}-pyflakes \
-                            port:py${python.version}-setuptools
-
-    if {${python.version} < 38} {
-        depends_lib-append  port:py${python.version}-importlib-metadata
-    }
-
-    if {${python.version} eq 27} {
-        depends_lib-append  port:py${python.version}-configparser \
-                            port:py${python.version}-enum34 \
-                            port:py${python.version}-functools32 \
-                            port:py${python.version}-typing
-    }
+                            port:py${python.version}-pyflakes
 
     depends_run-append      port:${python.rootname}_select
 
@@ -62,18 +49,6 @@ port select --set ${select.group} [file tail ${select.file}]
     post-destroot {
         set dest_doc ${destroot}${prefix}/share/doc/${subport}
         xinstall -d ${dest_doc}
-        xinstall -m 0644 -W ${worksrcpath} CONTRIBUTORS.txt \
-            LICENSE README.rst ${dest_doc}
+        xinstall -m 0644 -W ${worksrcpath} LICENSE README.rst ${dest_doc}
     }
-
-    depends_test-append \
-                    port:py${python.version}-pytest \
-                    port:py${python.version}-mock
-
-    test.run        yes
-    test.cmd        py.test-${python.branch}
-    test.target
-    test.env        PYTHONPATH=${worksrcpath}/build/lib
-
-    livecheck.type  none
 }

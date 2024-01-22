@@ -1,0 +1,39 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           python 1.0
+
+name                py-python-socks
+version             2.4.4
+revision            0
+license             Apache-2
+maintainers         nomaintainer
+platforms           {darwin any}
+supported_archs     noarch
+
+description         Core proxy (SOCKS4, SOCKS5, HTTP tunneling) functionality
+long_description    The python-socks package provides a core proxy \
+                    client functionality for Python. Supports \
+                    SOCKS4(a), SOCKS5(h), HTTP (tunneling) proxy and \
+                    provides sync and async (asyncio, trio, curio, \
+                    anyio) APIs. You probably don't need to use \
+                    python-socks directly. It is used internally by \
+                    aiohttp-socks and httpx-socks packages.
+
+homepage            https://github.com/romis2012/python-socks
+
+python.versions     38 39 310 311 312
+
+checksums           rmd160  891b94fc458c882b7a160b0ddf3df63f36aa1359 \
+                    sha256  e5a8e4f78203612c813946feacd87b98943965a04389fe221fa1e9ab263ad22e \
+                    size    25792
+
+if {${name} ne ${subport}} {
+    python.pep517   yes
+
+    depends_run-append  \
+                    port:py${python.version}-anyio \
+                    port:py${python.version}-async-timeout \
+                    port:py${python.version}-curio \
+                    port:py${python.version}-trio
+}

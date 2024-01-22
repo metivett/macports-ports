@@ -5,56 +5,77 @@ PortGroup             github 1.0
 PortGroup             cmake 1.1
 PortGroup             qt5 1.0
 PortGroup             app 1.0
+PortGroup             boost 1.0
 
 name                  SDRangel
 platforms             darwin macosx
 categories            science
-license               GPL-3.0
+license               GPL-3
 maintainers           {ra1nb0w @ra1nb0w} {michaelld @michaelld} openmaintainer
 
 description           SDRangel is an Open Source Qt5 / OpenGL 3.0+ SDR \
     and signal analyzer frontend to various hardware.
 long_description    ${description}
 
-github.setup          f4exb sdrangel 6.5.5 v
-checksums             rmd160  c3418bd13dd5c69fb65b8cb864f3810d42c0b889 \
-                      sha256  c61a719cc36f8c40a5a137aa3858a4b563289baf35851bc8a12b6719571d3adb \
-                      size    42948669
+github.setup          f4exb sdrangel 7.13.0 v
+checksums             rmd160  4125429eb915724c0662b1db2078eb3a58fd988e \
+                      sha256  a8dd0ebcbf6e608382b9b46471e80baf5f5b73b2063c2e49502b6bb3fac5163b \
+                      size    79627129
 revision              0
 
-# check just the version 6 branch for now
-github.livecheck.regex (6\[0-9.]*)
+# check just the version 7 branch for now
+github.livecheck.regex (7\[0-9.]*)
 
-compiler.c_standard   2014
-compiler.cxx_standard 2014
+# not linked directly to openssl
+license_noconflict-append \
+    openssl \
+    openssl11
 
-# TEMPORARY
-# https://trac.macports.org/ticket/60012
-# https://github.com/f4exb/sdrangel/issues/467
-patchfiles-append     disable-remotetx.patch
+compiler.c_standard   2011
+# error: call to 'abs' is ambiguous
+#   float dec = std::abs(degrees) + minutes * 1.0f/60.0f + seconds * 1.0f/(60.0f*60.0f);
+# std::abs was only introduced in c++17 so whilst the port claims to only
+# require c++14 it actually needs c++17
+compiler.cxx_standard 2017
 
-# revert https://github.com/f4exb/sdrangel/issues/492
-patchfiles-append     revert_cm256cc.patch
+# use C++17 for the build itself
+patchfiles-append     use-cxx17.patch
+
+# disable because macOS < 10.12 since it has a too old Qt version
+if {${os.platform} eq "darwin" && ${os.major} <= 16} {
+    known_fail yes
+    pre-fetch {
+        ui_error "${name} @${version} requires Mac OS X 10.13 or later"
+        return -code error "Unsupported Mac OS X version"
+    }
+}
+
+set opencv_ver        3
 
 depends_lib-append \
-    port:boost \
     port:codec2 \
     port:cm256cc \
     port:dsdcc \
-    port:ffmpeg \
+    path:lib/libavcodec.dylib:ffmpeg \
     port:fftw-3-single \
-    path:lib/libusb.dylib:libusb \
+    path:lib/pkgconfig/libusb-1.0.pc:libusb \
     port:libiconv \
     port:libopus \
-    port:opencv \
-    port:serialDV
+    path:lib/opencv${opencv_ver}/libopencv_core.dylib:opencv${opencv_ver} \
+    port:serialDV \
+    port:aptdec \
+    port:sgp4 \
+    port:libsigmf \
+    port:dab-cmdline
 
 qt5.depends_component \
     qtmultimedia \
     qttools \
     qtwebsockets \
     qtlocation \
-    qtcharts
+    qtcharts \
+    qtspeech \
+    qtwebengine
 
 configure.args-append \
     -DBUILD_GUI=OFF \
@@ -71,11 +92,16 @@ configure.args-append \
     -DENABLE_PERSEUS=OFF \
     -DENABLE_RTLSDR=OFF \
     -DENABLE_SOAPYSDR=OFF \
+    -DENABLE_SDRPLAY=OFF \
     -DENABLE_XTRX=OFF \
     -DFORCE_SSE41=ON \
     -DIconv_LIBRARY=${prefix}/lib/libiconv.dylib \
     -DIconv_INCLUDE_DIR=${prefix}/include \
-    -DRX_SAMPLE_24BIT=ON
+    -DRX_SAMPLE_24BIT=ON \
+    -DENABLE_CHANNELTX_REMOTESOURCE=OFF
+
+cmake.module_path-append \
+    ${prefix}/libexec/opencv${opencv_ver}/cmake
 
 variant debug description {Enable debug messages} {
     configure.args-append   \
@@ -152,6 +178,12 @@ variant xtrx description {Enable xtrx hardware} {
 variant soapysdr description {Enable SoapySDR support} {
     depends_lib-append      port:SoapySDR
     configure.args-replace  -DENABLE_SOAPYSDR=OFF -DENABLE_SOAPYSDR=ON
+    configure.args-append   -DSOAPYSDR_DIR=${prefix}
+}
+
+variant sdrplay description {Enable SDRplay support} {
+    depends_lib-append      port:SDRplay3
+    configure.args-replace  -DENABLE_SDRPLAY=OFF -DENABLE_SDRPLAY=ON
 }
 
 default_variants +soapysdr +airspy +airspyhf +limesuite +rtlsdr +funcube +server +gui

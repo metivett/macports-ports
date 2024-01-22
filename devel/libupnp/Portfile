@@ -2,16 +2,17 @@
 
 PortSystem          1.0
 PortGroup           github 1.0
+PortGroup           cmake 1.1
 
-github.setup        pupnp pupnp 1.12.1 release-
+github.setup        pupnp pupnp 1.14.17 release-
 
 github.tarball_from releases
 name                libupnp
 distname            ${name}-${version}
-checksums           sha1    08fd7ec2d77ff4e7bc4632bf30695c7af63820ee \
-                    rmd160  8a16a6ee31c067b2cc9538f524992abbaa081ae3 \
-                    sha256  fc36642b1848fe5a81296d496291d350ecfc12b85fd0b268478ab230976d4009 \
-                    size    681174
+checksums           sha1    ca4b9826c4f122898c2d39f4ec95d608c4d29a0a \
+                    rmd160  e75a7989b80765b758fcfb3744a080c42d9ff634 \
+                    sha256  9b877242eba0428c7f949af4d6e7b7b908ce5ebc67cc13475ee6eb0d9bcb6ffb \
+                    size    695489
 
 categories          devel
 platforms           darwin
@@ -24,9 +25,17 @@ long_description \
     bridges that are compliant with Version 1.0 of the Universal Plug and Play \
     Device Architecture Specification.
 
-license             GPL-2+
+license             BSD
 use_bzip2           yes
 
+compiler.cxx_standard 2011
+
 configure.args-append \
-                    --enable-ipv6 \
-                    --disable-silent-rules
+                    -DBUILD_TESTING:BOOL=OFF
+
+depends_test        port:gtest
+
+variant test description {enable tests} {
+    configure.args-replace  -DBUILD_TESTING:BOOL=OFF -DBUILD_TESTING:BOOL=ON
+    test.run                yes
+}

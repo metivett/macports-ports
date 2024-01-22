@@ -1,16 +1,17 @@
---- configure.orig	2013-09-12 15:57:06.000000000 -0700
-+++ configure	2013-09-12 15:57:31.000000000 -0700
-@@ -1038,13 +1038,6 @@
+--- configure.orig	2021-03-25 19:54:54.000000000 -0700
++++ configure	2021-03-25 20:03:08.000000000 -0700
+@@ -3356,14 +3356,6 @@
  fi
  
  
--echo $ac_n "checking for Macintosh OS X""... $ac_c" 1>&6
--echo "configure:1043: checking for Macintosh OS X" >&5
+-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for Macintosh OS X" >&5
+-$as_echo_n "checking for Macintosh OS X... " >&6; }
 -( $CC --version 2>&1 | grep 'apple-darwin' > /dev/null ) && \
 -       apple_compiler="yes" \
 -       perl_arch_flags="$(perl -MExtUtils::Embed -e 'ccopts;print "\n"; ldopts' | grep -o -- '-arch -_0-9a-zA-Z*' | sort -u)" \
 -       CFLAGS="$CFLAGS $perl_arch_flags"
--echo "$ac_t""ok" 1>&6
+-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ok" >&5
+-$as_echo "ok" >&6; }
  
- 
- 
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking which multiplexer function to use" >&5
+ $as_echo_n "checking which multiplexer function to use... " >&6; }

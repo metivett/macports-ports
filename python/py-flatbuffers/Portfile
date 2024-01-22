@@ -4,10 +4,12 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-flatbuffers
-version             1.12
+version             23.5.26
+revision            0
 license             Apache-2
-platforms           darwin linux
-maintainers         {gmail.com:herby.gillot @herbygillot} \
+platforms           {darwin any} linux
+supported_archs     noarch
+maintainers         {gmail.com:herby.gillot @herbygillot} {judaew @judaew} \
                     openmaintainer
 
 description         Python runtime library for use with the Flatbuffers \
@@ -16,14 +18,12 @@ long_description    {*}${description}
 
 homepage            https://google.github.io/flatbuffers/
 
-python.versions     38
+python.versions     37 38 39 310 311 312
 
-checksums           rmd160  3a2bc474fd9323abc981a1fb25a41785c591e84b \
-                    sha256  63bb9a722d5e373701913e226135b28a6f6ac200d5cc7b4d919fa38d73b44610 \
-                    size    11286
+checksums           rmd160  2fb80007f288cb1343130e32a1d948414a48c2bc \
+                    sha256  9ea1144cac05ce5d86e2859f431c6cd5e66cd9c78c558317c7955fb8d4c78d89 \
+                    size    22114
 
 if {${name} ne ${subport}} {
-
-    depends_build-append \
-                    port:py${python.version}-setuptools
+    livecheck.type  none
 }

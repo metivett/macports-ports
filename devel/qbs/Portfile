@@ -1,36 +1,39 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
-PortGroup           qmake5 1.0
+PortGroup           cmake 1.1
+PortGroup           qt6 1.0
+PortGroup           compiler_blacklist_versions 1.0
 
 name                qbs
-version             1.18.0
+version             2.2.1
 revision            0
 
 categories          devel
-platforms           darwin
 license             LGPL-2.1
 maintainers         {@jobor qt.io:joerg.bornemann} openmaintainer
-description         Build tool that helps simplify the build process for developing projects across multiple platforms.
-long_description    Qbs is a tool that helps simplify the build process for developing projects across multiple platforms.
+description         build tool that helps simplify the build process for \
+                    developing projects across multiple platforms.
+long_description    ${name} is {*}${description}
 
 homepage            https://wiki.qt.io/Qbs
 distname            qbs-src-${version}
 master_sites        https://download.qt.io/official_releases/qbs/${version}/
 
-checksums           rmd160  3a5b5538110343371b7822aaaa09d4dbe7949b65\
-                    sha256  3d0211e021bea3e56c4d5a65c789d11543cc0b6e88f1bfe23c2f8ebf0f89f8d4\
-                    size    4921432
+checksums           rmd160  0241c8a1547b0ca2b3f628d25c98e47ab045bb0b \
+                    sha256  84dad32ff12fda91d4a57c637c86200cdedc7fa56e04daf1c544908ffdb6a2a6 \
+                    size    5560414
 
-qt5.depends_component qtscript
-qt5.min_version     5.14.0
+qt6.depends_lib qt5compat
 
 compiler.cxx_standard 2017
+# requires std::optional, above is not enough :(
+# https://github.com/macports/macports-base/pull/179
+compiler.blacklist-append {clang < 1001}
 
-configure.post_args QBS_INSTALL_PREFIX=${prefix} \
-                    CONFIG+=qbs_disable_rpath \
-                    CONFIG+=qbs_enable_project_file_updates \
-                    qbs.pro
+configure.args-append -DQBS_ENABLE_RPATH=NO
+
+cmake.generator     Ninja
 
 # set DYLD_LIBRARY_PATH to avoid
 #    dyld: Library not loaded: ${prefix}/lib/libqbscore.1.dylib
@@ -46,20 +49,23 @@ livecheck.regex     {(\d+(?:\.\d+)+)/}
 
 subport ${name}-docs {
 
-    universal_variant  no
+    set py_ver          3.11
+    set py_ver_nodot    [string map {. {}} ${py_ver}]
+
+    platforms          any
     supported_archs    noarch
-    qt5.debug_variant  no
+    qt6.depends_build qt5compat sqlite-plugin qttools
+    depends_build-append       port:python${py_ver_nodot} \
+                               port:py${py_ver_nodot}-beautifulsoup4 \
+                               port:py${py_ver_nodot}-lxml
 
-    build.target       docs
-    destroot.target    install_docs
+    # TODO: only HTML docs are installed, dunno how to run
+    # `cmake --install .` twice
+    configure.args-append -DQBS_INSTALL_HTML_DOCS=YES -DQBS_INSTALL_QCH_DOCS=Yes -DPYTHON_EXECUTABLE:FILEPATH=${prefix}/bin/python${py_ver}
+    build.target       qbs_docs
 
-    patchfiles-append  patch-doc.diff
-    post-patch {
-        reinplace \
-            "s|__MACPORTS_DOC_HTML_INSTALLDIR__|${qt_docs_dir}|g" \
-            ${worksrcpath}/doc/doc.pri
-    }
-
-    qt5.depends_build_component sqlite-plugin qttools
-    depends_run-append   port:${name}
+    destroot.pre_args  --install
+    destroot.args      . --component qbs_docs
+    destroot.target    ""
+    destroot.cmd cmake
 }

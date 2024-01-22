@@ -1,0 +1,55 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+# Revert to GitHub once updated there.
+R.setup             cran dmurdoch rgl 1.2.8
+revision            0
+categories-append   graphics
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             GPL
+description         3D visualization using OpenGL
+long_description    {*}${description}
+homepage            https://dmurdoch.github.io/rgl
+checksums           rmd160  8168b41f80ac4c51c4f7b672941187e618885965 \
+                    sha256  e535e738702d0babe043c1fec3d358c7bfdfe202ad95d68971b28ad7a81717f4 \
+                    size    2557113
+
+depends_build-append \
+                    port:pkgconfig
+depends_lib-append  port:freetype \
+                    port:libpng \
+                    port:R-base64enc \
+                    port:R-htmltools \
+                    port:R-htmlwidgets \
+                    port:R-jsonlite \
+                    port:R-knitr \
+                    port:R-magrittr \
+                    port:R-mime \
+                    port:R-R6 \
+                    port:zlib
+
+# Enabling X11 breaks the build on Sonoma:
+# https://trac.macports.org/ticket/68830
+# https://github.com/dmurdoch/rgl/issues/397
+if {(${os.platform} eq "darwin" && ${os.major} < 22) || ${os.platform} ne "darwin"} {
+    depends_lib-append \
+                    port:xorg-libX11
+
+    destroot.pre_args-append \
+                    --configure-args=' \
+                        --with-x \
+                        --x-includes=${prefix}/include/X11 \
+                        --x-libraries=${prefix}/lib \
+                        '
+}
+
+# TODO: implement tests, verify on PowerPC.
+# FIXME: https://github.com/dmurdoch/rgl/issues/317
+if {${os.platform} eq "darwin" && ${os.major} < 11} {
+    destroot.pre_args-append \
+                    --configure-args=' \
+                        --disable-opengl \
+                        '
+}

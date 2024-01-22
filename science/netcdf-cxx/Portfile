@@ -5,7 +5,7 @@ PortGroup                   mpi 1.0
 
 name                        netcdf-cxx
 version                     4.2
-revision                    16
+revision                    17
 distname                    ${name}-${version}
 maintainers                 {takeshi @tenomoto} openmaintainer
 platforms                   darwin
@@ -43,6 +43,10 @@ autoreconf.args             -fvi
 configure.cppflags-append   -DNDEBUG
 configure.cxxflags-append   -fno-common
 configure.cflags-append     -fno-common
+
+post-configure {
+    file rename ${worksrcpath}/VERSION ${worksrcpath}/VERSION.txt
+}
 
 test.run                    yes
 test.target                 check

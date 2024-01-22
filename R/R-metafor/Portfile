@@ -1,0 +1,22 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+# GitHub version lags behind.
+R.setup             cran wviechtb metafor 4.4-0
+revision            0
+maintainers         nomaintainer
+license             {GPL-2 GPL-3}
+description         Meta-analysis package for R
+long_description    {*}${description}
+homepage            https://wviechtb.github.io/metafor
+checksums           rmd160  c7500c1088191a1b5e385324598b083cbb6aa5f8 \
+                    sha256  62aca0c70b44205e885cf55f6cfb56c37efff74bdef79dbabd727d629d3087d4 \
+                    size    4683968
+supported_archs     noarch
+
+depends_lib-append  port:R-mathjaxr \
+                    port:R-metadat \
+                    port:R-numDeriv \
+                    port:R-pbapply

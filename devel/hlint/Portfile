@@ -4,36 +4,35 @@ PortSystem          1.0
 PortGroup           haskell_cabal 1.0
 
 name                hlint
-version             2.2.2
-revision            1
+version             3.5
+revision            0
 categories          devel haskell
 maintainers         nomaintainer
 license             GPL-3
 platforms           macosx
-homepage            https://www.haskell.org/alex/
+homepage            https://github.com/ndmitchell/hlint
 
-description         A tool for suggesting possible improvements to Haskell code.
-long_description    HLint is a tool for suggesting possible\
-                    improvements to Haskell code.  These suggestions\
-                    include ideas such as using alternative functions,\
+description         A tool for suggesting possible improvements to \
+                    Haskell code.
+
+long_description    HLint is a tool for suggesting possible \
+                    improvements to Haskell code.  These suggestions \
+                    include ideas such as using alternative functions, \
                     simplifying code and spotting redundancies.
 
 master_sites        https://hackage.haskell.org/package/${name}-${version}
 
-checksums           rmd160  d2e7ae8bc0a53976ed1906b3649c8388911ed655 \
-                    sha256  d717f06091d4b651671ffa3c3d88115d353a595b7853f9860af3b74d3eeb20ec \
-                    size    129651
-
-# relative paths to ${prefix}
-set hlint_datadir    share/${name}
+checksums           rmd160  97001d9babf6068296347f7b803ed6b4bdf651f4 \
+                    sha256  98bd120a10a086c17d6bf1176a510dc12b36581e5a901f1e024555bb3ccead4f \
+                    size    173976
 
 post-extract {
     if {[geteuid] == 0} {
         xinstall -o ${macportsuser} -d \
-            ${destroot}${prefix}/${hlint_datadir}
+            ${destroot}${prefix}/${haskell_cabal.datadir}
     } else {
         xinstall -d \
-            ${destroot}${prefix}/${hlint_datadir}
+            ${destroot}${prefix}/${haskell_cabal.datadir}
     }
 
     # Fix for cabal data-files hardcoded path in binary
@@ -53,8 +52,18 @@ post-extract {
         ${worksrcpath}/src/Paths_${name}.hs
 }
 
+build.target        exe:hlint \
+                    --allow-newer
+
 post-destroot {
-    # man page
-    xinstall -m 0644 ${destroot}${prefix}/share/${name}/${name}.1 \
-        ${destroot}${prefix}/share/man/man1
+    # install the manpage and data-files
+    foreach f [glob ${worksrcpath}/data/*] {
+        if {[file tail ${f}] eq "${name}.1"} {
+            xinstall -m 0644 ${f} \
+                    ${destroot}${prefix}/share/man/man1
+        } else {
+            xinstall -m 0644 ${f} \
+                ${destroot}${prefix}/${haskell_cabal.datadir}
+        }
+    }
 }

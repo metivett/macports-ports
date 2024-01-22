@@ -1,0 +1,48 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           golang 1.0
+
+go.setup            github.com/caarlos0/timer 1.4.1 v
+go.offline_build    no
+github.tarball_from archive
+revision            0
+
+description         A \`sleep\` with progress
+long_description    {*}${description}
+
+categories          sysutils
+installs_libs       no
+license             MIT
+maintainers         {gmail.com:herby.gillot @herbygillot} \
+                    openmaintainer
+
+checksums           rmd160  cf27e7f3db9adffc5f2afa8d2c85907e1c8566d0 \
+                    sha256  270b63396e054673b959d5b719180343cdc4857f4410cbc01b04ddb625dbea39 \
+                    size    8317
+
+build.cmd           \
+    "go build && ./scripts/completions.sh && ./scripts/manpages.sh"
+
+destroot {
+    xinstall -m 0755 ${worksrcpath}/${name} ${destroot}${prefix}/bin/
+
+    # Install man page
+    copy ${worksrcpath}/manpages/${name}.1.gz \
+        ${destroot}${prefix}/share/man/man1/
+
+    # Install bash completion
+    xinstall -d  ${destroot}${prefix}/share/bash-completion/completions
+    xinstall -m 0644 ${worksrcpath}/completions/${name}.bash \
+        ${destroot}${prefix}/share/bash-completion/completions/${name}
+
+    # Install zsh completion
+    xinstall -d  ${destroot}${prefix}/share/zsh/site-functions
+    xinstall -m 0644 ${worksrcpath}/completions/${name}.zsh \
+        ${destroot}${prefix}/share/zsh/site-functions/_${name}
+
+    # Install fish completion
+    xinstall -d ${destroot}${prefix}/share/fish/vendor_completions.d
+    xinstall -m 0644 ${worksrcpath}/completions/${name}.fish \
+        ${destroot}${prefix}/share/fish/vendor_completions.d/${name}.fish
+}

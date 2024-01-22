@@ -3,7 +3,8 @@
 PortSystem          1.0
 PortGroup           golang 1.0
 
-go.setup            github.com/motemen/gore 0.5.2 v
+go.setup            github.com/x-motemen/gore 0.5.7 v
+github.tarball_from archive
 revision            0
 
 description         gore is yet another Go REPL with line editing, code \
@@ -14,68 +15,80 @@ long_description    gore is a Go REPL featuring line editing with history, \
                     auto-importing (gore -autoimport) and more.
 
 categories          devel
-license             MIT
 installs_libs       no
-
-build.target        github.com/motemen/gore/cmd/gore
-
+license             MIT
 maintainers         {gmail.com:herby.gillot @herbygillot} \
                     openmaintainer
 
+build.cmd           make
+build.pre_args-append \
+                    CURRENT_REVISION=release
+build.args          build
+
 destroot {
-    xinstall -m 755 ${worksrcpath}/${name} ${destroot}${prefix}/bin/
+    xinstall -m 0755 ${worksrcpath}/${name} ${destroot}${prefix}/bin/
 }
 
 checksums           ${distname}${extract.suffix} \
-                        rmd160  0bcb8b6b18c13ab46c1406a69573fdcef5c30a59 \
-                        sha256  f43afd536f0b2ead091d0b7c9cfec3b5e01fb3f13ed085a6d17a877e91cdd516 \
-                        size    436282
+                        rmd160  c9660691e5e175b1e3ee0a90653ef693189b65f3 \
+                        sha256  bbd06377093dd760f54fbc7ee608e67430f5f005464d92c7cc237bad57490dd0 \
+                        size    435565
 
-go.vendors          golang.org/x/xerrors \
-                        lock    5ec99f83aff1 \
-                        rmd160  6e8267f353e153297f205e4be219236d6ae43880 \
-                        sha256  9a500a49d83a09e7de6c71b215d1c14b81e315d26884530ef327c95ddf1f2d28 \
-                        size    13667 \
-                    golang.org/x/tools \
-                        lock    e2f9c7f1fc8e \
-                        rmd160  e4ec824bac4c09646b5b74e3fd4cde5a08495a34 \
-                        sha256  0bb4330ec89b25032b0c591a39fd3c100fc597e61857d4f38e9684c522c004a1 \
-                        size    2679377 \
+go.vendors          golang.org/x/tools \
+                        lock    v0.13.0 \
+                        rmd160  3e56840052ccca4a75aec6ff64947f4fcaa6f45f \
+                        sha256  98d00e1fba41cee66edf459abc4c959806f575982502b54adb1243d8ef9bb696 \
+                        size    3486210 \
                     golang.org/x/text \
-                        lock    v0.3.5 \
-                        rmd160  2bc41a433ef7cbbf321afed39256a65d43ef3c8b \
-                        sha256  148ec80befd0392454a5d7756abcebeb74f863e6e4b1e1ff63bbe06c2b49e120 \
-                        size    8349629 \
+                        lock    v0.13.0 \
+                        rmd160  41adfd8809cec3b7d0d885c1d698bc2a0d73ab1c \
+                        sha256  b499b39462b190a30882184132b47afb02c2c76ee9fee315c0aebe477c4b8354 \
+                        size    8964803 \
+                    golang.org/x/sys \
+                        lock    v0.12.0 \
+                        rmd160  5082c23ea5578ae437fb33840a5cb7b521e413f5 \
+                        sha256  d09cc88a9a9a75e43f0c339bba8f106d66313bea1169889d94534b3f6a8a4d6b \
+                        size    1447140 \
+                    golang.org/x/sync \
+                        lock    v0.3.0 \
+                        rmd160  b82f980eb2c9cdf64c03cebf7dc4ace66a2be261 \
+                        sha256  640559182ec233eef3dcd6fe034e8017b4ca5690196278d87f51592616960d1f \
+                        size    20014 \
                     golang.org/x/mod \
-                        lock    v0.4.0 \
-                        rmd160  8676ac81f1ab673dc0ed8d778dd96db5ed07818c \
-                        sha256  91bb5a9d7cd04e420ef1273e65ad880fe4184fe2282d26db3613e90c0b954da3 \
-                        size    102302 \
+                        lock    v0.12.0 \
+                        rmd160  cb4748b4ac933d04f5b0fbbcea18704996acf815 \
+                        sha256  862b0f7fade1457270ea33b26cebe3c2c6918f15f5fe40f9ee32335440ef05fe \
+                        size    123221 \
                     github.com/stretchr/testify \
                         lock    v1.3.0 \
                         rmd160  80582370443047a1d7020211865d85d54c036eea \
                         sha256  ac782171992e3af1c8ac8384cbf4a39706ec5f9e3c6eed57a246e02dce571762 \
                         size    102899 \
+                    github.com/rivo/uniseg \
+                        lock    v0.4.4 \
+                        rmd160  00ed48c772088197112a0732fe3c7cd90ec8c94e \
+                        sha256  c80468291b3a3df4d56d48f1335564a3813fb7e6d5588a8502949fd9d67a704a \
+                        size    453472 \
                     github.com/pmezard/go-difflib \
                         lock    v1.0.0 \
                         rmd160  fc879bfbdef9e3ff50844def58404e2b5a613ab8 \
                         sha256  7cd492737641847266115f3060489a67f63581e521a8ec51efbc280c33fc991f \
                         size    11409 \
                     github.com/peterh/liner \
-                        lock    v1.2.1 \
-                        rmd160  efbc6c78e70965e836cf3b4b590f3e2554501304 \
-                        sha256  e288d01fd01b14b50ff93cbc0181d3494b51b70d22f3e1982b4f76e06f6e6b80 \
-                        size    21161 \
+                        lock    v1.2.2 \
+                        rmd160  2f6a12c2890ab128d49fd9244ca0b905736e22f7 \
+                        sha256  6e7dc0b7456cdc08527d6c1798d0e1fafe805cbe0a7a0437131d99d035196891 \
+                        size    22013 \
                     github.com/motemen/go-quickfix \
-                        lock    2a6e54e79a50 \
-                        rmd160  42009dc3ec31d553101065dda8a94ececa98d0c8 \
-                        sha256  d963420416f27351dca91ffb81cd43a73452f8e751af7776e49b6902c30c169c \
-                        size    8406 \
+                        lock    5cf0001766ff \
+                        rmd160  cd8aa3aee6c5e810376871c685b35c4558f11106 \
+                        sha256  0182fb15bb7cde9905aa7eecccb761911f1ad60c815bc7d1140d8e5985a5c566 \
+                        size    8930 \
                     github.com/mattn/go-runewidth \
-                        lock    v0.0.9 \
-                        rmd160  412c0e508e55f4fe437be0f71d7d22eca2b4366f \
-                        sha256  4f0f4a22257ccecfb6beae88052d850380ecc0e806d6bcc92d3656ebcac3b638 \
-                        size    16716 \
+                        lock    v0.0.15 \
+                        rmd160  702d468077550681ac11c3c2f3f5c9f98a868798 \
+                        sha256  a6b5f47ffe7329895a605c356ff806dfd50b536bbc87af77773e55ad6e52d2db \
+                        size    18287 \
                     github.com/davecgh/go-spew \
                         lock    v1.1.0 \
                         rmd160  0303eae19a01f38fe314921fd965e4d09b9ef3ad \

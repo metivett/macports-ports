@@ -4,17 +4,16 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-dill
-version             0.3.3
+version             0.3.7
 revision            0
 
-platforms           darwin
+platforms           {darwin any}
 supported_archs     noarch
 license             BSD
 
-maintainers         {petr @petrrr} openmaintainer
+maintainers         {petr @petrrr} {reneeotten @reneeotten} openmaintainer
 
 description         serialize all of python extends python's pickle module
-
 long_description    \
     dill extends python's pickle module for serializing and de-serializing \
     python objects to the majority of the built-in python types. It provides \
@@ -25,35 +24,29 @@ long_description    \
 
 homepage            https://github.com/uqfoundation/dill
 
-use_zip             yes
-checksums           rmd160  e21992ba9dcea23d91091b5dd886062cd65debf5 \
-                    sha256  efb7f6cb65dba7087c1e111bb5390291ba3616741f96840bfc75792a1a9b5ded \
-                    size    177693
+checksums           rmd160  3aecd09a0cf8ebdaa02fff88467523124bad3e60 \
+                    sha256  cc1c8b182eb3013e24bd475ff2e9295af86c1a38eb1aff128dac8962a9ce3c03 \
+                    size    183355
 
-python.versions     27 35 36 37 38 39
+python.versions     37 38 39 310 311 312
+python.pep517       yes
 
 if {${name} ne ${subport}} {
-    depends_build-append \
-                    port:py${python.version}-setuptools
-
     # make sure the tests are run with the correct Python version
     post-patch {
         reinplace "s|python = 'python'|python = '${python.bin}'|g" \
-            ${worksrcpath}/tests/__main__.py
+            ${worksrcpath}/dill/tests/__main__.py
     }
 
     test.run        yes
-    test.dir        ${build.dir}/tests
+    python.test_framework
+    test.dir        ${build.dir}/dill/tests
     test.cmd        ${python.bin} __main__.py
-    test.target
-    test.env        PYTHONPATH=${worksrcpath}/build/lib
 
     post-destroot {
         set docdir ${prefix}/share/doc/${subport}
         xinstall -d ${destroot}${docdir}
-        xinstall -m 0644 -W ${worksrcpath} LICENSE README README.md \
+        xinstall -m 0644 -W ${worksrcpath} LICENSE README.md \
             ${destroot}${docdir}
     }
-
-    livecheck.type  none
 }

@@ -1,113 +1,219 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:filetype=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
+PortGroup           active_variants 1.1
+PortGroup           cmake 1.1
 PortGroup           wxWidgets 1.0
+
 wxWidgets.use       wxWidgets-3.2
-PortGroup           cxx11   1.1
 
 name                saga
 categories          gis
 license             GPL
-version             7.3.0
-revision            4
-#set branch          [join [lrange [split ${version} .] 0 1] .]
-platforms           darwin
-maintainers         {vince @Veence} openmaintainer
+version             9.3.0
+revision            0
+maintainers         {vince @Veence} {yahoo.com:n_larsson @nilason} openmaintainer
 
 description         SAGA is a GIS oriented towards statistics and analysis
 
-long_description    SAGA is yet another open source GIS targeted towards\
-                    spatial analysis and statistics. It uses wxWidgets as\
-                    a GUI.
+long_description    SAGA - System for Automated Geoscientific Analyses - is\
+                    a GIS software designed for an easy and effective\
+                    implementation of spatial algorithms and offers\
+                    a comprehensive, growing set of geoscientific methods.\
+                    It uses wxWidgets as a GUI.
 
-homepage            http://www.saga-gis.org/en/index.html
-master_sites        sourceforge:project/saga-gis/SAGA%20-%207/SAGA%20-%20${version}
+homepage            https://saga-gis.sourceforge.io/en/index.html
+set master_sites_in sourceforge:project/saga-gis/SAGA%20-%20[lindex [split ${version} "."] 0]/SAGA%20-%20${version}
+master_sites        ${master_sites_in}
 
-checksums           rmd160  62dc55a24e32f4accb75222d83eb70a0c7135cb1 \
-                    sha256  f3c0f805bd48c3afbad56a35b6b0aa40e8e92799ed0ef0d682aea275fa36fbbc \
-                    size    4742356
+checksums           rmd160  7d2b7c16a1744e3e027eeea60e7298567a49e962 \
+                    sha256  cc1769e04cb3a5cdb5ce1036f940fa2eb5cd1feb127dbd1abceb1cc426c6c631 \
+                    size    9085741
 
-patchfiles          patch-configure.diff
+cmake.source_dir    ${worksrcpath}/saga-gis
 
-depends_build       port:autoconf \
-                    port:automake \
-                    port:libtool
+patchfiles-append   shape_cpp.diff
+patchfiles-append   python_cmake.diff
 
-depends_lib         port:geos \
+depends_build-append \
+                    port:pkgconfig \
+                    port:swig
+
+if {${subport} eq ${name}} {
+# SAGA 9.1.0 do not support PROJ 8+ API
+    depends_lib-append  \
+                    port:${wxWidgets.port} \
                     port:gdal \
-                    port:proj6 \
-                    port:liblas \
-                    port:jasper \
-                    port:fftw-3 \
-                    port:unixODBC \
-                    port:qhull
+                    port:proj7 \
+                    port:opencv4 \
+                    port:pdal \
+                    port:curl \
+                    port:tiff
+} else {
+    depends_build-append \
+                    port:${wxWidgets.port} \
+                    port:gdal \
+                    port:proj7 \
+                    port:opencv4 \
+                    port:pdal \
+                    port:curl \
+                    port:tiff
+}
+compiler.cxx_standard       2014
 
-depends_lib-append  port:${wxWidgets.port}
+configure.pkg_config_path-append \
+                            "${prefix}/lib/opencv4/pkgconfig"
 
-post-patch {
-    fs-traverse f ${worksrcpath} {
-        if {[file isfile ${f}]} {
-            switch [file tail ${f}] {
-                configure -
-                Makefile.in {
-                    reinplace -E -q "s|wx-config|${wxWidgets.wxconfig}|" ${f}
+configure.args              -DwxWidgets_CONFIG_EXECUTABLE=${wxWidgets.wxconfig} \
+                            -DOpenMP_SUPPORT=OFF \
+                            -DWITH_GUI=OFF \
+                            -DWITH_PYTHON=OFF \
+                            -DWITH_SYSTEM_SVM=OFF \
+                            -DWITH_SYSTEM_GEOTRANS=OFF \
+                            -DWITH_CLIPPER_ONE=OFF \
+                            -DWITH_MRMR=OFF \
+                            -DPROJ_INCLUDE_DIR=${prefix}/lib/proj7/include \
+                            -DPROJ_LIBRARY=${prefix}/lib/proj7/lib/libproj.dylib
+                            
+configure.args-append       -DWITH_TOOLS=ON \
+                            -DWITH_TOOLS_OPENCV=ON \
+                            -DWITH_TOOLS_GDAL=ON \
+                            -DWITH_TOOLS_HPDF=OFF \
+                            -DWITH_TOOLS_PDAL=ON \
+                            -DWITH_TOOLS_POSTGRES=OFF \
+                            -DWITH_TOOLS_PROJ=ON \
+                            -DWITH_TOOLS_RIEGL=OFF \
+                            -DWITH_TOOLS_VIGRA=OFF \
+
+# Variants
+if {${subport} eq ${name}} {
+
+    variant gui description "Build with GUI interface" {
+        configure.args-replace  -DWITH_GUI=OFF -DWITH_GUI=ON
+    }
+
+    # Set ODBC variant
+    variant unixodbc conflicts iodbc description {Build ODBC driver against unixODBC} {
+        depends_lib-append      port:unixODBC
+    }
+
+    variant iodbc conflicts unixodbc description {Build ODBC driver against iODBC} {
+        depends_lib-append      port:libiodbc
+    }
+
+    if {![variant_isset unixodbc] && ![variant_isset iodbc]} {
+        default_variants        +unixodbc
+    }
+
+    variant vigra description "Add VIGRA support" {
+        pre-configure {
+            # If HDF5 is built with a mpi variant, we need to know the path to "mpi.h".
+            # Figure out HDF5's mpi include directory:
+            set mpl_include_dir ""
+            if {![catch {set result [active_variants hdf5 openmpi]}]} {
+                if {$result} {
+                    set mpl_include_dir "-I${prefix}/include/openmpi-mp"
                 }
             }
+            if {![catch {set result [active_variants hdf5 mpich]}]} {
+                if {$result} {
+                    set mpl_include_dir "-I${prefix}/include/mpich-mp"
+                }
+            }
+            if {$mpl_include_dir ne ""} {
+                configure.cxxflags-append ${mpl_include_dir}
+            }
         }
+
+        configure.args-replace     -DWITH_TOOLS_VIGRA=OFF -DWITH_TOOLS_VIGRA=ON \
+                                   -DWITH_MRMR=OFF -DWITH_MRMR=ON
+        depends_lib-append         port:vigra \
+                                   port:hdf5 \
+                                   port:fftw-3
+    }
+
+    variant libharu description "Add libHaru support for PDF creation" {
+        configure.args-replace  -DWITH_TOOLS_HPDF=OFF -DWITH_TOOLS_HPDF=ON
+        depends_lib-append      port:libharu
+    }
+
+    # Set PostgreSQL variant
+    set postgresql_suffixes {12 13 14 15}
+    set postgresql_variants {}
+    foreach suffix ${postgresql_suffixes} {
+        lappend postgresql_variants postgresql${suffix}
+    }
+    foreach suffix ${postgresql_suffixes} {
+        set vrt postgresql${suffix}
+        set index [lsearch -exact ${postgresql_variants} ${vrt}]
+        set conf [lreplace ${postgresql_variants} ${index} ${index}]
+        variant ${vrt} description "Use PostgreSQL ${suffix}" conflicts {*}${conf} "
+            depends_lib-append      port:${vrt}
+            configure.env-append    POSTGRES_HOME=${prefix}/lib/${vrt}
+            configure.args-replace  -DWITH_TOOLS_POSTGRES=OFF -DWITH_TOOLS_POSTGRES=ON
+        "
+    }
+    # PostgreSQL default
+    set pgdefault "if {"
+    foreach suffix ${postgresql_suffixes} {
+        set pgdefault "${pgdefault}!\[variant_isset postgresql${suffix}\] && "
+    }
+    set pgdefault [string range ${pgdefault} 0 end-4]
+    set pgdefault "${pgdefault}} { default_variants +postgresql15 }"
+    eval ${pgdefault}
+}
+
+# Python subports
+set python_versions {39 310 311 312}
+foreach v ${python_versions} {
+    subport py${v}-py${name} {
+        PortGroup           python 1.0
+
+        categories          gis python
+
+        depends_lib-append  port:${name}
+
+        use_configure       yes
+
+        python.default_version  ${v}
+        python.add_dependencies no
+        build.cmd           make
+        build.target
+        destroot.cmd        make install
+        destroot.destdir    DESTDIR=${destroot}
+
+        master_sites        ${master_sites_in}
+        
+        livecheck.type      none
     }
 }
 
-configure.cppflags-append   -I${prefix}/lib/proj6/include
-configure.cxxflags-append   -std=c++11
-configure.ldflags-append    -L${prefix}/lib/proj6/lib
+# Python bindings for supported Python versions
+if {[string match "py*" ${subport}]} {
+    description             PySAGA, Python ${python.branch} bindings for SAGA
+    long_description        {*}${description}.
 
-configure.args      --disable-openmp \
-                    --enable-debug \
-                    --disable-triangle \
-                    --disable-libfire \
-                    --disable-gui
+    depends_lib-append      port:python${python.version}
+    depends_build-append    port:swig-python
 
-variant gui description "build the GUI interface" {
+    configure.args-replace  -DWITH_PYTHON=OFF -DWITH_PYTHON=ON
+    configure.args-append   -DWITH_PYTHON_PKG=ON
+    post-patch {
+        reinplace "s|@PYVER@|${python.branch}|" \
+          ${worksrcpath}/saga-gis/src/saga_core/saga_api/saga_api_python/CMakeLists.txt
+    }
 
-    configure.args-delete   --disable-gui
-}
-
-variant python27 description "build Python 2.7 bindings" {
-    depends_lib-append      port:python27\
-                            port:swig-python
-
-    configure.args-append   --enable-python
-    configure.env-append    PYTHON=${prefix}/bin/python2.7
-    configure.env-append    PYTHON_VERSION=2.7
-}
-
-variant libfire {
-    configure.args-delete   --disable-libfire
-}
-
-variant postgresql11 conflicts postgresql10 {
-    depends_lib-append      port:postgresql11
-    configure.args-append   --with-postgresql=${prefix}/lib/postgresql11/bin/pg_config
-}
-
-variant postgresql10 conflicts postgresql11 {
-    depends_lib-append      port:postgresql10
-    configure.args-append   --with-postgresql=${prefix}/lib/postgresql10/bin/pg_config
-}
-
-if {![variant_isset postgresql11] && ![variant_isset postgresql10]} {
-    default_variants    +postgresql11
-}
-
-post-destroot {
-    if {[variant_isset python27]} {
-        file mkdir ${destroot}${frameworks_dir}/Python.framework/Versions/2.7/lib/python2.7
-        file rename ${destroot}${prefix}/lib/python2.7/site-packages \
-        ${destroot}${frameworks_dir}/Python.framework/Versions/2.7/lib/python2.7/site-packages
+    post-destroot {
+        xinstall -d ${destroot}${python.pkgd}
+        move ${destroot}${prefix}/lib/python${python.branch}/site-packages/PySAGA \
+            ${destroot}${python.pkgd}
+        delete --force ${destroot}${prefix}/bin
+        delete --force ${destroot}${prefix}/include
+        delete --force ${destroot}${prefix}/lib
+        delete --force ${destroot}${prefix}/share
     }
 }
 
-configure.ldflags-append    -gdwarf-3
-configure.cxxflags-append   -gdwarf-3
+destroot.target             install
 
-livecheck.regex             ${name}_(\[0-9a-z.\]+)${extract.suffix}
+livecheck.regex             ${name}-(\[0-9a-z.\]+)${extract.suffix}

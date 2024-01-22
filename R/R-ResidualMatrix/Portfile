@@ -1,0 +1,27 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             bioconductor LTLA ResidualMatrix 1.12.0
+revision            0
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             GPL-3
+description         Creating a DelayedMatrix of regression residuals
+long_description    {*}${description}
+homepage            https://github.com/LTLA/ResidualMatrix
+checksums           rmd160  1a7bba283e2e2357013ca86cce5c34147edf48c8 \
+                    sha256  bbb066105053c04b4d2d5fdbda6b2d2eb708c8e80272354bc1dc3dbf7a38fe1a \
+                    size    340952
+supported_archs     noarch
+
+depends_lib-append  port:R-DelayedArray \
+                    port:R-S4Vectors
+
+depends_test-append port:R-BiocSingular \
+                    port:R-BiocStyle \
+                    port:R-knitr \
+                    port:R-rmarkdown \
+                    port:R-testthat
+
+test.run            yes

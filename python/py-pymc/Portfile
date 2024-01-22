@@ -1,0 +1,46 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           python 1.0
+PortGroup           github 1.0
+
+github.setup        pymc-devs pymc 5.10.3 v
+github.tarball_from archive
+revision            0
+name                py-pymc
+
+supported_archs     noarch
+platforms           {darwin any}
+license             Apache-2
+maintainers         {reneeotten @reneeotten} openmaintainer
+
+description         Probabilistic Programming in Python: Bayesian Modeling and \
+                    Probabilistic Machine Learning with Aesara
+long_description    PyMC (formerly PyMC3) is a Python package for Bayesian \
+                    statistical modeling focusing on advanced Markov chain \
+                    Monte Carlo (MCMC) and variational inference (VI) algorithms. \
+                    Its flexibility and extensibility make it applicable to a \
+                    large suite of problems.
+
+checksums           rmd160  8ca6c8cb5cd11f3ca2ca3bac5e794f4c695703bd \
+                    sha256  05fb26b6849e8c582c8cac40fef71b396927ef8bcaf0b039a6cb57b54bdff265 \
+                    size    6887772
+
+python.versions     39 310 311
+
+if {${name} ne ${subport}} {
+    conflicts   py${python.version}-pymc3
+
+    depends_lib-append \
+                    port:py${python.version}-arviz \
+                    port:py${python.version}-cachetools \
+                    port:py${python.version}-cloudpickle \
+                    port:py${python.version}-fastprogress \
+                    port:py${python.version}-numpy \
+                    port:py${python.version}-pandas \
+                    port:py${python.version}-pytensor \
+                    port:py${python.version}-scipy \
+                    port:py${python.version}-typing_extensions
+}
+
+github.livecheck.regex  {([0-9.]+)}

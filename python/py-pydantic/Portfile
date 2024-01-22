@@ -4,12 +4,11 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-pydantic
-version             1.7.2
+version             2.5.3
 categories-append   devel
-platforms           darwin
 license             MIT
 
-python.versions     37 38 39
+python.versions     38 39 310 311 312
 
 maintainers         {@jandemter demter.de:jan} openmaintainer
 
@@ -21,13 +20,19 @@ long_description    Fast and extensible, pydantic plays nicely \
 
 homepage            https://github.com/samuelcolvin/pydantic
 
-checksums           rmd160  e65928e8b9a2224d11db18aa2b5a84e7ddcf2956 \
-                    sha256  c8200aecbd1fb914e1bd061d71a4d1d79ecb553165296af0c14989b89e90d09b \
-                    size    223158
+checksums           rmd160  7d7a70244dfcb6b460f67aa6de7de67bbc7bde20 \
+                    sha256  b3ef57c62535b0941697cce638c08900d87fcb67e29cfa99e8a68f747f393f7a \
+                    size    651797
 
 if {${name} ne ${subport}} {
-    depends_build-append    port:py${python.version}-setuptools \
-                            port:py${python.version}-cython
+    python.pep517_backend \
+                    hatch
 
-    livecheck.type      none
+    depends_build-append \
+                    port:py${python.version}-setuptools \
+                    port:py${python.version}-hatch-fancy-pypi-readme
+
+    depends_run-append \
+                    port:py${python.version}-annotated_types \
+                    port:py${python.version}-pydantic_core
 }

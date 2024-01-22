@@ -1,0 +1,29 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           app 1.0
+PortGroup           cmake 1.0
+PortGroup           github 1.0
+PortGroup           qt5 1.0
+
+github.setup        Faster3ck converseen 0.12.0.2 v
+revision            0
+categories          graphics
+license             GPL-3
+maintainers         {mps @Schamschula} openmaintainer
+description         Converseen is an open source batch image converter and resizer.
+long_description    {*}${description} Thanks to the Magick++ image libraries it supports \
+                    more than 100 image formats.
+
+checksums           rmd160  aa5f8b3250fa5e52521546d055793fc4d30f2733 \
+                    sha256  f265c089f9ddb2d9a8c835c38f2ebc3d3164b26d5786a14575f2bc8eac8c0534 \
+                    size    2305881
+
+depends_lib-append  port:ImageMagick
+
+platforms {darwin >= 14}
+
+qt5.depends_component \
+                    qttools
+
+app.icon            ${filespath}/Converseen.icns

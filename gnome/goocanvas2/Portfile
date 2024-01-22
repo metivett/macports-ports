@@ -6,6 +6,7 @@ PortGroup           gobject_introspection 1.0
 name                goocanvas2
 set gname           goocanvas
 version             2.0.4
+revision            1
 set branch          [join [lrange [split ${version} .] 0 1] .]
 description         A Cairo Canvas Widget for GTK+ version 3
 long_description    GooCanvas is a canvas widget for GTK+ version 3 that uses the cairo 2D library \
@@ -27,7 +28,7 @@ checksums           rmd160  e287fb64b998b3e4dc3f68d88860bf6c4d6c1736 \
 depends_build       port:pkgconfig \
                     port:gettext
 
-depends_lib         port:gtk3
+depends_lib         path:lib/pkgconfig/gtk+-3.0.pc:gtk3
 
 patchfiles          patch-configure.diff
 

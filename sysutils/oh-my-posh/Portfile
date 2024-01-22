@@ -1,0 +1,45 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           golang 1.0
+
+go.setup            github.com/JanDeDobbeleer/oh-my-posh 17.5.1 v
+github.tarball_from archive
+revision            0
+
+homepage            https://ohmyposh.dev
+
+description         A prompt theme engine for any shell.
+long_description    {*}${description}
+
+categories          sysutils shells
+installs_libs       no
+license             GPL-3
+maintainers         {gmail.com:herby.gillot @herbygillot} \
+                    openmaintainer
+
+checksums           rmd160  5a985aeb45bb895d86f912dcddcc32c39d2981f2 \
+                    sha256  29abe3604ae034be278c13b2d698a7c3336fcd0fb19ff20afbdc080b3a54bb29 \
+                    size    2710516
+
+build.dir           ${worksrcpath}/src
+
+# Allow Go to fetch dependencies at build time
+go.offline_build no
+build.pre_args-append \
+    -ldflags \"-X main.Version=${version}\" -o ${name}
+
+set omp_share_path  ${prefix}/share/${name}
+
+destroot {
+    xinstall -m 0755 ${worksrcpath}/src/${name} ${destroot}${prefix}/bin/
+
+    xinstall -d ${destroot}${omp_share_path}
+    file copy ${worksrcpath}/themes ${destroot}${omp_share_path}/
+}
+
+notes "
+  Themes for ${name} can be found in:
+
+    ${omp_share_path}/themes
+"

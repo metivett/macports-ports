@@ -1,0 +1,12 @@
+--- vendor/github.com/containers/common/pkg/config/config_darwin.go
++++ vendor/github.com/containers/common/pkg/config/config_darwin.go
+@@ -35,6 +35,9 @@ var defaultHelperBinariesDir = []string{
+ 	// Relative to the binary directory
+ 	"$BINDIR/../libexec/podman",
+ 	// Homebrew install paths
++	// MacPorts install paths
++	"@@PREFIX@@/libexec",
++	"@@PREFIX@@/bin",
+ 	"/usr/local/opt/podman/libexec/podman",
+ 	"/opt/homebrew/opt/podman/libexec/podman",
+ 	"/opt/homebrew/bin",

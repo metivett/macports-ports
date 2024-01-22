@@ -4,21 +4,22 @@ PortSystem          1.0
 
 PortGroup           github 1.0
 
-github.setup        liberationfonts liberation-fonts 2.1.2
+github.setup        liberationfonts liberation-fonts 2.1.5
 
-github.master_sites ${github.homepage}/files/5722233
+github.master_sites ${github.homepage}/files/7261482
 # URL for releases is:
-# https://github.com/liberationfonts/liberation-fonts/files/5722233/liberation-fonts-ttf-2.1.2.tar.gz
-checksums           rmd160  4025d50656ef1304221adbb2c04b17b6ddefee5b \
-                    sha256  14694930f28391675008c67b18889d1a7dfea74b16adf50394f8057b57eaf8e0 \
-                    size    2370416
+# https://github.com/liberationfonts/liberation-fonts/files/7261482/liberation-fonts-ttf-2.1.5.tar.gz
+checksums           rmd160  1b63abd6acc8dc50e9d5264809196d9ba5180b18 \
+                    sha256  7191c669bf38899f73a2094ed00f7b800553364f90e2637010a69c0e268f25d0 \
+                    size    2385008
 
 categories          x11 fonts
-platforms           darwin
+platforms           any
 supported_archs     noarch
 maintainers         {ctreleaven @ctreleaven} openmaintainer
 # See homepage re license -
 license             SIL
+installs_libs       no
 
 description         replacements for the three commonly used fonts on Microsoft systems
 

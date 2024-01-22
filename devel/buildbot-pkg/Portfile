@@ -4,40 +4,26 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                buildbot-pkg
-version             2.8.4
+version             3.10.1
 revision            0
-checksums           rmd160  3c49c9a782580d33dd6f058c2e4cb65233afdeea \
-                    sha256  0c3fb99d2acd944efcbc300d98c9fbc7d3f874e4773dae6096c48bd371b638dd \
-                    size    4772
+checksums           rmd160  bcd13e2ab7cf47d7e9397e5f077a620f4a534895 \
+                    sha256  ea5256d573702977934e7d230ce22c54752b9b149673888ade020dbd3157d975 \
+                    size    4997
 
 categories          devel
-platforms           darwin
-maintainers         {ryandesign @ryandesign} {rajdeep @rajdeepbharati} {mojca @mojca} openmaintainer
+maintainers         {ryandesign @ryandesign} {rajdeep @rajdeepbh} {mojca @mojca} openmaintainer
 license             GPL-2
 supported_archs     noarch
+platforms           {darwin any}
 
 description         packaging tools for Buildbot
 long_description    {*}${description}
 
 homepage            https://buildbot.net
 
+# Can't update to 311 due to missing dependency:
+# https://trac.macports.org/ticket/67849
 python.default_version \
-                    38
+                    310
 
 depends_lib-append  port:py${python.version}-setuptools
-
-# These obsolete subports can be removed after August 2021.
-set old_subports [list py-${name} py38-${name}]
-foreach old_subport ${old_subports} {
-    subport ${old_subport} {
-        PortGroup   obsolete 1.0
-        replaced_by ${name}
-    }
-}
-pre-activate {
-    foreach old_subport ${old_subports} {
-        if {![catch {set installed [lindex [registry_active ${old_subport}] 0]}]} {
-            registry_deactivate_composite ${old_subport} {} [list ports_nodepcheck 1]
-        }
-    }
-}

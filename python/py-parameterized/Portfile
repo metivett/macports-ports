@@ -4,32 +4,28 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-parameterized
-version             0.7.1
+version             0.9.0
 revision            0
 
-platforms           darwin
+platforms           {darwin any}
 supported_archs     noarch
 license             FreeBSD
 maintainers         nomaintainer
 
 description         Parameterized testing with any Python test framework
-long_description    ${description}
+long_description    {*}${description}
 
 homepage            https://github.com/wolever/parameterized
 
-checksums           sha256  6a94dbea30c6abde99fd4c2f2042c1bf7f980e48908bf92ead62394f93cf57ed \
-                    rmd160  1370aa149be72a5da89d7fef102ffb0eae44e319 \
-                    size    22365
+checksums           sha256  7fc905272cefa4f364c1a3429cbbe9c0f98b793988efb5bf90aac80f08db09b1 \
+                    rmd160  9ffd860931d59cfa3cb7b25e88cae2876ac1de80 \
+                    size    24351
 
-python.versions     37 38
+python.versions     37 38 39 310 311 312
 
 if {${name} ne ${subport}} {
     depends_build-append \
                     port:py${python.version}-setuptools
-
-    # fix for changes in Python 3.8's unittest; can likely be removed upon next update
-    # see: https://github.com/wolever/parameterized/pull/75
-    patchfiles      patch-test.py.diff
 
     depends_test-append \
                     port:py${python.version}-mock \

@@ -1,0 +1,126 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           golang 1.0
+
+go.setup            github.com/coreos/butane 0.18.0 v
+revision            0
+categories          sysutils
+maintainers         openmaintainer
+license             Apache-2
+homepage            https://coreos.github.io/butane/
+
+description         Butane translates Butane Configs into Ignition Configs.
+
+long_description    Butane translates human-readable Butane Configs into \
+                    machine-readable Ignition Configs for provisioning \
+                    operating systems that use Ignition, such as Fedora CoreOS.
+
+checksums           ${distname}${extract.suffix} \
+                        rmd160  e896b2f80dc1c834e5047510c95d349b55490a92 \
+                        sha256  c7af6122046d55b4674030db6f62bc9699ae7ac1ce3cce707ee194160da083d9 \
+                        size    543109
+
+go.vendors          gopkg.in/yaml.v3 \
+                        lock    v3.0.1 \
+                        rmd160  e85ac1368fb7f9ef945b7fd7bd608a1f0d261c12 \
+                        sha256  f3ea6be3f405ec25f8799773355aba54f8831d11f5315a01155bdc69b92eca7b \
+                        size    91208 \
+                    gopkg.in/check.v1 \
+                        lock    41f04d3bba15 \
+                        rmd160  1e5543a8e6a3159296ee63e28cbde9931a04f6b3 \
+                        sha256  c41575a73d10809f89b05ef9e783f2d53facdc6573697770d30efb05a9d2dc28 \
+                        size    31612 \
+                    github.com/vincent-petithory/dataurl \
+                        lock    v1.0.0 \
+                        rmd160  7ca9265612cfb9e6dde563d74e06fca9b188a3e2 \
+                        sha256  4aae6cb73f46068289c415beaf5529c0212cf12b8cd7d3776548733eccb35f6a \
+                        size    11594 \
+                    github.com/stretchr/testify \
+                        lock    v1.8.2 \
+                        rmd160  9e554c1ab1ffd09f6e4afe8f022e45137b3a5b60 \
+                        sha256  f268ac873ff9f162ad70cb881dc999660f23d755c9b030e5bad81fa415696c1e \
+                        size    98386 \
+                    github.com/spf13/pflag \
+                        lock    d5e0c0615ace \
+                        rmd160  4b273c282a0c56fd46234cc1bba3df93b9b93272 \
+                        sha256  fea60733b1b022287b547bcd287de9987871f0c0e9cc54340efa890d48fa5be5 \
+                        size    52045 \
+                    github.com/rogpeppe/go-internal \
+                        lock    v1.9.0 \
+                        rmd160  acb8f644e5634bdae632cdb61ea736422aeb88f0 \
+                        sha256  65b0852e5c78fa920fef2176fa17180bf1f7f32a1163baacb44c2aa480845a16 \
+                        size    133682 \
+                    github.com/pmezard/go-difflib \
+                        lock    v1.0.0 \
+                        rmd160  fc879bfbdef9e3ff50844def58404e2b5a613ab8 \
+                        sha256  7cd492737641847266115f3060489a67f63581e521a8ec51efbc280c33fc991f \
+                        size    11409 \
+                    github.com/kr/text \
+                        lock    v0.2.0 \
+                        rmd160  48558c7e8ff67d510f83c66883907e95f4783163 \
+                        sha256  2f2e21ac8a9d523e88cbba4039441defc4a66bfaa78811c900a88fcf28729c4c \
+                        size    8702 \
+                    github.com/kr/pretty \
+                        lock    v0.3.1 \
+                        rmd160  8c08579b4c56cdc958794e77afe3413e80aa67c3 \
+                        sha256  7fcea475d6280976cf4a838e75d2b3a4105827316e588a80e49e8063d950c999 \
+                        size    10232 \
+                    github.com/davecgh/go-spew \
+                        lock    v1.1.1 \
+                        rmd160  7c02883aa81f81aca14e13a27fdca9e7fbc136f7 \
+                        sha256  e85d6afa83e64962e0d63dd4812971eccf2b9b5445eda93f46a4406f0c177d5f \
+                        size    42171 \
+                    github.com/coreos/vcontext \
+                        lock    d72178a18687 \
+                        rmd160  ce50f5a16806c19ec5ce7e58695a445952099ba0 \
+                        sha256  4e2946623d69565882a1c64186c555ddb7fe8069ed02df551921180131d4a1b4 \
+                        size    15983 \
+                    github.com/coreos/ignition \
+                        lock    v2.15.0 \
+                        rmd160  2a490096f93d96c9632919b2519835e2a0636182 \
+                        sha256  c8426c3a616b26a08ba7d544f85f85468521732eb263104e9483dc3a18f290d2 \
+                        size    4641858 \
+                    github.com/coreos/go-systemd \
+                        lock    v22.5.0 \
+                        rmd160  897f15eed5c77be9fcbf2a2b3da2ce680d40358d \
+                        sha256  f7b16656659fb11fa2be6d56eb012a7329761e433c1b6d4b3aa43e5d1c664483 \
+                        size    75581 \
+                    github.com/coreos/go-semver \
+                        lock    v0.3.1 \
+                        rmd160  b88448b88ac26286ebac14c2145a520d414ff6bb \
+                        sha256  8e38d96d094d1f75002da4f981697f7bfd27e3e08a540c1badcba5843935a904 \
+                        size    11237 \
+                    github.com/coreos/go-json \
+                        lock    18775e0fb4fb \
+                        rmd160  6ffec6be15c86cfcc07c0ad362a8587e853b3164 \
+                        sha256  253f011d6e5e348a053271fce785e0a939b7f902649e9d014440a368d26d938e \
+                        size    191026 \
+                    github.com/clarketm/json \
+                        lock    v1.17.1 \
+                        rmd160  a1e2b36354bae649c63f52320bb97dd10aa23a67 \
+                        sha256  2ac6fe410345d7c3dc01a8680e44064c36e9742938f419e1aad78915a4f9953f \
+                        size    188635 \
+                    github.com/aws/aws-sdk-go \
+                        lock    v1.44.204 \
+                        rmd160  29395d51e0d461a4c6b12d41aadbc93652b89676 \
+                        sha256  40886481d76b5211a88420d3a9589e7254ef4d885195e25b2b2a793a8c73d0cd \
+                        size    27031842
+
+build.args          -o ${name} \
+                    -ldflags -X\\ github.com/coreos/butane/internal/version.Raw=${version} \
+                    internal/main.go
+
+destroot {
+    set docdir ${prefix}/share/doc/${subport}
+    xinstall -m 0755 ${worksrcpath}/${name} ${destroot}${prefix}/bin
+    xinstall -d ${destroot}${docdir}
+    xinstall -m 0644 \
+        ${worksrcpath}/LICENSE \
+        ${worksrcpath}/README.md \
+        ${destroot}${docdir}
+    xinstall -d ${destroot}${docdir}/docs
+    xinstall -m 0644 \
+        {*}[glob ${worksrcpath}/docs/*.md] \
+        ${destroot}${docdir}/docs
+}

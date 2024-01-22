@@ -1,0 +1,20 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             bioconductor Bioconductor ssize 1.76.0
+revision            0
+maintainers         nomaintainer
+license             LGPL
+description         Estimate microarray sample size
+long_description    {*}${description}
+checksums           rmd160  5f901947b9d3f77a5a18698af424acb92cf1093d \
+                    sha256  1cb6061432220cf41a857b05a8c0998ff4555c4fd862b8e0afbfb489250bc42e \
+                    size    374308
+supported_archs     noarch
+
+depends_lib-append  port:R-gdata \
+                    port:R-xtable
+
+test.run            yes

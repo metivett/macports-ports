@@ -1,0 +1,21 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             bioconductor Bioconductor marray 1.80.0
+revision            0
+maintainers         nomaintainer
+license             LGPL
+description         Exploratory analysis for two-color spotted microarray data
+long_description    {*}${description}
+checksums           rmd160  2ff52cf1ea69ebb6dea54c9b706665c6e31ac8db \
+                    sha256  6d4f8a27ec9cce495f6681a62539843082603cb44cccfcc717d3956857ab44be \
+                    size    5056102
+supported_archs     noarch
+
+depends_lib-append  port:R-limma
+
+depends_test-append port:R-tkWidgets
+
+test.run            yes

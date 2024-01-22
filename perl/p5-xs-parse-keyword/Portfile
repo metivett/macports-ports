@@ -1,0 +1,27 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           perl5 1.0
+
+perl5.branches      5.28 5.30 5.32 5.34
+perl5.setup         XS-Parse-Keyword 0.39 ../../authors/id/P/PE/PEVANS
+revision            0
+license             {Artistic-1 GPL}
+maintainers         {devans @dbevans} openmaintainer
+description         XS::Parse::Keyword - XS functions to assist in parsing keyword syntax
+long_description    {*}${description}
+
+platforms           darwin
+
+checksums           rmd160  394ee60b59ddb2ca5a799c3bf8ffcf4997b6d208 \
+                    sha256  b4e775becc8a5d9b52cb5d569b9d3230eea451c134735845e77f89fa6a6c23d8 \
+                    size    84845
+
+if {${perl5.major} != ""} {
+    depends_build-append \
+                    port:p${perl5.major}-extutils-cbuilder \
+                    port:p${perl5.major}-extutils-cchecker \
+                    port:p${perl5.major}-test2-suite
+
+    perl5.use_module_build
+}

@@ -11,7 +11,7 @@ maintainers     nomaintainer
 categories      x11
 # CC BY-SA 2.5
 license         Copyleft
-platforms       darwin
+platforms       any
 supported_archs noarch
 homepage        http://tango.freedesktop.org/Tango_Icon_Library
 master_sites    http://tango.freedesktop.org/releases/
@@ -37,5 +37,5 @@ livecheck.regex ${name}-(\[0-9\]+\\.\[0-9\]+\\.\[0-9\]+)
 
 variant big_icons description {create 32,48,64,72,96,128 pixels icons from the scalable version } {
 	configure.args-append --enable-png-creation
-	depends_build-append	port:librsvg
+	depends_build-append	path:lib/pkgconfig/librsvg-2.0.pc:librsvg
 }

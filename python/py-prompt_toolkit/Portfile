@@ -4,23 +4,23 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-prompt_toolkit
-version             3.0.10
+version             3.0.43
 revision            0
 
 license             BSD
-platforms           darwin
+platforms           {darwin any}
 supported_archs     noarch
-maintainers         {@xeron gmail.com:xeron.oskom} openmaintainer
+maintainers         nomaintainer
 description         Library for building powerful interactive command lines in Python
 long_description    {*}${description}
 
-python.versions     27 35 36 37 38 39
+python.versions     27 37 38 39 310 311 312
 
 homepage            https://github.com/prompt-toolkit/python-prompt-toolkit
 
-checksums           rmd160  f5af10a25a16d36490f08e9523aac0dd6d0dede3 \
-                    sha256  b8b3d0bde65da350290c46a8f54f336b3cbf5464a4ac11239668d986852e79d5 \
-                    size    3020391
+checksums           rmd160  b61f192b100dd0ad9b229adf10a70453a1246783 \
+                    sha256  3527b7af26106cbc65a040bcc84839a3566ec1b051bb0bfe953631e704b0ff7d \
+                    size    425733
 
 if {${name} ne ${subport}} {
     if {${python.version} eq 27} {
@@ -35,31 +35,13 @@ if {${name} ne ${subport}} {
                     port:py${python.version}-six
     }
 
-    if {${python.version} eq 35} {
-        version     2.0.10
-        revision    0
-        epoch       1
-        checksums   rmd160  7fef3cdd4d9c419124244191777ff0767bb6cb8f \
-                    sha256  f15af68f66e664eaa559d4ac8a928111eebd5feda0c11738b5998045224829db \
-                    size    347981
-
-        depends_lib-append \
-                    port:py${python.version}-six
-    }
-
     depends_build-append \
                     port:py${python.version}-setuptools
 
     depends_lib-append \
                     port:py${python.version}-wcwidth
 
-    depends_test-append \
-                    port:py${python.version}-pytest
-
     test.run        yes
-    test.cmd        py.test-${python.branch}
-    test.target
-    test.env        PYTHONPATH=${worksrcpath}/build/lib
 
     post-destroot {
         set docdir ${prefix}/share/doc/${subport}
@@ -68,6 +50,4 @@ if {${name} ne ${subport}} {
             README.rst CHANGELOG ${destroot}${docdir}
         copy ${worksrcpath}/examples ${destroot}${docdir}/examples
     }
-
-    livecheck.type  none
 }

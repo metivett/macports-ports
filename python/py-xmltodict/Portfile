@@ -4,12 +4,12 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-xmltodict
-version             0.12.0
+version             0.13.0
 revision            0
 
 categories-append   devel
-platforms           darwin
 supported_archs     noarch
+platforms           {darwin any}
 license             MIT
 maintainers         {petr @petrrr} openmaintainer
 
@@ -18,26 +18,18 @@ long_description    This Python module makes working with XML feel like you \
                     are working with JSON.
 
 homepage            https://github.com/martinblech/xmltodict
-master_sites        pypi:[string index ${python.rootname} 0]/${python.rootname}
-distname            ${python.rootname}-${version}
 
-checksums           rmd160  937e519c77a0289eea28c646179be0e1e785d853 \
-                    sha256  50d8c638ed7ecb88d90561beedbf720c9b4e851a9fa6c47ebd64e99d166d8a21 \
-                    size    18481
+checksums           rmd160  de9ca40866dcab09fc15a64e71a6c911e13a5738 \
+                    sha256  341595a488e3e01a85a9d8911d8912fd922ede5fecc4dce437eb4b6c8d037e56 \
+                    size    33813
 
-python.versions     27 35 36 37 38 39
+python.versions     37 38 39 310 311 312
 
 if {${name} ne ${subport}} {
     depends_build-append \
                     port:py${python.version}-setuptools
 
-    depends_test-append \
-                    port:py${python.version}-nose
-
     test.run        yes
-    test.cmd        nosetests-${python.branch}
-    test.target
-    test.env        PYTHONPATH=${worksrcpath}/build/lib
 
     post-destroot {
         set dest_doc ${destroot}${prefix}/share/doc/${subport}
@@ -45,6 +37,4 @@ if {${name} ne ${subport}} {
         xinstall -m 0644 -W ${worksrcpath} \
             README.md LICENSE ${dest_doc}
     }
-
-    livecheck.type  none
 }

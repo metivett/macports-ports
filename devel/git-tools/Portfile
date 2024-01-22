@@ -1,0 +1,33 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem              1.0
+PortGroup               github 1.0
+
+github.setup            MestreLion git-tools 2022.12 v
+github.tarball_from     archive
+revision                0
+epoch                   1
+
+checksums               rmd160  f2603d88fd3eb320dd83b626e1682166942b50ca \
+                        sha256  b01e3b8de268ee07854e6cc66d78db6ed6cbc3e71dfeded8456138881bdf97f1 \
+                        size    38072
+
+maintainers             {@telotortium gmail.com:rirelan} openmaintainer
+platforms               any
+categories              devel
+supported_archs         noarch
+
+description             Assorted git-related scripts and tools, including git-restore-mtime
+long_description        {*}${description} -- \
+                        Included tools: git-branches-rename, git-clone-subset, \
+                        git-find-uncommitted-repos, git-rebase-theirs, \
+                        git-restore-mtime, git-strip-merge
+license                 GPL-3
+
+use_configure           no
+
+build {}
+destroot {
+    xinstall -m 0444 {*}[glob ${worksrcpath}/man1/*.1] ${destroot}${prefix}/share/man/man1
+    xinstall -m 0755 {*}[glob ${worksrcpath}/git-*] ${destroot}${prefix}/bin
+}

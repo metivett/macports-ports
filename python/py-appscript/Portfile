@@ -5,10 +5,9 @@ PortGroup           python 1.0
 PortGroup           deprecated 1.0
 
 name                py-appscript
-version             1.1.0
+version             1.2.2
 revision            0
 
-platforms           darwin
 license             public-domain
 maintainers         nomaintainer
 description         High-level application scripting package for Python
@@ -19,26 +18,31 @@ long_description    Appscript is a high-level, user-friendly MacPython to \
                     own AppleScript language for automating your Mac.
 
 homepage            http://appscript.sourceforge.net/
-master_sites        pypi:a/${python.rootname}
-distname            ${python.rootname}-${version}
 
-checksums           rmd160  fc2e459c4a2b7135f71f4c7a95dcd29b7c6692a1 \
-                    sha256  35c2ba2894348413a29daa19008d5f1c349a832206eccc97ded50cee3ad852e5 \
-                    size    583045
+checksums           md5 3cfc066085cb08d957ac894609f94840 \
+                    rmd160 749cebfd4f5844fee3052a1abf1bcd582a0584f1 \
+                    sha256 64552e87a6b8fac437951f14dd66370576dd2a311bded2aef041580f82fa2c1f
 
 deprecated.upstream_support no
-python.versions     27 35 36 37
+python.versions     38 39 310
 
 if {${name} ne ${subport}} {
-    depends_build-append    port:py${python.version}-setuptools
+    depends_lib-append \
+                    port:py${python.version}-lxml
+
+    patchfiles      setup.py.patch
+    if {(![variant_isset universal] && ${configure.build_arch} in {i386 ppc})
+            || ([variant_isset universal] && ("i386" in ${configure.universal_archs}
+                || "ppc" in ${configure.universal_archs}))} {
+        patchfiles-append   no-lp64.patch
+    }
 
     post-destroot {
-        set subdir appscript_[string index ${python.version} 0]x
-        xinstall -m 0755 -d ${destroot}${prefix}/share/doc/${subport}/${subdir}
-        file copy ${worksrcpath}/${subdir}/sample \
-            ${destroot}${prefix}/share/doc/${subport}/${subdir}/sample
-        file copy ${worksrcpath}/${subdir}/doc \
-            ${destroot}${prefix}/share/doc/${subport}/${subdir}/doc
+        set docdir ${prefix}/share/doc/${subport}
+        xinstall -d ${destroot}${docdir}
+        xinstall -m 0644 -W ${worksrcpath} README.rst \
+            ${destroot}${docdir}
+        file copy ${worksrcpath}/sample ${destroot}${docdir}
+        file copy ${worksrcpath}/doc ${destroot}${docdir}
     }
-    livecheck.type  none
 }

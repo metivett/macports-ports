@@ -4,43 +4,45 @@ PortSystem          1.0
 PortGroup           github 1.0
 PortGroup           python 1.0
 
-github.setup        nltk nltk 3.4.5
+github.setup        nltk nltk 3.8.1
+github.tarball_from archive
+revision            0
 name                py-nltk
+
 categories-append   textproc
-platforms           darwin
 maintainers         {gmail.com:stevenbird1 @stevenbird} openmaintainer
 supported_archs     noarch
+platforms           {darwin any}
 license             Apache-2
 
 description         Natural Language Toolkit
 long_description    NLTK is Python modules for research and development in natural language processing
-homepage            http://www.nltk.org/
+homepage            https://www.nltk.org/
 
-checksums           rmd160  1e84cd7328d47f23bc0318a6d5eaf318006550e1 \
-                    sha256  52fef02f225b0e36cab3f5b28d66b718f25d5aee806097255a1f7991bc7c000f \
-                    size    2821586
+checksums           rmd160  a4b7e32caccd368487f6a67176a0971575022a46 \
+                    sha256  676970e2b7aa0a7184e68f76e0c4f2756fd1b82559a509d5656a23117faeb658 \
+                    size    2867926
 
-python.versions     27 35 36 37 38
+python.versions     37 38 39 310 311
 
 if {${name} ne ${subport}} {
     depends_build-append \
                     port:py${python.version}-setuptools
     depends_lib-append \
-                    port:py${python.version}-matplotlib \
-                    port:py${python.version}-numpy \
-                    port:py${python.version}-yaml
+                    port:py${python.version}-click \
+                    port:py${python.version}-joblib \
+                    port:py${python.version}-regex \
+                    port:py${python.version}-tqdm
 
     post-destroot {
         set docdir ${prefix}/share/doc/${subport}
         xinstall -d ${destroot}${docdir}
-        xinstall -m 644 -W ${worksrcpath} \
+        xinstall -m 0644 -W ${worksrcpath} \
             ChangeLog \
             LICENSE.txt \
             README.md \
             ${destroot}${docdir}
     }
-
-    livecheck.type      none
 } else {
     github.livecheck.regex  {([\d.]+)}
 }

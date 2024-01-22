@@ -76,4 +76,4 @@ configure.args          -DAPACHE_ONLY=1 \
 
 build.dir               ${worksrcpath}/build
 
-github.livecheck.regex  {(1\.[0-9.]+)}
+livecheck.type          none

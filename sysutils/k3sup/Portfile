@@ -1,0 +1,40 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           golang 1.0
+
+go.setup            github.com/alexellis/k3sup 0.13.5
+go.offline_build    no
+github.tarball_from archive
+revision            0
+
+homepage            https://k3sup.dev
+
+description         bootstrap Kubernetes with k3s over SSH \< 1 min
+
+long_description    \
+    ${name} is a light-weight utility to get from zero to KUBECONFIG with k3s \
+    on any local or remote VM. All you need is ssh access and the k3sup \
+    binary to get kubectl access immediately.
+
+categories          sysutils
+installs_libs       no
+license             MIT
+maintainers         {gmail.com:herby.gillot @herbygillot} \
+                    openmaintainer
+
+checksums           rmd160  211ab821ea155c18fbda65710ebb108aa3e56fd1 \
+                    sha256  eebcea6f94057a807e6088759a9a039b1f99c797ef9ec5d692780ee56f907085 \
+                    size    2774338
+
+patchfiles          patch-Makefile.diff
+
+build.cmd           make
+build.pre_args-append \
+                    GitCommit="" \
+                    Version=${version}
+build.args          dist
+
+destroot {
+    xinstall -m 0755 ${worksrcpath}/bin/${name} ${destroot}${prefix}/bin/
+}

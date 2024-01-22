@@ -4,17 +4,15 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                ciphey
-version             5.10.0
+version             5.14.0
 revision            0
 categories-prepend  security
-platforms           darwin
+platforms           {darwin any}
 license             MIT
 supported_archs     noarch
 
-# Currently broken with python39
-# See https://github.com/Ciphey/Ciphey/issues/558
 python.default_version \
-                    38
+                    39
 
 maintainers         {@harens gmail.com:harensdeveloper} \
                     openmaintainer
@@ -26,9 +24,9 @@ long_description    Ciphey aims to be a tool to automate a lot of decryptions & 
                     cryptography. If you don't know much about cryptography, or you want to quickly \
                     check the ciphertext before working on it yourself, Ciphey is for you.
 
-checksums           rmd160  eb51829441681d2c0f5c8245699f00bcaff00f58 \
-                    sha256  b4277812a267750620f03f9a53280e862e004286f45de53a42530c685f2aaf97 \
-                    size    58612
+checksums           rmd160  9868fbd40e7c9262e3d6347d1b0832cc0261e247 \
+                    sha256  302a90261e9acc9b56ea29c313192f0c6f6ce112d37f4f9d404915052e19bf09 \
+                    size    60488
 
 homepage            https://github.com/Ciphey/Ciphey
 
@@ -42,9 +40,8 @@ depends_run-append \
     port:py${python.version}-cipheycore \
     port:py${python.version}-cipheydists \
     port:py${python.version}-click \
-    port:py${python.version}-click-spinner \
     port:py${python.version}-loguru \
     port:py${python.version}-pybase62 \
     port:py${python.version}-rich \
     port:py${python.version}-yaml \
-    port:py${python.version}-yaspin \
+    port:pywhat

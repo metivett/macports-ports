@@ -3,87 +3,200 @@
 PortSystem          1.0
 
 name                cabal
-version             3.0.0.0
-categories          lang haskell
+version             3.10.2.0
+revision            1
+categories          lang haskell devel
 platforms           darwin
 license             BSD
-maintainers         nomaintainer
+maintainers         {ieee.org:s.t.smith @essandess} openmaintainer
 
-description         Haskell Cabal: Common Architecture for Building Applications and Libraries
-long_description    \
-    Cabal is a system for building and packaging Haskell libraries and \
-    programs. It defines a common interface for package authors and \
-    distributors to easily build their applications in a portable \
-    way. Cabal is part of a larger infrastructure for distributing, \
-    organizing, and cataloging Haskell libraries and programs.
+description         Haskell Cabal: Common Architecture for \
+                    Building Applications and Libraries
+
+long_description    Cabal is a system for building and packaging \
+                    Haskell libraries and programs. It defines a \
+                    common interface for package authors and \
+                    distributors to easily build their applications in \
+                    a portable way. Cabal is part of a larger \
+                    infrastructure for distributing, organizing, and \
+                    cataloging Haskell libraries and programs.
 
 homepage            https://www.haskell.org/cabal
 
-# Bootstrapped cabal is the default build
-variant prebuilt \
-	    description {Do not bootstrap cabal; install the pre-built binary.} {}
+master_sites        https://downloads.haskell.org/~${name}/${name}-install-${version}/:haskell
 
-master_sites        https://downloads.haskell.org/~${name}/${name}-install-${version}/
-distname            ${name}-install-${version}-x86_64-apple-darwin17.7.0 
-extract.suffix      .tar.xz
-
-checksums           [lindex ${distfiles} end] \
-                    rmd160  9b5fbf25fe1f9473766a3466aaa9d66d66cfb884 \
-                    sha256  d4857e068560515e4cbb0e8ca124c370e07892f2a28804d87152834e5fe2b845 \
-                    size    5022564
-
-extract.only        [lindex ${distfiles} end]
-
-supported_archs     x86_64
-
-depends_build-append  \
-                    port:ghc
-
-use_configure       no
-
-# the PATH environment must provide /usr/bin/clang, not ${prefix}/bin/gcc,
-# along with bootstrap path
-build.env \
-    PATH=/usr/bin:${workpath}:$env(PATH) \
-    PREFIX=${prefix} \
-    CC=${configure.cc}
-
-# cabal must bootstrap itself
-pre-build {
-    # binary extract to ${workpath}/${name}
-    xinstall -W ${workpath} -d ./bin
-    xinstall -m 0755 -W ${workpath} ./${name} ./bin
+platform arm {
+    set cabal_build_arch    aarch64
+}
+platform i386 {
+    set cabal_build_arch    x86_64
+}
+platform powerpc {
+    set cabal_build_arch    ppc_not_supported_by_cabal
 }
 
-if { [variant_isset "prebuilt"] } {
-    build {}
-} else {
-    distfiles-append \
-                    ${name}-install-${version}.tar.gz
-    checksums-append \
-                    ${name}-install-${version}.tar.gz \
-                    rmd160  7217d6334bdf98f18341fb0aff8208b20717f695 \
-                    sha256  a432a7853afe96c0fd80f434bd80274601331d8c46b628cd19a0d8e96212aaf1 \
-                    size    654045
-    extract.only-append \
-                    ${name}-install-${version}.tar.gz
-    worksrcdir      ${name}-install-${version}
+if {${os.arch} ni [list arm i386]} {
+    known_fail      yes
+    pre-fetch {
+        ui_error "Cabal is only available on macOS \
+            with [join ${supported_archs} " or "] architectures."
+        error {unsupported platform}
+    }
+}
 
-    build {
-        # build cabal and overwrite ${workpath}/bin/${name}
-        # the PATH environment must provide /usr/bin/clang, not ${prefix}/bin/gcc
+if {${os.platform} eq "darwin" && ${os.major} < 16} {
+    known_fail  yes
+    pre-fetch {
+        ui_error "${name} @${version} requires macOS 10.12 or later."
+        return -code error "incompatible macOS version"
+    }
+}
+
+set cabal_distname  ${name}-install-${version}-${cabal_build_arch}-darwin
+set distfile_haskell    ${cabal_distname}.tar.xz
+distfiles           ${distfile_haskell}:haskell
+
+# set build_arch by hand on arm64/x86_64 systems to get x86_64/arm64 checksums
+# sudo port -d checksum cabal-prebuilt os.arch=arm build_arch=arm64
+# run `port clean --all cabal-prebuilt` afterwards
+if {${build_arch} eq {arm64}} {
+    checksums       ${distfile_haskell} \
+                    rmd160  6aeec964b457b8428ebcfdc65788b5dc2b636b63 \
+                    sha256  d2bd336d7397cf4b76f3bb0d80dea24ca0fa047903e39c8305b136e855269d7b \
+                    size    11928216
+} elseif {${build_arch} eq {x86_64}} {
+    checksums       ${distfile_haskell} \
+                    rmd160  5213303e2249015f614c85e417c85ac69bfbb037 \
+                    sha256  cd64f2a8f476d0f320945105303c982448ca1379ff54b8625b79fb982b551d90 \
+                    size    5612620
+}
+
+# cabal may use these MacPorts build tools:
+# alex, ar, strip, cpphs, happy, hscolour, ld, pkg-config
+# https://github.com/haskell/cabal/blob/master/Cabal/src/Distribution/Simple/Program/Builtin.hs
+depends_lib-append  port:cctools \
+                    port:ld64 \
+                    port:pkgconfig
+
+# cabal uses curl or wget
+depends_lib-append  port:curl \
+                    port:wget
+
+if {${name} eq ${subport}} {
+    PortGroup       haskell_cabal 1.0
+
+    haskell_cabal.use_prebuilt  yes
+
+    set distfile_github \
+                    [string totitle ${name}]-v${version}.tar.gz
+    master_sites    https://github.com/haskell/${name}/archive/refs/tags:github
+    distfiles       ${distfile_github}:github
+    checksums       ${distfile_github} \
+                    rmd160  7f608e0c97ec8cf1172c26d32e1b3a8aa29da9e1 \
+                    sha256  0b9be9ad935938d5d3ca44bd29e6ac555c723536edb2b01534bb0b2d11dabcb8 \
+                    size    2277893
+
+    extract.only-append \
+                    ${distfile_github}
+if {[exists extract.rename]} {
+    extract.rename  yes
+}
+    variant prebuilt \
+        description {This variant is deprecated.} {
+        ui_error "Please install the port ${name}-prebuilt."
+        return -code error "deprecated variant."
+    }
+
+    # use these to specify python versions, python3 required
+    # use ${prefix}/var/macports/sources/rsync.macports.org/macports/release/tarballs/ports/_resources/port1.0/group/python-1.0.tcl
+    set python3_version 310
+    set python3_branch  [string index ${python3_version} 0].[string range ${python3_version} 1 end]
+    set python3_prefix  ${frameworks_dir}/Python.framework/Versions/${python3_branch}
+    set python3_bin     ${python3_prefix}/bin/python${python3_branch}
+
+    depends_build-append \
+                    port:python${python3_version} \
+                    port:py${python3_version}-importlib-metadata \
+                    port:py${python3_version}-parsing \
+                    port:py${python3_version}-sphinx \
+                    port:py${python3_version}-sphinx-jsonschema \
+                    port:py${python3_version}-sphinx_rtd_theme \
+                    port:py${python3_version}-sphinxnotes-strike \
+                    port:py${python3_version}-tz \
+                    port:py${python3_version}-yaml \
+                    port:py${python3_version}-zipp
+
+    depends_lib-append  \
+                    port:gmp \
+                    port:libiconv \
+                    port:zlib
+
+    # alex, happy, and hscolour are bootstrapped using cabal-prebuilt
+    depends_lib-append  \
+                    path:bin/alex:alex \
+                    path:bin/happy:happy \
+                    path:bin/HsColour:hscolour
+
+    # use bootstrapped ghc -- reconfigure settings from PG haskell_cabal
+    depends_build-delete \
+                    port:ghc-prebuilt
+    depends_lib-append \
+                    path:bin/ghc:ghc
+
+    post-extract {
+        delete ${haskell_cabal.cabal_root}/bin/ghc
+        delete ${haskell_cabal.cabal_root}/bin/ghc-pkg
+    }
+    
+    haskell_cabal.env \
+                    "CABAL_CONFIG=${haskell_cabal.cabal_root}/config" \
+                    "GHC=${prefix}/bin/ghc"
+
+    build.target    ${name}-install \
+                    --project-file=cabal.project.release
+    build.post_args-append \
+                    --bindir=${prefix}/bin \
+                    --datadir=${prefix}/share/${subport}
+
+    post-build {
+        # https://github.com/haskell/cabal/blob/c1f490a50782cc89030889fae8edd9f95db7c1e4/Makefile#L207
         system -W ${worksrcpath} \
-            "${worksrcpath}/bootstrap.sh"
-        delete ${workpath}/bin/${name}
-        xinstall -m 0755 -W ${worksrcpath}/dist/build/${name} ${name} ${workpath}/bin/${name}
+            "sphinx-build-${python3_branch} -n --keep-going -E\
+                    doc ${haskell_cabal.build_dir}/doc/users-guide"
     }
 
     post-destroot {
-        xinstall -m 0755 -d ${destroot}${prefix}/share/man/man1
-        xinstall -m 0644 -W ${worksrcpath}/dist/build/${name} ${name}.1 ${destroot}${prefix}/share/man/man1
+        xinstall -d ${destroot}${prefix}/share/doc/${distname}
+
+        xinstall -d ${destroot}${prefix}/share/man/man1
+        system -W ${destroot}${prefix}/share/man/man1 \
+                    "${destroot}${prefix}/bin/${name} man --raw > ${name}.1"
+
+        copy        ${haskell_cabal.build_dir}/doc/users-guide \
+                    ${destroot}${prefix}/share/doc/${distname}
     }
+
+    notes \
+        "The Cabal User Guide is available at:
+
+    file://${prefix}/share/doc/${distname}/users-guide/index.html
+"
 }
 
-destroot {
-    xinstall -m 0755 -W ${workpath} ./bin/${name} ${destroot}${prefix}/bin
+subport cabal-prebuilt {
+    revision        0
+    supported_archs arm64 x86_64
+
+    use_configure   no
+    build           {}
+
+    destroot {
+        move        ${workpath}/${name} \
+                    ${destroot}${prefix}/bin/${subport}
+    }
+
+    notes \
+        "The Cabal prebuilt binary is installed at `${prefix}/bin/${subport}`.\
+It is intended to be used to bootstrap ghc and other Haskell-based tools.
+"
 }

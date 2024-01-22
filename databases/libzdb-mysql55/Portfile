@@ -86,8 +86,6 @@ foreach mp.name ${mp.names} {
 }
 
 set mp.ports {
-    postgresql80
-    postgresql81
     postgresql82
     postgresql83
     postgresql84
@@ -152,18 +150,6 @@ subport libzdb-sqlite3 {
                         --libdir=${prefix}/lib/${subport} \
                         --includedir=${prefix}/include/${subport} \
                         --datarootdir=${prefix}/share/${subport}
-}
-
-subport libzdb {
-
-    replaced_by         libzdb-mysql56
-    PortGroup           obsolete 1.0
-}
-
-subport libzdb-mysql5 {
-
-    replaced_by         libzdb-mysql56
-    PortGroup           obsolete 1.0
 }
 
 post-destroot {

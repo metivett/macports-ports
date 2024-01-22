@@ -4,38 +4,26 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-biopython
-version             1.78
+version             1.83
 revision            0
 
 categories-append   science
-platforms           darwin
 license             BSD
 maintainers         {reneeotten @reneeotten} openmaintainer
 
 description         Python tools for computational molecular biology
-long_description    ${description}: parsers for various file formats, interfaces for \
+long_description    {*}${description}: parsers for various file formats, interfaces for \
                     programs, tools for performing common operations on sequences, etc.
 
 homepage            https://biopython.org/
 
-checksums           rmd160  79ecf8d8e11bdf8284f09d6ef30fbfa2a3fb9a37 \
-                    sha256  1ee0a0b6c2376680fea6642d5080baa419fd73df104a62d58a8baf7a8bbe4564 \
-                    size    16895184
+checksums           rmd160  4960491925ab49f70cfcfe3c797038d5c0efb999 \
+                    sha256  78e6bfb78de63034037afd35fe77cb6e0a9e5b62706becf78a7d922b16ed83f7 \
+                    size    19431530
 
-python.versions     27 35 36 37 38
+python.versions     38 39 310 311 312
 
 if {${name} ne ${subport}} {
-    if {${python.version} in "27 35"} {
-        version     1.76
-        revision    0
-        checksums   rmd160  dd99b8275b0aeb9a5d4d5378a93663534c378209 \
-                    sha256  3873cb98dad5e28d5e3f2215a012565345a398d3d2c4eebf7cd701757b828c72 \
-                    size    16283634
-    }
-
-    depends_build-append \
-                    port:py${python.version}-setuptools
-
     depends_lib-append \
                     port:py${python.version}-numpy
 
@@ -46,6 +34,4 @@ if {${name} ne ${subport}} {
             LICENSE.rst DEPRECATED.rst CONTRIBUTING.rst \
             CONTRIB.rst ${destroot}${docdir}
     }
-
-    livecheck.type      none
 }

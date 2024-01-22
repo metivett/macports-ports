@@ -4,8 +4,8 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-flit_core
-version             3.0.0
-platforms           darwin
+version             3.9.0
+platforms           {darwin any}
 supported_archs     noarch
 maintainers         nomaintainer
 license             BSD
@@ -16,16 +16,20 @@ long_description    {*}${description}
 
 homepage            https://github.com/takluyver/flit
 
-checksums           rmd160 421f16b4f066334898cbc02ca6c7ed3ee56d2ef7 \
-                    sha256 a465052057e2d6d957e6850e9915245adedfc4fd0dd5737d0791bf3132417c2d \
-                    size   22037
+checksums           md5 3bc52f1952b9a78361114147da63c35b \
+                    rmd160 78d21c84e0922e6e7a136735d807be2942e38124 \
+                    sha256 72ad266176c4a3fcfab5f2930d76896059851240570ce9a98733b658cb786eba \
+                    size 41917
 
-python.versions     37 38 39
+python.versions     36 37 38 39 310 311 312
 
 python.pep517       yes
+python.pep517_backend   other
 
 if {$subport ne $name} {
-    # Note: pytoml dependency will change to toml in a future update
-    depends_run-append  port:py${python.version}-pytoml
+    if {${python.version} < 311} {
+        depends_run-append  port:py${python.version}-tomli
+    }
+    patchfiles      zip-timestamps.patch
     livecheck.type  none
 }

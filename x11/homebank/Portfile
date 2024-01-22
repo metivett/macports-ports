@@ -3,10 +3,10 @@
 PortSystem          1.0
 
 name                homebank
-version             5.4.3
+version             5.7.2
+revision            0
 categories          x11 finance
 license             GPL-2+
-platforms           darwin
 maintainers         {@sibador gmail.com:julien.barbey} openmaintainer
 description         Software to manage personal accounts, light and simple.
 long_description    HomeBank is the free software you have always wanted to \
@@ -18,20 +18,20 @@ long_description    HomeBank is the free software you have always wanted to \
                     graphical charts.
 
 homepage            http://homebank.free.fr/
-master_sites        ${homepage}public/
+master_sites        ${homepage}public/sources/
 
-checksums           rmd160  a6e1cecd7c32e88ff1cbe4bdfc27b2e447e814ff \
-                    sha256  9222d7ed7cc44fcfff3f1fe20935a1b7fe91bb4d9f90003cb3c6f3b893298d0b \
-                    size    3014659
+checksums           rmd160  5b8452b559e5f2d6e84e1089558fa37b918f7076 \
+                    sha256  331d7ef88d90f3f34ca6610f7f18e89e935443b18b091a87d9b94bd7556399ef \
+                    size    3651101
 
 depends_build       port:intltool \
                     port:pkgconfig
 depends_lib         port:gettext \
                     path:lib/pkgconfig/glib-2.0.pc:glib2 \
-                    port:gtk3 \
+                    path:lib/pkgconfig/gtk+-3.0.pc:gtk3 \
                     port:libofx \
-                    port:librsvg \
-                    port:libsoup
+                    path:lib/pkgconfig/librsvg-2.0.pc:librsvg \
+                    path:lib/pkgconfig/libsoup-2.4.pc:libsoup
 
 # https://bugs.launchpad.net/intltool/+bug/1197875
 use_autoreconf      yes

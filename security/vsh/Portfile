@@ -3,7 +3,8 @@
 PortSystem          1.0
 PortGroup           golang 1.0
 
-go.setup            github.com/fishi0x01/vsh 0.9.0 v
+go.setup            github.com/fishi0x01/vsh 0.12.2 v
+github.tarball_from archive
 revision            0
 
 description         HashiCorp Vault interactive shell and cli tool
@@ -13,26 +14,21 @@ long_description    ${name} is a {*}${description}. It comes with multiple \
                     files.
 
 categories          security
-license             MIT
-platforms           darwin
 installs_libs       no
-
-checksums           rmd160  2dc4d2e092d91da35d34d2d421ba1af060ac5f2c \
-                    sha256  96edfe40f2f23f03f19c4ec4db45341c8845a59a3eae9402a4c30af9e51cab5f \
-                    size    11747836
-
+license             MIT
 maintainers         {gmail.com:herby.gillot @herbygillot} \
                     openmaintainer
 
-# Allow fetching deps at build time for now.
-build.env-delete    GO111MODULE=off GOPROXY=off
+checksums           rmd160  77bc10e368ee5044d1111496fb27ec5075d2c59c \
+                    sha256  713d8f8901c7fc3b2c9c620ce928fa17e3b5a5f949d0dd37ad5ad48ae46dab4b \
+                    size    6941143
 
 build.cmd           make
-build.args          VERSION=${version} PLATFORMS=darwin ARCHS=amd64
+build.args          VERSION=${version} PLATFORMS=darwin ARCHS=${goarch}
 build.target        compile
 
 destroot {
-    xinstall -m 755 ${worksrcpath}/build/${name}_darwin_amd64 \
+    xinstall -m 0755 ${worksrcpath}/build/${name}_darwin_${goarch} \
         ${destroot}${prefix}/bin/${name}
 
     set vsh_doc_dir ${prefix}/share/doc/${name}

@@ -3,21 +3,20 @@
 PortSystem          1.0
 
 name                mod_qos
-version             11.66
+version             11.74
 revision            0
 categories          www
 license             Apache-2
 maintainers         nomaintainer
 description         mod_qos is a quality of service module for the Apache web server
-long_description    ${description} implementing control mechanisms that can provide \
+long_description    {*}${description} implementing control mechanisms that can provide \
                     different levels of priority to different HTTP requests.
-platforms           darwin
 homepage            http://mod-qos.sourceforge.net/index.html
 master_sites        sourceforge:project/mod-qos/
 
-checksums           rmd160  1e8c75f16c0e1369e619251a1aed89b2642d5f19 \
-                    sha256  4ad65fc568d4a92ddb6fc2230587a36749a035267dc8b9ebb145faaae5b5eaa4 \
-                    size    1247819
+checksums           rmd160  61336cef60ecfdc433b9f7442ec18fe02afe8567 \
+                    sha256  dc2ed7f8916aca05a7ae79f77d9ed433d832b352ff67bf519015edb993e07354 \
+                    size    1288870
 
 depends_build       port:autoconf \
                     port:automake
@@ -26,7 +25,7 @@ depends_lib         port:apache2 \
                     port:db48 \
                     port:libpng \
                     path:lib/libssl.dylib:openssl \
-                    port:pcre
+                    port:pcre2
 
 patchfiles          patch-tools-Makefile.in.diff
 
@@ -35,6 +34,9 @@ configure.env       LDFLAGS=-L${prefix}/lib/db48
 build.dir           ${configure.dir}
 
 pre-configure { copy ${filespath}/aclocal.m4 ${worksrcpath}/tools }
+
+use_autoreconf      yes
+autoreconf.dir      ${configure.dir}
 
 set apxs            ${prefix}/bin/apxs
 set mdir            ${destroot}${prefix}/lib/apache2/modules/

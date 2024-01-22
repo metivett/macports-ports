@@ -1,0 +1,36 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim: fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           python 1.0
+
+name                py-spotipy
+version             2.23.0
+revision            0
+
+supported_archs     noarch
+platforms           {darwin any}
+license             MIT
+maintainers         {judaew @judaew} openmaintainer
+
+description         A light weight Python library for the Spotify Web API
+long_description    {*}${description}
+homepage            https://spotipy.readthedocs.io/
+
+checksums           rmd160  bc7dabf17eb4053e916f726ce8022bedfa531043 \
+                    sha256  0dfafe08239daae6c16faa68f60b5775d40c4110725e1a7c545ad4c7fb66d4e8 \
+                    size    38541
+
+python.versions     39 310 311
+
+if {${name} ne ${subport}} {
+    depends_build-append \
+                    port:py${python.version}-setuptools \
+
+    depends_run-append \
+                    port:py${python.version}-redis \
+                    port:py${python.version}-requests \
+                    port:py${python.version}-six \
+                    port:py${python.version}-urllib3
+
+    livecheck.type  none
+}

@@ -1,0 +1,46 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+# Revert to GitHub once updated there.
+R.setup             cran davidhodge931 ggblanket 5.2.0
+revision            0
+categories-append   graphics
+maintainers         nomaintainer
+license             MIT
+description         Simplify ggplot2 visualisation with ggblanket wrapper functions
+long_description    {*}${description}
+homepage            https://davidhodge931.github.io/ggblanket
+checksums           rmd160  8d2e097c61fe3b78897c5fd138cad1415d14ac9f \
+                    sha256  d85b1f31e4b1b46d88baf29e1a79dd3eea7bd1e150a24eac86d673e45e816be6 \
+                    size    4143009
+supported_archs     noarch
+
+depends_lib-append  port:R-dplyr \
+                    port:R-forcats \
+                    port:R-ggplot2 \
+                    port:R-hms \
+                    port:R-lubridate \
+                    port:R-magrittr \
+                    port:R-purrr \
+                    port:R-rlang \
+                    port:R-scales \
+                    port:R-snakecase \
+                    port:R-stringr \
+                    port:R-tidyr \
+                    port:R-tidyselect \
+                    port:R-viridisLite
+
+depends_test-append port:R-gapminder \
+                    port:R-hexbin \
+                    port:R-knitr \
+                    port:R-palmerpenguins \
+                    port:R-patchwork \
+                    port:R-rmarkdown \
+                    port:R-sf \
+                    port:R-stars \
+                    port:R-tibble \
+                    port:R-viridis
+
+test.run            yes

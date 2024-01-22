@@ -4,13 +4,12 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                impressive
-version             0.12.1
+version             0.13.2
 revision            0
 
 categories-append   graphics
 license             GPL-2
 maintainers         nomaintainer
-platforms           darwin
 supported_archs     noarch
 
 description         Slide presentation tool
@@ -26,15 +25,15 @@ master_sites        sourceforge:impressive
 
 distname            Impressive-${version}
 
-checksums           rmd160  15cd3ec85a8e64b622ded68ecc9ebd31feab6824 \
-                    sha256  74a331f41e39a363b362dcadf861e3a300351d5ad5cfe033b5d47215c886f1e4 \
-                    size    210928
+checksums           rmd160  889715558eefe287110c092ab1da449bd380b4af \
+                    sha256  033123b25f42cb084f6fd0a959ddf53100d3202c67e666e5cc57a4e48ec1253c \
+                    size    294531
 
-python.default_version 27
+python.default_version 311
 
 depends_lib-append  port:py${python.version}-opengl \
                     port:py${python.version}-game \
-                    path:${python.pkgd}/PIL:py${python.version}-Pillow
+                    port:py${python.version}-Pillow
 
 depends_run-append  path:bin/ffmpeg:ffmpeg \
                     path:bin/pdftoppm:poppler \
@@ -49,16 +48,16 @@ post-patch {
 build {}
 
 destroot {
-    xinstall -m 775 ${worksrcpath}/impressive.py \
+    xinstall -m 0775 ${worksrcpath}/impressive.py \
         ${destroot}${prefix}/bin/impressive
-    xinstall -m 644 ${worksrcpath}/impressive.1 \
+    xinstall -m 0644 ${worksrcpath}/impressive.1 \
         ${destroot}${prefix}/share/man/man1
-    xinstall -m 664 -W ${worksrcpath} \
+    xinstall -m 0664 -W ${worksrcpath} \
         license.txt \
         changelog.txt \
         impressive.html \
             ${destroot}${prefix}/share/doc/impressive
-    xinstall -m 664 ${worksrcpath}/demo.pdf \
+    xinstall -m 0664 ${worksrcpath}/demo.pdf \
             ${destroot}${prefix}/share/doc/impressive/examples
 }
 

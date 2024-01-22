@@ -1,0 +1,25 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             bioconductor zeehio MassSpecWavelet 1.68.0
+revision            0
+maintainers         nomaintainer
+license             LGPL-2+
+description         Peak detection for mass spectrometry data using wavelet-based algorithms
+long_description    {*}${description}
+homepage            https://github.com/zeehio/MassSpecWavelet
+checksums           rmd160  ef55b2d26d120d35976eb4ed34e8e1d5403138fc \
+                    sha256  5ea71adfc8e632ab10c5b208572e398a1fc799b01d02a1608a688bafbbf89910 \
+                    size    1967774
+
+depends_test-append port:R-bench \
+                    port:R-BiocStyle \
+                    port:R-knitr \
+                    port:R-rmarkdown \
+                    port:R-RUnit \
+                    port:R-signal \
+                    port:R-waveslim
+
+test.run            yes

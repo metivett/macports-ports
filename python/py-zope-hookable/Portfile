@@ -3,41 +3,30 @@
 PortSystem          1.0
 PortGroup           python 1.0
 
-set real_name       zope.hookable
 name                py-zope-hookable
-version             5.0.1
+python.rootname     zope.hookable
+version             5.4
 revision            0
-worksrcdir          ${real_name}-${version}
-distfiles           ${real_name}-${version}${extract.suffix}
 categories-append   zope
 license             ZPL-2.1
-maintainers         {mps @Schamschula} openmaintainer
-description         This package supports the efficient creation of “hookable” objects, \
-                    which are callable objects that are meant to be optionally replaced.
-long_description    ${description}
-platforms           darwin
-homepage            https://pypi.python.org/pypi/${real_name}
-master_sites        pypi:z/${real_name}
+maintainers         nomaintainer
 
-python.versions     27 36 37 38 39
+description         Zope hookable.
+long_description    This package supports the efficient creation of \
+                    \“hookable\” objects, which are callable objects \
+                    that are meant to be optionally replaced.
 
-checksums           rmd160  869282b14b2c79c85e2ebebf704d6fd8975e0370 \
-                    sha256  29d07681a78042cdd15b268ae9decffed9ace68a53eebeb61d65ae931d158841 \
-                    size    24401
+homepage            https://github.com/zopefoundation/zope.hookable
+
+python.versions     38 39 310 311
+
+checksums           rmd160  8f2e48b66b4850be8397c5da3cc25363278886d7 \
+                    sha256  fb601f00ac87e5aa582a81315ed96768ce3513280729d3f51f79312e2b8b94ac \
+                    size    25390
 
 if {${name} ne ${subport}} {
     depends_lib-append  \
-                    port:py${python.version}-cython \
+                    path:bin/cython-${python.branch}:py${python.version}-cython \
                     port:py${python.version}-setuptools \
                     port:py${python.version}-pyobjc
-
-    if {${python.version} == 27} {
-        depends_lib-append  \
-                    port:py${python.version}-future
-    }
-
-    livecheck.type      none
-} else {
-    livecheck.type  regex
-    livecheck.regex ${real_name}-(\[0-9.\]+)${extract.suffix}
 }

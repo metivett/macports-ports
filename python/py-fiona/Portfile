@@ -4,14 +4,12 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-fiona
-python.rootname     Fiona
-version             1.8.18
-revision            0
+version             1.9.5
 categories-append   gis
-platforms           darwin
 license             BSD
 
-python.versions     35 36 37 38 39
+python.versions     37 38 39 310 311 312
+python.pep517       yes
 
 maintainers         {stromnov @stromnov} openmaintainer
 
@@ -23,28 +21,27 @@ long_description    Fiona provides uncomplicated Python interfaces \
 
 homepage            https://github.com/Toblerity/Fiona
 
-checksums           rmd160  bca2ab8d5cedd1c725662108160b26c8d3e3048d \
-                    sha256  b732ece0ff8886a29c439723a3e1fc382718804bb057519d537a81308854967a \
-                    size    1286269
+checksums           md5 e5b533bdfc5cc48fba7257e1c0285552 \
+                    rmd160 8708aa5419f4c01eb2edfd74d5dfa33b369b1198 \
+                    sha256 99e2604332caa7692855c2ae6ed91e1fffdf9b59449aa8032dd18e070e59a2f7 \
+                    size   409295
 
 if {${name} ne ${subport}} {
+
     depends_build-append \
-                        port:py${python.version}-cython
-    depends_lib-append  port:py${python.version}-setuptools \
-                        port:py${python.version}-attrs \
+                        port:py${python.version}-cython \
+                        port:py${python.version}-numpy
+
+    depends_lib-append  port:py${python.version}-attrs \
+                        port:py${python.version}-certifi \
+                        port:py${python.version}-click \
                         port:py${python.version}-click-plugins \
                         port:py${python.version}-cligj \
                         port:py${python.version}-munch \
-                        port:py${python.version}-six \
                         port:gdal
+    if {${python.version} < 310} {
+        depends_lib-append  port:py${python.version}-importlib-metadata
+    }
 
-    livecheck.type      none
-}
-
-# Note: py27 subport requires missing py27-orderdict port and py34 subport is no longer supported
-foreach {old new} {27 35} {
-    subport py${old}-fiona "
-        replaced_by py${new}-fiona
-        PortGroup obsolete 1.0
-    "
+    patchfiles          pyproject.toml.patch 
 }

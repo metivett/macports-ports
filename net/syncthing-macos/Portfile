@@ -3,26 +3,31 @@
 PortSystem              1.0
 PortGroup               github 1.0
 
-github.setup            syncthing syncthing-macos 1.13.1-1 v
+github.setup            syncthing syncthing-macos 1.27.2-1 v
+github.tarball_from     archive
 revision                0
 
-checksums               rmd160  2bf595c15ff7efdcf853fd1e9ab2d6bdae84ef61 \
-                        sha256  2d9b204c850d95aa7c2c742c26033f00f3902d0a98950755e165ad8aab34eef3 \
-                        size    12198931
+checksums               rmd160  7f3cdfefa90ee487da88dfaaaeaf5afa137aff38 \
+                        sha256  0e6aef2d80053abf8da69f58eb00d527bc2e057f8579e37a6ddb510b746779ac \
+                        size    13222043
 
 categories              net aqua
-maintainers             {@lbschenkel lbschenkel} openmaintainer
+installs_libs           no
+license                 MIT
+maintainers             {gmail.com:herby.gillot @herbygillot} \
+                        openmaintainer
 
 description             Frugal and native macOS Syncthing application bundle
-long_description        ${description}
-
-platforms               darwin
-license                 MIT
+long_description        {*}${description}
 
 depends_lib-append      port:syncthing
 
-patchfiles              no-bundled-syncthing.patch \
-                        disable-autoupdatechecks.patch
+patchfiles-append       patch-no-bundled-syncthing.diff \
+                        patch-disable-autoupdatechecks.diff
+
+if {[vercmp $xcodeversion 14.3] >= 0} {
+    patchfiles-append   patch-fix-ventura-build.diff
+}
 
 post-patch {
     reinplace "s|__PREFIX__|${prefix}|" ${worksrcpath}/syncthing/STApplication.m
@@ -36,5 +41,7 @@ build {
 }
 
 destroot {
-    copy ${build.dir}/Build/Products/Release/Syncthing.app ${destroot}${applications_dir}
+    copy \
+        ${build.dir}/Build/Products/Release/Syncthing.app \
+        ${destroot}${applications_dir}
 }

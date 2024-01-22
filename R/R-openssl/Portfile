@@ -1,0 +1,31 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           openssl 1.0
+PortGroup           R 1.0
+
+R.setup             cran jeroen openssl 2.1.1
+revision            0
+categories-append   crypto net security
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             MIT
+description         Toolkit for encryption, signatures and certificates based on OpenSSL
+long_description    {*}${description}
+checksums           rmd160  b82bb6d65051dad1a45058f1d4c92886d70da813 \
+                    sha256  faa726f9af2a97d5fa1e1044f4a38ee2edd4c81f0beb5830f6a36ff249b64bdc \
+                    size    1206233
+
+depends_build-append \
+                    port:pkgconfig
+depends_lib-append  port:R-askpass
+
+depends_test-append port:R-curl \
+                    port:R-digest \
+                    port:R-jose \
+                    port:R-jsonlite \
+                    port:R-knitr \
+                    port:R-rmarkdown \
+                    port:R-sodium \
+                    port:R-testthat
+
+test.run            yes

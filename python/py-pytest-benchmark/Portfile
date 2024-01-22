@@ -1,0 +1,34 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           python 1.0
+
+name                py-pytest-benchmark
+version             4.0.0
+revision            0
+
+license             MIT
+maintainers         nomaintainer
+
+description         A pytest fixture for benchmarking code.
+long_description    {*}${description} It will group the tests into \
+                    rounds that are calibrated to the chosen timer.
+
+homepage            https://github.com/ionelmc/pytest-benchmark
+
+checksums           rmd160  a9381f469658dacb7453d5ae634c350bedec471a \
+                    sha256  fb0785b83efe599a6a956361c0691ae1dbb5318018561af10f3e915caa0048d1 \
+                    size    334641
+
+supported_archs     noarch
+platforms           {darwin any}
+
+python.versions     37 38 39 310 311 312
+
+if {${name} ne ${subport}} {
+    depends_run-append \
+                    port:py${python.version}-cpuinfo \
+                    port:py${python.version}-pytest
+
+    test.run        yes
+}

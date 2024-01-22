@@ -3,7 +3,7 @@
 PortSystem          1.0
 PortGroup           golang 1.0
 
-go.setup            github.com/boyter/scc 3.0.0 v
+go.setup            github.com/boyter/scc 3.2.0 v
 revision            0
 
 description         scc is a very fast & accurate code counter with \
@@ -19,17 +19,16 @@ long_description    Succinct Code Counter: scc is a tool for counting the \
                     cyclomatic complexity calculators. In short one tool to \
                     rule them all.
 
+categories          devel
+installs_libs       no
+license             MIT
 maintainers         {gmail.com:herby.gillot @herbygillot} \
                     openmaintainer
 
-categories          devel
-license             MIT
-installs_libs       no
-
-checksums           rmd160  e8e95a7bc308e817887caeb357447f003042593f \
-                    sha256  654f2ab6ff837cd27c1add19202b3c932afcc742cbfd1864942be089dd5bf2f2 \
-                    size    827868
+checksums           rmd160  3cf359af011b16db39d7f97e382d0818e286627b \
+                    sha256  ea7c4c3c01988c7d64edcaca4b60f28c2c64b6efb1c06c40bc2590e25837c64d \
+                    size    2352863
 
 destroot {
-    xinstall -m 755 ${worksrcpath}/${name} ${destroot}${prefix}/bin/
+    xinstall -m 0755 ${worksrcpath}/${name} ${destroot}${prefix}/bin/
 }

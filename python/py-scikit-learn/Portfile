@@ -2,15 +2,15 @@
 
 PortSystem          1.0
 PortGroup           python 1.0
+PortGroup           compiler_wrapper 1.0
 
 name                py-scikit-learn
-version             0.24.1
+version             1.2.2
 revision            0
 categories-append   science
-platforms           darwin
 license             BSD
 
-python.versions     27 35 36 37 38 39
+python.versions     38 39 310 311
 
 maintainers         {stromnov @stromnov} openmaintainer
 
@@ -24,61 +24,35 @@ long_description    Scikit-learn integrates machine learning algorithms \
 
 homepage            https://scikit-learn.org/
 
-checksums           rmd160  b20c64fc513136e68527b5ff1e9b680a72187c91 \
-                    sha256  a0334a1802e64d656022c3bfab56a73fbd6bf4b1298343f3688af2151810bbdf \
-                    size    7399074
+checksums           rmd160  92664f8b16d4c531c1b8f13a486a1cae4a43a0aa \
+                    sha256  8429aea30ec24e7a8c7ed8a3fa6213adf3814a6efbea09e16e0a0c71e1a1a3d7 \
+                    size    7269934
 
 if {${name} ne ${subport}} {
     depends_build-append \
                         port:py${python.version}-setuptools \
-                        port:py${python.version}-cython
+                        path:bin/cython-${python.branch}:py${python.version}-cython
+
     depends_lib-append  port:py${python.version}-numpy \
                         port:py${python.version}-scipy \
                         port:py${python.version}-joblib \
                         port:py${python.version}-threadpoolctl
 
-    if {${python.version} eq 27} {
-        version             0.20.4
-        revision            0
-        distname            ${python.rootname}-${version}
-        checksums           rmd160  44a29f1b23112f02b6c44fb8df4dc517714080cc \
-                            sha256  dfa8a3f33907614030cdfbc8b6f553dacbecaf09f922244f128af3060a137cfc \
-                            size    11684276
+    compiler.openmp_version 2.5
+    depends_lib-append  port:libomp
 
-        depends_lib-delete  port:py${python.version}-joblib \
-                            port:py${python.version}-threadpoolctl
-    } else {
+    python.add_archflags no
 
-        if {${python.version} eq 35} {
-            version             0.22.2.post1
-            revision            0
-            distname            ${python.rootname}-${version}
-            checksums           rmd160  14d6a5df7c30fc17688f5b16079e405e615bce83 \
-                                sha256  57538d138ba54407d21e27c306735cbd42a6aae0df6a5a30c7a6edde46b0017d \
-                                size    6947787
+    python.pep517        no
 
-            depends_lib-delete  port:py${python.version}-threadpoolctl
-        }
-
-        compiler.openmp_version 2.5
-        depends_lib-append  port:libomp
-
-        # force cythonize
-        patchfiles-append   patch-sklearn__build_utils___init__.py.diff
-
-        python.add_archflags no
-
-        build.env-append    "CPPFLAGS=${configure.cppflags} -I${prefix}/include/libomp -Xpreprocessor -fopenmp" \
-                            "CFLAGS=${configure.cc_archflags} -I${prefix}/include/libomp" \
-                            "CXXFLAGS=${configure.cxx_archflags} -I${prefix}/include/libomp" \
-                            "LDFLAGS=${configure.ld_archflags} -L${prefix}/lib/libomp -lomp" \
-                            DYLD_LIBRARY_PATH=${prefix}/lib/libomp
-        destroot.env-append "CPPFLAGS=${configure.cppflags} -I${prefix}/include/libomp -Xpreprocessor -fopenmp" \
-                            "CFLAGS=${configure.cc_archflags} -I${prefix}/include/libomp" \
-                            "CXXFLAGS=${configure.cxx_archflags} -I${prefix}/include/libomp" \
-                            "LDFLAGS=${configure.ld_archflags} -L${prefix}/lib/libomp -lomp" \
-                            DYLD_LIBRARY_PATH=${prefix}/lib/libomp
-    }
-
-    livecheck.type      none
+    build.env-append    "CPPFLAGS=${configure.cppflags} -I${prefix}/include/libomp -Xpreprocessor -fopenmp" \
+                        "CFLAGS=${configure.cc_archflags} -I${prefix}/include/libomp" \
+                        "CXXFLAGS=${configure.cxx_archflags} -I${prefix}/include/libomp" \
+                        "LDFLAGS=${configure.ld_archflags} -L${prefix}/lib/libomp -lomp" \
+                        DYLD_LIBRARY_PATH=${prefix}/lib/libomp
+    destroot.env-append "CPPFLAGS=${configure.cppflags} -I${prefix}/include/libomp -Xpreprocessor -fopenmp" \
+                        "CFLAGS=${configure.cc_archflags} -I${prefix}/include/libomp" \
+                        "CXXFLAGS=${configure.cxx_archflags} -I${prefix}/include/libomp" \
+                        "LDFLAGS=${configure.ld_archflags} -L${prefix}/lib/libomp -lomp" \
+                        DYLD_LIBRARY_PATH=${prefix}/lib/libomp
 }

@@ -1,0 +1,22 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             github Bioconductor bioDist c8c15c5aad46d3a63131f9b4b1f7b0a024f3504f
+version             1.75.0
+revision            0
+maintainers         nomaintainer
+license             Artistic-2
+description         Different distance measures
+long_description    {*}${description}
+checksums           rmd160  5a6119a29c92b52723378e703b20088283809415 \
+                    sha256  e1fdd33c73abc28f74458dec1b6a276f9cee810995640205f8d8c5aa49130d4e \
+                    size    9737
+supported_archs     noarch
+
+depends_lib-append  port:R-Biobase
+
+depends_test-append port:R-locfit
+
+test.run            yes

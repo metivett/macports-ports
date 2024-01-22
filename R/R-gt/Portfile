@@ -1,0 +1,58 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             github rstudio gt 0.10.1 v
+revision            0
+categories-append   office
+maintainers         nomaintainer
+license             MIT
+description         Build display tables from tabular data with an easy-to-use set of functions
+long_description    {*}${description}
+homepage            https://gt.rstudio.com
+checksums           rmd160  11bb65232d8a7df98d580a8d1b4c7353c839f680 \
+                    sha256  e42ca77e5f99faa280a5646cd90f04b8a18d29181bf9fd617dbe0dcbe05c634c \
+                    size    114606457
+supported_archs     noarch
+
+depends_lib-append  port:R-base64enc \
+                    port:R-bigD \
+                    port:R-bitops \
+                    port:R-cli \
+                    port:R-commonmark \
+                    port:R-dplyr \
+                    port:R-fs \
+                    port:R-glue \
+                    port:R-htmltools \
+                    port:R-htmlwidgets \
+                    port:R-magrittr \
+                    port:R-markdown \
+                    port:R-reactable \
+                    port:R-rlang \
+                    port:R-sass \
+                    port:R-scales \
+                    port:R-tibble \
+                    port:R-tidyselect \
+                    port:R-vctrs \
+                    port:R-xml2
+
+# FIXME: https://github.com/rstudio/gt/issues/1284
+patchfiles          patch-no-juicyjuice-webshot2.diff
+
+depends_test-append port:R-covr \
+                    port:R-digest \
+                    port:R-fontawesome \
+                    port:R-ggplot2 \
+                    port:R-knitr \
+                    port:R-lubridate \
+                    port:R-magick \
+                    port:R-paletteer \
+                    port:R-RColorBrewer \
+                    port:R-rmarkdown \
+                    port:R-rvest \
+                    port:R-shiny \
+                    port:R-testthat \
+                    port:R-tidyr
+
+test.run            yes

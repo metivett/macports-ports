@@ -3,37 +3,34 @@
 PortSystem          1.0
 PortGroup           golang 1.0
 
-go.setup            github.com/pulumi/pulumi 2.21.2 v
+go.setup            github.com/pulumi/pulumi 3.93.0 v
 revision            0
 
 homepage            https://www.pulumi.com
 
-description         Pulumi - Modern Infrastructure as Code. Any cloud, any \
-                    language.
+description         \
+    Pulumi - Modern Infrastructure as Code. Any cloud, any language.
 
-long_description    Pulumi's Infrastructure as Code SDK is the easiest way to \
-                    create and deploy cloud software that use containers, \
-                    serverless functions, hosted services, and \
-                    infrastructure, on any cloud. Simply write code in your \
-                    favorite language and Pulumi automatically provisions and \
-                    manages your AWS, Azure, Google Cloud Platform, and/or \
-                    Kubernetes resources, using an infrastructure-as-code \
-                    approach. Skip the YAML, and use standard language \
-                    features like loops, functions, classes, and package \
-                    management that you already know and love.
+long_description    \
+    Pulumi's Infrastructure as Code SDK is the easiest way to create and \
+    deploy cloud software that use containers, serverless functions, hosted \
+    services, and infrastructure, on any cloud. Simply write code in your \
+    favorite language and Pulumi automatically provisions and manages your \
+    AWS, Azure, Google Cloud Platform, and/or Kubernetes resources, using an \
+    infrastructure-as-code approach. Skip the YAML, and use standard language \
+    features like loops, functions, classes, and package management that you \
+    already know and love.
 
 categories          sysutils net
+installs_libs       no
 license             Apache-2
-
 maintainers         {gmail.com:herby.gillot @herbygillot} \
                     openmaintainer
 
-checksums           rmd160  f57b6befe14f3a4141227ec64a088df6dae035be \
-                    sha256  5ea5a3adda027bcf80ace14e01c9fb5dd7a6e5c4237b4604d591079940b4350d \
-                    size    4004294
+fetch.type          git
 
 build.cmd           make
-build.pre_args      VERSION="${github.tag_prefix}${version}"
+build.pre_args      BREW_VERSION="${github.tag_prefix}${version}"
 # The brew makefile target builds only the Pulumi executables,
 # and not the SDKs
 build.args          brew
@@ -41,10 +38,14 @@ build.args          brew
 # FIXME: This port currently can't be built without allowing go mod to fetch
 # dependencies during the build phase. See
 # https://trac.macports.org/ticket/61192
-build.env-delete    GOPROXY=off GO111MODULE=off
+go.offline_build no
+
+depends_build-append \
+                    port:curl
 
 destroot {
-    xinstall -m 755 {*}[glob ${gopath}/bin/pulumi*] ${destroot}${prefix}/bin/
+    xinstall -m 0755 {*}[glob ${gopath}/bin/pulumi*] ${destroot}${prefix}/bin/
 }
 
-github.livecheck.regex {([0-9.]+)}
+github.livecheck.regex \
+                    {([0-9.]+)}

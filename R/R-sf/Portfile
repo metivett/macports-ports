@@ -1,0 +1,44 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           openssl 1.0
+PortGroup           R 1.0
+
+# GitHub version is old.
+R.setup             cran r-spatial sf 1.0-15
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             {GPL-2 MIT}
+description         Simple features for R
+long_description    {*}${description}
+homepage            https://r-spatial.github.io/sf
+checksums           rmd160  a031bf93bfb14312de8b5df096fc5cbce91e6137 \
+                    sha256  c81d9291c7528b70b8a061959db7f9aa7c1fe24475e649f59ff22570a2833c2d \
+                    size    3485450
+
+set proj_v          proj9
+
+depends_build-append \
+                    port:pkgconfig
+depends_lib-append  path:lib/${proj_v}/lib/pkgconfig/proj.pc:${proj_v} \
+                    port:gdal \
+                    port:geos \
+                    port:R-classInt \
+                    port:R-DBI \
+                    port:R-magrittr \
+                    port:R-Rcpp \
+                    port:R-s2 \
+                    port:R-units \
+                    port:sqlite3
+
+# configure fails to do its job: https://github.com/r-spatial/sf/issues/2292
+destroot.env-append CPPFLAGS=-I${prefix}/lib/${proj_v}/include
+
+destroot.pre_args-append \
+                    --configure-args=' \
+                        --with-proj-include=${prefix}/lib/${proj_v}/include \
+                        --with-proj-lib=${prefix}/lib/${proj_v}/lib \
+                        --with-proj-share=${prefix}/lib/${proj_v}/share/proj \
+                        --with-sqlite3-lib=${prefix}/lib \
+                        '

@@ -1,26 +1,46 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
-PortGroup           github 1.0
-PortGroup           cmake 1.0
+PortGroup           github          1.0
+PortGroup           cmake           1.1
+PortGroup           legacysupport   1.1
 
-github.setup        tsl0922 ttyd 1.4.2
-revision            1
-categories          net
-platforms           darwin
-maintainers         nomaintainer
-license             MIT
+# LegacySupport is needed for strnlen before 10.7
+legacysupport.newest_darwin_requires_legacy 10
+
+github.setup        tsl0922 ttyd 1.7.4
+github.tarball_from archive
+revision            0
+
+homepage            https://tsl0922.github.io/ttyd
 
 description         Share your terminal over the web
 
 long_description    ttyd is a simple command-line tool for sharing terminal over the web, inspired by GoTTY.
 
-checksums           rmd160  68b59ee30ef849d6c9656e1016468849fa77c19a \
-                    sha256  5227622e13a667e691b5b8bddf313226b9fd80d964239286a11ef906c9a990ac \
-                    size    307143
+categories          net sysutils
+installs_libs       no
+license             MIT
+maintainers         {gmail.com:herby.gillot @herbygillot} \
+                    openmaintainer
 
-depends_lib         port:json-c \
-                    port:libwebsockets
+checksums           rmd160  5495c2ce4b21d46eb65d7a5a722b04aeb64dd624 \
+                    sha256  300d8cef4b0b32b0ec30d7bf4d3721a5d180e22607f9467a95ab7b6d9652ca9b \
+                    size    603483
 
 depends_build-append \
-                    port:pkgconfig
+                    path:bin/pkg-config:pkgconfig
+
+depends_lib-append  port:json-c \
+                    port:libwebsockets \
+                    path:lib/libssl.dylib:openssl \
+                    port:libuv \
+                    port:zlib
+
+# If gcc-4.2 is used, build fails with undefined symbols from libwebsockets
+compiler.blacklist-append *gcc-4.*
+
+platform powerpc {
+    # Without this, Rosetta pulls out Xcode clang
+    compiler.blacklist-append clang
+}

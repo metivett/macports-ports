@@ -1,0 +1,40 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           python 1.0
+
+name                py-xraydb
+version             4.5.2
+revision            0
+
+categories-append   science
+platforms           {darwin any}
+supported_archs     noarch
+license             public-domain
+maintainers         {nist.gov:joe.fowler @joefowler} openmaintainer
+
+description         X-ray reference data in a SQLite library, including a Python interface.
+long_description \
+    ${description} The repository contains useful data about the interactions of X-rays with matter. \
+    It packages these different data sources into a single sqlite3 database which can, in principle, \
+    be used by a very large number of computer programming languages and environments.
+
+homepage            https://xraypy.github.io/XrayDB
+
+checksums           rmd160  fa4d0cc81a6394946a630c498e567d511e99e96c \
+                    sha256  f9800bff2706775955cbb0321bbe260f82011c7c53c256c2e5d355f7df0d0ab1 \
+                    size    3846728
+
+python.versions     38 39 310 311
+
+if {${name} ne ${subport}} {
+    patchfiles      patch-pyproject.toml.diff
+
+    depends_build-append \
+        port:py${python.version}-setuptools_scm
+
+    depends_run-append \
+        port:py${python.version}-numpy \
+        port:py${python.version}-scipy \
+        port:py${python.version}-sqlalchemy
+}

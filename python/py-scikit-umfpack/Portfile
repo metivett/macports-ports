@@ -2,24 +2,27 @@
 
 PortSystem          1.0
 PortGroup           python 1.0
-PortGroup           github 1.0
-
-github.setup        scikit-umfpack scikit-umfpack 0.2.3
-revision            1
 
 name                py-scikit-umfpack
+version             0.4.1
+revision            1
+python.rootname     scikit-umfpack
+
 categories-append   math
-platforms           darwin
 license             BSD
 maintainers         {gmail.com:jjstickel @jjstickel} openmaintainer
 
 description         scikit-umfpack provides wrapper of UMFPACK sparse direct solver to SciPy.
 long_description    ${description}
+homepage            https://pypi.org/project/scikit-umfpack/
 
-checksums           rmd160  e6b832e963862cfa93b3072c34fa2a1a481bb6e8 \
-                    sha256  4826256848b39d86111b8e3783a0e64b85d4cf251c4f41c88f355136379b8190
+distname            scikit_umfpack-${version}
 
-python.versions     27 35 36
+checksums           rmd160  e8ce34220971df544a1a4e8116de6c083b6e054b \
+                    sha256  23a16750fbf866d32341ab3885fd59687bc9d5fbb9d372e50f6a968059604d59 \
+                    size    31845
+
+python.versions     39 310 311
 
 if {${name} ne ${subport}} {
     depends_build-append \
@@ -28,5 +31,6 @@ if {${name} ne ${subport}} {
 
     depends_lib-append \
         port:py${python.version}-scipy \
+        port:py${python.version}-meson-python \
         port:SuiteSparse_UMFPACK
 }

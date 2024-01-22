@@ -3,7 +3,7 @@
 PortSystem          1.0
 
 name                pigz
-version             2.4
+version             2.8
 categories          archivers
 license             zlib Apache-2
 platforms           darwin
@@ -19,8 +19,9 @@ long_description    pigz, which stands for parallel implementation of gzip, \
 homepage            http://www.zlib.net/pigz/
 master_sites        ${homepage}
 
-checksums           rmd160  99ffd6ca6acbf29c436d80e814a144dfd1bd3337 \
-                    sha256  a4f816222a7b4269bd232680590b579ccc72591f1bb5adafcd7208ca77e14f73
+checksums           rmd160  307e92d8ec0f5438c64ab5d6a5d28808e897ad9d \
+                    sha256  eb872b4f0e1f0ebe59c9f7bd8c506c4204893ba6a8492de31df416f0d5170fd0 \
+                    size    121304
 
 depends_lib         port:zlib
 

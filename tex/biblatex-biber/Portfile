@@ -10,10 +10,11 @@ PortGroup texlive 1.0
 name            biblatex-biber
 epoch           3
 
-perl5.branches  5.30
+perl5.branches  5.34
 
-perl5.setup     Biber 2.14
+perl5.setup     Biber 2.19
 version         ${perl5.moduleversion}
+
 
 categories      tex
 license         {Artistic-2 GPL}
@@ -28,7 +29,7 @@ long_description \
   BibTeX, allowing full Unicode support, no memory limitations,        \
   extensibility, etc.
 
-platforms       darwin
+platforms       {darwin any}
 supported_archs noarch
 
 homepage        http://biblatex-biber.sourceforge.net/
@@ -36,9 +37,9 @@ master_sites    https://github.com/plk/biber/archive/
 distname        v${version}
 worksrcdir      biber-${version}
 
-checksums       rmd160  425865abfba40dc3f9653a3894171a7fead97d18 \
-                sha256  8f6b6aa7762a18190ae0acde6d315e3a3bb1fbdf791bece798d99ff3d4f4a71c \
-                size    1589847
+checksums           rmd160  58ed60d834f7061768405ef2d61f3637c886bf3a \
+                    sha256  1c1266bc8adb1637c4c59e23c47d919c5a38da4e53544a3c22c21de4a68fc9fe \
+                    size    1634803
 #patchfiles      patch-use-encode.pm
 
 depends_build-append    port:p${perl5.major}-config-autoconf \
@@ -59,6 +60,7 @@ depends_lib-append      port:p${perl5.major}-autovivification \
                         port:p${perl5.major}-encode-eucjpascii \
                         port:p${perl5.major}-encode-hanextra \
                         port:p${perl5.major}-encode-jis2k \
+                        port:p${perl5.major}-encode-locale \
                         port:p${perl5.major}-file-slurper \
                         port:p${perl5.major}-file-which \
                         port:p${perl5.major}-ipc-cmd \
@@ -76,11 +78,15 @@ depends_lib-append      port:p${perl5.major}-autovivification \
                         port:p${perl5.major}-readonly-xs \
                         port:p${perl5.major}-regexp-common \
                         port:p${perl5.major}-sort-key \
+                        port:p${perl5.major}-storable \
+                        port:p${perl5.major}-text-balanced \
                         port:p${perl5.major}-text-bibtex \
                         port:p${perl5.major}-text-csv \
+                        port:p${perl5.major}-text-csv_xs \
                         port:p${perl5.major}-text-roman \
                         port:p${perl5.major}-unicode-collate \
                         port:p${perl5.major}-unicode-linebreak \
+                        port:p${perl5.major}-unicode-normalize \
                         port:p${perl5.major}-uri \
                         port:p${perl5.major}-xml-libxml-simple \
                         port:p${perl5.major}-xml-libxslt \

@@ -1,0 +1,46 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           golang 1.0
+
+go.setup            github.com/rs/curlie 1.7.2 v
+github.tarball_from archive
+revision            0
+
+categories          net www
+license             MIT
+maintainers         {judaew @judaew} openmaintainer
+
+description         The power of curl, the ease of use of httpie.
+long_description    \
+    If you like the interface of HTTPie but miss the features of curl, curlie \
+    is what you are searching for. Curlie is a frontend to curl that adds the \
+    ease of use of httpie, without compromising on features and performance. \
+    All curl options are exposed with syntax sugar and output formatting \
+    inspired from httpie.
+homepage            https://curlie.io
+
+checksums           ${distname}${extract.suffix} \
+                        rmd160  26751b696bea9344e530e8a472b4c1b34c2bc797 \
+                        sha256  b2ced685c6d2cde951cbd894ecc16df2f987f9d680830bcf482a7dcd22165116 \
+                        size    441361
+
+go.vendors          golang.org/x/term \
+                        lock    v0.1.0 \
+                        rmd160  41c0ec1933a371ad67cb43763a5f056beb4f4863 \
+                        sha256  eb75717073f7fa08879333df6cc9ddcefd6dff51fdcd68769a144f480b754d89 \
+                        size    14836 \
+                    golang.org/x/sys \
+                        lock    v0.1.0 \
+                        rmd160  91bc7e86c3eb8a828451af8e3fcddd77fb906209 \
+                        sha256  07c0119c0c16e4b5441b93138d1c83aa1103eef441fb1f36eab332207b868a19 \
+                        size    1410248 \
+                    golang.org/x/crypto \
+                        lock    v0.1.0 \
+                        rmd160  909910cef0db632e2c590f9fad5dd47a25a44979 \
+                        sha256  35e3d04761ad1510dd2b2df74774f529b6e4e176a966f78e423aa30ce436153c \
+                        size    1633135
+
+destroot {
+    xinstall -m 0755 ${worksrcpath}/${name} ${destroot}${prefix}/bin/
+}

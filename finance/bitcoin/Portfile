@@ -1,12 +1,19 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem              1.0
+PortGroup               boost 1.0
+PortGroup               legacysupport 1.1
+
+# On <10.15 built-in libc++ has no support for std::filesystem
+legacysupport.newest_darwin_requires_legacy \
+                        18
+legacysupport.use_mp_libcxx \
+                        yes
 
 name                    bitcoin
 categories              finance crypto
-version                 0.20.1
+version                 25.1
 revision                0
-platforms               darwin
 license                 MIT
 maintainers             {easieste @easye} yopmail.com:sami.laine openmaintainer
 description             server daemon and client user interface for a peer-to-peer digital currency
@@ -16,21 +23,20 @@ long_description        Bitcoin is a peer-to-peer digital currency. By peer-to-p
                         tasks are managed collectively by the Bitcoin protocol \
                         operating through the nodes of the network.
 
-homepage                https://bitcoin.org/
+homepage                https://bitcoincore.org/
 master_sites            ${homepage}bin/bitcoin-core-${version}/
 
-checksums               rmd160  9dd3d6455b6c70e2c9b60802c07a40d3d69097c8 \
-                        sha256  4bbd62fd6acfa5e9864ebf37a24a04bc2dcfe3e3222f056056288d854c53b978 \
-                        size    6981793
+checksums               rmd160  b10da11974ccd2b80d49ae4c2f515e9d3a83695d \
+                        sha256  bec2a598d8dfa8c2365b77f13012a733ec84b8c30386343b7ac1996e901198c9 \
+                        size    12498596
 
 depends_build           port:autoconf \
                         port:automake \
                         port:libtool \
                         port:pkgconfig \
-                        port:python38
+                        port:python311
 
-depends_lib             port:boost \
-                        port:libevent \
+depends_lib             port:libevent \
                         port:miniupnpc \
                         port:zmq
 
@@ -40,7 +46,6 @@ configure.cmd           ./autogen.sh && ./configure
 
 configure.args          --disable-ccache \
                         --disable-silent-rules \
-                        --disable-upnp-default \
                         --disable-werror \
                         --enable-tests \
                         --disable-bench \
@@ -48,17 +53,17 @@ configure.args          --disable-ccache \
                         --enable-man \
                         --enable-largefile \
                         --with-miniupnpc \
-                        --without-system-univalue \
                         --with-utils \
-                        --with-libs
+                        --with-libs \
+                        --with-boost=[boost::install_area]
 
-compiler.cxx_standard   2011
+compiler.cxx_standard   2017
 
 configure.args-append   --with-daemon=no
 configure.args-append   --with-gui=no
 configure.args-append   --enable-wallet=no
 
-# Bitcoin's configure adds -std=c++11 to the compiler name and then uses the
+# Bitcoin's configure adds -std=c++17 to the compiler name and then uses the
 # aforementioned name for both C++ and Objective-C++, the latter only if OBJCXX
 # is undefined. Macports defines OBJCXX, so undefining it solves the issue.
 configure.objcxx
@@ -106,10 +111,12 @@ variant gui description {Build the Qt5 GUI} {
 }
 
 variant wallet description {Build with support for wallet} {
-    depends_lib-append port:db48
+    depends_lib-append port:db48 \
+                       port:sqlite3
     configure.args-replace --enable-wallet=no --enable-wallet=yes
-    configure.cppflags-append   "-I${prefix}/include/db48"
-    configure.ldflags-append    "-L${prefix}/lib/db48"
+    configure.env-append \
+        BDB_CFLAGS=-I${prefix}/include/db48 \
+        "BDB_LIBS=-L${prefix}/lib/db48 -ldb_cxx-4.8"
 }
 
 post-destroot {

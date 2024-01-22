@@ -1,0 +1,28 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran nimble-dev nimbleHMC 0.2.0
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             {BSD GPL-2+}
+description         Hamiltonian Monte Carlo and other gradient-based MCMC sampling algorithms for R-nimble
+long_description    {*}${description}
+homepage            https://R-nimble.org
+checksums           rmd160  359f345ee62af6b92b089096102e9932c897f5b2 \
+                    sha256  d6d8c4d1131515a3454051b232ab877da14cbbfea81d57606c1fb953b3759625 \
+                    size    39112
+supported_archs     noarch
+
+# Fix running tests:
+post-extract {
+    copy ${filespath}/testthat.R ${worksrcpath}/tests/
+}
+
+depends_lib-append  port:R-nimble
+
+depends_test-append port:R-testthat
+
+test.run            yes

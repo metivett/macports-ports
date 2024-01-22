@@ -1,0 +1,21 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             github easystats parameters 0.21.3 v
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             GPL-3
+description         Processing of model parameters
+long_description    {*}${description}
+homepage            https://easystats.github.io/parameters
+checksums           rmd160  2186f41bc3cb1845e5913691859cd44f9772db0b \
+                    sha256  403f20b2a8460bbe14ac35a9133b47414143bdeaaf7c588ca55d0c79204392bc \
+                    size    1011655
+supported_archs     noarch
+
+depends_lib-append  port:R-bayestestR \
+                    port:R-datawizard \
+                    port:R-insight

@@ -2,39 +2,28 @@
 
 PortSystem          1.0
 PortGroup           python 1.0
-PortGroup           github 1.0
 
-github.setup        sphinx-gallery sphinx-gallery 0.8.2 v
-github.tarball_from archive
-revision            0
 name                py-sphinx-gallery
+version             0.15.0
+revision            0
 
-platforms           darwin
 supported_archs     noarch
+platforms           {darwin any}
 license             BSD
 maintainers         {reneeotten @reneeotten} openmaintainer
 
 description         Extension for automatic generation of an example gallery
-long_description    ${description}
+long_description    {*}${description}
 
-checksums           rmd160  6e828a3b277febe63d107622ba930893fc27d0c2 \
-                    sha256  6f7fd5244ad6bbde0a0ffce6bb4e056630be051859c9fa7c4be8fa431a9585d9 \
-                    size    674902
+homepage            https://sphinx-gallery.github.io
 
-python.versions     27 36 37 38 39
+checksums           rmd160  74d58ad32db8e81d9fc4afeac4264fbdb762a80f \
+                    sha256  7217fe98f8c4cce248db798c48f34183e4cdb277d2381e188182f92a14ec26b7 \
+                    size    422363
+
+python.versions     38 39 310 311 312
 
 if {${subport} ne ${name}} {
-    if {${python.version} eq 27} {
-        github.setup    sphinx-gallery sphinx-gallery 0.4.0 v
-        revision        0
-        checksums       rmd160  dfc05aaa3695cadaf45c4592374256ef152e03f5 \
-                        sha256  56a370df236defee839f6e37e0d8d1553e412bf1f8d844dcba51a14f802f4fe6 \
-                        size    392841
-    }
-
-    depends_build-append \
-                    port:py${python.version}-setuptools
-
     depends_lib-append \
                     port:py${python.version}-sphinx
 
@@ -44,6 +33,4 @@ if {${subport} ne ${name}} {
         xinstall -m 0644 -W ${worksrcpath} LICENSE README.rst \
             CHANGES.rst ${destroot}${DOCDIR}
     }
-
-    livecheck.type  none
 }

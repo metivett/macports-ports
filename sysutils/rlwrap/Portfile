@@ -3,12 +3,12 @@
 PortSystem              1.0
 PortGroup               github 1.0
 
-github.setup            hanslub42 rlwrap 0.45 v
+github.setup            hanslub42 rlwrap 0.46.1
 revision                0
 categories              sysutils
 platforms               darwin
 license                 GPL-2+
-maintainers             nomaintainer
+maintainers             {@kakuhen} openmaintainer
 
 description             rlwrap is a readline wrapper.
 
@@ -16,9 +16,9 @@ long_description        rlwrap is a wrapper that enables any other command to \
                         support editing of keyboard input using the GNU \
                         readline library.
 
-checksums               rmd160  0b2530a2696b7f2da3e1b3f5317693b31b82bad4 \
-                        sha256  fb6ac7c8534ad52c709bdd88ec17c2de71c32d530c064f0c594fa1ecf377af1e \
-                        size    181271
+checksums               rmd160  0c85853722f97e4f02b165d9c62789f81005ab81 \
+                        sha256  9f944262bbab8e617e397713b3ef6c74cf172a08167635b8a7fc4a3e24c60eaf \
+                        size    185122
 
 depends_build-append    port:autoconf \
                         port:automake \

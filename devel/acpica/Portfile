@@ -1,48 +1,58 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
+PortGroup           compiler_blacklist_versions 1.0
+PortGroup           github 1.0
 PortGroup           legacysupport 1.0
 PortGroup           makefile 1.0
 
 # strnlen
 legacysupport.newest_darwin_requires_legacy 10
 
-name                acpica
-version             20210105
-revision            0
+github.setup        acpica acpica 20230628
+git.branch          R[string range $version 4 5]_[string range $version 6 7]_[string range $version 2 3]
+revision            1
 categories          devel
 # Comes with a restrictive Intel license in the source files, but the included
 # acpisrc tool replaces them with an open source dual license.
 # Why not just indicate triple licensing to start with? Who knows.
 license             {Permissive GPL-2}
-platforms           darwin
 maintainers         {i0ntempest @i0ntempest} openmaintainer
 
 description         ACPI compiler
 long_description    A compiler for ACPI DSDT .asl files.
 
-homepage            https://acpica.org/
-master_sites        ${homepage}sites/acpica/files/ \
-                    https://mirror.sobukus.de/files/grimoire/devel/
+homepage            https://www.intel.com/content/www/us/en/developer/topic-technology/open/acpica/overview.html
 
-distname            acpica-unix-${version}
-
-checksums           rmd160  0649f9f5282662210f19981e2505a7ffab2553dd \
-                    sha256  a9be7b749025e60f93fde2fe531bfe0d84a33641d3e0c9b0f6049f996dbb1ff8 \
-                    size    1856776
+checksums           rmd160  bfa98b21f2f926c6c380d6091fad0b2e748ab8b5 \
+                    sha256  47b18e1d818c01027080d8b1d1a0464489b5894465e52c034e175ec2bc28ae8c \
+                    size    7505451
 
 depends_build       port:bison
 depends_skip_archcheck-append \
                     bison
 
 patchfiles          disable-silent-rules.patch
+platform darwin {
+    if {${os.major} > 20 && ${configure.build_arch} eq "arm64"} {
+       # See https://github.com/acpica/acpica/issues/781
+       build.args-append \
+                    OPT_CFLAGS="-DACPI_PACKED_POINTERS_NOT_SUPPORTED"
+    } else {
+        # CFLAGS has MacPorts optimization
+        build.args-append \
+                    OPT_CFLAGS=""
+    }
+}
 
 # see generate/unix/Makefile.config
 makefile.override-delete \
                     INSTALL
 
-# CFLAGS has MacPorts optimization
-build.args-append   OPT_CFLAGS=""
+# dmtbdump2.c:1226: error: ‘for’ loop initial declaration used outside C99 mode
+# aeinstall.c:443: error: ‘ACPI_RESOURCE_EXTENDED_IRQ’ has no member named ‘Interrupts’
+compiler.blacklist-append \
+                    *gcc-4.0 *gcc-4.2 {clang < 421}
 
 livecheck.regex     ${name}-unix-(\[0-9.\]+)${extract.suffix}
-livecheck.url       ${homepage}downloads/
+livecheck.url       https://www.intel.com/content/www/us/en/download/776303

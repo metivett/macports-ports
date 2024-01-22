@@ -4,11 +4,11 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-nmrglue
-version             0.8
+version             0.10
 revision            0
 
 categories-append   science
-platforms           darwin
+platforms           {darwin any}
 supported_archs     noarch
 license             BSD
 maintainers         {reneeotten @reneeotten} openmaintainer
@@ -21,34 +21,46 @@ long_description    nmrglue is a module for working with NMR data in Python. \
 
 homepage            https://nmrglue.com
 
-checksums           rmd160  283a2f59f730affc60dde525152bcb405d8ec909 \
-                    sha256  198375ce724ab9776953a3d3ed3eb4fa0d1b859fac97360cffa5d9143f8a5bfe \
-                    size    176607
+checksums           rmd160  ea2a5fb50885f70463f2b5ae951f3e816e699212 \
+                    sha256  ec5524d612dcd28a9652b00ef66ac69badc4e69191edf477d559152afbee6972 \
+                    size    204563
 
-python.versions     27 35 36 37 38 39
+python.versions     38 39 310 311 312
 
-if {${name} ne ${subport}} {
-    depends_build-append \
-                    port:py${python.version}-setuptools
+conflicts           ${subport}-devel
 
+foreach pver [list {*}${python.versions} ""] {
+    subport py${pver}-nmrglue-devel {
+        PortGroup       github 1.0
+
+        github.setup    jjhelmus nmrglue e249dbe33809351e11c
+        version         20231130-[string range ${github.version} 0 7]
+        revision        0
+        checksums       rmd160  b89c462a460314cc2a46a1ac948e02f601f9619c \
+                        sha256  b0f2857b72d1d7fa81c4f53171e0d673af1a8bb1db45f6268c5b22547a3539f6 \
+                        size    14920408
+
+        conflicts       py${pver}-nmrglue
+
+        if {${pver} ne ""} {
+            livecheck.type  none
+        } else {
+            PortGroup   stub 1.0
+        }
+    }
+}
+
+if {${subport} ni [list ${name} ${name}-devel]} {
     depends_lib-append \
                     port:py${python.version}-numpy \
                     port:py${python.version}-scipy
 
-    depends_test-append  \
-                    port:py${python.version}-pytest
-
     test.run        yes
-    test.cmd        py.test-${python.branch}
-    test.target
     test.args       --pyargs nmrglue
-    test.env        PYTHONPATH=${worksrcpath}/build/lib
 
     post-destroot {
         xinstall -d ${destroot}${prefix}/share/doc/${subport}
         xinstall -m 0644 -W ${worksrcpath} TODO.txt LICENSE.txt INSTALL.txt \
             README.rst ${destroot}${prefix}/share/doc/${subport}
     }
-
-    livecheck.type  none
 }

@@ -1,8 +1,10 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
 PortSystem 1.0
 
 name            xorg-libXaw
-version         1.0.13
-revision        2
+version         1.0.15
+revision        0
 categories      x11 devel
 license         X11
 maintainers     {jeremyhu @jeremyhu} openmaintainer
@@ -12,12 +14,13 @@ platforms       darwin macosx
 long_description Athena Widgets toolkit
 master_sites     xorg:individual/lib/
 
-distname    libXaw-${version}
-checksums           rmd160  d724ab50da224abc7808eaa6419909cbd0b5d320 \
-                    sha256  8ef8067312571292ccc2bbe94c41109dcf022ea5a4ec71656a83d8cce9edb0cd
+distname        libXaw-${version}
 
-use_bzip2   yes
-use_parallel_build      yes
+checksums       rmd160  9edcee068c94fe3e7115805c3ecc6ce4276f9d4b \
+                sha256  ab35f70fde9fb02cc71b342f654846a74328b74cb3a0703c02d20eddb212754a \
+                size    589832
+
+use_xz          yes
 
 depends_build   port:pkgconfig \
                 port:groff
@@ -27,10 +30,6 @@ depends_lib     port:xorg-libsm \
                 port:xorg-libXmu \
                 port:xpm \
                 port:xorg-libXt
-
-patch.pre_args  -p1
-patchfiles \
-        0001-darwin-Remove-incorrect-export-of-vendorShellClassRe.patch
 
 configure.args \
         --disable-specs \

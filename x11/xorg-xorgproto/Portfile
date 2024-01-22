@@ -1,33 +1,37 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
-PortSystem       1.0
+PortSystem          1.0
 
-name             xorg-xorgproto
-epoch            1
-version          2020.1
-categories       x11 devel
-license          X11
-maintainers      {jeremyhu @jeremyhu} {jonesc @cjones051073} openmaintainer
-description      X.org xorgproto
-homepage         https://www.x.org
-platforms        darwin
-supported_archs  noarch
-long_description X.Org combined prototype headers
-master_sites     xorg:individual/proto/
+name                xorg-xorgproto
+version             2023.2
+epoch               1
+revision            0
 
-distname         xorgproto-${version}
+checksums           rmd160  7b21eba335897d8c3ff9d344f1bc7a05c9aa1f01 \
+                    sha256  b61fbc7db82b14ce2dc705ab590efc32b9ad800037113d1973811781d5118c2c \
+                    size    759040
 
-checksums        rmd160  6fa77728e461be0cf83a1f5626a55ecee1795390 \
-                 sha256  54a153f139035a376c075845dd058049177212da94d7a9707cf9468367b699d2 \
-                 size    848072
+categories          x11 devel
+license             X11
+maintainers         {jeremyhu @jeremyhu} {jonesc @cjones051073} openmaintainer
 
-use_bzip2        yes
+homepage            https://www.x.org
+platforms           {darwin any}
+supported_archs     noarch
 
-configure.args \
-	--enable-legacy \
-	--without-xmlto \
-	--without-fop \
-	--disable-specs
+description         X.org xorgproto
+long_description    X.Org combined prototype headers
+
+master_sites        xorg:individual/proto/
+
+distname            xorgproto-${version}
+
+use_xz              yes
+
+configure.args      --enable-legacy \
+                    --without-xmlto \
+                    --without-fop \
+                    --disable-specs
 
 post-destroot {
     # This is provided by xorg-libX11 as of 1.6.9 - it's legacy in
@@ -38,26 +42,21 @@ post-destroot {
 # Depending on ghostscript for the PDF documentation creates a dependency
 # loop, so you may want to install first without the docs variant
 variant docs description "Install extra documentation" {
-	depends_build-append \
-		port:fop \
-		port:xmlto \
-		port:xorg-sgml-doctools
+    depends_build-append \
+        port:fop \
+        port:xmlto \
+        port:xorg-sgml-doctools
 
-	configure.args-delete \
-		--without-xmlto \
-		--without-fop \
-		--disable-specs
+    configure.args-replace \
+        --without-xmlto --with-xmlto \
+        --without-fop --with-fop \
+        --disable-specs --enable-specs
 
-	configure.args-append \
-		--with-xmlto \
-		--with-fop \
-		--enable-specs
-
-	configure.env-append \
-		XMLTO=${prefix}/bin/xmlto \
-		FOP=${prefix}/bin/fop
+    configure.env-append \
+        XMLTO=${prefix}/bin/xmlto \
+        FOP=${prefix}/bin/fop
 }
 
-livecheck.type   regex
-livecheck.url    https://xorg.freedesktop.org/archive/individual/proto/?C=M&O=D
-livecheck.regex  xorgproto-(\\d+(?:\\.\\d+)*)
+livecheck.type  regex
+livecheck.url   https://xorg.freedesktop.org/archive/individual/proto/?C=M&O=D
+livecheck.regex xorgproto-(\\d+(?:\\.\\d+)*)

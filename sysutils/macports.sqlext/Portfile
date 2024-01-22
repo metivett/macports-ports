@@ -5,7 +5,6 @@ PortSystem          1.0
 name                macports.sqlext
 version             2.6.3
 categories          sysutils
-platforms           darwin
 maintainers         nomaintainer
 license             BSD
 
@@ -25,6 +24,8 @@ checksums           rmd160 c4009fc935603377867af1ab09ad34f980695ca4 \
                     sha256 c784f0556102bf7947b1cb8f4607bfa76351a4da8cbdab0dcc89c56f18834f01
 
 depends_lib         port:sqlite3
+
+patchfiles          configure.patch
 
 configure.args      --with-sqlite3prefix=${prefix} \
                     --disable-flag-sanitization

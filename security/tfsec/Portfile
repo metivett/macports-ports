@@ -1,0 +1,42 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           golang 1.0
+
+go.setup            github.com/tfsec/tfsec 1.28.5 v
+github.tarball_from archive
+revision            0
+
+description         Security scanner for your Terraform code
+
+long_description    {*}${description}. tfsec uses static analysis of your \
+                    Terraform templates to spot potential security issues.
+
+categories          security sysutils
+installs_libs       no
+license             MIT
+maintainers         {gmail.com:herby.gillot @herbygillot} \
+                    openmaintainer
+
+checksums           rmd160  3d88b37d9064268e8cea508a8c6e33f073d31124 \
+                    sha256  fd2eb17a3fd8144888c0146f1067f0c3f5c99aa427adf85805dbd67d73f773df \
+                    size    6544294
+
+# Allow Go to fetch dependencies at build time
+go.offline_build no
+build.env-append    TRAVIS_TAG=${version}
+build.cmd           "go mod vendor && make build"
+
+patch {
+    # Delete lines building for Linux or Windows
+    reinplace -E {/GOOS=(linux|windows)/ d} ${worksrcpath}/scripts/build.sh
+}
+
+destroot {
+    foreach tfsec_build_bin [glob ${worksrcpath}/bin/${os.platform}/*] {
+        set tfsec_install_bin \
+            [file tail [strsed $tfsec_build_bin s/-${os.platform}.*//]]
+        xinstall -m 0755 \
+            ${tfsec_build_bin} ${destroot}${prefix}/bin/${tfsec_install_bin}
+    }
+}

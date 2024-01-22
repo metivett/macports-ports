@@ -3,10 +3,13 @@
 PortSystem          1.0
 PortGroup           github 1.0
 PortGroup           cmake 1.1
+PortGroup           boost 1.0
 
-github.setup        rime librime 99e269c8eb251deddbad9b0d2c4d965b228f8006
+# Please rev-bump squirrel-ime whenever librime-devel updates
+github.setup        rime librime 08dd95f5d9282346f0d4a3e8fc6b20811dc3d063
 name                librime-devel
-version             20210211
+version             20230206
+revision            4
 categories          devel
 platforms           darwin
 license             BSD
@@ -18,8 +21,7 @@ homepage            https://rime.im/
 depends_build-append \
                     port:pkgconfig
 
-depends_lib-append  port:boost \
-                    port:capnproto \
+depends_lib-append  port:capnproto \
                     port:gflags \
                     port:google-glog \
                     port:leveldb \
@@ -27,9 +29,22 @@ depends_lib-append  port:boost \
                     port:opencc \
                     port:yaml-cpp
 
+compiler.cxx_standard 2014
+
 configure.args      -DBOOST_USE_CXX11=ON \
                     -DBUILD_TEST=OFF
 
-checksums           rmd160  f977aabe9acacec0e71f4c3bc49fdaf1159cef20 \
-                    sha256  4417a8c2a5e27c18283da1f5b13781b8d05add844ba2ea6ab899e65f5e405174 \
-                    size    2859572
+checksums           rmd160  9a46203b8f11a380d7c17df232310d7381a39985 \
+                    sha256  591321c13ef15185f3f07a418cffd96d679affd6363c8257225e4c8e77389540 \
+                    size    2623636
+
+variant tests description "Build tests" {
+    configure.pre_args-replace \
+                    -DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=ON \
+                    -DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=OFF
+    configure.args-replace \
+                    -DBUILD_TEST=OFF \
+                    -DBUILD_TEST=ON
+
+    test.run        yes
+}

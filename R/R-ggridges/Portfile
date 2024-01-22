@@ -1,0 +1,21 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran wilkelab ggridges 0.5.5
+revision            0
+categories-append   graphics
+maintainers         nomaintainer
+license             GPL-2
+description         Ridgeline Plots in ggplot2
+long_description    {*}${description}
+homepage            https://wilkelab.org/ggridges
+checksums           rmd160  4c91e1123ce10fd8c831901d6d05fb945c29fb52 \
+                    sha256  7577a43824ff413f5499fce22b2218268177d5867adf8cb885a19c760b5e75a1 \
+                    size    2231186
+supported_archs     noarch
+
+depends_lib-append  port:R-ggplot2 \
+                    port:R-scales \
+                    port:R-withr

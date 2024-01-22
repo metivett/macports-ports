@@ -2,27 +2,36 @@
 
 PortSystem          1.0
 PortGroup           muniversal 1.0
+PortGroup           legacysupport 1.1
+
+# stpncpy
+legacysupport.newest_darwin_requires_legacy 10
 
 name                dash
-version             0.5.11.1
+version             0.5.11.5
+revision            0
+checksums           rmd160  33e27dfdab24434040f47c572e2db980deb5e116 \
+                    sha256  db778110891f7937985f29bf23410fe1c5d669502760f584e54e0e7b29e123bd \
+                    size    240681
+
 categories          shells
 license             GPL-2+
-platforms           darwin
 maintainers         {@Synss gmail.com:Mathias.Laurin+macports} openmaintainer
 description         descendant of the NetBSD version of ash
 long_description    DASH is a direct descendant of the NetBSD version of ash \
                     (the Almquist SHell) and is POSIX compliant.
 
-homepage            http://gondor.apana.org.au/~herbert/dash
+homepage            http://gondor.apana.org.au/~herbert/dash/
+master_sites        ${homepage}files/
 
-master_sites        ${homepage}/files/
-checksums           rmd160  361ebf870d55287264a0b3a68d702df5aa4a298f \
-                    sha256  73c881f146e329ac54962766760fd62cb8bdff376cd6c2f5772eecc1570e1611 \
-                    size    244439
+patchfiles          0001-fix-dirent64-et-al-on-darwin.patch \
+                    stat64.patch
 
-patchfiles          0001-fix-dirent64-et-al-on-darwin.patch
-
+# We are patching configure.ac.
 use_autoreconf      yes
+configure.checks.implicit_function_declaration.whitelist-append strchr
+
+configure.args      --disable-silent-rules
 
 livecheck.url       [lindex ${master_sites} 0]
 livecheck.regex     ${name}-(\\d+(\\.\\d+)+)${extract.suffix}

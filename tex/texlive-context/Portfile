@@ -4,7 +4,7 @@ PortSystem          1.0
 PortGroup           texlive 1.0
 
 name                texlive-context
-version             54364
+version             66562
 revision            0
 
 categories          tex
@@ -13,35 +13,28 @@ license             Copyleft Permissive
 description         TeX Live: ConTeXt and packages
 long_description    Hans Hagen's powerful ConTeXt system, http://pragma-ade.com. Also includes third-party ConTeXt packages.
 
-checksums           texlive-context-54364-run.tar.xz \
-                    rmd160  881e566778cc6a490a79b185e89e2ce7fe857aa6 \
-                    sha256  0efa93b8ec5cead87125288a8f9b4493d016a86b6c977940a9890a8fab34c1a0 \
-                    size    106406676 \
-                    texlive-context-54364-doc.tar.xz \
-                    rmd160  48c60795df4b52280d34608cf89c0db15fdaabc8 \
-                    sha256  ff9e4ff3467166fa590ebb6f684f8bf4092f89ab48dce61e77d4313fc3d6ca8a \
-                    size    97648292 \
-                    texlive-context-54364-src.tar.xz \
-                    rmd160  ba7977064fc127fcccdceb20c7a37a7a1238b9a9 \
-                    sha256  072ab6bb3c5203c5721e2878307c76bba833cb4d46b89d0ec7c087f3766c45dd \
-                    size    6696
+checksums           texlive-context-66562-run.tar.xz \
+                    rmd160  44d15247f4a45a9f3827371a3308022041bae501 \
+                    sha256  28ce8ded576710e2498dab5cdf98379d2c9c7da65d07146706f321b0160aea01 \
+                    size    99969888 \
+                    texlive-context-66562-doc.tar.xz \
+                    rmd160  8679a7445fe01f233ea7b81e7ac9e0789e57b11d \
+                    sha256  23bdab22143686c26534e9c3be9adc8ad9e38d498bbed5d06ac626a6685c8ece \
+                    size    90002060 \
+                    texlive-context-66562-src.tar.xz \
+                    rmd160  47e20abd65294a6bd31ddcc84efbe7929b9facac \
+                    sha256  996e169540943b7d866f03fcfcaa2f42c5ed93feb6b15bef3d3507da87f96199 \
+                    size    6716
 
 depends_lib         port:texlive-basic
-
-texlive.formats      \
-    {1 cont-en pdftex cont-usr.tex {-8bit *cont-en.mkii}} \
-    {1 cont-en xetex cont-usr.tex {-8bit *cont-en.mkii}} \
-    {0 cont-fr pdftex cont-usr.tex {-8bit *cont-fr.mkii}} \
-    {0 cont-it pdftex cont-usr.tex {-8bit *cont-it.mkii}} \
-    {0 cont-nl pdftex cont-usr.tex {-8bit *cont-nl.mkii}} \
-    {0 cont-ro pdftex cont-usr.tex {-8bit *cont-ro.mkii}}
 
 texlive.maps      \
     {Map original-context-symbol.map}
 
-texlive.binaries    context contextjit luatools mtxrun mtxrunjit texexec texmfstart
+texlive.binaries    context context.lua mtxrun mtxrun.lua
 
-depends_lib-append  port:texlive-latex \
+depends_lib-append  port:luametatex \
+                    port:texlive-latex \
                     port:texlive-metapost \
                     port:texlive-xetex \
                     port:texlive-fonts-recommended \

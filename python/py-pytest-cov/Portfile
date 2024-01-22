@@ -4,29 +4,38 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-pytest-cov
-version             2.11.1
+version             4.1.0
 revision            0
 
 categories-append   devel
-platforms           darwin
 supported_archs     noarch
+platforms           {darwin any}
 license             MIT
 maintainers         {reneeotten @reneeotten} openmaintainer
 
 description         Pytest plugin for measuring coverage.
-long_description    ${description}
+long_description    {*}${description}
 
 homepage            https://github.com/pytest-dev/pytest-cov
 
-checksums           rmd160  c99eca643e434de99747cf093f7ddc401cfa52a1 \
-                    sha256  359952d9d39b9f822d9d29324483e7ba04a3a17dd7d05aa6beb7ea01e359e5f7 \
-                    size    59143
+checksums           rmd160  0fb7002356bbee43dae368a6f742be28d014f7e9 \
+                    sha256  3904b13dfbfec47f003b8e77fd5b589cd11904a21ddf1ab38a64f204d6a10ef6 \
+                    size    63245
 
-python.versions     27 35 36 37 38 39
+python.versions     27 35 36 37 38 39 310 311 312
 
 if {${name} ne ${subport}} {
+    if {${python.version} in "27 35"} {
+        version     2.12.1
+        revision    0
+        checksums   rmd160  bb56cc50c1244d00934b584f0b7b3a9270619c4d \
+                    sha256  261ceeb8c227b726249b376b8526b600f38667ee314f910353fa318caa01f4d7 \
+                    size    60395
+    }
+
     depends_build-append \
-                    port:py${python.version}-setuptools
+                    port:py${python.version}-setuptools \
+                    port:py${python.version}-toml
 
     depends_lib-append \
                     port:py${python.version}-coverage \

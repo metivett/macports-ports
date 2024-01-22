@@ -3,14 +3,20 @@
 PortSystem          1.0
 PortGroup           compiler_blacklist_versions 1.0
 PortGroup           meson 1.0
-PortGroup           legacysupport 1.0
+PortGroup           legacysupport 1.1
+PortGroup           boost 1.0
 
 name                mpd
+version             0.23.8
+revision            7
+checksums           rmd160  45cc623a1029b010197a0233fe5ebb5f6e5fc5c4 \
+                    sha256  86bb569bf3b519821f36f6bb5564e484e85d2564411b34b200fe2cd3a04e78cf \
+                    size    773280
 
-version             0.22.6
-set branch          [join [lrange [split ${version} .] 0 1] .]
 categories          audio
+license             GPL-2+ LGPL-2.1
 maintainers         nomaintainer
+
 description         Music Player Daemon
 long_description    Music Player Daemon (MPD) allows remote access for playing music \
     (MP3, Ogg Vorbis, FLAC, AAC, Mod, and wave files) and managing \
@@ -19,17 +25,16 @@ long_description    Music Player Daemon (MPD) allows remote access for playing m
     It also makes a great desktop music player, especially if you are a \
     console junkie, like frontend options, or restart X often.
 homepage            https://www.musicpd.org/
-platforms           darwin
+
+set branch          [join [lrange [split ${version} .] 0 1] .]
 master_sites        https://www.musicpd.org/download/${name}/${branch}/
-license             GPL-2+ LGPL-2.1
 use_xz              yes
 
-checksums           rmd160  90fbf971481bcddfcdaad9c6b41718169145b62c \
-                    sha256  2be149a4895c3cb613477f8cf1193593e3d8a1d38a75ffa7d32da8c8316a4d5e \
-                    size    730524
-
-set python_branch   3.8
+set python_branch   3.10
 set python_version  [string map {. {}} ${python_branch}]
+
+# TODO: Migrate to later version, once upstream supports
+set port_libfmt     libfmt8
 
 depends_build-append \
     port:pkgconfig \
@@ -38,24 +43,26 @@ depends_build-append \
 # this port only uses boost headers during build
 # and does not link with any boost libraries
 # no need to rebuild due to boost library ABI changes
-depends_build-append \
-    port:boost
+#boost.version 1.71
+boost.depends_type build
 
 depends_lib \
     port:audiofile \
+    port:bzip2 \
     port:curl \
     port:faad2 \
     port:flac \
     path:lib/pkgconfig/glib-2.0.pc:glib2 \
-    port:icu \
+    path:lib/pkgconfig/icu-uc.pc:icu \
     port:libao \
     port:libcdio-paranoia \
-    port:libcue \
+    port:${port_libfmt} \
     port:libiconv \
     port:libid3tag \
     port:libogg \
     port:libopus \
     port:libvorbis \
+    port:libzzip \
     port:pcre2 \
     port:wavpack \
     port:zlib
@@ -65,6 +72,7 @@ configure.args \
     -Ddocumentation=enabled \
     -Dlibmpdclient=disabled \
     -Dwebdav=disabled \
+    -Dbzip2=enabled \
     -Dcue=true \
     -Dcdio_paranoia=enabled \
     -Dcurl=enabled \
@@ -73,7 +81,6 @@ configure.args \
     -Dsmbclient=disabled \
     -Dqobuz=disabled \
     -Dsoundcloud=disabled \
-    -Dtidal=disabled \
     -Did3tag=enabled \
     -Dchromaprint=disabled \
     -Dadplug=disabled \
@@ -122,11 +129,20 @@ configure.args \
     -Dpcre=enabled \
     -Dsqlite=disabled \
     -Dyajl=disabled \
-    -Dzeroconf=auto \
+    -Dzeroconf=bonjour \
     -Dzlib=enabled \
+    -Dzzip=enabled \
     -Dupnp=disabled
 
 configure.cflags-append -I${prefix}/include
+
+# Wrap the macOS12 functions, may be added into legacy-support see PR49
+if {${os.major} < 21} {
+    configure.cflags-prepend        -isystem ${filespath}/wrappers
+    configure.cxxflags-prepend      -isystem ${filespath}/wrappers
+    configure.objcflags-prepend     -isystem ${filespath}/wrappers
+    configure.objcxxflags-prepend   -isystem ${filespath}/wrappers
+}
 
 variant ffmpeg description {Support for myriad formats (including ALAC) via FFmpeg} {
     depends_lib-append path:lib/libavcodec.dylib:ffmpeg
@@ -195,7 +211,7 @@ variant chromaprint description {Support for ChromaPrint / AcoustID via chromapr
 
 variant mpg123 conflicts mad description {Use mpg123 rather than mad as mp3 deconding library} {
     depends_lib-append port:mpg123
-    configure.args-replace -D-mpg123=disabled -Dmad=enabled
+    configure.args-replace -Dmpg123=disabled -Dmpg123=enabled
 }
 
 variant mad conflicts mpg123 description {Use mad rather than mpg123 as mp3 decoding library} {
@@ -221,16 +237,20 @@ variant mms description {Support MMS input via libmms} {
 
 variant avahi description {Support zeroconf via avahi} {
     depends_lib-append port:avahi
-    configure.args-replace -Dzeroconf=auto -Dzeroconf=avahi
+    configure.args-replace -Dzeroconf=bonjour -Dzeroconf=avahi
 }
 
 configure.env-append \
-    PATH=${frameworks_dir}/Python.framework/Versions/${python_branch}/bin:$env(PATH)
+    PATH=${frameworks_dir}/Python.framework/Versions/${python_branch}/bin:$env(PATH) \
+    PKG_CONFIG_PATH=${prefix}/lib/${port_libfmt}/pkgconfig
 build.env-append    {*}${configure.env}
 destroot.env-append {*}${configure.env}
 
 # requires support for C++17.
 compiler.cxx_standard   2017
+
+# Won't compile with anything below Xcode12
+compiler.blacklist-append {clang < 1200}
 
 if {${os.platform} eq "darwin" && ${os.major} > 8} {
     set mpduser       _mpd
@@ -262,6 +282,12 @@ post-destroot {
         ${destroot}${prefix}/etc/mpd.conf.default
 }
 post-activate {
+    # Lift resource limits
+    reinplace \
+        "s|^<key>ProgramArguments</key>|<key>ProcessType</key><string>Interactive</string>\\
+&|" \
+        ${prefix}/etc/${startupitem.location}/org.macports.${name}/org.macports.${name}.plist
+
     if {![file exists ${prefix}/etc/mpd.conf]} {
         copy ${prefix}/etc/mpd.conf.default ${prefix}/etc/mpd.conf
     }
@@ -279,7 +305,10 @@ ${prefix}/share/doc/mpd/mpdconf.example for an example configuration file.
 
 You may get \"Problems shmget'ing\" message when launching mpd.
 In this case, you can increase the values of kern.sysv.shmmax and
-kern.sysv.shmall in /etc/rc."
+kern.sysv.shmall in /etc/rc.
+
+If you experience laggy playback, try increasing buffer_time in libao
+options."
 
 livecheck.type      regex
 livecheck.url       ${homepage}

@@ -1,0 +1,37 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           python 1.0
+
+name                py-jaraco.classes
+version             3.3.0
+revision            0
+
+supported_archs     noarch
+platforms           {darwin any}
+license             MIT
+maintainers         {khindenburg @kurthindenburg} openmaintainer
+
+description         Utility functions for Python class constructs
+long_description    {*}${description}
+
+homepage            https://pypi.python.org/pypi/${python.rootname}/
+
+checksums           rmd160  291908b85a4c114bfe8a120e967040b478655aeb \
+                    sha256  c063dd08e89217cee02c8d5e5ec560f2c8ce6cdc2fcdc2e68f7b2e5547ed3621 \
+                    size    10729
+
+python.versions     37 38 39 310 311 312
+python.pep517       yes
+
+if {${name} ne ${subport}} {
+    depends_build-append \
+                    port:py${python.version}-setuptools_scm \
+                    port:py${python.version}-toml
+
+    depends_lib-append \
+                    port:py${python.version}-more-itertools
+
+    # This is currently broken due to pytest (I think)
+    test.run        yes
+}

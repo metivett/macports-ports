@@ -1,11 +1,12 @@
---- tea-qmake.pro.orig	2019-12-10 07:07:17.000000000 -0600
-+++ tea-qmake.pro	2020-07-08 13:05:42.000000000 -0500
-@@ -315,7 +315,7 @@
+https://github.com/psemiletov/tea-qt/issues/67
+--- tea-qmake.pro.orig	2022-11-12 14:29:31.000000000 -0600
++++ tea-qmake.pro	2022-11-16 19:47:21.000000000 -0600
+@@ -272,7 +272,7 @@
+                }
  
- 
- contains(USE_ASPELL,true){
--exists("/usr/include/aspell.h") {
-+exists("$$PREFIX/include/aspell.h") {
-     message ("ASpell enabled")
-     LIBS += -laspell
-     DEFINES += ASPELL_ENABLE
+        contains (USE_ASPELL,true) {
+-                exists ("/usr/include/aspell.h") {
++                exists ("$$PREFIX/include/aspell.h") {
+                         message ("ASpell enabled")
+                         LIBS += -laspell
+                         DEFINES += ASPELL_ENABLE

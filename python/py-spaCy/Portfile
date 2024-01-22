@@ -6,15 +6,15 @@ PortGroup           mpi                         1.0
 PortGroup           compiler_blacklist_versions 1.0
 
 name                py-spaCy
-version             2.3.4
+version             3.5.0
 revision            0
 
-checksums           rmd160  394a062a36d57a880b5286c64ba721cd938c38a5 \
-                    sha256  a5c8805759114aac3a1db1b20f42af1124da5315be903ccb4c472cc8452393fb \
-                    size    5810826
+checksums           rmd160  674c7cde6db2aa9affdb8bc0709205b67333c481 \
+                    sha256  fe20127012992778804d93f75ce9370d588573072639c3832cec38f54bf7e4a5 \
+                    size    1233771
 
 platforms           darwin
-supported_archs     x86_64
+supported_archs     arm64 x86_64
 
 license             MIT
 
@@ -26,8 +26,7 @@ long_description    {*}${description}
 homepage            https://spacy.io
 
 python.rootname     spacy
-python.versions     36 37 38 39
-python.default_version 38
+python.versions     38 39 310
 
 if {${name} ne ${subport}} {
     mpi.setup       -gcc44 -gcc45 -clang33 -clang34 -clang37 -gfortran -g95
@@ -36,44 +35,49 @@ if {${name} ne ${subport}} {
     compiler.blacklist-append *gcc* {clang < 900} {macports-clang-3.[0-9]} macports-clang-4.0
 
     depends_build-append \
-        port:cctools \
-        port:py${python.version}-setuptools \
-        port:py${python.version}-wheel
+                    port:cctools \
+                    port:py${python.version}-setuptools \
+                    port:py${python.version}-wheel
 
     depends_lib-append \
-        port:py${python.version}-blis \
-        port:py${python.version}-cymem \
-        port:py${python.version}-catalogue \
-        port:py${python.version}-cython \
-        port:py${python.version}-jsonschema \
-        port:py${python.version}-murmurhash \
-        port:py${python.version}-numpy \
-        port:py${python.version}-plac \
-        port:py${python.version}-preshed \
-        port:py${python.version}-requests \
-        port:py${python.version}-srsly \
-        port:py${python.version}-thinc \
-        port:py${python.version}-tqdm \
-        port:py${python.version}-wasabi  
-
-    depends_test-append \
-        port:py${python.version}-flake8 \
-        port:py${python.version}-mock \
-        port:py${python.version}-pytest
+                    port:py${python.version}-blis \
+                    port:py${python.version}-cymem \
+                    port:py${python.version}-catalogue \
+                    port:py${python.version}-confection \
+                    port:py${python.version}-cython \
+                    port:py${python.version}-jsonschema \
+                    port:py${python.version}-langcodes \
+                    port:py${python.version}-murmurhash \
+                    port:py${python.version}-numpy \
+                    port:py${python.version}-packaging \
+                    port:py${python.version}-plac \
+                    port:py${python.version}-preshed \
+                    port:py${python.version}-pydantic \
+                    port:py${python.version}-requests \
+                    port:py${python.version}-srsly \
+                    port:py${python.version}-thinc \
+                    port:py${python.version}-typing_extensions \
+                    port:py${python.version}-typer \
+                    port:py${python.version}-tqdm \
+                    port:py${python.version}-wasabi
 
     # spaCy uses pip to download models.
-    depends_run-append \
-        port:py${python.version}-pip
-    
+    depends_lib-append \
+                    port:py${python.version}-pip
+
+    depends_test-append \
+                    port:py${python.version}-flake8 \
+                    port:py${python.version}-mock \
+                    port:py${python.version}-pytest
+
     post-patch {
-        reinplace "s|\"cython\"|\"cython-${python.branch}\"|g" ${worksrcpath}/bin/cythonize.py
-        reinplace "s|python|${python.bin}|g" ${worksrcpath}/bin/spacy
-        reinplace "s|python \-m|${python.bin} \-m|g" ${worksrcpath}/spacy/cli/validate.py
+        set PythonVersionWithDot [join [split ${python.version} ""] "."]
+        foreach f [ exec find ${worksrcpath}/ -name "*.py"] {
+            reinplace -q "s|python \-m|python${PythonVersionWithDot} \-m|g" ${f}
+            reinplace -q "s|env python|env python${PythonVersionWithDot}|g" ${f}
+        }
     }
-    
+
     build.target-replace build build_ext
     build.args-append --inplace
-
-    livecheck.type none 
-
 }

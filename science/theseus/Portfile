@@ -5,7 +5,7 @@ PortGroup           makefile 1.0
 
 name                theseus
 version             3.3.0
-revision            2
+revision            3
 
 categories          science
 platforms           darwin
@@ -26,6 +26,8 @@ checksums           rmd160  33c23525cbc0dc1ae805766492d29e16844d311b \
 depends_build       port:cctools
 
 depends_lib         port:gsl
+
+extract.rename      yes
 
 patchfiles          patch-make.inc.diff
 

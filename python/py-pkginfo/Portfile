@@ -4,11 +4,13 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-pkginfo
-version             1.7.0
-platforms           darwin
+version             1.9.6
+revision            0
+
 license             MIT
 maintainers         {gmail.com:jjstickel @jjstickel} openmaintainer
 supported_archs     noarch
+platforms           {darwin any}
 
 description         Query metadatdata from sdists and bdists installed packages.
 long_description \
@@ -18,13 +20,16 @@ long_description \
 
 homepage            https://pypi.python.org/pypi/pkginfo
 
-checksums           rmd160  9065991656247be33e4e01478bcbd222e6261646 \
-                    sha256  029a70cb45c6171c329dfc890cde0879f8c52d6f3922794796e06f577bb03db4 \
-                    size    37209
+checksums           rmd160  e6494e4c3f712b6feea26c942aac375ce73eae4c \
+                    sha256  8fd5896e8718a4372f0ea9cc9d96f6417c9b986e23a4d116dda26b62cc29d046 \
+                    size    379307
 
-python.versions     27 36 37 38 39
+python.versions     38 39 310 311 312
 
 if {${name} ne ${subport}} {
     depends_build-append    port:py${python.version}-setuptools
-    livecheck.type          none
+
+    if {${python.version} < 38} {
+        depends_run-append  port:py${python.version}-importlib-metadata
+    }
 }

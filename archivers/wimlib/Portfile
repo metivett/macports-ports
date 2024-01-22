@@ -3,14 +3,13 @@
 PortSystem          1.0
 
 name                wimlib
-version             1.13.3
+version             1.14.3
 revision            0
-checksums           rmd160  cfc49f3aae02424b066199def5d5fa35b02bce8f \
-                    sha256  8a0741d07d9314735b040cea6168f6daf1ac1c72d350d703f286b118135dfa7e \
-                    size    1030667
+checksums           rmd160  24b920fe01af8c3ba1fe59184aa03c9885fd321f \
+                    sha256  1128c6c7916d2f22da80341f84d87d77c620de6500fbb23a741fa79bd08cd1ef \
+                    size    1049402
 
 categories          archivers
-platforms           darwin
 maintainers         {ryandesign @ryandesign} openmaintainer
 license             {GPL-3+ LGPL-3+}
 
@@ -38,6 +37,8 @@ depends_run         port:cabextract \
 # cdrtools is not universal but we're only using its programs, not its
 # libraries.
 depends_skip_archcheck cdrtools
+
+configure.checks.implicit_function_declaration.whitelist-append strchr
 
 configure.args      --disable-silent-rules \
                     --with-libcrypto \

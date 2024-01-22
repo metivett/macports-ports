@@ -1,0 +1,28 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           golang 1.0
+
+go.setup            github.com/ginuerzh/gost 2.11.5 v
+revision            0
+
+categories          net
+license             MIT
+maintainers         {judaew @judaew} openmaintainer
+
+description         GO Simple Tunnel - a simple tunnel written in golang.
+long_description    ${description}
+homepage            https://docs.ginuerzh.xyz/gost/en
+
+checksums           rmd160  47d9a99e6b255d32a68bd86faee6fec35d58ea48 \
+                    sha256  7f732db6d2a42ca36cd1113346e4341c81c4eec9b8cab1b922e4220cf7deb811 \
+                    size    189845
+
+# FIXME: This port currently can't be built without allowing go mod to fetch
+go.offline_build no
+
+build.args          -o ${name} ./cmd/gost
+
+destroot {
+    xinstall -m 0755 ${worksrcpath}/${name} ${destroot}${prefix}/bin/
+}

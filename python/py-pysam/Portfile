@@ -4,11 +4,10 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-pysam
-version             0.15.4
-revision            1
+version             0.22.0
+revision            0
 
 categories-append   science
-platforms           darwin
 license             MIT BSD
 maintainers         {soap.za.net:git @SoapZA} openmaintainer
 
@@ -19,37 +18,20 @@ long_description    Pysam is a python module for reading and manipulating \
 
 homepage            https://github.com/pysam-developers/pysam
 
-checksums           rmd160  9ed516489fef88f37047168aa1d126177a7f8fee \
-                    sha256  a535e15cbd6e27f4ab74cabca30ca1df7eea283cb91d3b536d47fe113fee066f \
-                    size    1605385
+checksums           md5 f5f8abbff6ba5bfdc15336d89c217f5a \
+                    rmd160 3b682310be843f9d72b96e65b82772d29bc5a7f3 \
+                    sha256 ab7a46973cf0ab8c6ac327f4c3fb67698d7ccbeef8631a716898c6ba01ef3e45 \
+                    size   4631254
 
-python.versions     27 36 37 38
-
-patchfiles          patch-pysam-remove-RPATH.diff
+python.versions     37 38 39 310 311 312
 
 if {${name} ne ${subport}} {
-    depends_build       port:py${python.version}-setuptools \
-                        port:py${python.version}-cython
+    depends_build-append \
+                    port:py${python.version}-cython
 
-    use_parallel_build  no
+    depends_lib-append  port:htslib
 
-    depends_lib-append  port:bzip2 \
-                        port:curl \
-                        port:xz \
-                        port:zlib
-
-    post-extract {
-        # Fix permissions
-        fs-traverse item ${worksrcpath} {
-            if {[file isdirectory ${item}]} {
-                file attributes ${item} -permissions a+rx
-            } elseif {[file isfile ${item}]} {
-                file attributes ${item} -permissions a+r
-            }
-        }
-    }
-
-    livecheck.type      none
-
-    configure.env       HTSLIB_MODE=shared
+    build.env-append    HTSLIB_MODE=external \
+                        HTSLIB_LIBRARY_DIR=${prefix}/lib \
+                        HTSLIB_INCLUDE_DIR=${prefix}/include
 }

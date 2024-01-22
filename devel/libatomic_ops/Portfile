@@ -6,12 +6,12 @@ PortGroup           muniversal 1.0
 
 name                libatomic_ops
 
-github.setup        ivmai libatomic_ops 7.6.10 v
+github.setup        ivmai libatomic_ops 7.8.2 v
 revision            0
 
-checksums           rmd160  3570de5b7cdd8cf75abe8e0bcda95db606fea5cd \
-                    sha256  281b75bfb00ccb3fa26a4a060b3eeb0d7410b4701e837b41413d1757e95afeb7 \
-                    size    138011
+checksums           rmd160  4f501f5d9830637961952bc48bc5d3ad235265c1 \
+                    sha256  6be3e73b9d1c0e16af011b06200bdf8f048c96f4a31d395c40eb07a344783acd \
+                    size    159627
 
 maintainers         nomaintainer
 categories          devel

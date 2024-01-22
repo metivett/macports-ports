@@ -3,10 +3,10 @@
 PortSystem          1.0
 
 name                npm7
-version             7.5.6
+version             7.24.2
 revision            0
 categories          devel
-platforms           darwin
+platforms           any
 supported_archs     noarch
 license             MIT
 maintainers         {ciserlohn @ci42} openmaintainer
@@ -15,7 +15,7 @@ long_description    npm is a package manager for node. \
                     You can use it to install and publish your node programs. \
                     It manages dependencies and does other cool stuff.
 
-conflicts           npm3 npm4 npm5 npm6
+conflicts           npm3 npm4 npm5 npm6 npm8 npm9 npm10
 
 homepage            https://www.npmjs.com/
 
@@ -25,19 +25,20 @@ distname            npm-${version}
 
 extract.suffix      .tgz
 
-# Please keep the sha1 - users can use it to validate sha values published on npmjs.org for the package
-checksums           sha1    b9891691d96130b61e964fe7044b18d6c238f1f3 \
-                    rmd160  7674a0eb3e5219ab8e420c643839f1c337763b45 \
-                    sha256  ca5156524db0d3d212b462b4a9701172a5bd8b0f9985d8643dce5b803e429231 \
-                    size    7499526
+# Please keep the sha1 - users can use it to validate sha values
+# published on npmjs.org for the package
+checksums           rmd160  f9f2d6565e8223af13371d12fa2f31454a02d626 \
+                    sha1    861117af8241bea592289f22407230e5300e59ca \
+                    sha256  5b9eeea011f8bc3b76e55cc33339e87213800677f37e0756ad13ef0e9eaccd64 \
+                    size    3146141
 
 worksrcdir          "package"
 
-depends_lib         path:bin/node:nodejs15
+depends_lib         path:bin/node:nodejs16
 
 platform darwin {
     if {${os.major} < 13} {
-        depends_lib-replace path:bin/node:nodejs15 path:bin/node:nodejs8
+        depends_lib-replace path:bin/node:nodejs16 path:bin/node:nodejs14
     }
 }
 
@@ -48,7 +49,6 @@ patchfiles          patch-lib-update.js.diff
 post-patch {
     foreach f [concat ${worksrcpath}/bin/npm-cli.js \
                    ${worksrcpath}/bin/npx-cli.js \
-                   ${worksrcpath}/docs/dockhand.js \
                    ${worksrcpath}/node_modules/@npmcli/arborist/bin/index.js \
                    ${worksrcpath}/node_modules/ajv/scripts/info \
                    ${worksrcpath}/node_modules/mkdirp/bin/cmd.js \
@@ -64,10 +64,7 @@ post-patch {
                    ${worksrcpath}/node_modules/sshpk/bin/sshpk-sign \
                    ${worksrcpath}/node_modules/sshpk/bin/sshpk-verify \
                    ${worksrcpath}/node_modules/uuid/bin/uuid \
-                   ${worksrcpath}/node_modules/which/bin/node-which \
-                   ${worksrcpath}/scripts/docs-build.js \
-                   ${worksrcpath}/scripts/maketest \
-                   ${worksrcpath}/scripts/relocate.sh] {
+                   ${worksrcpath}/node_modules/which/bin/node-which] {
         reinplace "s|/usr/bin/env node|${prefix}/bin/node|" ${f}
     }
 }
@@ -95,4 +92,4 @@ ${prefix}/lib/node_modules/ until you manually delete them.
 
 livecheck.type      regex
 livecheck.url       https://registry.npmjs.org/npm
-livecheck.regex     {"latest":"(.*?)"}
+livecheck.regex     {"next-7":"(.*?)"}

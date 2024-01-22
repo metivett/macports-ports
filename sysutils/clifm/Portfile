@@ -1,0 +1,31 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           github 1.0
+PortGroup           legacysupport 1.1
+PortGroup           cmake 1.1
+
+github.setup        leo-arch clifm 1.15 v
+categories          sysutils
+license             GPL-2+
+maintainers         {l2dy @l2dy} openmaintainer
+description         Command Line Interface File Manager
+long_description    shell-like, command line terminal file manager
+
+github.tarball_from releases
+
+checksums           rmd160  9612643779f26cb66992a4ab3e3369b45ffccbba \
+                    sha256  6248c8352f6fb77f9dc6bc0a3f84c06c881b82c08679f93ed8c32d6c208787b4 \
+                    size    1511851
+
+legacysupport.newest_darwin_requires_legacy 13
+
+depends_lib-append  port:gettext-runtime \
+                    port:libmagic \
+                    port:readline
+
+depends_build-append \
+                    port:pkgconfig
+
+compiler.blacklist-append \
+                    *gcc-4.*

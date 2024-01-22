@@ -4,11 +4,11 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-asteval
-version             0.9.22
+version             0.9.31
 revision            0
 
 categories-append   math
-platforms           darwin
+platforms           {darwin any}
 supported_archs     noarch
 license             MIT
 maintainers         {reneeotten @reneeotten} openmaintainer
@@ -23,32 +23,17 @@ long_description    ASTEVAL is a safe(ish) evaluator of Python expressions and \
 
 homepage            https://github.com/newville/asteval
 
-checksums           rmd160  50e26e994d82a12261d8e99d44c9de977264b954 \
-                    sha256  74a0939765fc6b1421e6672ccf74c52edc3c7af7d6a8298b057b0d50ac51aea8 \
-                    size    55120
+checksums           rmd160  9df656d5ca8435b6f92695165038da6fb229cafe \
+                    sha256  a2da066b6696dba9835c5f7dec63e0ffb5bd2b4e3bb5f0b9a604aeafb17d833d \
+                    size    57410
 
-python.versions     27 36 37 38 39
+python.versions     38 39 310 311 312
 
 if {${subport} ne ${name}} {
-    if  {${python.version} eq 27} {
-        version     0.9.17
-        revision    0
-        distname    asteval-${version}
-        checksums   rmd160  67e3710e4b0956b1da6e34c139ad2c470bfdd4b6 \
-                    sha256  3e291b2cb71284bc55816fe7ff65ee15e47fa66df98490cdd95f5531fc37b81e \
-                    size    53878
-    }
-
     depends_build-append \
-                    port:py${python.version}-setuptools
-
-    depends_test-append \
-                    port:py${python.version}-pytest
+                    port:py${python.version}-setuptools_scm
 
     test.run        yes
-    test.cmd        py.test-${python.branch}
-    test.target
-    test.env        PYTHONPATH=${worksrcpath}/build/lib
 
     post-destroot {
         set docdir ${prefix}/share/doc/${subport}
@@ -56,6 +41,4 @@ if {${subport} ne ${name}} {
         xinstall -m 0644 -W ${worksrcpath} README.rst INSTALL \
             LICENSE ${destroot}${docdir}
     }
-
-    livecheck.type  none
 }

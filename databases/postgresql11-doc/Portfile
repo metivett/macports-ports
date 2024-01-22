@@ -1,16 +1,21 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem 1.0
+PortGroup deprecated 1.0
+
+# EOL 2023-11-09
+deprecated.upstream_support no
 
 name                postgresql11-doc
-conflicts           postgresql93-doc postgresql94-doc postgresql95-doc \
-    postgresql96-doc postgresql10-doc
-version             11.11
+conflicts           postgresql96-doc postgresql10-doc postgresql12-doc \
+    postgresql13-doc postgresql14-doc
+version             11.14
 categories          databases
-platforms           darwin
+platforms           any
+supported_archs     noarch
 maintainers         {jwa @jyrkiwahlstedt}
 license             Permissive
-description         Documentation for the postgresql database BETA release.
+description         Documentation for the PostgreSQL database version 11
 long_description    PostgreSQL is Object-Relational Database Management System.\
                 It supports almost all SQL constructs, including transactions, \
                 subselects, and user-defined types and functions. Write-ahead \
@@ -22,9 +27,9 @@ master_sites        postgresql:source/v${version}
 distname            postgresql-${version}
 set rname           postgresql11
 
-checksums           rmd160  44d9bcd81fc6a89d8e2bcbcbc7353e37e951cfbc \
-                    sha256  40607b7fa15b7d63f5075a7277daf7b3412486aa5db3aedffdb7768b9298186c \
-                    size    20054359
+checksums           rmd160  ccd24b793a502c76bf48242ac04b63e61c0d3f0a \
+                    sha256  965c7f4be96fb64f9581852c58c4f05c3812d4ad823c0f3e2bdfe777c162f999 \
+                    size    20172910
 
 use_bzip2           yes
 dist_subdir         ${rname}

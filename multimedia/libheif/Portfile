@@ -2,35 +2,90 @@
 
 PortSystem                  1.0
 PortGroup                   github 1.0
+PortGroup                   cmake 1.1
+PortGroup                   compiler_blacklist_versions 1.0
 
-github.setup                strukturag libheif 1.9.1 v
-revision                    2
-checksums                   rmd160  92a6ff1b051c53da86643ef87c4d6c252772306b \
-                            sha256  5f65ca2bd2510eed4e13bdca123131c64067e9dd809213d7aef4dc5e37948bca \
-                            size    1556450
+github.setup                strukturag libheif 1.17.6 v
+revision                    0
+
+checksums                   rmd160  a4681278c601668741808d330e134b70dbacf1c5 \
+                            sha256  8390baf4913eda0a183e132cec62b875fb2ef507ced5ddddc98dfd2f17780aee \
+                            size    1433302
 
 categories                  multimedia
 license                     LGPL-3+
-maintainers                 {mcalhoun @MarcusCalhoun-Lopez} openmaintainer
+maintainers                 {mcalhoun @MarcusCalhoun-Lopez} {mascguy @mascguy} openmaintainer
 description                 a ISO/IEC 23008-12:2017 HEIF file format decoder and encoder
-long_description            ${name} is ${description}.
-platforms                   darwin
+long_description            ${name} is {*}${description}.
 
 github.tarball_from         releases
 
-depends_build-append        port:pkgconfig
+depends_build-append \
+                            port:pkgconfig
 
-depends_lib-append          port:gdk-pixbuf2 \
-                            path:include/turbojpeg.h:libjpeg-turbo \
+depends_lib-append \
+                            port:aom \
+                            port:dav1d \
+                            path:lib/pkgconfig/gdk-pixbuf-2.0.pc:gdk-pixbuf2 \
                             port:libde265 \
+                            path:include/turbojpeg.h:libjpeg-turbo \
                             port:libpng \
+                            port:svt-av1 \
+                            port:webp \
                             port:x265
+
+configure.args-append \
+                            -DWITH_RAV1E:BOOL=OFF
+
+# Disable dynamic plugin loading, due to upstream issue:
+#   clang: error: invalid argument '-compatibility_version 1.0.0' only allowed with '-dynamiclib'
+# We don't lose any functionality though, as we're building with everything enabled as built-ins.
+configure.args-append \
+                            -DENABLE_PLUGIN_LOADING:BOOL=OFF
 
 compiler.cxx_standard       2011
 
-configure.args-append       --disable-go
+# error: unknown warning option '-Werror=potentially-evaluated-expression'
+compiler.blacklist-append   {clang < 700}
+
+platform darwin {
+    if {${os.major} >= 10 && [string match *clang* ${configure.compiler}]} {
+        # Fix for error: non-portable path to file <DAV1D/xxx.h> and <AOM/xxx.h>
+        # https://trac.macports.org/ticket/67404
+        # Flags are Clang-specific, they break build with GCC.
+        configure.cxxflags-append \
+                            -Wno-nonportable-include-path \
+                            -Wno-error=nonportable-include-path \
+                            -Wno-unknown-warning-option \
+                            -Wno-error=unknown-warning-option
+    }
+
+    if {${os.major} < 10 || (${os.major} == 10 && ${configure.build_arch} eq "ppc")} {
+        # TODO: Disable rav1e on <10.6, due to issues with cargo-c; enable if fixed.
+        # Do not enable on PPC until Rust is fixed or it becomes possible to build with gccrs.
+        # See: https://trac.macports.org/ticket/65434
+        if {[variant_isset rav1e]} {
+            error "Variant rav1e not supported for macOS 10.5 and earlier, or PPC"
+        }
+    }
+}
+
+variant rav1e description {Enable codec rav1e} {
+    depends_lib-append \
+                            port:rav1e
+
+    configure.args-replace \
+                            -DWITH_RAV1E:BOOL=OFF \
+                            -DWITH_RAV1E:BOOL=ON
+}
 
 variant tests description {Enable tests} {
-    configure.args-append   --enable-tests
+    configure.args-append \
+                            -DBUILD_TESTING:BOOL=ON \
+                            -DWITH_REDUCED_VISIBILITY:BOOL=OFF
     test.run                yes
+}
+
+if {![variant_isset rav1e]} {
+    notes-append "Support for rav1e now disabled by default; enable via +rav1e"
 }

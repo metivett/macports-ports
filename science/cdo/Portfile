@@ -2,20 +2,22 @@
 
 PortSystem                  1.0
 PortGroup                   mpi 1.0
+PortGroup                   legacysupport 1.0
 
 name                        cdo
-version                     1.9.9
-revision                    1
+version                     2.3.0
+revision                    0
 platforms                   darwin
 maintainers                 {takeshi @tenomoto} openmaintainer
 license                     GPL-2
 categories                  science
 description                 Climate Data Operators
 homepage                    https://code.mpimet.mpg.de/projects/cdo
-master_sites                https://code.mpimet.mpg.de/attachments/download/23323
-checksums           rmd160  ea735aa29ca46cca3ea47456236f313ffdac2460 \
-                    sha256  959b5b58f495d521a7fd1daa84644888ec87d6a0df43f22ad950d17aee5ba98d \
-                    size    11511630
+master_sites                https://code.mpimet.mpg.de/attachments/download/29019
+
+checksums           rmd160  a41fe5acd854a94f9d3915806b4f67cf2cc2f534 \
+                    sha256  10c878227baf718a6917837527d4426c2d0022cfac4457c65155b9c57f091f6b \
+                    size    13588973
 
 long_description \
     CDO is a collection of command line Operators               \
@@ -25,7 +27,8 @@ long_description \
 
 fetch.ignore_sslcert        yes
 
-compiler.cxx_standard       2011
+compiler.cxx_standard       2017
+compiler.thread_local_storage yes
 compilers.choose            cc cxx
 mpi.setup
 mpi.enforce_variant         hdf5
@@ -34,15 +37,15 @@ depends_lib                 port:netcdf \
                             port:hdf5 \
                             port:curl \
                             port:udunits2 \
-                            port:proj \
+                            port:proj9 \
                             port:fftw-3
 
-patchfiles                  patch-skip-nc4-test.diff
+patchfiles                  patch-cdo-mach-task-10.8.diff
 
 configure.args              --with-netcdf=${prefix} \
                             --disable-dependency-tracking \
                             --disable-openmp \
-                            --with-proj=${prefix}/lib/proj5 \
+                            --with-proj=${prefix}/lib/proj9 \
                             --with-hdf5=${prefix} \
                             --with-udunits2=${prefix} \
                             --with-fftw3 \
@@ -51,8 +54,14 @@ configure.args              --with-netcdf=${prefix} \
 configure.cppflags-append   -I${prefix}/include/udunits2
 configure.ldflags-append    -lhdf5
 
+# Since cdo 2.2.0, running tests requires the Python 3 interpreter. But since the configure always looks
+# for a recent Python and does not distinguish whether test is requested, it is added here as a build dependency.
+# To make sure that it works prior to Catalina, it is best to simply require the latest python3 package.
+
+depends_build-append        port:python311
+configure.env-append        PYTHON=${prefix}/bin/python3.11
+
 test.run                    yes
-test.dir                    ${worksrcpath}/test
 test.args                   -j1
 test.target                 check
 

@@ -1,0 +1,62 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:filetype=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           meson 1.0
+
+name                libxmlxx5
+set gname           libxml++
+version             5.0.3
+revision            0
+
+categories          textproc
+license             LGPL-2+
+maintainers         {mascguy @mascguy} openmaintainer
+description         libxml++ is a C++ interface for working with XML files
+long_description    ${description}, using \
+                    libxml (gnome-xml) to parse and write the actual XML files. \
+                    It has a simple but complete API.
+homepage            https://libxmlplusplus.github.io/libxmlplusplus/
+
+set branch          [join [lrange [split ${version} .] 0 1] .]
+master_sites        gnome:sources/${gname}/${branch}/
+distname            ${gname}-${version}
+use_xz              yes
+
+checksums           rmd160  89b7d3fde473680a6665bbe924cbd02a2528fee8 \
+                    sha256  13074f59e3288a378cafe9e6847df17f764c23fa29bc94f3305b8bf81efb2cf7 \
+                    size    843720
+
+# Disable unexpected download of subprojects
+meson.wrap_mode     nodownload
+
+patchfiles-append   patch-meson-build.diff
+
+compiler.cxx_standard 2017
+
+depends_build-append \
+                    port:mm-common \
+                    port:pkgconfig
+
+depends_lib-append \
+                    port:libxml2
+
+variant docs description {Build documentation} {
+    depends_build-append \
+                    port:docbook-xsl-nons \
+                    port:docbook-xml \
+                    path:bin/doxygen:doxygen \
+                    port:fop \
+                    path:bin/dot:graphviz \
+                    port:libxslt \
+                    port:perl5
+
+    configure.args-append \
+                    -Dbuild-documentation=true
+}
+
+default_variants    +docs
+
+test.run yes
+
+livecheck.type      gnome
+livecheck.name      ${gname}

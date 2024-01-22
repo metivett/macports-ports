@@ -4,11 +4,11 @@ PortSystem          1.0
 PortGroup           apache2 1.0
 
 name                apache2
-version             2.4.46
-revision            1
-checksums           rmd160  8e5365222be2b53bed955f6f658fc4b6cc6c60a2 \
-                    sha256  740eddf6e1c641992b22359cabc66e6325868c3c5e2e3f98faf349b61ecf41ea \
-                    size    7187805
+version             2.4.58
+revision            0
+checksums           rmd160  0d12a1750b92fbae503f19e6644b3edf0f6a29ec \
+                    sha256  fa16d72a078210a54c47dd5bef2f8b9b8a01d94909a51453956b3ec6442ea4c5 \
+                    size    7485817
 
 categories          www
 maintainers         {ryandesign @ryandesign} {mps @Schamschula} openmaintainer
@@ -30,6 +30,7 @@ depends_lib         port:apr \
                     port:apr-util \
                     port:expat \
                     path:lib/libssl.dylib:openssl \
+                    port:libxml2 \
                     port:pcre \
                     port:perl5 \
                     port:zlib
@@ -37,7 +38,8 @@ depends_lib         port:apr \
 patch.pre_args      -p1
 patchfiles          patch-build-rules.mk.in.diff \
                     patch-config.layout.diff \
-                    patch-support-apxs.in.diff
+                    patch-support-apxs.in.diff \
+                    patch-ssl_engine_init.c.diff
 
 post-patch {
     reinplace "s,@MANDIR@,\${prefix}/share/${name},g" \
@@ -68,26 +70,36 @@ platform darwin 9 {
     }
 }
 
+# https://trac.macports.org/wiki/WimplicitFunctionDeclaration#strchr
+configure.checks.implicit_function_declaration.whitelist-append strchr
+
+compiler.thread_local_storage yes
+
+# Avoid inheriting CPP value from apr
+configure.env       "CPP=${configure.cc} -E"
+
 configure.pre_args --prefix=${prefix}
-configure.args     --with-apr=${prefix}/bin/apr-1-config \
-                   --with-apr-util=${prefix}/bin/apu-1-config \
-                   --enable-layout=MacPorts \
-                   --with-expat=${prefix} \
-                   --with-pcre=${prefix} \
-                   --with-z=${prefix} \
-                   --enable-mods-shared=all \
-                   --enable-authn-alias=shared \
-                   --enable-ssl \
-                   --with-ssl=${prefix} \
+configure.args     --enable-authn-alias=shared \
                    --enable-cache \
+                   --enable-deflate \
                    --enable-disk_cache \
                    --enable-file_cache \
+                   --enable-layout=MacPorts \
                    --enable-mem_cache \
-                   --enable-deflate \
+                   --enable-mods-shared=all \
                    --enable-proxy \
+                   --enable-ssl \
                    --enable-proxy-connect \
+                   --enable-proxy-ftp \
                    --enable-proxy-http \
-                   --enable-proxy-ftp
+                   --with-apr=${prefix}/bin/apr-1-config \
+                   --with-apr-util=${prefix}/bin/apu-1-config \
+                   --with-expat=${prefix} \
+                   --with-libxml2=${prefix} \
+                   --with-pcre=${prefix} \
+                   --with-ssl=${prefix} \
+                   --with-z=${prefix} \
+                   ac_cv_path_RSYNC=/usr/bin/rsync
 
 # explicitly disable modules that may build opportunistically
 configure.args-append \
@@ -170,7 +182,7 @@ platform openbsd {
 
 variant openldap description {Enable LDAP support through OpenLDAP} {
     configure.args-append --enable-ldap --enable-authnz-ldap
-    depends_lib-append port:openldap
+    depends_lib-append path:lib/libldap.dylib:openldap
     pre-configure {
         if {-1 == [string first -lldap [exec ${prefix}/bin/apu-1-config --libs]]} {
             ui_error "To install ${name} with the +openldap variant, apr-util must be installed"
@@ -192,6 +204,11 @@ variant brotli description {Build brotli module} {
 variant http2 description {Enable HTTP/2 support} {
     depends_lib-append      port:nghttp2
     configure.args-append   --enable-http2
+}
+
+variant xml2enc description {Enable i18n support for markup filters} {
+    configure.args-append   --enable-xml2enc --with-libxml2=${prefix}
+    depends_lib-append      port:libxml2
 }
 
 variant mpms_shared_all description {Build all MPM's as DSO for dynamic loading} {

@@ -3,20 +3,21 @@
 PortSystem          1.0
 PortGroup           perl5 1.0
 
-perl5.branches      5.26 5.28 5.30
-perl5.setup         Business-ISBN 3.005
-maintainers         nomaintainer
+perl5.branches      5.28 5.30 5.32 5.34
+perl5.setup         Business-ISBN 3.008
+revision            0
 license             Artistic-2
+maintainers         nomaintainer
 description         work with International Standard Book Numbers
 long_description    This package provides the Perl modules Business::ISBN, \
                     Business::ISBN10, and Business::ISBN13 for working with \
                     International Standard Book Numbers.
 
-checksums           rmd160  055270661e6e4fa19ccadace2928dc3347012ad0 \
-                    sha256  6530fbae40c56376db4e6686c34af8da3db5c4baad0d104047b1ef3e24fe2e2a \
-                    size    361815
+checksums           rmd160  efc42ab8b0339e51a21e22f9f29c5f0f8504c25b \
+                    sha256  19c4a1d4d99a0dd7695a90192b13404a0e3eeebedfcbe97a0202e36b238c0e69 \
+                    size    363152
 
-platforms           darwin
+platforms           {darwin any}
 supported_archs     noarch
 
 if {${perl5.major} != ""} {

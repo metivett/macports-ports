@@ -8,13 +8,12 @@ PortGroup           conflicts_build 1.0
 PortGroup           legacysupport 1.0
 legacysupport.newest_darwin_requires_legacy 10
 
-conflicts           weechat-devel
 name                weechat
-version             3.0.1
+version             4.1.2
 revision            0
-checksums           rmd160  30e748302dc073b602acabca5b0e237aa35548b3 \
-                    sha256  781d9bfc7e1321447de9949263b82e3ee45639b7d71693558f40ff87211ca6dd \
-                    size    2215312
+checksums           rmd160  a9f09efe4f87789e1c394a2ecf4668a640078d86 \
+                    sha256  9a9b910fbe768bb9de7c7ac944f5db8f233833f345b2e505e16ec6ef35effbb5 \
+                    size    2635776
 
 master_sites        https://weechat.org/files/src/
 use_xz              yes
@@ -26,17 +25,18 @@ livecheck.url       https://weechat.org/dev/info/stable/
 homepage            https://weechat.org/
 license             GPL-3
 description         Fast, light & extensible IRC client
-long_description    \
-    WeeChat (Wee Enhanced Environment for Chat) is a fast and light IRC client \
-    for many operating systems. Everything can be done with a keyboard. It is \
-    customizable and extensible with plugins/scripts, and includes: \
-    \n - nicklist \
-    \n - smart hotlist \
-    \n - infobar with highlight notification \
-    \n - horizontal and vertical split \
-    \n - double charset support (decode/encode) \
-    \n - FIFO pipe for remote control \
-    \n - and much more!
+long_description    WeeChat (Wee Enhanced Environment for Chat) is \
+                    a fast and light IRC client for many operating \
+                    systems. Everything can be done with a keyboard. \
+                    It is customizable and extensible with \
+                    plugins/scripts, and includes: \
+                    \n - nicklist \
+                    \n - smart hotlist \
+                    \n - infobar with highlight notification \
+                    \n - horizontal and vertical split \
+                    \n - double charset support (decode/encode) \
+                    \n - FIFO pipe for remote control \
+                    \n - and much more!
 
 categories          irc
 maintainers         {isi.edu:calvin @cardi} openmaintainer
@@ -44,93 +44,137 @@ platforms           darwin
 
 depends_build-append \
                     port:asciidoctor \
-                    port:libxslt \
+                    port:docbook-xsl-nons \
                     port:pkgconfig \
-                    port:docbook-xsl-nons
+                    port:libxslt
 
-depends_lib-append  \
-                    port:curl \
+depends_lib-append  port:curl \
                     port:gettext \
+                    path:lib/pkgconfig/gnutls.pc:gnutls \
                     port:libgcrypt \
                     port:libiconv \
                     port:ncurses
 
+depends_run-append  path:etc/openssl/cert.pem:curl-ca-bundle
+
+depends_test-append port:cpputest
+
 license_noconflict  asciidoctor
 
 configure.args-append \
-                    -DENABLE_GNUTLS=OFF \
-                    -DENABLE_LUA=OFF \
                     -DENABLE_GUILE=OFF \
+                    -DENABLE_JAVASCRIPT=OFF \
+                    -DENABLE_LUA=OFF \
+                    -DENABLE_MAN=ON \
                     -DENABLE_PERL=OFF \
+                    -DENABLE_PHP=OFF \
                     -DENABLE_PYTHON=OFF \
                     -DENABLE_PYTHON2=OFF \
                     -DENABLE_RUBY=OFF \
                     -DENABLE_SPELL=OFF \
                     -DENABLE_TCL=OFF \
-                    -DENABLE_JAVASCRIPT=OFF \
-                    -DENABLE_PHP=OFF \
-                    -DENABLE_MAN=ON
+                    -DENABLE_TESTS=OFF
 
-variant python requires python27 description {Compatibility variant, requires +python27} {}
+variant python requires python312 description {Compatibility variant, requires +python312} {}
 
-variant python27 description "Bindings for python 2.7 plugins" conflicts python36 python37 python38 python39 {
+variant python38 description "Bindings for Python 3.8 plugins" conflicts python39 python310 python311 python312 {
     configure.args-replace  -DENABLE_PYTHON=OFF -DENABLE_PYTHON=ON
-    configure.args-replace  -DENABLE_PYTHON2=OFF -DENABLE_PYTHON2=ON
-    depends_lib-append      port:python27
-}
-
-variant python36 description "Bindings for python 3.6 plugins" conflicts python27 python37 python38 python39 {
-    configure.args-replace  -DENABLE_PYTHON=OFF -DENABLE_PYTHON=ON
-    depends_lib-append      port:python36
-}
-
-variant python37 description "Bindings for python 3.7 plugins" conflicts python27 python36 python38 python39 {
-    configure.args-replace  -DENABLE_PYTHON=OFF -DENABLE_PYTHON=ON
-    depends_lib-append      port:python37
-}
-
-variant python38 description "Bindings for python 3.8 plugins" conflicts python27 python36 python37 python39 {
-    configure.args-replace  -DENABLE_PYTHON=OFF -DENABLE_PYTHON=ON
+    configure.pkg_config_path-append \
+                            ${frameworks_dir}/Python.framework/Versions/3.8/lib/pkgconfig
     depends_lib-append      port:python38
 }
 
-variant python39 description "Bindings for python 3.9 plugins" conflicts python27 python36 python37 python38 {
+variant python39 description "Bindings for Python 3.9 plugins" conflicts python38 python310 python311 python312 {
     configure.args-replace  -DENABLE_PYTHON=OFF -DENABLE_PYTHON=ON
+    configure.pkg_config_path-append \
+                            ${frameworks_dir}/Python.framework/Versions/3.9/lib/pkgconfig
     depends_lib-append      port:python39
 }
 
-post-patch {
-    set patchfile ${worksrcpath}/cmake/FindPython.cmake
+variant python310 description "Bindings for Python 3.10 plugins" conflicts python38 python39 python311 python312 {
+    configure.args-replace  -DENABLE_PYTHON=OFF -DENABLE_PYTHON=ON
+    configure.pkg_config_path-append \
+                            ${frameworks_dir}/Python.framework/Versions/3.10/lib/pkgconfig
+    depends_lib-append      port:python310
+}
 
-    if {[variant_isset python27]} {
-        reinplace -E "s|PYTHON python2|PYTHON python-2.7|g" ${patchfile}
-    } elseif {[variant_isset python36]} {
-        reinplace -E "s|PYTHON python3|PYTHON python-3.6|g" ${patchfile}
-    } elseif {[variant_isset python37]} {
-        reinplace -E "s|PYTHON python3|PYTHON python-3.7|g" ${patchfile}
-    } elseif {[variant_isset python38]} {
-        reinplace -E "s|PYTHON python3|PYTHON python-3.8|g" ${patchfile}
-    } elseif {[variant_isset python39]} {
-        reinplace -E "s|PYTHON python3|PYTHON python-3.9|g" ${patchfile}
+variant python311 description "Bindings for Python 3.11 plugins" conflicts python38 python39 python310 python312 {
+    configure.args-replace  -DENABLE_PYTHON=OFF -DENABLE_PYTHON=ON
+    configure.pkg_config_path-append \
+                            ${frameworks_dir}/Python.framework/Versions/3.11/lib/pkgconfig
+    depends_lib-append      port:python311
+}
+
+variant python312 description "Bindings for Python 3.12 plugins" conflicts python38 python39 python310 python311 {
+    configure.args-replace  -DENABLE_PYTHON=OFF -DENABLE_PYTHON=ON
+    configure.pkg_config_path-append \
+                            ${frameworks_dir}/Python.framework/Versions/3.12/lib/pkgconfig
+    depends_lib-append      port:python312
+}
+
+variant ruby requires ruby32 description {Compatibility variant, requires +ruby32} {}
+
+variant ruby30 description "Bindings for Ruby 3.0 plugins" conflicts ruby31 ruby32 {
+    configure.args-replace  -DENABLE_RUBY=OFF -DENABLE_RUBY=ON
+    configure.env-append    PKG_CONFIG_PATH=${prefix}/lib/pkgconfig
+    depends_lib-append      port:ruby30
+
+    patchfiles              FindRuby.cmake.diff
+}
+
+variant ruby31 description "Bindings for Ruby 3.1 plugins" conflicts ruby30 ruby32 {
+    configure.args-replace  -DENABLE_RUBY=OFF -DENABLE_RUBY=ON
+    configure.env-append    PKG_CONFIG_PATH=${prefix}/lib/pkgconfig
+    depends_lib-append      port:ruby31
+
+    patchfiles              FindRuby.cmake.diff
+}
+
+variant ruby32 description "Bindings for Ruby 3.2 plugins" conflicts ruby30 ruby31 {
+    configure.args-replace  -DENABLE_RUBY=OFF -DENABLE_RUBY=ON
+    configure.env-append    PKG_CONFIG_PATH=${prefix}/lib/pkgconfig
+    depends_lib-append      port:ruby32
+
+    patchfiles              FindRuby.cmake.diff
+}
+
+
+post-patch {
+    # specify Ruby version for CMake to find and use
+    set patchfile ${worksrcpath}/cmake/FindRuby.cmake
+
+    if {[variant_isset ruby30]} {
+        reinplace -E {s|pkg_search_module\(RUBY (.*)\)|pkg_search_module\(RUBY ruby-3.0\)|g} ${patchfile}
+    } elseif {[variant_isset ruby31]} {
+        reinplace -E {s|pkg_search_module\(RUBY (.*)\)|pkg_search_module\(RUBY ruby-3.1\)|g} ${patchfile}
+    } elseif {[variant_isset ruby32]} {
+        reinplace -E {s|pkg_search_module\(RUBY (.*)\)|pkg_search_module\(RUBY ruby-3.2\)|g} ${patchfile}
     }
 }
 
-variant tcl description {Support for tcl} {
-    configure.args-delete   -DENABLE_TCL=OFF
-    configure.args-append   -DENABLE_TCL=ON
-    depends_lib-append      port:tcl
-}
-
-variant aspell description {Support for aspell} {
+variant aspell description {Support for Spellcheck (aspell)} {
     configure.args-delete   -DENABLE_SPELL=OFF
     configure.args-append   -DENABLE_SPELL=ON
     depends_lib-append      port:aspell
 }
 
-variant lua description {Bindings for lua plugins} {
+variant doc description {Build HTML Documentation and Plugin API} {
+    configure.args-append   -DENABLE_DOC=ON -DENABLE_DOC_INCOMPLETE=ON
+    depends_build-append    port:source-highlight
+
+    notes-append "Documentation is not built for disabled plugins."
+}
+
+variant lua description {Bindings for Lua plugins} {
     configure.args-delete   -DENABLE_LUA=OFF
     configure.args-append   -DENABLE_LUA=ON
     depends_lib-append      port:lua
+}
+
+variant perl description {Bindings for Perl plugins} {
+    configure.args-delete   -DENABLE_PERL=OFF
+    configure.args-append   -DENABLE_PERL=ON
+    depends_lib-append      path:bin/perl:perl5
 }
 
 variant scheme description {Bindings for Scheme (guile) plugins} {
@@ -139,34 +183,11 @@ variant scheme description {Bindings for Scheme (guile) plugins} {
     depends_lib-append      port:guile
 }
 
-variant perl description {Bindings for perl plugins} {
-    configure.args-delete   -DENABLE_PERL=OFF
-    configure.args-append   -DENABLE_PERL=ON
-    depends_lib-append      path:bin/perl:perl5
+variant tcl description {Bindings for Tcl plugins} {
+    configure.args-delete   -DENABLE_TCL=OFF
+    configure.args-append   -DENABLE_TCL=ON
+    depends_lib-append      port:tcl
 }
-
-variant ruby description {Bindings for ruby plugins} {
-    configure.args-delete   -DENABLE_RUBY=OFF
-    configure.args-append   -DENABLE_RUBY=ON
-    depends_lib-append      port:ruby
-}
-
-variant tls description {Support for secure connecting} {
-    depends_run-append      path:etc/openssl/cert.pem:curl-ca-bundle
-
-    configure.args-delete   -DENABLE_GNUTLS=OFF
-    configure.args-append   -DENABLE_GNUTLS=ON \
-                            -DCA_FILE=${prefix}/etc/openssl/cert.pem
-    depends_lib-append      port:gnutls
-}
-
-variant doc description {Build Documentation and plugin API} {
-    depends_build-append    port:source-highlight
-
-    configure.args-append   -DENABLE_DOC=ON
-}
-
-default_variants    +tls
 
 post-destroot {
     xinstall -m 755 -d ${destroot}${prefix}/share/doc/weechat

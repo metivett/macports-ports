@@ -1,0 +1,51 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           golang 1.0
+
+go.setup            github.com/bettercap/bettercap 2.32.0 v
+github.tarball_from archive
+revision            0
+
+homepage            https://www.bettercap.org
+
+description         The Swiss Army knife for 802.11, BLE and Ethernet \
+                    networks reconnaissance and MITM attacks.
+
+long_description    bettercap is a powerful, easily extensible and portable \
+                    framework written in Go which aims to offer to security \
+                    researchers, red teamers and reverse engineers an easy to \
+                    use, all-in-one solution with all the features they might \
+                    possibly need for performing reconnaissance and attacking \
+                    WiFi networks, Bluetooth Low Energy devices, wireless HID \
+                    devices and Ethernet networks.
+
+categories          net security
+installs_libs       no
+license             GPL-3
+maintainers         {gmail.com:herby.gillot @herbygillot} \
+                    openmaintainer
+
+checksums           rmd160  7e91a5d3b6f0e498286a4d7f654868adff89dae9 \
+                    sha256  ea28d4d533776a328a54723a74101d1720016ffe7d434bf1d7ab222adb397ac6 \
+                    size    1355310
+
+depends_build-append \
+                    port:pkgconfig \
+                    port:python310
+
+depends_lib-append  port:libpcap \
+                    path:lib/pkgconfig/libusb-1.0.pc:libusb
+
+go.offline_build no
+
+build.cmd           make
+build.target        build
+
+destroot {
+    system -W ${worksrcpath} "make -w PREFIX=${destroot}${prefix} install"
+}
+
+notes \
+  "PLEASE NOTE: bettercap will install its caplets to /usr/local/share/bettercap"
+

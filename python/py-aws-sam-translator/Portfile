@@ -5,44 +5,34 @@ PortGroup           python 1.0
 PortGroup           github 1.0
 
 name                py-aws-sam-translator
-github.setup        awslabs serverless-application-model 1.22.0 v
+github.setup        awslabs serverless-application-model 1.83.0 v
 github.tarball_from archive
 revision            0
 
-platforms           darwin
 supported_archs     noarch
-license             Apache-2.0
-maintainers         nomaintainer
+platforms           {darwin any}
+license             Apache-2
+maintainers         {judaew @judaew} openmaintainer
 
 description         AWS SAM Translator is a library that transform SAM templates into AWS CloudFormation templates
-long_description    ${description}
+long_description    {*}${description}
 
-checksums           sha256  46b28186bc06ebe116e1e5671afd717a1097e1224adb7e66a20ece46dd4d9079 \
-                    rmd160  6bf6139869e8e1d9f703e60119fc618037001d3d \
-                    size    5092855
+checksums           sha256  c2b62e20ce0ce9a12e5589b5dd6dad466253860cf95fe42b578e732d3cef53d4 \
+                    rmd160  79d681e9600f2ac1e8978d6ca9c874faecb88182 \
+                    size    5423374
 
-python.versions     37 38
+python.versions     39 310 311 312
 
 if {${name} ne ${subport}} {
-    depends_build-append \
-                    port:py${python.version}-setuptools
-
     depends_run-append \
                     port:py${python.version}-boto3 \
                     port:py${python.version}-jsonschema \
-                    port:py${python.version}-six
+                    port:py${python.version}-pydantic
 
     depends_test-append \
                     port:py${python.version}-mock \
                     port:py${python.version}-parameterized \
-                    port:py${python.version}-yaml \
-                    port:py${python.version}-pytest
+                    port:py${python.version}-yaml
 
     test.run        yes
-    test.cmd        py.test-${python.branch}
-    test.args       -o addopts=''
-    test.target
-    test.env        PYTHONPATH=${worksrcpath}/build/lib
-
-    livecheck.type  none
 }

@@ -1,0 +1,29 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran r-forge WRS2 1.1-5
+revision            0
+categories-append   math
+maintainers         nomaintainer
+license             MIT
+description         Collection of robust statistical methods
+long_description    {*}${description}
+checksums           rmd160  e393fbd794bd4dfe637a7c89f51fa5a415fc9cbb \
+                    sha256  78136cd5610c58d1fd8cd715caf891e932d502fd30e7e154d4e9a04a04d11d09 \
+                    size    492376
+supported_archs     noarch
+
+depends_lib-append  port:R-mc2d \
+                    port:R-plyr \
+                    port:R-reshape
+
+depends_test-append port:R-car \
+                    port:R-colorspace \
+                    port:R-GGally \
+                    port:R-ggplot2 \
+                    port:R-knitr \
+                    port:R-mediation
+
+test.run            yes

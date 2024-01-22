@@ -3,10 +3,10 @@
 PortSystem 1.0
 
 name                file
-version             5.39
-checksums           rmd160  9ada72181abd2df4a2c2917b51df7b2f7f6a8a06 \
-                    sha256  f05d286a76d9556243d0cb05814929c2ecf3a5ba07963f8f70bfaaa70517fad1 \
-                    size    954266
+version             5.45
+checksums           rmd160  b06bba10ac38cfa3fbc9811633b97ed760f5cf4a \
+                    sha256  fc97f51029bb0e2c9f4e3bffefdaf678f0e039ee872b9de5c002a6d09c784d82 \
+                    size    1246503
 
 categories          sysutils
 license             BSD
@@ -21,35 +21,45 @@ long_description \
     `otool -fv`.
 
 homepage            http://www.darwinsys.com/file/
-platforms           darwin
 master_sites        freebsd \
                     gentoo \
                     ftp://ftp.fu-berlin.de/unix/tools/${name}/ \
                     ftp://ftp.astron.com/pub/${name}/ \
                     ftp://ftp.gw.com/mirrors/pub/unix/${name}/
 
-patchfiles          patch-magic-Makefile.am.diff \
-                    patch-getline.diff \
-                    patch-daylight.diff
+patchfiles          patch-magic-Makefile.am.diff
 
-configure.args      --disable-silent-rules \
-                    --enable-fsect-man5
+configure.args      --disable-libseccomp \
+                    --disable-lzlib \
+                    --disable-silent-rules \
+                    --enable-bzlib \
+                    --enable-shared \
+                    --enable-static \
+                    --enable-fsect-man5 \
+                    --enable-xzlib \
+                    --enable-zlib \
+                    --enable-zstdlib
 
-depends_lib         port:zlib
+depends_lib         port:bzip2 \
+                    port:xz \
+                    port:zlib \
+                    port:zstd
 
+# We patch Makefile.am files.
 use_autoreconf      yes
 autoreconf.args     -fvi
+configure.checks.implicit_function_declaration.whitelist-append strchr
 
 if {${name} eq ${subport}} {
     revision            0
 
     depends_lib-append port:libmagic
-    
+
     destroot {
         xinstall -W ${worksrcpath}/src/.libs file ${destroot}${prefix}/bin
         xinstall -m 0644 -W ${worksrcpath}/doc file.1 ${destroot}${prefix}/share/man/man1
     }
-    
+
     livecheck.type      regex
     livecheck.url       ftp://ftp.astron.com/pub/${name}/
     livecheck.regex     ${name}-(\\d+(?:\\.\\d+)*)${extract.suffix}

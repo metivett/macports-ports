@@ -1,0 +1,40 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             github r-lib pkgcache 2.2.1 v
+revision            0
+categories-append   devel
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             MIT
+description         Cache CRAN-like metadata and R packages
+long_description    {*}${description}
+checksums           rmd160  4be2cb5cc40564f9dacd53f02a407aca15076870 \
+                    sha256  59c15766520591cbdd9983573e20448cb74fcbc906bd875ba40884094e6357b4 \
+                    size    270328
+
+depends_lib-append  port:R-callr \
+                    port:R-cli \
+                    port:R-curl \
+                    port:R-filelock \
+                    port:R-jsonlite \
+                    port:R-processx \
+                    port:R-R6
+
+depends_test-append port:R-covr \
+                    port:R-debugme \
+                    port:R-desc \
+                    port:R-fs \
+                    port:R-mockery \
+                    port:R-pillar \
+                    port:R-pingr \
+                    port:R-rprojroot \
+                    port:R-sessioninfo \
+                    port:R-spelling \
+                    port:R-testthat \
+                    port:R-webfakes \
+                    port:R-withr \
+                    port:R-zip
+
+test.run            yes

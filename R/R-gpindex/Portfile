@@ -1,0 +1,23 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             github marberts gpindex 0.6.0 v
+revision            0
+categories-append   finance
+maintainers         nomaintainer
+license             MIT
+description         Generalized price and quantity indexes
+long_description    {*}${description}
+homepage            https://marberts.github.io/gpindex
+checksums           rmd160  490a8015a42a6f78907cc683b68b776b93b37a18 \
+                    sha256  4877fa6d49d5e3df1978b254601f5c3d75a82c5d3fb4b0f849fa25d86bbf27ac \
+                    size    88669
+supported_archs     noarch
+
+depends_test-append port:R-knitr \
+                    port:R-rmarkdown \
+                    port:R-testthat
+
+test.run            yes

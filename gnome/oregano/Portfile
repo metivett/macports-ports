@@ -4,6 +4,7 @@ PortSystem          1.0
 PortGroup           github 1.0
 PortGroup           active_variants 1.1
 PortGroup           waf 1.0
+PortGroup           yelp 1.0
 
 github.setup        drahnr oregano 0.83.2.1 v
 categories          gnome science
@@ -11,10 +12,8 @@ maintainers         ahoi.io:bernhard openmaintainer
 license             GPL-2+
 
 description         A graphical software application for schematic capture and simulation of electrical circuits.
-long_description    ${description} It uses Gtk+ 3.x for the frontend and ngspice or gnucap as backend for crunching numbers. \
+long_description    {*}${description} It uses Gtk+ 3.x for the frontend and ngspice or gnucap as backend for crunching numbers. \
                     File bugs for this port at https://github.com/drahnr/oregano
-
-platforms           darwin
 
 checksums           rmd160  7a5c06c6d7f260143ea0bbd9f92759beacde920d \
                     sha256  d22ab0dc9f3717759983966ea3f7a8cd266e343fab47236ec4d841660bd72fa1
@@ -24,12 +23,13 @@ checksums           rmd160  7a5c06c6d7f260143ea0bbd9f92759beacde920d \
 depends_build-append \
                     port:intltool \
                     port:libtool \
-                    port:pkgconfig
+                    port:pkgconfig \
+                    bin:groff:groff
 
 depends_lib         port:desktop-file-utils \
                     port:rarian \
                     port:shared-mime-info \
-                    port:gtk3 \
+                    path:lib/pkgconfig/gtk+-3.0.pc:gtk3 \
                     port:gtksourceview3 \
                     port:goocanvas2
 
@@ -50,8 +50,7 @@ if {[variant_isset quartz]} {
     require_active_variants gtk3 quartz
 } else {
     require_active_variants gtk3 x11
-    depends_run-append      port:yelp \
-                            port:docbook-xml
+    depends_run-append      port:docbook-xml
 }
 
 post-activate {

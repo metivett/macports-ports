@@ -3,8 +3,9 @@
 PortSystem      1.0
 PortGroup       compiler_blacklist_versions 1.0
 PortGroup       github    1.0
+PortGroup       perl5     1.0
 
-github.setup    timescale timescaledb 2.1.0
+github.setup    timescale timescaledb 2.13.1
 revision        0
 license         Apache-2
 description     A time-series database that integrates with PostreSQL.
@@ -22,35 +23,53 @@ long_description \
                 as well as full SQL support. TimescaleDB is packaged \
                 as a PostgreSQL extension.
 
-checksums       rmd160  f41def01dc5a66ed4164d2974474343759d688ac \
-                sha256  71ea800d50f08fb08de85c022b274e995e14403be404b08f8f768665ce572b29 \
-                size    2526380
+checksums       rmd160  49a5978b7337fc3b5048607e60a5d28d71ac4093 \
+                sha256  7fb6b3f1fcaa81a1f73b7668098d18a49bebd0af2befdf083c606f78560e6346 \
+                size    8240170
 
-depends_build   path:bin/cmake:cmake
+depends_build   path:bin/cmake:cmake \
+                port:perl${perl5.major} \
+                port:p${perl5.major}-ipc-run
 
-variant postgresql11 conflicts postgresql12 postgresql13 description {Support for PostgreSQL 11.x} {
-    depends_lib-append      port:postgresql11
-    configure.env-append    PATH=${prefix}/lib/postgresql11/bin:$::env(PATH)
+variant postgresql11 conflicts postgresql12 postgresql13 postgresql14 postgresql15 postgresql16 description {Support for PostgreSQL 11.x} {
+    known_fail              yes
+    ui_error                "+postgresql11 variant is not supported in TimescaleDB 2.4.0 or greater"
+    return -code error      "Unsupported variant +postgresql11"
 }
 
-variant postgresql12 conflicts postgresql11 postgresql13 description {Support for PostgreSQL 12.x} {
+variant postgresql12 conflicts postgresql11 postgresql13 postgresql14 postgresql15 postgresql16 description {Support for PostgreSQL 12.x} {
     depends_lib-append      port:postgresql12
     configure.env-append    PATH=${prefix}/lib/postgresql12/bin:$::env(PATH)
 }
 
-variant postgresql13 conflicts postgresql11 postgresql12 description {Support for PostgreSQL 13.x} {
+variant postgresql13 conflicts postgresql11 postgresql12 postgresql14 postgresql15 postgresql16 description {Support for PostgreSQL 13.x} {
     depends_lib-append      port:postgresql13
     configure.env-append    PATH=${prefix}/lib/postgresql13/bin:$::env(PATH)
 }
 
-if {![variant_isset postgresql11] && \
-    ![variant_isset postgresql12] && \
-    ![variant_isset postgresql13] } {
-    default_variants +postgresql13
+variant postgresql14 conflicts postgresql11 postgresql12 postgresql13 postgresql15 postgresql16 description {Support for PostgreSQL 14.x} {
+    depends_lib-append      port:postgresql14
+    configure.env-append    PATH=${prefix}/lib/postgresql14/bin:$::env(PATH)
 }
 
-patch.pre_args          -p1
-patchfiles-append       test-CMakeLists.txt.patch
+variant postgresql15 conflicts postgresql11 postgresql12 postgresql13 postgresql14 postgresql16 description {Support for PostgreSQL 15.x} {
+    depends_lib-append      port:postgresql15
+    configure.env-append    PATH=${prefix}/lib/postgresql15/bin:$::env(PATH)
+}
+
+variant postgresql16 conflicts postgresql11 postgresql12 postgresql13 postgresql14 postgresql15 description {Support for PostgreSQL 16.x} {
+    depends_lib-append      port:postgresql16
+    configure.env-append    PATH=${prefix}/lib/postgresql16/bin:$::env(PATH)
+}
+
+if {![variant_isset postgresql11] && \
+    ![variant_isset postgresql12] && \
+    ![variant_isset postgresql13] && \
+    ![variant_isset postgresql14] && \
+    ![variant_isset postgresql15] && \
+    ![variant_isset postgresql16] } {
+    default_variants +postgresql16
+}
 
 compiler.c_standard     2011
 # Work around MacPorts base C11 compiler selection bug.
@@ -64,6 +83,7 @@ configure.pre_args
 # binaries may be built that are licensed under the Timescale License
 # (TSL). See https://github.com/timescale/timescaledb#timescaledb and
 # https://github.com/timescale/timescaledb/blob/master/tsl/LICENSE-TIMESCALE.
+# However, using +timescale_license will enable Timescale License'd code.
 #
 # -DLINTER=off: see https://github.com/timescale/timescaledb/issues/2889
 configure.args          -DAPACHE_ONLY=1 \
@@ -73,3 +93,8 @@ configure.args          -DAPACHE_ONLY=1 \
 build.dir               ${worksrcpath}/build
 
 github.livecheck.regex  {([0-9.]+)}
+
+variant timescale_license description {Enable Timescale License code, license will be Timescale License} {
+    configure.args-delete   -DAPACHE_ONLY=1
+    license                 {Timescale License}
+}

@@ -4,23 +4,23 @@ PortSystem          1.0
 PortGroup           python 1.0
 PortGroup           github 1.0
 
-github.setup        gitpython-developers gitdb 4.0.5
+github.setup        gitpython-developers gitdb 4.0.10
 name                py-gitdb
 revision            0
 
-platforms           darwin
 supported_archs     noarch
+platforms           {darwin any}
 license             BSD
 maintainers         nomaintainer
 
 description         GitDB is a pure-Python git object database
-long_description    ${description}
+long_description    {*}${description}
 
-python.versions     27 36 37 38
+python.versions     27 37 38 39 310 311
 
-checksums           rmd160  b69676ddd9142c8a8b370cd31a8d609872665223 \
-                    sha256  881432a275d50e1dd87e768e9ffc466bffd5054c2e18951a55750397eee58a78 \
-                    size    406782
+checksums           rmd160  59cdfe845e06edad243b6caf30d894077be68610 \
+                    sha256  140416e44002aa3b8891c82a6075dc7e5e8d4393d7e34c267dbb03e54692f730 \
+                    size    406400
 
 if {${name} ne ${subport}} {
     if {${python.version} == 27} {
@@ -36,6 +36,4 @@ if {${name} ne ${subport}} {
 
     depends_run-append \
                     port:py${python.version}-smmap
-
-    livecheck.type  none
 }

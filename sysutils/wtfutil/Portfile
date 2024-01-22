@@ -3,7 +3,8 @@
 PortSystem          1.0
 PortGroup           golang 1.0
 
-go.setup            github.com/wtfutil/wtf 0.35.0 v
+go.setup            github.com/wtfutil/wtf 0.43.0 v
+github.tarball_from archive
 name                wtfutil
 revision            0
 
@@ -16,33 +17,30 @@ description         A personal terminal-based dashboard utility, designed for \
 long_description    {*}${description}
 
 categories          sysutils
-platforms           darwin
+installs_libs       no
 license             MPL-2
-
-checksums           rmd160  5771e36be13550dd5f3ba6eb1229b4c6d727d433 \
-                    sha256  de0e3d65c4e43b662de2126dccfdf54fa2cf15c6f2b32950a692ff4086cef14c \
-                    size    2263905
-
 maintainers         {gmail.com:herby.gillot @herbygillot} \
                     openmaintainer
 
-set build_date      [exec date +%FT%T%z]
+checksums           rmd160  2acf237e394408860361ebd433c0e162e72bfafb \
+                    sha256  bb48e38e479b26e0b956b163e4804e99cd49545214090c2fdf99e54382b3d651 \
+                    size    2346370
 
-build.args          -o ${name} -ldflags \
-                        '-X main.version=${version} -X main.date=${build_date}'
+build.args          -o ${name}
 
 # FIXME: This port currently can't be built without allowing go mod to fetch
 # dependencies during the build phase. See
 # https://trac.macports.org/ticket/61192
-build.env-delete    GOPROXY=off GO111MODULE=off
+go.offline_build no
 
 destroot {
-    xinstall -m 755 ${worksrcpath}/${name} ${destroot}${prefix}/bin/${name}
+    xinstall -m 0755 ${worksrcpath}/${name} ${destroot}${prefix}/bin/${name}
     xinstall -d -m 0755 ${destroot}${prefix}/share/${name}
     xinstall -d -m 0755 ${destroot}${prefix}/share/${name}/sample_configs
 
-    xinstall -m 644 {*}[glob ${worksrcpath}/_sample_configs/*] \
-                      ${destroot}${prefix}/share/${name}/sample_configs
+    xinstall -m 0644 \
+        {*}[glob ${worksrcpath}/_sample_configs/*] \
+        ${destroot}${prefix}/share/${name}/sample_configs
 }
 
 notes "

@@ -1,16 +1,16 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
+PortGroup           meson 1.0
 
 name                rubberband
-version             1.9.0
+version             3.3.0
 revision            0
-checksums           rmd160  ef9a525b9c90ca54b43bb09fcb96cabbaf533399 \
-                    sha256  4f5b9509364ea876b4052fc390c079a3ad4ab63a2683aad09662fb905c2dc026 \
-                    size    192240
+checksums           rmd160  f66b37145a8adc7291cc12da9de62718b658851b \
+                    sha256  d9ef89e2b8ef9f85b13ac3c2faec30e20acf2c9f3a9c8c45ce637f2bc95e576c \
+                    size    223408
 
 categories          audio
-platforms           darwin
 maintainers         {ryandesign @ryandesign} openmaintainer
 license             GPL-2+
 
@@ -24,31 +24,33 @@ homepage            https://breakfastquay.com/rubberband/
 master_sites        https://breakfastquay.com/files/releases/
 use_bzip2           yes
 
-depends_lib         port:libsndfile
+depends_build-append \
+                    port:cctools \
+                    port:pkgconfig
 
-patchfiles          patch-Makefile.osx.diff \
-                    patch-vectorops-snowleopard.diff
+depends_lib-append  port:libsamplerate \
+                    port:libsndfile
 
-# error: unrecognized command line option "-mfpmath=sse"
-supported_archs     i386 x86_64
+patchfiles          arch.patch
 
-use_configure       no
+# /usr/bin/../lib/c++/v1/atomic:535:2: error: <atomic> is not implemented
+# https://hg.sr.ht/~breakfastquay/rubberband/rev/812a666b042abf0e41465bee9924c7ffc8532bbf
+compiler.cxx_standard 2014
 
-variant universal {}
+configure.args      -Dauto_features=disabled \
+                    -Dcmdline=enabled \
+                    -Dfft=builtin \
+                    -Dresampler=libsamplerate
 
-set cxx_stdlibflags {}
-if {[string match *clang* ${configure.cxx}]} {
-    set cxx_stdlibflags -stdlib=${configure.cxx_stdlib}
+if {[string match *clang* ${configure.cxx}] && ${configure.cxx_stdlib} ne ""} {
+    configure.ldflags-append -stdlib=${configure.cxx_stdlib}
 }
 
-build.target        default
-build.args          -f Makefile.osx \
-                    ARCHFLAGS="[get_canonical_archflags cc]" \
-                    CC=${configure.cc} \
-                    CXX="${configure.cxx} ${cxx_stdlibflags}" \
-                    PREFIX=${prefix}
-
-destroot.args       {*}${build.args}
+if {[string match *gcc* ${configure.compiler}]} {
+    # ___atomic_is_lock_free, ___atomic_load_8, ___atomic_store_8
+    # https://todo.sr.ht/~breakfastquay/rubberband/28
+    configure.ldflags-append -latomic
+}
 
 post-destroot {
     set docdir ${prefix}/share/doc/${subport}
@@ -58,6 +60,14 @@ post-destroot {
         COPYING \
         README.md \
         ${destroot}${docdir}
+}
+
+platform darwin {
+    configure.args-replace -Dfft=builtin -Dfft=vdsp
+
+    # meson.build sets -mmacosx-version-min to a value we didn't ask for
+    # unless we set it ourselves.
+    configure.cxxflags-append -mmacosx-version-min=${macosx_deployment_target}
 }
 
 livecheck.type      regex

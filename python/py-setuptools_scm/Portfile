@@ -4,44 +4,74 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-setuptools_scm
-version             5.0.1
+version             8.0.4
 revision            0
 categories-append   devel
-platforms           darwin
 license             MIT
 supported_archs     noarch
+platforms           {darwin any}
 
-# keep version for PY27 and PY34, these are (indirect) dependencies of py-virtualenv
-python.versions     27 34 35 36 37 38 39
+# keep version for Python < 3.4, these are (indirect) dependencies of py-virtualenv
+# See <https://trac.macports.org/wiki/Python#VersionPolicy>
+python.versions     27 35 36 37 38 39 310 311 312
+python.pep517       yes
 
 maintainers         {stromnov @stromnov} openmaintainer
 
 description         Package to manage versions by scm tags.
-long_description    ${description}
+long_description    {*}${description}
 
 homepage            https://github.com/pypa/setuptools_scm/
 
-checksums           rmd160  8676ba323e763f1ad3298a1191fa8acc3c162eb5 \
-                    sha256  c85b6b46d0edd40d2301038cdea96bb6adc14d62ef943e75afb08b3e7bcf142a \
-                    size    51679
+checksums           rmd160  78275eaa3199a58a0fb142e5177859934ab99871 \
+                    sha256  b5f43ff6800669595193fd09891564ee9d1d7dcb196cab4b2506d53a2e1c95c7 \
+                    size    74280
 
 if {${name} ne ${subport}} {
     depends_lib-append  port:py${python.version}-setuptools
 
-    if {${python.version} eq 34} {
-        version             3.5.0
+    if {${python.version} in "27 35"} {
+        version             5.0.2
         revision            0
-        distname            ${python.rootname}-${version}
-        checksums           rmd160  4c63618354c506cb64dd75bd1ca605d00342c1ce \
-                            sha256  5bdf21a05792903cafe7ae0c9501182ab52497614fa6b1750d9dbae7b60c1a87 \
-                            size    46272
+        checksums           rmd160  9a479a8c63f12ea4a07714e5a8f11a6b918f8d48 \
+                            sha256  83a0cedd3449e3946307811a4c7b9d89c4b5fd464a2fb5eeccd0a5bb158ae5c8 \
+                            size    52273
+        python.pep517       no
+    } elseif {${python.version} eq 36} {
+        version             6.4.2
+        revision            0
+        checksums           rmd160  6876656de603d15079102abf2f9ed18f2937f7db \
+                            sha256  6833ac65c6ed9711a4d5d2266f8024cfa07c533a0e55f4c12f6eff280a5a9e30 \
+                            size    61305
+        python.pep517       no
+        depends_lib-append  port:py${python.version}-packaging \
+                            port:py${python.version}-tomli
+    } elseif {${python.version} eq 37} {
+        version             7.1.0
+        revision            0
+        checksums           rmd160  b1eb6c49bb96267da40c145264609934da10df8a \
+                            sha256  6c508345a771aad7d56ebff0e70628bf2b0ec7573762be9960214730de278f27 \
+                            size    71904
+        depends_lib-append  port:py${python.version}-importlib-metadata \
+                            port:py${python.version}-tomli
+    } else {
+        depends_lib-append  port:py${python.version}-packaging \
+                            port:py${python.version}-typing_extensions
+
+        if {${python.version} < 311} {
+            depends_lib-append  port:py${python.version}-tomli
+        }
+
+        python.rootname     [regsub "_" ${python.rootname} "-"]
     }
 
-    # https://trac.macports.org/ticket/57199
-    use_configure       yes
-    configure.cmd       ${python.bin}
-    configure.pre_args
-    configure.args      setup.py egg_info
+    if {${python.version} < 37} {
+        # https://trac.macports.org/ticket/57199
+        use_configure       yes
+        configure.cmd       ${python.bin}
+        configure.pre_args
+        configure.args      setup.py egg_info
+    }
 
     livecheck.type      none
 }

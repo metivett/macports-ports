@@ -3,14 +3,15 @@
 PortSystem          1.0
 PortGroup           github 1.0
 
-github.setup        qalculate qalculate-gtk 3.17.0 v
+github.setup        qalculate qalculate-gtk 4.9.0 v
+github.tarball_from releases
 revision            0
 
 categories          math
 platforms           darwin
 license             GPL-2+
 maintainers         {gmail.com:jjstickel @jjstickel} \
-                    {outlook.de:judaew @judaew} \
+                    {judaew @judaew} \
                     openmaintainer
 
 description         Qalculate! is a multi-purpose desktop calculator
@@ -20,15 +21,9 @@ long_description    Qalculate! is a multi-purpose desktop calculator. \
                     customizable functions, units, arbitrary precision, \
                     plotting, and a user-friendly interface.
 
-github.tarball_from releases
-
-checksums           rmd160  c8e72fe01c1c00f3b2c887726a7048839e94b8f7 \
-                    sha256  b95f4be3c6fd883dec280a92d46b4678f8a7de2e5b654344246bb9d87695626b \
-                    size    2414740
-
-# This patch will no longer be relevant after the completion of the next
-# pull request: https://github.com/macports/macports-ports/pull/7399
-patchfiles          patch-gettext-version-fix.diff
+checksums           rmd160  3b49a3dfff6db926a1cb1c2564b34b43ef344b8e \
+                    sha256  d6f8bae81585088dcf8eb60ea41614c5a11e9096f1f1aec186e94839b030d480 \
+                    size    2817233
 
 # autoreconf to reconfigure for intltool
 use_autoreconf      yes
@@ -40,6 +35,6 @@ depends_build-append \
 
 depends_lib-append \
                     port:libqalculate \
-                    port:gtk3
+                    path:lib/pkgconfig/gtk+-3.0.pc:gtk3
 
 notes-append "Graphical plotting is enabled by installing gnuplot.\n"

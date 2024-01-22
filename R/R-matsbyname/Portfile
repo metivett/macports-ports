@@ -1,0 +1,35 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             github MatthewHeun matsbyname 0.6.8 v
+revision            0
+categories-append   math
+maintainers         nomaintainer
+license             MIT
+description         Implementation of matrix mathematics
+long_description    {*}${description}
+checksums           rmd160  9220686f4579f36622eab7cecb3e0f12b203347e \
+                    sha256  f31814ca789e5c87eaa39e8b1a0191a05ba2c598526692e0ea9e8060c813db9c \
+                    size    14810140
+supported_archs     noarch
+
+depends_lib-append  port:R-assertthat \
+                    port:R-dplyr \
+                    port:R-lifecycle \
+                    port:R-magrittr \
+                    port:R-matrixcalc \
+                    port:R-purrr \
+                    port:R-RCLabels \
+                    port:R-rlang \
+                    port:R-tibble
+
+depends_test-append port:R-covr \
+                    port:R-knitr \
+                    port:R-matsindf \
+                    port:R-rmarkdown \
+                    port:R-testthat \
+                    port:R-tidyr
+
+test.run            yes

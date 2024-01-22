@@ -1,0 +1,33 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim: fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           python 1.0
+PortGroup           compiler_wrapper 1.0
+
+name                py-rapidfuzz
+version             3.6.1
+revision            0
+categories-append   textproc
+license             MIT
+
+python.versions     38 39 310 311 312
+python.pep517       yes
+
+maintainers         {stromnov @stromnov} openmaintainer
+
+description         A fast string matching library for Python.
+long_description    ${description}
+
+homepage            https://github.com/maxbachmann/RapidFuzz
+
+checksums           rmd160  2dcca4a683de0540622d47a0ffbdade7ac6a7d9e \
+                    sha256  35660bee3ce1204872574fa041c7ad7ec5175b3053a4cb6e181463fc07013de7 \
+                    size    1559239
+
+if {${name} ne ${subport}} {
+    compiler.cxx_standard 2017
+    depends_build-append \
+                        port:py${python.version}-scikit-build \
+                        port:py${python.version}-cython \
+                        port:ninja
+}

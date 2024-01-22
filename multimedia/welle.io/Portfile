@@ -1,7 +1,6 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem              1.0
-PortGroup               qt5 1.0
 PortGroup               github 1.0
 PortGroup               cmake 1.1
 
@@ -23,17 +22,10 @@ license_noconflict      openssl mpg123
 
 homepage                https://www.welle.io/
 
-qt5.depends_component   qtcharts \
-                        qtdeclarative \
-                        qtmultimedia \
-                        qtquickcontrols \
-                        qtquickcontrols2
-qt5.min_version         5.10.0
-
 depends_lib-append      port:faad2 \
                         port:fftw-3-single \
                         port:lame \
-                        port:libusb \
+                        path:lib/pkgconfig/libusb-1.0.pc:libusb \
                         port:mpg123
 
 default_variants        +rtlsdr +soapysdr +airspy
@@ -57,7 +49,7 @@ variant airspy description {Add Airspy support} {
 }
 
 variant cli description {Also compile welle-cli} {
-    # mpg123 is licensed as LGPL-2.1 except for 
+    # mpg123 is licensed as LGPL-2.1 except for
     # file src/libout123/modules/coreaudio.c which is GPL-2
     # welle-cli relies on libout123 while the GUI does not.
     # In order to have binaries distributed for welle-io,
@@ -94,30 +86,49 @@ variant kiss_fft description {Use KISS FFT instead of FFTW} {
 
 if {${subport} eq ${name}} {
     # stable
-    github.setup            AlbrechtL welle.io 2.2 v
+    PortGroup               qt5 1.0
+
+    github.setup            AlbrechtL welle.io 2.4 v
     github.tarball_from     archive
     epoch                   1
-    revision                0
+    revision                1
 
     conflicts               welle.io-devel
 
-    checksums               rmd160  a1ccb59c335b90b898ea345ea7f69868ef8c9182 \
-                            sha256  4b72c2984a884cc2f02d1e501ead2a8b0323900f37cebf4aed016e84474e0259 \
-                            size    1651332
+    checksums               rmd160  e0ae521ea2c9bc7becc1610bd616fb1f575059d3 \
+                            sha256  7c2a2ff7b6e0780aee8a30a2beedfa831ce67683e1d076a73cebc897637d0202 \
+                            size    6764741
+
+    qt5.depends_component   qtcharts \
+                            qtdeclarative \
+                            qtmultimedia \
+                            qtquickcontrols \
+                            qtquickcontrols2
+    qt5.min_version         5.10.0
 
     configure.pre_args-append \
         -DGIT_COMMIT_HASH=${version}
 } else {
     # devel
-    github.setup            AlbrechtL welle.io c39d3420cc30281e03835b3182f34d8617eb7ebf
+    PortGroup               qt6 1.0
+
+    github.setup            AlbrechtL welle.io 6b69a78c99df4b46ec2589093cd39f05c9ac4641
     set githash             [string range ${github.version} 0 6]
-    version                 20200822+git${githash}
+    version                 20221214.git${githash}
+    revision                0
 
     conflicts               welle.io
 
-    checksums               rmd160  97d5fa6aa2a47a3616e15f1dff85f6bb7b6425cf \
-                            sha256  a29e959ac3e4085e6a1bafb194c41933e86112f73f826f450982e32202a99360	 \
-                            size    1651607
+    checksums               rmd160  5fc4c3be4cc027f6491b142dc14963a0d776e84c \
+                            sha256  4cadc5062a78819641a8a63425d0650be69b961c4958d1c4e51c0a0514386ee2 \
+                            size    6721458
+
+    qt6.depends_lib         qt5compat \
+                            qtcharts \
+                            qtdeclarative \
+                            qtmultimedia
+
+    qt6.blacklist           {< 6.2}
 
     configure.pre_args-append \
         -DGIT_COMMIT_HASH=${githash}

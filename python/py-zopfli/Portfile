@@ -2,14 +2,14 @@
 
 PortSystem          1.0
 PortGroup           python 1.0
+PortGroup           compiler_wrapper 1.0
 
 name                py-zopfli
-version             0.1.7
+version             0.2.3
 revision            0
 
-platforms           darwin
 license             Apache-2
-maintainers         nomaintainer
+maintainers         {@catap korins.ky:kirill} openmaintainer
 
 description         Zopfli module for python
 long_description    ${description}
@@ -17,24 +17,30 @@ long_description    ${description}
 homepage            https://github.com/obp/py-zopfli
 use_zip             yes
 
-checksums           rmd160  ef2fe2fe2129550270f144cdbff79886225f3268 \
-                    sha256  512892714f0e3dcc9a77222cb509ed519f41ce2b92467e47a4b406a23b48561a \
-                    size    75709
+checksums           rmd160  7015c9d06476beafdb9df8e8a47ff4ec305cc28d \
+                    sha256  dbc9841bedd736041eb5e6982cd92da93bee145745f5422f3795f6f258cdc6ef \
+                    size    205354
 
-python.versions     27 36 37 38 39
+python.versions     37 38 39 310 311 312
+
+python.pep517       yes
 
 if {${name} ne ${subport}} {
-    depends_build-append \
-                    port:py${python.version}-setuptools
+    if {${python.version} < 38} {
+        version     0.2.2
+        revision    0
 
-    pre-test {
-        test.env    PYTHONPATH=[glob -nocomplain ${worksrcpath}/build/lib*]
+        checksums   rmd160  28121b90d485ca5518c3c44cb0fc0cda1efecca5 \
+                    sha256  2d49db7540d9991976af464ebc1b9ed12988c04d90691bcb51dc4a373a9e2afc \
+                    size    205320
+
+        livecheck.type  none
     }
 
+    depends_build-append \
+                    port:py${python.version}-setuptools_scm
+
     test.run        yes
-    test.dir        ${build.dir}/tests
-    test.cmd        ${python.bin} tests.py
-    test.target
 
     post-destroot {
         set docdir ${prefix}/share/doc/${subport}
@@ -42,6 +48,4 @@ if {${name} ne ${subport}} {
         xinstall -m 0644 -W ${worksrcpath} README.rst COPYING \
             ${destroot}${docdir}
     }
-
-    livecheck.type      none
 }

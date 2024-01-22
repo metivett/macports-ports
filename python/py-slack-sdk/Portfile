@@ -4,14 +4,14 @@ PortSystem          1.0
 PortGroup           python 1.0
 PortGroup           github 1.0
 
-github.setup        slackapi python-slack-sdk 3.1.1 v
+github.setup        slackapi python-slack-sdk 3.22.0 v
 name                py-slack-sdk
 categories-append   irc
-platforms           darwin
+platforms           {darwin any}
 supported_archs     noarch
 license             MIT
 
-python.versions     38 39
+python.versions     38 39 310 311
 
 maintainers         {gmail.com:giovanni.bussi @GiovanniBussi} openmaintainer
 
@@ -25,9 +25,9 @@ long_description    The Slack platform offers several APIs to build apps. Each S
 
 homepage            https://slack.dev/python-slackclient/
 
-checksums           rmd160  888f11df7d65660a5ce1cb3d7325b553cc273589 \
-                    sha256  858a8545c684ca5395a716dff7e9e379c242971242eb3e5161ebc154a300c37f \
-                    size    2996184
+checksums           rmd160  4ec98c4e3d726d08d8a2c3a565c13750b60f269a \
+                    sha256  af05468cc781455719ae45cb5d59d03dbfe69187b0da69606fdba7e4075a42f1 \
+                    size    4132751
 
 if {${name} ne ${subport}} {
     conflicts               py${python.version}-slackclient

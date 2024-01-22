@@ -1,0 +1,37 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+# Revert to GitHub once updated there.
+R.setup             cran FBartos RoBTT 1.2.1
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             GPL-3
+description         Robust Bayesian t-test
+long_description    {*}${description}
+homepage            https://fbartos.github.io/RoBTT
+checksums           rmd160  482180d42a84a7f27229609eb17ffc7108dd96c5 \
+                    sha256  cf68d586be51470169f23877a273b728857e1ee65e77e6bb2ab8b88cd76627b1 \
+                    size    164039
+
+depends_lib-append  port:R-BayesTools \
+                    port:R-BH \
+                    port:R-bridgesampling \
+                    port:R-ggplot2 \
+                    port:R-Rcpp \
+                    port:R-RcppEigen \
+                    port:R-RcppParallel \
+                    port:R-Rdpack \
+                    port:R-rstan \
+                    port:R-rstantools \
+                    port:R-StanHeaders
+
+depends_test-append port:R-covr \
+                    port:R-knitr \
+                    port:R-rmarkdown \
+                    port:R-testthat \
+                    port:R-vdiffr
+
+test.run            yes

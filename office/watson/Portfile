@@ -5,7 +5,7 @@ PortGroup           python 1.0
 
 name                watson
 python.rootname     td-watson
-version             1.10.0
+version             2.1.0
 revision            0
 
 homepage            http://tailordev.github.io/Watson
@@ -17,22 +17,24 @@ long_description    Watson is here to help you manage your time. You want to \
                     want to generate a nice report for your client? Watson is \
                     here for you.
 
-platforms           darwin
+platforms           {darwin any}
+supported_archs     noarch
 license             MIT
 categories          office python
 
 maintainers         {gmail.com:herby.gillot @herbygillot} \
                     openmaintainer
 
-checksums           rmd160  a7cecfd5aed7e85220fc30a7438128b27d2435b6 \
-                    sha256  f223bc0cd03a4baeb0b149032731edda9c6fc0c04ff61d819c6f542f01957369 \
-                    size    8894805
+checksums           rmd160  e1c5e0c4f97c519e00e62e1737e5151d29887baf \
+                    sha256  204384dc04653e0dbe8f833243bb833beda3d79b387fe173bfd33faecdd087c8 \
+                    size    8895400
+
+python.default_version  310
 
 test.run            yes
 test.env            PYTHONPATH=${worksrcpath}/build/lib
-test.cmd            ${python.bin} -m watson --version
-
-python.default_version  39
+test.cmd            ${python.bin}
+test.args           -m watson --version
 
 depends_lib-append      port:py${python.version}-arrow              \
                         port:py${python.version}-click              \

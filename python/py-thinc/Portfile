@@ -7,63 +7,57 @@ PortGroup           compiler_blacklist_versions 1.0
 
 name                py-thinc
 # Don't upgrade past py-spaCy's highest supported version.
-version             7.4.3
+version             8.2.0
 revision            0
 github.setup        explosion thinc ${version} v
 
-checksums           rmd160  4d2b92e61818262e4d33d639660e7765c7671052 \
-                    sha256  2ce14fdb2edb863ac5e751f8c7f7817a2900bc3e5c2de7c1b1c37fad6b1a0856 \
-                    size    185765
+checksums           rmd160  2e464774e319557c978db9642cacde2805953e5c \
+                    sha256  95704033e04ab094239fefca031c3d23c9b305e015bef73402aca4f169e2b9b3 \
+                    size    1704121
 
-platforms           darwin
-supported_archs     x86_64
+supported_archs     arm64 x86_64
 
 license             MIT
 
 maintainers         {jonesc @cjones051073} openmaintainer
 
 description         spaCy's Machine Learning library for NLP in Python
-long_description    ${description}
+long_description    {*}${description}
 
 # Exclude anything with non-numbers
 github.livecheck.regex {([0-9.]+)}
 
 # Support python versions
-python.versions     36 37 38 39
-python.default_version 38
+python.versions     37 38 39 310 311
 
 # Compiler selection
 compiler.cxx_standard 2011
 compiler.blacklist-append *gcc* {clang < 900} {macports-clang-3.[0-9]} macports-clang-4.0
 
 if {${name} ne ${subport}} {
+    # diff -NaurdwB ./py-thinc-orig/pyproject.toml ./py-thinc-new/pyproject.toml | sed -E -e 's/\.\/py-thinc-(orig|new)/\.\//' | sed -E -e 's|/opt/local|@@PREFIX@@|g' > ~/Downloads/patch-pyproject_toml.diff
+   patchfiles-append \
+                    patch-pyproject_toml.diff \
+                    patch-requirements_txt.diff \
+                    patch-setup_cfg.diff
+
+    python.pep517   yes
 
     depends_build-append \
-        port:py${python.version}-setuptools
+                    port:py${python.version}-cython-compat
+    set compat_path [string replace ${python.pkgd} 0 [string length ${python.prefix}]-1 ${prefix}/lib/py${python.version}-cython-compat]
+    build.env-append    PYTHONPATH=${compat_path}
 
     depends_lib-append \
-        port:py${python.version}-cython \
-        port:py${python.version}-cymem \
-        port:py${python.version}-murmurhash \
-        port:py${python.version}-numpy \
-        port:py${python.version}-tqdm \
-        port:py${python.version}-blis \
-        port:py${python.version}-plac \
-        port:py${python.version}-srsly \
-        port:py${python.version}-wasabi \
-        port:py${python.version}-mock \
-        port:py${python.version}-preshed
-
-    depends_test-append \
-        port:py${python.version}-hypothesis \
-        port:py${python.version}-flake8 
-        
-    post-extract {
-        # Set cython version
-        set PythonVersionWithDot [join [split ${python.version} ""] "."]
-        reinplace "s|\'cython\'|\'cython-${PythonVersionWithDot}\'|g" ${worksrcpath}/bin/cythonize.py
-    }
-
-    livecheck.type none 
-
+                    port:py${python.version}-cython \
+                    port:py${python.version}-cymem \
+                    port:py${python.version}-murmurhash \
+                    port:py${python.version}-numpy \
+                    port:py${python.version}-tqdm \
+                    port:py${python.version}-blis \
+                    port:py${python.version}-plac \
+                    port:py${python.version}-srsly \
+                    port:py${python.version}-wasabi \
+                    port:py${python.version}-mock \
+                    port:py${python.version}-preshed
 }

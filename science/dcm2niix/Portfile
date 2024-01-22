@@ -4,8 +4,10 @@ PortSystem          1.0
 PortGroup           cmake 1.1
 PortGroup           github 1.0
 
-github.setup        rordenlab dcm2niix 1.0.20181125 v
+github.setup        rordenlab dcm2niix 1.0.20220720 v
 version             ${github.version}
+
+revision            0
 
 categories          science
 maintainers         {eborisch @eborisch} openmaintainer
@@ -19,25 +21,48 @@ license             BSD MIT
 platforms           darwin
 
 checksums \
-    rmd160  518b52a35c422511f0f5f73154b14dcaddb5f033 \
-    sha256  d766c345a41954b21d4dc1d90c2c5ddc6425e36228e6d9d8abccd03fc5427c06 \
-    size    312848
+    rmd160  a16a3b41fb8422844bd60b7449a61554d149ce9b \
+    sha256  54fc31c9a17d19818fc85f3bc6b71b3e6da4105ad5ef02180c8d3df769ddda4b \
+    size    432763
 
-depends_build-append    port:git \
-                        port:py37-sphinx
+variant docs description {Install man pages} {
+    depends_build-append    port:py310-sphinx \
+                            port:py310-sphinxcontrib-applehelp \
+                            port:py310-sphinxcontrib-devhelp \
+                            port:py310-sphinxcontrib-htmlhelp \
+                            port:py310-sphinxcontrib-jsmath \
+                            port:py310-sphinxcontrib-qthelp \
+                            port:py310-sphinxcontrib-serializinghtml
+    configure.args-append   -DBUILD_DOCS=ON
+}
 
 depends_lib-append      port:openjpeg \
-                        port:yaml-cpp \
                         port:zlib
 
+depends_build-append    port:pkgconfig
+
+if {${os.major} <= 10} {
+    # Lion+ (with Xcode 4.1+) have git; earlier need to bring their own
+    depends_build-append    port:git
+}
+
+compiler.cxx_standard   2011
+
+# Linking with yaml-cpp currently broken; haven't chased down; revisit later.
+# Disabling BATCH_VERSION until this is resolved.
 configure.args-append   -DUSE_OPENJPEG=ON \
-                        -DBUILD_DOCS=ON \
-                        -DBATCH_VERSION=ON \
+                        -DBATCH_VERSION=OFF \
                         -DZLIB_IMPLEMENTATION=custom \
                         -DZLIB_ROOT=${prefix}
 
+
+# cmake re-runs during build; retain configured CC and CXX (Only an issue in
+# the default configuration on <= 10.6 where we are not using system clang.)
+build.env-append        "CC=${configure.cc} [get_canonical_archflags cc]" \
+                        "CXX=${configure.cxx} [get_canonical_archflags cxx]"
+
 patch {
-    reinplace "/NAMES/s/$/ sphinx-build-3.7/" docs/CMakeLists.txt
+    reinplace "/NAMES/s/$/ sphinx-build-3.10/" docs/CMakeLists.txt
 }
 
 post-destroot {

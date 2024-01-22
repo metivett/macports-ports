@@ -4,12 +4,13 @@ PortSystem          1.0
 PortGroup           github 1.0
 
 github.setup        libimobiledevice ideviceinstaller 1.1.1
+revision            2
 
 categories          devel
 platforms           darwin
 
 license             GPL-2+
-maintainers         {ijackson @JacksonIsaac} {@i0ntempest me.com:szf1234} openmaintainer
+maintainers         {ijackson @JacksonIsaac} {i0ntempest @i0ntempest} openmaintainer
 
 description         Manage apps of iOS devices.
 

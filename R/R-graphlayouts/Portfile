@@ -1,0 +1,32 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             github schochastics graphlayouts 1.1.0 v
+revision            0
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             MIT
+description         Additional layout algorithms for network visualizations
+long_description    {*}${description}
+homepage            http://graphlayouts.schochastics.net
+checksums           rmd160  e7e1574a76134b4188328b471fbfa0a2c10eded5 \
+                    sha256  b96c259005979b273bde744529df66c3cdb466b3607031bed1b3bd0703b08af1 \
+                    size    4168913
+
+depends_lib-append  port:R-igraph \
+                    port:R-Rcpp \
+                    port:R-RcppArmadillo
+
+# Apparently ARMA_64BIT_WORD can be used on 32-bit platforms as well.
+# https://github.com/schochastics/graphlayouts/issues/49
+
+depends_test-append port:R-ggplot2 \
+                    port:R-ggraph \
+                    port:R-knitr \
+                    port:R-oaqc \
+                    port:R-rmarkdown \
+                    port:R-testthat \
+                    port:R-uwot
+
+test.run            yes

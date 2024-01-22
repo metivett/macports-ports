@@ -1,0 +1,23 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+# GitHub version lags behind.
+R.setup             cran ropensci rzmq 0.9.12
+revision            0
+categories-append   devel
+maintainers         nomaintainer
+license             GPL-3
+description         Interface to the ZeroMQ lightweight messaging kernel
+long_description    {*}${description}
+homepage            https://ropensci.r-universe.dev/rzmq
+checksums           rmd160  3a71e72c7caa37843aa04bf6439d634ef2d29d80 \
+                    sha256  3f6f33800705feb234056bb65f0c4a146040b06d949bac038b1a28ea6f9c6300 \
+                    size    20764
+
+depends_build-append \
+                    port:pkgconfig
+depends_lib-append  path:lib/libzmq.dylib:zmq
+
+test.run            yes

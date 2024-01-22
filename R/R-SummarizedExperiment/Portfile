@@ -1,0 +1,27 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             github Bioconductor SummarizedExperiment 6393bb8e050f3a02d4aaad4b82582353a76b8efb
+version             1.33.0
+revision            0
+maintainers         nomaintainer
+license             Artistic-2
+description         SummarizedExperiment container
+long_description    {*}${description}
+homepage            https://bioconductor.org/packages/${R.package}
+checksums           rmd160  c364962f883df538d6e0bf16e908bdeb797bda56 \
+                    sha256  eae7af1c67c5772025e6f3b598ddc9a5c323a06e7b8b0430b2592459c3fc6f74 \
+                    size    93765
+supported_archs     noarch
+
+depends_lib-append  port:R-Biobase \
+                    port:R-BiocGenerics \
+                    port:R-DelayedArray \
+                    port:R-GenomeInfoDb \
+                    port:R-GenomicRanges \
+                    port:R-IRanges \
+                    port:R-MatrixGenerics \
+                    port:R-S4Arrays \
+                    port:R-S4Vectors

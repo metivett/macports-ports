@@ -1,0 +1,25 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           github 1.0
+
+github.setup        create-dmg create-dmg 1.2.1 v
+github.tarball_from archive
+revision            0
+
+categories          sysutils
+supported_archs     noarch
+platforms           any
+license             MIT
+maintainers         {judaew @judaew} openmaintainer
+
+description         A shell script to build fancy DMGs
+long_description    {*}${description}
+
+checksums           rmd160  5b9d03d7e02ac264a92616bb79a57bf5ed39eecf \
+                    sha256  434746a84ed7e4a04b1d1977503e2a23ff79dac480cb86b24aae7b112e3b7524 \
+                    size    46681
+
+use_configure       no
+build {}
+destroot.args       prefix=${prefix}

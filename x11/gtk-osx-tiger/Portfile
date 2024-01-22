@@ -7,9 +7,9 @@ version             0.1
 categories          x11 gtk aqua
 maintainers         gmail.com:james.r.haigh
 description         Imitation of Aqua theme from Mac OS X Tiger.
-long_description    $description
+long_description    {*}$description
 homepage            http://gnome-look.org/content/show.php/OSX-Tiger+theme?content=56577
-platforms           darwin
+platforms           any
 supported_archs     noarch
 
 master_sites        http://gnome-look.org/CONTENT/content-files/
@@ -20,7 +20,7 @@ checksums           md5 44e64082569351b7782658d8b358de79 \
                     sha1 1fca810834e78ec3a78f91b3de6a96b32eb753ea \
                     rmd160 367818153eac0b16cce0c03a8fccd2767504063d
 
-depends_lib         port:gtk2
+depends_lib         path:lib/pkgconfig/gtk+-2.0.pc:gtk2
 
 use_configure       no
 

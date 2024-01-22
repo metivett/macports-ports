@@ -4,37 +4,30 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-wsproto
-version             0.15.0
+version             1.2.0
 revision            0
 
 categories-append   net www
-platforms           darwin
+platforms           {darwin any}
 supported_archs     noarch
 license             MIT
 maintainers         nomaintainer
 
 description         WebSockets state-machine based protocol implementation
-long_description    ${description}
+long_description    {*}${description}
 
-homepage            https://github.com/python-hyper/wsproto
+homepage            https://python-hyper.org/projects/wsproto
 
-checksums           rmd160  fc36f9573aaf7872e8edd681780d4e93f1e49e87 \
-                    sha256  614798c30e5dc2b3f65acc03d2d50842b97621487350ce79a80a711229edfa9d \
-                    size    51765
+checksums           rmd160  4fffd38fba7eb24ef5bba7b872de840e4d7085e6 \
+                    sha256  ad565f26ecb92588a3e43bc3d96164de84cd9902482b130d0ddbaa9664a85065 \
+                    size    53425
 
-python.versions     37 38
+python.versions     37 38 39 310 311 312
 
 if {${name} ne ${subport}} {
     depends_build-append    port:py${python.version}-setuptools
 
     depends_lib-append      port:py${python.version}-h11
 
-    depends_test-append     port:py${python.version}-pytest
-
-    test.env                PYTHONPATH=${worksrcpath}/build/lib
     test.run                yes
-    test.cmd                py.test-${python.branch}
-    test.target
-
-    livecheck.type  none
 }

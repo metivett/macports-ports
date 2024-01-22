@@ -3,11 +3,10 @@
 PortSystem          1.0
 PortGroup           github 1.0
 
-github.setup        adrienverge openfortivpn 1.16.0 v
+github.setup        adrienverge openfortivpn 1.20.5 v
 revision            0
 
 categories          net
-platforms           darwin
 license             GPL-3
 
 maintainers         {gmail.com:millerdev @millerdev} openmaintainer
@@ -22,6 +21,6 @@ depends_lib         path:lib/libssl.dylib:openssl
 
 use_autoreconf      yes
 
-checksums           rmd160  cf90e70b847e292d5298a565f82fee74470b46b6 \
-                    sha256  8e83ef5a627ef31ea1f1ae277c34eabe01572e7a031efbd43c728d17acf6925d \
-                    size    163899
+checksums           rmd160  b6857267be103437cf96ca783822d7a879e7ce14 \
+                    sha256  2c56025983059e879080723180fd41d399c8fbb0ddbdc9b1b86c461edac940d3 \
+                    size    169453

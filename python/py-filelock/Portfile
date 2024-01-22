@@ -4,10 +4,10 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-filelock
-version             3.0.12
+version             3.12.4
 revision            0
 
-platforms           darwin
+platforms           {darwin any}
 supported_archs     noarch
 license             public-domain
 maintainers         {@funasoul gmail.com:funasoul} openmaintainer
@@ -17,16 +17,52 @@ long_description    This package contains a single module, which implements \
                     a platform independent file lock in Python, which \
                     provides a simple way of inter-process communication:
 
-homepage            https://filelock.readthedocs.io/en/latest/
+homepage            https://py-filelock.readthedocs.io/
 
-checksums           rmd160  f4045fa508760a35480bef08ea89f2a102dc249a \
-                    sha256  18d82244ee114f543149c66a6e0c14e9c4f8a1044b5cdaadd0f82159d6a6ff59 \
-                    size    8549
+checksums           rmd160  b3e408a6820f130fc7102e0615bee5c131c765d8 \
+                    sha256  2e6f249f1f3654291606e046b09f1fd5eac39b360664c27f5aad072012f8bcbd \
+                    size    13758
 
-# keep version for PY27 and PY34, these are (indirect) dependencies of py-virtualenv
-python.versions     27 34 35 36 37 38 39
+# keep versions for Python < 3.4, these are (indirect) dependencies of py-virtualenv
+# See: <https://trac.macports.org/wiki/Python#VersionPolicy>
+python.versions     27 37 38 39 310 311 312
 
 if {${name} ne ${subport}} {
-    depends_build-append    port:py${python.version}-setuptools
+    if {${python.version} >= 37} {
+        python.pep517 \
+                    yes
+        python.pep517_backend \
+                    hatch
+
+        depends_build-append \
+                    port:py${python.version}-hatch-vcs
+    } else {
+        depends_build-append \
+                    port:py${python.version}-setuptools_scm
+    }
+
+    if {${python.version} == 37} {
+        version     3.12.2
+        checksums   rmd160  9db9c424e7aa0f278b4716ee70d2aeeca3e15681 \
+                    sha256  002740518d8aa59a26b0c76e10fb8c6e15eae825d34b6fdf670333fd7b938d81 \
+                    size    12441
+    }
+
+    if {${python.version} <= 35} {
+        version     3.2.1
+        revision    0
+        epoch       1
+
+        checksums   rmd160  4438a50fb193ec08f29631a5fbc657a74b5a084d \
+                    sha256  9cdd29c411ab196cf4c35a1da684f7b9da723696cb356efa45bf5eb1ff313ee3 \
+                    size    202950
+
+        depends_build-append \
+                    port:py${python.version}-toml
+
+    }
+
+    test.run    yes
+
     livecheck.type  none
 }

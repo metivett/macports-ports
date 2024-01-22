@@ -1,0 +1,29 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran handcock glmtoolbox 0.1.10
+revision            0
+categories-append   math
+maintainers         nomaintainer
+license             {GPL-2 GPL-3}
+description         Set of tools to data analysis using generalized linear models
+long_description    {*}${description}
+checksums           rmd160  97bc014619185f1c73bf6028a9bfc88e3f6fb2d6 \
+                    sha256  fa899b801d408013b5a04a3b13256532cbf107ec049565d964d1ba46bcf97276 \
+                    size    240388
+supported_archs     noarch
+
+depends_lib-append  port:R-Formula \
+                    port:R-numDeriv \
+                    port:R-Rfast \
+                    port:R-statmod \
+                    port:R-SuppDists
+
+depends_test-append port:R-aplore3 \
+                    port:R-GLMsData \
+                    port:R-ISLR \
+                    port:R-pscl
+
+test.run            yes

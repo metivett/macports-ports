@@ -1,0 +1,72 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           golang 1.0
+
+go.setup            github.com/golang/vuln 1.0.2 v
+go.package          golang.org/x/vuln
+github.tarball_from archive
+name                govulncheck
+revision            0
+
+description         \
+    Govulncheck reports known vulnerabilities that affect Go code
+
+long_description    \
+    {*}${description}. It uses static analysis of source code or a binary's \
+    symbol table to narrow down reports to only those that could affect the \
+    application.
+
+categories          security devel
+installs_libs       no
+license             BSD
+maintainers         {gmail.com:herby.gillot @herbygillot} \
+                    openmaintainer
+
+build.target        ./cmd/${name}
+
+destroot {
+    xinstall -m 0755 ${worksrcpath}/${name} ${destroot}${prefix}/bin/
+}
+
+checksums           ${distname}${extract.suffix} \
+                        rmd160  e2a7e3fcec8f4f49624bc1f5a9d866f4f23494f5 \
+                        sha256  e5a38b9bd7aedc67f0cab6a9c90d0515041da2cea919fb2fb2351b94fe6bf29b \
+                        size    284799
+
+go.vendors          mvdan.cc/unparam \
+                        repo    github.com/mvdan/unparam \
+                        lock    e84e2d14e3b8 \
+                        rmd160  b94b952e2290d653dae0be64afe2618ae5a1f7dc \
+                        sha256  af2406538f7fd456d83e3d46876d75f99ac4d4bdc3b1b138d1dfa15dfdf64b8a \
+                        size    18527 \
+                    golang.org/x/tools \
+                        lock    v0.17.0 \
+                        rmd160  4a5f6ce5caf69fd8635ff0829b1497270a3a3d9c \
+                        sha256  5604847c26fd185fea7332c57ca2fb17e6cc3c7429c93b30e8cc5fc5c919e13e \
+                        size    3640782 \
+                    golang.org/x/sync \
+                        lock    v0.6.0 \
+                        rmd160  f9a1a924a702fc4a3679db3dc36c58ca5b2eba0a \
+                        sha256  b4e9aa29dbb296cc2ebfd679927b1789078d5743385b26c0656a24da89fdcee9 \
+                        size    17596 \
+                    golang.org/x/mod \
+                        lock    v0.14.0 \
+                        rmd160  6a18b7beba1e08f18c3db26224b9538e15f2f83a \
+                        sha256  c2aded81e0904c41b17106287726926977d0554c5dd9b8191174a888c7301d25 \
+                        size    122056 \
+                    github.com/google/renameio \
+                        lock    v0.1.0 \
+                        rmd160  ba2fe6be9202636dcf17dd2d1c495aceed231cc9 \
+                        sha256  dd166ecfcacfff3e36567edab9ef94affe756932becbf382939c20646f504a83 \
+                        size    9728 \
+                    github.com/google/go-cmp \
+                        lock    v0.5.8 \
+                        rmd160  8335ed233b7f0de3539ff5c88b2eb1400480a806 \
+                        sha256  a1b3d227b1d4a6c224f4597228e7380ac5dd4b886fe91644ba88ca0292b5f121 \
+                        size    104650 \
+                    github.com/google/go-cmdtest \
+                        lock    55ab3332a786 \
+                        rmd160  e369d5f07e9522117d4bdac9986004ab349dc305 \
+                        sha256  9075b23ae3ce1cde15d9f13443ef1e9fed9d8229880840a40c3d1bdf7c99fa1f \
+                        size    18150

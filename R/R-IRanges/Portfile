@@ -1,0 +1,32 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             github Bioconductor IRanges 5acb46b3f2805f7f74fe4cb746780e75f8257a83
+version             2.37.0
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             Artistic-2
+description         Foundation of integer range manipulation
+long_description    {*}${description}
+homepage            https://bioconductor.org/packages/${R.package}
+checksums           rmd160  e6e3869539553223e723c5684a1e7799b2439549 \
+                    sha256  b2c1dc2b852464058c155588c0d9ae09f15d540ea5a2b3684f372345df8ff052 \
+                    size    261286
+
+depends_lib-append  port:R-BiocGenerics \
+                    port:R-S4Vectors
+
+patchfiles          patch-remove-unavailable-suggests.diff
+
+depends_test-append port:R-BiocStyle \
+                    port:R-GenomicAlignments \
+                    port:R-GenomicFeatures \
+                    port:R-GenomicRanges \
+                    port:R-Rsamtools \
+                    port:R-RUnit \
+                    port:R-XVector
+
+test.run            yes

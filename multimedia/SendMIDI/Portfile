@@ -4,14 +4,13 @@ PortSystem          1.0
 PortGroup           github 1.0
 PortGroup           xcode 1.0
 
-github.setup        gbevin SendMIDI 1.0.15
+github.setup        gbevin SendMIDI 1.2.1
 revision            0
-checksums           rmd160  a265991382415108d271b2f53d02491a4a7b69cb \
-                    sha256  91294f5af004527718b7f6151730a6e35fd58785019e96ac69035df75d83a85f \
-                    size    1315907
+checksums           rmd160  2280ee60f75f9213edc8221a992dc30ebc78fbd3 \
+                    sha256  3fb3d16ee14784e057e633b6e57fede33ac291d9af85942106fde8b431e15740 \
+                    size    1397036
 
 categories          multimedia
-platforms           darwin
 maintainers         {ryandesign @ryandesign} openmaintainer
 license             GPL-3+
 
@@ -22,6 +21,9 @@ long_description    ${name} a is {*}${description}. Messages can be specified \
                     program such as the companion program ReceiveMIDI.
 
 github.tarball_from archive
+
+compiler.cxx_standard \
+                    2017
 
 build.dir           ${worksrcpath}/Builds/MacOSX
 

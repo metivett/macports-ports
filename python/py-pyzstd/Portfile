@@ -1,0 +1,28 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           python 1.0
+
+name                py-pyzstd
+version             0.15.9
+revision            0
+
+platforms           darwin
+license             BSD
+maintainers         {@catap korins.ky:kirill} openmaintainer
+
+description         Python bindings to Zstandard (zstd) compression library, the API is similar to Python's bz2/lzma/zlib module.
+long_description    ${description}
+
+homepage            https://github.com/animalize/pyzstd
+
+checksums           rmd160  3745d0a77ba5840988f07be1770cbb7724c01497 \
+                    sha256  cbfdde6c5768ffa5d2f14127bbc1d7c3c2d03c0ceaeb0736946197e06275ccc7 \
+                    size    787194
+
+python.pep517       yes
+python.versions     38 39 310 311 312
+
+if {${name} ne ${subport}} {
+    test.run        yes
+}

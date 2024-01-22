@@ -3,12 +3,12 @@
 PortSystem          1.0
 
 name                siege
-version             4.0.5
-revision            0
+version             4.1.1
+revision            1
 categories          www benchmarks
 platforms           darwin
 maintainers         nomaintainer
-license             GPL-3.0
+license             GPL-3
 
 description         HTTP/HTTPS regression testing and benchmarking utility
 
@@ -19,12 +19,12 @@ long_description    Siege is an HTTP/HTTPS regression testing and benchmarking \
                     web server with a configurable number of concurrent \
                     simulated users.
 
-homepage            http://www.joedog.org/siege-home/
+homepage            https://www.joedog.org/siege-home/
 master_sites        http://download.joedog.org/siege/
 
-checksums           rmd160  cfc5edaa19acc773ede26feecb03ec43db59a4eb \
-                    sha256  3b4b7001afa4d80f3f4939066a4932e198e9f949dcc0e3affecbedd922800231 \
-                    size    525122
+checksums           rmd160  3ccf8d6ba69f1aeb6d83ec5971a2bf8264a5e0e8 \
+                    sha256  143c25727b9bb2c439486c35121602f4d963385305aab4ed1ff9851581bfe4a8 \
+                    size    543378
 
 depends_lib         path:lib/libssl.dylib:openssl
 

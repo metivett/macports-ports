@@ -4,46 +4,33 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-sphinxcontrib-bibtex
-version             1.0.0
+version             2.6.1
 revision            0
 
 categories-append   textproc devel
-platforms           darwin
 supported_archs     noarch
+platforms           {darwin any}
 license             BSD
 maintainers         nomaintainer
 
 description         Sphinx extension for BibTeX style citations
-long_description    ${description}
+long_description    {*}${description}
 
 homepage            https://github.com/mcmtroffaes/sphinxcontrib-bibtex
 
-checksums           rmd160  72e8280b73e2ee95ea1a11246a68b8b39869eea3 \
-                    sha256  629612b001f86784669d65e662377a482052decfd9a0a17c46860878eef7b9e0 \
-                    size    47829
+checksums           rmd160  a6421deebac3fb19cfde65fbe86ad083b488af79 \
+                    sha256  046b49f070ae5276af34c1b8ddb9bc9562ef6de2f7a52d37a91cb8e53f54b863 \
+                    size    117150
 
-python.versions     27 36 37 38
+python.versions     38 39 310 311 312
 
 if {${name} ne ${subport}} {
-    if {${python.version} == 27} {
-        version     0.4.2
-        revision    0
-        checksums   rmd160  dfe9eb50f1278f05416f6c3f3a09cff7aa2d222b \
-                    sha256  169afb3a3485775e5473934a0fdff1780e8bdcdd44db7ed286044a074331c729 \
-                    size    49490
-
-        depends_lib-append \
-                    port:py${python.version}-six \
-    }
-
-    depends_build-append \
-                    port:py${python.version}-setuptools
-
     depends_lib-append \
                     port:py${python.version}-sphinx \
+                    port:py${python.version}-docutils \
                     port:py${python.version}-pybtex \
-                    port:py${python.version}-pybtex-docutils \
-                    port:py${python.version}-oset
-
-    livecheck.type  none
+                    port:py${python.version}-pybtex-docutils
+    if {${python.version} < 310} {
+        depends_lib-append  port:py${python.version}-importlib-metadata
+    }
 }

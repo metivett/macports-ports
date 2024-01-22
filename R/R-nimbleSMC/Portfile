@@ -1,0 +1,23 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran nimble-dev nimbleSMC 0.11.0
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             {BSD GPL-2+}
+description         Sequential Monte Carlo Methods for R-nimble
+long_description    {*}${description}
+homepage            https://R-nimble.org
+checksums           rmd160  482dd3d035c19b8d9883007a68ea0d83bf32df1d \
+                    sha256  da4b8326117238ec8c0742950a1b55e3d806e57d156251c1296144787300fa92 \
+                    size    51460
+supported_archs     noarch
+
+depends_lib-append  port:R-nimble
+
+depends_test-append port:R-testthat
+
+test.run            yes

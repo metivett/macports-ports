@@ -2,46 +2,40 @@
 
 PortSystem              1.0
 PortGroup               github 1.0
+PortGroup               meson 1.0
+
+github.setup            HOST-Oman libraqm 0.10.1 v
+revision                0
+checksums               rmd160  dfaaefaa4da6b753f387af3b3f1079a3e8f7caa7 \
+                        sha256  4d76a358358d67c5945684f2f10b3b08fb80e924371bf3ebf8b15cd2e321d05d \
+                        size    216576
 
 categories              devel
-platforms               darwin
 license                 MIT
 maintainers             nomaintainer
 
-github.setup            HOST-Oman libraqm 0.7.0 v
-revision                0
 github.tarball_from     releases
 distname                raqm-${version}
+use_xz                  yes
 
-checksums               rmd160  57061f3659ca0b3bd38c71da6c7c9f78a336371c \
-                        sha256  e28575ecdd4e8a1d277d9be8268bb663ce1e476aaf55eb0456787821ddf0f941 \
-                        size    683634
-
-description             a small library that encapsulates logic for complex text layout
+description             A library for complex text layout
 long_description        Raqm is a small library that encapsulates the logic for complex\
                         text layout and provides a convenient API. It currently provides\
                         bidirectional text support (using FriBiDi), shaping (using HarfBuzz),\
                         and proper script itemization. As a result, Raqm can support most\
                         writing systems covered by Unicode.
 
-homepage                http://host-oman.github.io/libraqm/
+homepage                https://host-oman.github.io/libraqm/
 
 depends_build-append    port:pkgconfig
 
 depends_lib-append      port:freetype \
-                        port:harfbuzz \
+                        path:lib/pkgconfig/harfbuzz.pc:harfbuzz \
                         port:fribidi
 
-use_autoreconf          yes
-autoreconf.args         -fvi
-
-configure.args          --disable-Werror \
-                        --disable-silent-rules
-
 test.run                yes
-test.target             check
 
 variant docs description "Install documentation" {
     depends_build-append  port:gtk-doc
-    configure.args-append --enable-gtk-doc
+    configure.args-append -Ddocs=true
 }

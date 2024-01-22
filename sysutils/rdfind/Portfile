@@ -3,9 +3,9 @@
 PortSystem          1.0
 PortGroup           github 1.0
 
-github.setup        pauldreik rdfind 1.4.1 releases/
-
+github.setup        pauldreik rdfind 1.6.0 releases/
 revision            0
+
 categories          sysutils
 license             GPL-2
 maintainers         nomaintainer
@@ -13,11 +13,12 @@ description         duplicate file finder
 long_description    finds and optionally deletes, or symlinks equal files \
                     on a filesystem
 homepage            https://rdfind.pauldreik.se
-platforms           darwin
 
-checksums           rmd160  014778800de9e36ae116d09b5bceb47d4cb98c2e \
-                    sha256  b3e2beeef30b623d75f8b054a514b32183c3ad919f582b23a45506b53095a51e \
-                    size    53719
+checksums           rmd160  76c6d1cf9b63b132a7d522857ab1dbd60959754a \
+                    sha256  c388827bef89d20afdefd32dc14da8ee89cd64a85be05096fe8bfd6cee97d1ea \
+                    size    55417
+
+compiler.cxx_standard 2011
 
 use_automake        yes
 automake.cmd        ./bootstrap.sh
@@ -28,7 +29,10 @@ depends_build-append \
                     port:autoconf \
                     port:autoconf-archive
 
-depends_lib         port:nettle
+depends_lib-append \
+                    port:nettle
 
-configure.args      CPPFLAGS=-I${prefix}/include/ \
+configure.args-append \
+                    --disable-silent-rules \
+                    CPPFLAGS='-I${prefix}/include/ -std=c++11'\
                     LDFLAGS=-L${prefix}/lib

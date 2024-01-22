@@ -4,42 +4,36 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-arviz
-version             0.11.1
+version             0.17.0
 revision            0
 
-platforms           darwin
+platforms           {darwin any}
 supported_archs     noarch
-license             Apache-2.0
+license             Apache-2
 maintainers         {reneeotten @reneeotten} openmaintainer
 
 description         Exploratory analysis of Bayesian models
-long_description    ${description}
+long_description    {*}${description}
 
 homepage            https://github.com/arviz-devs/arviz
 
-checksums           rmd160  49669352e4fa628ec60cdf76973c0428ccc2a8e3 \
-                    sha256  bb0730ab62223a44ec99072b12f9e9f24521a36e6b7ba2624df9f9908eba1d82 \
-                    size    1483042
+checksums           rmd160  e5afc142670ee6f65eb9be26ff9e52035d01b56d \
+                    sha256  91a7c13f81758e8e92654452a9a1ee69dc842a61b647a50fce80f879fab994b2 \
+                    size    1574192
 
-python.versions     36 37 38 39
+python.versions     38 39 310 311 312
 
 if {${name} ne ${subport}} {
-    depends_build-append \
-                    port:py${python.version}-setuptools
-
     depends_lib-append \
+                    port:py${python.version}-h5netcdf \
                     port:py${python.version}-matplotlib \
-                    port:py${python.version}-netcdf4 \
                     port:py${python.version}-numpy \
                     port:py${python.version}-packaging \
                     port:py${python.version}-pandas \
                     port:py${python.version}-scipy \
-                    port:py${python.version}-xarray
-
-    if {${python.version} > 36} {
-    depends_lib-append \
-                    port:py${python.version}-typing_extensions
-    }
+                    port:py${python.version}-typing_extensions \
+                    port:py${python.version}-xarray \
+                    port:py${python.version}-xarray-einstats
 
     post-destroot {
         set docdir ${prefix}/share/doc/${subport}
@@ -47,6 +41,4 @@ if {${name} ne ${subport}} {
         xinstall -m 0644 -W ${worksrcpath} CHANGELOG.md CODE_OF_CONDUCT.md \
             CONTRIBUTING.md LICENSE README.md ${destroot}${docdir}
     }
-
-    livecheck.type  none
 }

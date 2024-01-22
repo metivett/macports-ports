@@ -4,7 +4,7 @@ PortSystem          1.0
 PortGroup           texlive 1.0
 
 name                texlive-pictures
-version             54512
+version             66549
 revision            0
 
 categories          tex
@@ -13,18 +13,18 @@ license             Copyleft Permissive
 description         TeX Live: Graphics, pictures, diagrams
 long_description    Including TikZ, pict, etc., but MetaPost and PStricks are separate.
 
-checksums           texlive-pictures-54512-run.tar.xz \
-                    rmd160  e99619ba2efddb6e8646df1e3cee8360a4e9e8b0 \
-                    sha256  567cd80d4909d158e31e8d312fb3b1cfda7171f7fbf2648eb7bf6f927a813cdf \
-                    size    130860792 \
-                    texlive-pictures-54512-doc.tar.xz \
-                    rmd160  04433a3562e8dd7fc634168f695e2e7c0912c05d \
-                    sha256  03818ed313480398c09a973510b629749806f8f79f7ec4daa99038cedd2d10a7 \
-                    size    124361776 \
-                    texlive-pictures-54512-src.tar.xz \
-                    rmd160  f59c6f979306da6d3567f3d04a5497b93f558eae \
-                    sha256  f99a5f820f01930f5cf055f741ec4606318a209d2108f9ff2921b1bbbb25c648 \
-                    size    2586864
+checksums           texlive-pictures-66549-run.tar.xz \
+                    rmd160  b068d3a0782f6a4d1818946dd8a46cffa2cd83bf \
+                    sha256  6a9f0738398400d86e9655aadbc097685658fb28b890183a6ff08f7d85fcfc1a \
+                    size    232466064 \
+                    texlive-pictures-66549-doc.tar.xz \
+                    rmd160  b2d2777aa2df30ed1883743e86f1a27799e93d4e \
+                    sha256  589d73fad052e40abd3c767b7aab06f38ffd59e4fac2869624297b53cd3931d2 \
+                    size    213883000 \
+                    texlive-pictures-66549-src.tar.xz \
+                    rmd160  49ba7ca59ffbf66436e9c0138d178b4c70a5d952 \
+                    sha256  8455909796a1337270b116282c30ab037c2e1b220d54e0361f3a02a07522a496 \
+                    size    2786160
 
 depends_lib         port:texlive-basic
 
@@ -32,7 +32,7 @@ texlive.maps      \
     {Map knitfont.map} \
     {MixedMap xypic.map}
 
-texlive.binaries    cachepic epspdf epspdftk fig4latex getmapdl mathspic mkpic pn2pdf
+texlive.binaries    cachepic epspdf epspdftk fig4latex getmapdl mathspic mkpic pn2pdf tikztosvg
 
 
 texlive.texmfport

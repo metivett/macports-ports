@@ -1,0 +1,25 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran FlorianSchwendinger lpSolveAPI 5.5.2.0-17.11
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             LGPL-2
+description         R interface to lp_solve v. 5.5.2.0
+long_description    {*}${description}
+checksums           rmd160  97a4dfbf09de4e1054b84600484d7c782847d44b \
+                    sha256  b08d6cae4fc17575adf5df0113ea5f4f819bb2c7f87987e0d66c8eabfc933fa4 \
+                    size    492377
+
+# Fix types defines.
+patchfiles          patch-lp_types.diff
+
+# https://trac.macports.org/ticket/68848
+patchfiles-append   patch-Makefile.diff
+
+compilers.setup     require_fortran
+
+test.run            yes

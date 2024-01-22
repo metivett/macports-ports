@@ -4,35 +4,29 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-execnet
-version             1.7.1
+version             1.9.0
 revision            0
 
 categories-append   devel
-platforms           darwin
+platforms           {darwin any}
 supported_archs     noarch
 license             MIT
 maintainers         nomaintainer
 
 description         rapid multi-Python deployment
-long_description    ${description}
+long_description    {*}${description}
 
 homepage            https://github.com/pytest-dev/execnet
-master_sites        pypi:[string index ${python.rootname} 0]/${python.rootname}
 
-distname            ${python.rootname}-${version}
+checksums           rmd160  de3fae0a9a4c7731a11333af8a17f65c17136933 \
+                    sha256  8f694f3ba9cc92cab508b152dcfe322153975c29bda272e2fd7f3f00f36e47c5 \
+                    size    173884
 
-checksums           rmd160  b4e599cdaaaab0208202dc518230087a864e233b \
-                    sha256  cacb9df31c9680ec5f95553976c4da484d407e85e41c83cb812aa014f0eddc50 \
-                    size    174157
-
-python.versions     27 35 36 37 38
+python.versions     27 35 36 37 38 39 310 311 312
 
 if {${name} ne ${subport}} {
     depends_build-append \
                     port:py${python.version}-setuptools_scm
-
-    depends_lib-append \
-                    port:py${python.version}-apipkg
 
     post-destroot {
         xinstall -d ${destroot}${prefix}/share/doc/${subport}

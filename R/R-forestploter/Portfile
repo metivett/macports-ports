@@ -1,0 +1,27 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             github adayim forestploter 1.1.1 v
+revision            0
+maintainers         nomaintainer
+license             MIT
+description         Create flexible forest plot
+long_description    {*}${description}
+checksums           rmd160  0335b0a7f803aa726f6694fc7d820e0853d5a34f \
+                    sha256  51cc7584404b60bbbdcfa3df0b766173d41a139a62099b8cc4f974b86427523b \
+                    size    661974
+supported_archs     noarch
+
+depends_lib-append  port:R-gridExtra \
+                    port:R-gtable
+
+depends_test-append port:R-covr \
+                    port:R-gridtext \
+                    port:R-knitr \
+                    port:R-rmarkdown \
+                    port:R-testthat \
+                    port:R-vdiffr
+
+test.run            yes

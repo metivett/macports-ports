@@ -5,26 +5,29 @@ PortGroup           python 1.0
 PortGroup           select 1.0
 
 name                py-awscli
-version             1.18.164
+version             1.32.22
 revision            0
 
-platforms           darwin
+categories          python devel
 supported_archs     noarch
+platforms           {darwin any}
 license             Apache-2
-maintainers         nomaintainer
+maintainers         {judaew @judaew} openmaintainer
 
-description         Universal Command Line Environment for AWS.
+description         Universal Command Line Environment for Amazon Web Services.
 long_description    {*}${description}
 
 homepage            https://aws.amazon.com/cli/
 
-checksums           rmd160  9e9812bf12ec6581a8c760b665d26083fdd5916b \
-                    sha256  e64cd0ba919f37a54affa127baf856a832cf3934089baeb1e7a6b776476f8b2f \
-                    size    1320560
+checksums           rmd160  f1ac1e546123396fcc0c6a66ca46ec359306f4e5 \
+                    sha256  97f2ac521ad5ade5c7d4c719604d16a87c2fd88b2442fff1fdd804f82dcbbe58 \
+                    size    1746546
 
-python.versions     38
+python.versions     39 310 311 312
 
 if {${name} ne ${subport}} {
+    conflicts           py${python.version}-awscli2
+
     depends_build-append \
                         port:py${python.version}-setuptools
 
@@ -39,10 +42,10 @@ if {${name} ne ${subport}} {
     depends_run-append  port:awscli_select
 
     select.group        awscli
-    select.file         ${worksrcpath}/${subport}
+    select.file         ${worksrcpath}/py${python.version}-awscli
 
     post-extract {
-        copy -force ${filespath}/awscli ${worksrcpath}/${subport}
+        copy -force ${filespath}/awscli ${worksrcpath}/py${python.version}-awscli
     }
 
     post-patch {
@@ -52,22 +55,39 @@ if {${name} ne ${subport}} {
     }
 
     post-destroot {
-        # bash completion
-        set bash_compl_path ${prefix}/etc/bash_completion.d
+        delete ${destroot}${prefix}/bin/aws.cmd-${python.branch}
+
+        set bash_compl_path ${prefix}/share/bash-completion/completions
         xinstall -d ${destroot}${bash_compl_path}
         xinstall -m 0644 ${worksrcpath}/bin/aws_bash_completer \
-            ${destroot}${bash_compl_path}/aws_bash_completer-${python.branch}
+            ${destroot}${bash_compl_path}/aws-${python.branch}
+
+        set zsh_compl_path ${prefix}/share/zsh/site-functions
+        xinstall -d ${destroot}${zsh_compl_path}
+        xinstall -m 0644 ${worksrcpath}/bin/aws_zsh_completer.sh \
+            ${destroot}${zsh_compl_path}/aws_zsh_completer.sh-${python.branch}
+        xinstall -m 0644 ${filespath}/_aws \
+            ${destroot}${zsh_compl_path}/_aws-${python.branch}
     }
 
-    variant zsh_completion {
-        post-destroot {
-            set zsh_compl_path ${prefix}/share/zsh/site-functions
-            xinstall -d ${destroot}${zsh_compl_path}
-            xinstall -m 0644 ${worksrcpath}/bin/aws_zsh_completer.sh \
-                ${filespath}/_aws \
-                ${destroot}${zsh_compl_path}
-        }
-    }
+    notes "
+To make the Python ${python.branch} version of AWS CLI the one that is run when\
+you execute the commands without a version suffix, e.g. 'aws', run:
+
+port select --set ${select.group} [file tail ${select.file}]
+
+---
+
+If you use a plugin in your ~/.aws/config, it must be installed. For example,
+Wasabi for S3 uses the awscli_plugin_endpoint plugin. Just install it:
+
+port install py${python.version}-awscli-plugin-endpoint
+
+If your plugin is not in MacPorts, you can install it using the
+py${python.version}-pip port, for example:
+
+pip-${python.branch} install --user <plugin-name>
+"
 
     livecheck.type      none
 }

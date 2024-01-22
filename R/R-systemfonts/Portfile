@@ -1,0 +1,47 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+# Revert to GitHub once updated there.
+R.setup             cran r-lib systemfonts 1.0.5
+revision            0
+categories-append   sysutils
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             MIT
+description         System Native Font Handling in R
+long_description    {*}${description}
+homepage            https://systemfonts.r-lib.org
+checksums           rmd160  dad7a5f66fc7302e93c54d0ce572dce7c1da7a4d \
+                    sha256  840ffb1d8293739c79cbc868101d9f9a84f4a9de4c7b3625e30af2fb63e15823 \
+                    size    80638
+
+depends_build-append \
+                    port:pkgconfig
+depends_lib-append  port:R-cpp11 \
+                    port:freetype
+
+platform darwin {
+    if {[string match *gcc* ${configure.compiler}] || ${os.major} < 13} {
+        # Older OS do not support native API, but GCC gonna fail anyway:
+        # g++-mp-12: error: unrecognized command-line option '-fobjc-arc'
+        # https://trac.macports.org/ticket/67174
+        patchfiles-append \
+                    patch-older-macos.diff
+        depends_lib-append \
+                    port:fontconfig
+    }
+}
+
+configure.env-append \
+                    RBIN=${r.cmd}
+    
+destroot.post_args-append \
+                    --no-docs --no-html
+
+depends_test-append port:R-covr \
+                    port:R-knitr \
+                    port:R-rmarkdown \
+                    port:R-testthat
+
+test.run            yes

@@ -1,0 +1,34 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+# GitHub version lags behind.
+R.setup             cran markfairbanks tidytable 0.10.2
+revision            0
+maintainers         nomaintainer
+license             MIT
+description         Tidy interface to data.table
+long_description    {*}${description}
+homepage            https://markfairbanks.github.io/tidytable
+checksums           rmd160  35a3cc4b65366d086252c8014bd2393e67d31ec5 \
+                    sha256  9645793ba7201a3a0d8e7afb78a968d8ee4ad09c01c30ca759bf17ab974e88ca \
+                    size    154458
+supported_archs     noarch
+
+depends_lib-append  port:R-data.table \
+                    port:R-glue \
+                    port:R-lifecycle \
+                    port:R-magrittr \
+                    port:R-pillar \
+                    port:R-rlang \
+                    port:R-tidyselect \
+                    port:R-vctrs
+
+depends_test-append port:R-bit64 \
+                    port:R-crayon \
+                    port:R-knitr \
+                    port:R-rmarkdown \
+                    port:R-testthat
+
+test.run            yes

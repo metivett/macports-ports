@@ -4,38 +4,35 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-fasteners
-version             0.16
+version             0.19
 revision            0
 license             Apache-2
-platforms           darwin
+platforms           {darwin any}
 supported_archs     noarch
 maintainers         {khindenburg @kurthindenburg} openmaintainer
 
 description         A python package that provides useful locks
-long_description    ${description}
+long_description    {*}${description}
 
 homepage            https://pypi.python.org/pypi/${python.rootname}/
 master_sites        pypi:[string index ${python.rootname} 0]/${python.rootname}
 distname            ${python.rootname}-${version}
 
-checksums           rmd160  b82b88a005e9a628b40664f2c3c3df0a62a0cb61 \
-                    sha256  c995d8c26b017c5d6a6de9ad29a0f9cdd57de61ae1113d28fac26622b06a0933 \
-                    size    24824
+checksums           rmd160  a22a0675b0e84f2fca652180d1cc62fc3acd0831 \
+                    sha256  b4f37c3ac52d8a445af3a66bce57b33b5e90b97c696b7b984f530cf8f0ded09c \
+                    size    24832
 
-python.versions     27 35 36 37 38 39
+python.versions     38 39 310 311 312
 
 if {${name} ne ${subport}} {
-    depends_build-append    port:py${python.version}-setuptools
+    python.pep517 yes
 
-    if {${python.version} == 27} {
-        depends_lib-append port:py${python.version}-monotonic \
+    pre-test {
+        # diskcache not in macports
+        delete ${test.dir}/tests/test_reader_writer_lock.py
     }
-    depends_lib-append port:py${python.version}-six
+    depends_test-append     port:py${python.version}-pytest \
+                            port:py${python.version}-eventlet
 
-    # Something wrong w/ testtools or fasteners tests
-#    depends_test-append port:py${python.version}-testtools
-#    test.run            yes
-#    test.env            PYTHONPATH=${worksrcpath}/build/lib
-
-    livecheck.type  none
+    test.run                yes
 }

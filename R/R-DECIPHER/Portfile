@@ -1,0 +1,23 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             bioconductor Bioconductor DECIPHER 2.30.0
+revision            0
+maintainers         nomaintainer
+license             GPL-3
+description         Tools for curating, analyzing and manipulating biological sequences
+long_description    {*}${description}
+checksums           rmd160  e1c33b3719a71e2f2f72f5279562d16d3e110be7 \
+                    sha256  e9d06fe494792d31c2c547c04a409c26fe739c1000fc3aec7697e1367aa328e6 \
+                    size    18930005
+
+depends_lib-append  port:R-Biostrings \
+                    port:R-DBI \
+                    port:R-IRanges \
+                    port:R-RSQLite \
+                    port:R-S4Vectors \
+                    port:R-XVector
+
+test.run            yes

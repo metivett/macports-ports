@@ -4,16 +4,12 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                borgbackup
-version             1.1.15
+version             1.2.7
 revision            0
-checksums           rmd160  8d131001b81c4b2b8cedf47c2c89a41a79d9ff49 \
-                    sha256  49cb9eed98b8e32ae3b97beaedf94cdff46f796445043f1923fd0fce7ed3c2bc \
-                    size    3777355
 
 categories          sysutils
-platforms           darwin
 license             BSD
-maintainers         nomaintainer
+maintainers         {judaew @judaew} openmaintainer
 
 description         Deduplicating backup program
 long_description    BorgBackup (short: Borg) is a deduplicating backup \
@@ -25,17 +21,29 @@ long_description    BorgBackup (short: Borg) is a deduplicating backup \
                     authenticated encryption technique makes it suitable for \
                     backups to not fully trusted targets.
 
-homepage            https://borgbackup.github.io/
+homepage            https://www.borgbackup.org/
 
-python.default_version  39
+checksums           rmd160  191115a3fb4fc1347b91bc3ddce40fb2fc8d4bfa \
+                    sha256  f63f28a3383c041971cec87b061ca39a815b5fd445db24aa8172cac417d9411a \
+                    size    4370372
 
-depends_build-append    port:py${python.version}-setuptools_scm \
-                        port:py${python.version}-sphinx \
-                        port:py${python.version}-sphinx_rtd_theme
-depends_lib-append      path:lib/libssl.dylib:openssl \
-                        port:lz4 \
-                        port:py${python.version}-msgpack \
-                        port:py${python.version}-setuptools
+python.default_version  312
+
+depends_build-append \
+                    port:py${python.version}-cython \
+                    port:py${python.version}-pkgconfig \
+                    port:py${python.version}-setuptools_scm \
+                    port:py${python.version}-sphinx \
+                    port:py${python.version}-sphinx_rtd_theme
+
+depends_lib-append  path:lib/libssl.dylib:openssl \
+                    port:lz4 \
+                    port:libb2 \
+                    port:xxhash \
+                    port:zstd
+
+depends_run-append  port:py${python.version}-msgpack \
+                    port:py${python.version}-packaging
 
 post-build {
     reinplace "s|sphinx-build|sphinx-build-${python.branch}|g" \
@@ -66,6 +74,12 @@ post-destroot {
     xinstall -d ${destroot}${zsh_compl_path}
     xinstall -m 0644 ${worksrcpath}/scripts/shell_completions/zsh/_borg \
         ${destroot}${zsh_compl_path}
+
+    # fish completion
+    set fish_compl_path ${prefix}/share/fish/vendor_completions.d
+    xinstall -d ${destroot}${fish_compl_path}
+    xinstall -m 0644 ${worksrcpath}/scripts/shell_completions/fish/borg.fish \
+        ${destroot}${fish_compl_path}
 }
 
 variant fuse description {Add FUSE mounting support} {

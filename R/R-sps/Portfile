@@ -1,0 +1,22 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             github marberts sps 0.5.3 v
+revision            0
+categories-append   math
+maintainers         nomaintainer
+license             MIT
+description         Sequential Poisson Sampling
+long_description    {*}${description}
+checksums           rmd160  f1d35796378ab2ce02d03a88b88ecdf7f1f5b304 \
+                    sha256  8fdaea84760436bd09de4297340f9ebfba6bbb17806b42700ef8a9318b8ffcf4 \
+                    size    28371
+supported_archs     noarch
+
+depends_test-append port:R-knitr \
+                    port:R-rmarkdown \
+                    port:R-testthat
+
+test.run            yes

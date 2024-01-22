@@ -1,32 +1,32 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
-PortSystem 1.0
+PortSystem              1.0
 PortGroup               java 1.0
 
 name                    apache-ant
-version                 1.10.9
+version                 1.10.14
+revision                0
 categories              devel java
 license                 Apache-2 W3C
 maintainers             nomaintainer
 supported_archs         noarch
 
 description             Java opensource build system
-long_description        Ant is a Java based build tool.  In theory it is \
-                        kind of like make without make's wrinkles.  Ant \
-                        uses XML build files that define a set of targets.  \
-                        Each target has dependencies (other targets) and \
-                        contains a set of tasks to perform.
+long_description        Ant is a Java based build tool. In theory it is \
+                        kind of like make without make's wrinkles. Ant \
+                        uses XML build files that define a set of targets. \
+                        Each target has dependencies (other targets) \
+                        and contains a set of tasks to perform.
 homepage                https://ant.apache.org/
 
-platforms               darwin freebsd
+platforms               any
 
 distname                ${name}-${version}-bin
 master_sites            apache:ant/
-master_sites.mirror_subdir        binaries
-# Remember also to update the checksums in the source variant below.
-checksums               rmd160  164c8c9a7de7891301c90a17a2eeac95cba3f3e4 \
-                        sha256  42f12ea7dc854b69aac0bd05c5767252dddd297888503e69b8aae0a1dc791cf5 \
-                        size    5022448
+master_sites.mirror_subdir      binaries
+checksums               rmd160  ac7b60b5be0b1fa1e15abd2478e6f38dc9703ee9 \
+                        sha256  a0456ecbf934b41dca74747413f2da7eafe40355fbdf5bfd38d8f3713dd828cd \
+                        size    4844448
 
 worksrcdir              ${name}-${version}
 set workTarget          ""
@@ -36,31 +36,9 @@ use_configure           no
 
 conflicts               apache-ant-1.9
 
+java.version            1.8+
+
 build {}
-
-# Ant is installed from the binary (jar) distribution by default. Due to
-# bootstrapping issues, the source variant generally doesn't build a very
-# usable ant: the ant tasks (such as junit) are non-functional as their
-# dependent support isn't available when ant is built, due to circular
-# dependencies back to ant.
-variant source description "build from source; not recommended" {
-        java.version                    1.8+
-        distname                        ${name}-${version}-src
-        master_sites.mirror_subdir      source
-        checksums                       rmd160  ec563c3c137b22718064be5a1f7ae2f0d4e3b96e \
-                                        sha256  4b2008cc60fefd424b05567e9d43a071302865d5fd8b01a807e15e381b557ec2 \
-                                        size    4333648
-        set workTarget                  /${name}
-
-        build.cmd                       ./build.sh
-        build.args                      -Dchmod.fail=false -Ddist.name=${name}
-        build.target                    dist
-
-        post-patch {
-            # Don't fail on Javadoc errors
-            reinplace "s|failonerror=\"true\"||g" ${worksrcpath}/build.xml
-        }
-}
 
 pre-destroot {
         delete \
@@ -92,8 +70,6 @@ destroot        {
 
         ln -s ../share/java/${name}/bin/ant ${destroot}${prefix}/bin/ant
 }
-
-universal_variant       no
 
 livecheck.type          regex
 livecheck.url           https://www.apache.org/dist/ant/binaries/

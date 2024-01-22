@@ -1,0 +1,36 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           python 1.0
+
+name                py-pywinrm
+version             0.4.3
+revision            0
+categories-append   devel net
+platforms           {darwin any}
+license             MIT
+supported_archs     noarch
+
+python.versions     39 310 311 312
+
+maintainers         nomaintainer
+
+homepage            https://github.com/diyan/pywinrm
+
+description         Python library for Windows Remote Management (WinRM)
+
+long_description    pywinrm is a Python client for the Windows Remote \
+                    Management (WinRM) service. It allows you to invoke \
+                    commands on target Windows machines from any machine that \
+                    can run Python.
+
+checksums           rmd160  65d3dbb02b9422ea7e546ead00592bc4084ed603 \
+                    sha256  995674bf5ac64b2562c9c56540473109e530d36bde10c262d5a5296121ad5565 \
+                    size    38356
+
+if {${name} ne ${subport}} {
+    depends_lib-append  port:py${python.version}-requests \
+                        port:py${python.version}-requests_ntlm \
+                        port:py${python.version}-six \
+                        port:py${python.version}-xmltodict
+}

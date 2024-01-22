@@ -1,36 +1,56 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim: fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
-PortGroup           github 1.0
-PortGroup           cmake 1.1
-PortGroup           legacysupport 1.0
+PortGroup           cmake           1.1
+PortGroup           github          1.0
+PortGroup           legacysupport   1.0
+PortGroup           openssl         1.0
 
-github.setup        cwida duckdb 0.2.3 v
+github.setup        cwida duckdb 0.9.2 v
+github.tarball_from archive
+revision            0
 
 homepage            https://www.duckdb.org
 
-description         DuckDB is an embeddable SQL OLAP Database Management System
+description         \
+    DuckDB is an embeddable SQL OLAP Database Management System
 
-long_description    DuckDB is an embedded database designed to execute \
-                    analytical SQL queries fast while embedded in another \
-                    process. It is designed to be easy to install and easy to \
-                    use. DuckDB has no external dependencies. DuckDB has \
-                    bindings for C/C++, Python and R. DuckDB is developed by \
-                    the Database Architectures group of the CWI.
+long_description    \
+    DuckDB is an embedded database designed to execute analytical SQL queries \
+    fast while embedded in another process. It is designed to be easy to \
+    install and easy to use. DuckDB has no external dependencies. DuckDB has \
+    bindings for C/C++, Python and R. DuckDB is developed by the Database \
+    Architectures group of the CWI.
 
+categories          databases
+license             MIT
 maintainers         {gmail.com:herby.gillot @herbygillot} \
                     openmaintainer
 
-categories          databases
-platforms           darwin
-license             MIT
+checksums           rmd160 41fc4d44c2a377ea0d3ccaaabe0402d35e0e0c8b \
+                    sha256 afff7bd925a98dc2af4039b8ab2159b0705cbf5e0ee05d97f7bb8dce5f880dc2 \
+                    size 75296956
 
-checksums           rmd160  bbf9038080b4c8f002a16759e0a887ca8074c2d3 \
-                    sha256  18a3fdbc5e09da5f3fb8fba1557550a0ab4dd9b6146f364503e688c2729d7fdb \
-                    size    19946783
+patchfiles-append   no-ccache.patch \
+                    no-default-tarball-version.patch
+
+configure.args-append \
+                    -DBUILD_PARQUET_EXTENSION=TRUE \
+                    -DBUILD_FTS_EXTENSION=TRUE \
+                    -DBUILD_HTTPFS_EXTENSION=TRUE \
+                    -DDUCKDB_VERSION=${version}
 
 compiler.cxx_standard 2011
 
 depends_build-append \
                     port:pkgconfig \
                     port:zstd
+
+if {[string match *gcc* ${configure.compiler}]} {
+    # Without the following setting, the build fails miserably at linking with every possible symbol undefined.
+    # Undefined symbols: __ZNK6duckdb5Value14GetValueUnsafeItEET_v, __ZN6duckdb11LogicalType3MAPES0_S0_ etc.
+    configure.args-append \
+                    -DEXTENSION_STATIC_BUILD=TRUE
+    configure.ldflags-append \
+                    -latomic
+}

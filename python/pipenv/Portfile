@@ -4,10 +4,10 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                pipenv
-version             2020.8.13
+version             2023.11.15
 revision            0
 categories-append   devel
-platforms           darwin
+platforms           {darwin any}
 license             MIT
 supported_archs     noarch
 
@@ -15,7 +15,7 @@ maintainers         {danchr @danchr} openmaintainer
 
 description         The officially recommended Python packaging tool.
 
-long_description    ${description} \
+long_description    {*}${description} \
                     Pipenv -- Python Dev Workflow for Humans -- is a \
                     tool that aims to bring the best of \
                     all packaging worlds (bundler, composer, npm, \
@@ -29,42 +29,23 @@ long_description    ${description} \
                     ever-important Pipfile.lock, which is used to \
                     produce deterministic builds.
 
-homepage            http://pipenv.org/
-master_sites        pypi:[string index ${python.rootname} 0]/${python.rootname}
+homepage            https://pipenv.pypa.io/en/latest/
 
-distname            ${python.rootname}-${version}
+checksums           rmd160  a5de8bfaa713ae2759e8009111d30e5a5892b8b7 \
+                    sha256  f587ffff47e8aa76f17803d571f64cf5a24b2bdfb9334435e6528b22ad5e304f \
+                    size    4646774
 
-checksums           rmd160  35a3af49ee09b66ec9f6ed7faa61fcd31938c6a4 \
-                    sha256  eff0e10eadb330f612edfa5051d3d8e775e9e0e918c3c50361da703bd0daa035 \
-                    size    5153905
-
-
-python.default_version 38
+python.pep517       yes
 
 depends_lib-append \
-    port:py${python.version}-pip \
-    port:py${python.version}-parver \
-    port:py${python.version}-invoke \
     port:py${python.version}-certifi \
     port:py${python.version}-setuptools \
-    port:py${python.version}-virtualenv \
-    port:py${python.version}-virtualenv-clone
+    port:py${python.version}-virtualenv
 
 post-destroot {
     xinstall -m 644 \
         ${destroot}${python.pkgd}/${name}/${name}.1 \
         ${destroot}${prefix}/share/man/man1
-}
-
-if {${python.version} < 34} {
-    depends_lib-append \
-        port:py${python.version}-pathlib
-}
-
-if {${python.version} < 30} {
-    depends_lib-append \
-        port:py${python.version}-requests \
-        port:py${python.version}-ordereddict
 }
 
 test.run            yes

@@ -10,13 +10,12 @@ python.rootname     pycodestyle
 # CAUTION: Updates tend to break port `py-flake8` due to strict version caps.
 # Please DO NOT update without cross-checking version compatibility and
 # perform updates in a coordinated way.
-
-version             2.6.0
+version             2.11.1
 revision            0
 
 categories-append   devel
-platforms           darwin
 supported_archs     noarch
+platforms           {darwin any}
 license             MIT
 maintainers         {petr @petrrr} openmaintainer
 
@@ -28,11 +27,11 @@ long_description    \
 
 homepage            https://pycodestyle.readthedocs.io
 
-checksums           rmd160  7315d4bfe162b50095cd69ab8993173bf3d56180 \
-                    sha256  c58a7d2815e0e8d7972bf1803331fb0152f867bd89adf8a01dfd55085434192e \
-                    size    100213
+checksums           rmd160  7a58276b83c071f130e3ae0055b8e6a4dfb50962 \
+                    sha256  41ba0e7afc9752dfb53ced5489e89f8186be00e599e712660695b7a75ff2663f \
+                    size    38974
 
-python.versions     27 35 36 37 38 39
+python.versions     38 39 310 311 312
 
 if {${name} ne ${subport}} {
     depends_lib-append      port:py${python.version}-setuptools
@@ -49,11 +48,5 @@ port select --set ${select.group} [file tail ${select.file}]
 "
 
     test.run        yes
-    test.cmd        ${python.bin}
-    test.args       -m unittest discover testsuite
-    test.target
-    test.env        PYTHONPATH=${worksrcpath}/build/lib
-
-
-    livecheck.type  none
+    python.test_framework unittest
 }

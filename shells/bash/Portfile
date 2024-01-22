@@ -1,16 +1,15 @@
-PortSystem 1.0
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           compiler_blacklist_versions 1.0
 
 name                bash
-set bash_version    5.0
-set bash_patchlevel 17
-subport bash44 {
-   # This port can be removed on March 1, 2021
-   replaced_by         bash
-   PortGroup           obsolete 1.0
-
-   set bash_version    4.4
-   set bash_patchlevel 23
-   revision            1
+set bash_version    5.2
+set bash_patchlevel 26
+subport bash50 {
+    # used by bashdb port
+    set bash_version    5.0
+    set bash_patchlevel 18
 }
 version             ${bash_version}.${bash_patchlevel}
 distname            ${name}-${bash_version}
@@ -28,8 +27,8 @@ long_description    \
     sh scripts can be run by Bash without modification.
 homepage            https://www.gnu.org/software/bash/bash.html
 if {${subport} eq ${name}} {
-   conflicts        bash44
-} elseif {${subport} eq "bash44"} {
+   conflicts        bash50
+} elseif {${subport} eq "bash50"} {
    conflicts        bash
 }
 
@@ -37,13 +36,123 @@ master_sites        gnu
 patch_sites         gnu:${name}/${distname}-patches
 dist_subdir         ${name}/${bash_version}_1
 
-if {${subport} eq ${name}} {
-   # Generate patchfiles
-   for {set i 1} {$i <= $bash_patchlevel} {incr i} {
-       patchfiles-append \
-           [format "%s%s-%03d" $name [strsed ${bash_version} {g/\.//}] $i]
-   }
+# Generate patchfiles
+for {set i 1} {$i <= $bash_patchlevel} {incr i} {
+    patchfiles-append \
+        [format "%s%s-%03d" $name [strsed ${bash_version} {g/\.//}] $i]
+}
 
+if {${subport} eq ${name}} {
+    checksums           ${distname}${extract.suffix} \
+                        rmd160  03d6cad0dce2c1bf6682afb88376feb0636cbc16 \
+                        sha256  a139c166df7ff4471c5e0733051642ee5556c1cc8a4a78f145583c5c81ab32fb \
+                        size    10950833
+
+    checksums-append    bash52-001 \
+                        rmd160  323c6de804d6c492c8df55f9e65222f5ae76e224 \
+                        sha256  f42f2fee923bc2209f406a1892772121c467f44533bedfe00a176139da5d310a \
+                        size    1381 \
+                        bash52-002 \
+                        rmd160  9340accbdbbcd25e22c0bc88e9c4f6a7a9075215 \
+                        sha256  45cc5e1b876550eee96f95bffb36c41b6cb7c07d33f671db5634405cd00fd7b8 \
+                        size    1328 \
+                        bash52-003 \
+                        rmd160  be06c915def9608d5dc19e735719792c3f8077d3 \
+                        sha256  6a090cdbd334306fceacd0e4a1b9e0b0678efdbbdedbd1f5842035990c8abaff \
+                        size    2157 \
+                        bash52-004 \
+                        rmd160  784a7e1fd83d0f438dee7ba87de48289cff6992c \
+                        sha256  38827724bba908cf5721bd8d4e595d80f02c05c35f3dd7dbc4cd3c5678a42512 \
+                        size    2016 \
+                        bash52-005 \
+                        rmd160  b0072da7328a3c2b0b9316c5e4465839415be5b3 \
+                        sha256  ece0eb544368b3b4359fb8464caa9d89c7a6743c8ed070be1c7d599c3675d357 \
+                        size    1515 \
+                        bash52-006 \
+                        rmd160  a95de86478b30457c4cc5682fa79e7b273a9e7d6 \
+                        sha256  d1e0566a257d149a0d99d450ce2885123f9995e9c01d0a5ef6df7044a72a468c \
+                        size    8790 \
+                        bash52-007 \
+                        rmd160  022a28c6daccd271ce6ea8e4f92c0500bef8c173 \
+                        sha256  2500a3fc21cb08133f06648a017cebfa27f30ea19c8cbe8dfefdf16227cfd490 \
+                        size    9072 \
+                        bash52-008 \
+                        rmd160  a23ea17ed4d97955c6f8505ff2c4e4a222111a0f \
+                        sha256  6b4bd92fd0099d1bab436b941875e99e0cb3c320997587182d6267af1844b1e8 \
+                        size    1771 \
+                        bash52-009 \
+                        rmd160  3e9e427247ca34ecf95e6d5674ed6471cb73be0a \
+                        sha256  f95a817882eaeb0cb78bce82859a86bbb297a308ced730ebe449cd504211d3cd \
+                        size    1316 \
+                        bash52-010 \
+                        rmd160  20808bd0d6a3f6bf6fad9afabf86f92ab137d7dc \
+                        sha256  c7705e029f752507310ecd7270aef437e8043a9959e4d0c6065a82517996c1cd \
+                        size    2045 \
+                        bash52-011 \
+                        rmd160  f14caeae72a607d4d334ff10fea2275550851a9a \
+                        sha256  831b5f25bf3e88625f3ab315043be7498907c551f86041fa3b914123d79eb6f4 \
+                        size    1229 \
+                        bash52-012 \
+                        rmd160  f605d65b520d8c92bbe4640511ff0940fb95d4fb \
+                        sha256  2fb107ce1fb8e93f36997c8b0b2743fc1ca98a454c7cc5a3fcabec533f67d42c \
+                        size    9107 \
+                        bash52-013 \
+                        rmd160  261e3b88a1905316fef2cc657883d0523c25818c \
+                        sha256  094b4fd81bc488a26febba5d799689b64d52a5505b63e8ee854f48d356bc7ce6 \
+                        size    1503 \
+                        bash52-014 \
+                        rmd160  0639d98227ebd71c2a252348ae23522862af2427 \
+                        sha256  3ef9246f2906ef1e487a0a3f4c647ae1c289cbd8459caa7db5ce118ef136e624 \
+                        size    3245 \
+                        bash52-015 \
+                        rmd160  4b96fdd43e1fea45fb69c3418d40199a581e7dfb \
+                        sha256  ef73905169db67399a728e238a9413e0d689462cb9b72ab17a05dba51221358a \
+                        size    8088 \
+                        bash52-016 \
+                        rmd160  04013fbe5d21a8c583395c0c6b1efe960a44526b \
+                        sha256  155853bc5bd10e40a9bea369fb6f50a203a7d0358e9e32321be0d9fa21585915 \
+                        size    1225 \
+                        bash52-017 \
+                        rmd160  6438d9ab91b46e9d2949c595162eb5007b5e9f9c \
+                        sha256  1c48cecbc9b7b4217990580203b7e1de19c4979d0bd2c0e310167df748df2c89 \
+                        size    1396 \
+                        bash52-018 \
+                        rmd160  6569790215d8c1d140a5f3a9082980f194bd6f18 \
+                        sha256  4641dd49dd923b454dd0a346277907090410f5d60a29a2de3b82c98e49aaaa80 \
+                        size    151467 \
+                        bash52-019 \
+                        rmd160  51be97047a006d15b14c81a25b2d65f10f6f0b3f \
+                        sha256  325c26860ad4bba8558356c4ab914ac57e7b415dac6f5aae86b9b05ccb7ed282 \
+                        size    2548 \
+                        bash52-020 \
+                        rmd160  b1de66a2edf18a5a0070986f119b3e191199cf39 \
+                        sha256  b6fc252aeb95ce67c9b017d29d81e8a5e285db4bf20d4ec8cdca35892be5c01d \
+                        size    1459 \
+                        bash52-021 \
+                        rmd160  afa6fea5edd7d253a49b5cfca67293d37e064adb \
+                        sha256  8334b88117ad047598f23581aeb0c66c0248cdd77abc3b4e259133aa307650cd \
+                        size    1890 \
+                        bash52-022 \
+                        rmd160  458bf889fc9d3fea00558deaf4e0d119badc1d7c \
+                        sha256  78b5230a49594ec30811e72dcd0f56d1089710ec7828621022d08507aa57e470 \
+                        size    1305 \
+                        bash52-023 \
+                        rmd160  38f12fc2e5486afff99259592ca68f88717fb6c4 \
+                        sha256  af905502e2106c8510ba2085aa2b56e64830fc0fdf6ee67ebb459ac11696dcd3 \
+                        size    1817 \
+                        bash52-024 \
+                        rmd160  64770d95e7d974160115b524b661ab8e06ee960c \
+                        sha256  971534490117eb05d97d7fd81f5f9d8daf927b4d581231844ffae485651b02c3 \
+                        size    2298 \
+                        bash52-025 \
+                        rmd160  ea44747bf5642655d0452ebbfc5d3a1bd706afd2 \
+                        sha256  5138f487e7cf71a6323dc81d22419906f1535b89835cc2ff68847e1a35613075 \
+                        size    1454 \
+                        bash52-026 \
+                        rmd160  9a4710c808def2c4d1337c81bd761936be0d9bc5 \
+                        sha256  96ee1f549aa0b530521e36bdc0ba7661602cfaee409f7023cac744dd42852eac \
+                        size    1372
+} elseif {${subport} eq "bash50"} {
    checksums           ${distname}${extract.suffix} \
                        rmd160  a081428a896d617855499376b670eca3433a27c1 \
                        sha256  b4a80f2ac66170b2913efbfb9f2594f1f76c7b1afd11f799e22035d63077fb4d \
@@ -116,17 +225,25 @@ if {${subport} eq ${name}} {
                        bash50-017 \
                        rmd160  a46602c2186a902f20f3260da2bbde825b7a8ad9 \
                        sha256  4cf3b9fafb8a66d411dd5fc9120032533a4012df1dc6ee024c7833373e2ddc31 \
-                       size    6517
+                       size    6517 \
+                       bash50-018 \
+                       rmd160  f3c61856439972d3a5b51c8140bb6899c259816e \
+                       sha256  7c314e375a105a6642e8ed44f3808b9def89d15f7492fe2029a21ba9c0de81d3 \
+                       size    1242
 
     patchfiles-append  patch-configure.diff
 }
 
 depends_build           bin:bison:bison
+# ar: internal ranlib command failed
+depends_build-append    port:cctools
 
 depends_lib             port:gettext \
                         port:ncurses
 
 variant universal {}
+
+compiler.blacklist-append *gcc-4.* {clang < 400}
 
 configure.ldflags-append \
     "-Wl,-search_paths_first -lncurses"
@@ -137,6 +254,8 @@ configure.args          --mandir=${prefix}/share/man \
 
 # Always source .bashrc when connecting remotely with ssh, #40603
 configure.cflags-append -DSSH_SOURCE_BASHRC
+
+configure.checks.implicit_function_declaration.whitelist-append strchr
 
 livecheck.type          regex
 livecheck.url           https://ftp.gnu.org/gnu/${name}/${name}-${bash_version}-patches/?C=M&O=D

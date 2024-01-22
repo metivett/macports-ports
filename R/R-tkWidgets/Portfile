@@ -1,0 +1,19 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             bioconductor Bioconductor tkWidgets 1.80.0
+revision            0
+categories-append   graphics
+maintainers         nomaintainer
+license             Artistic-2
+description         R-based tk widgets
+long_description    {*}${description}
+checksums           rmd160  509641ea265b8c1b188eb84a145108c3b609b425 \
+                    sha256  3267fca54e0f0e1232365e8bf71b104e7febfc5cb47d5be8304da857a9cb4885 \
+                    size    338585
+supported_archs     noarch
+
+depends_lib-append  port:R-DynDoc \
+                    port:R-widgetTools

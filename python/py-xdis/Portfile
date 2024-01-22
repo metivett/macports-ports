@@ -2,13 +2,17 @@
 
 PortSystem          1.0
 PortGroup           python 1.0
+PortGroup           github 1.0
 
-name                py-xdis
-version             5.0.7
+# py-xdis 6.0.5 does not support python 3.11
 # Note if you update this, make sure it supports the newest versions
 # of pythonXY in magics.py
-platforms           darwin
+github.setup        rocky python-xdis 6.0.5
+name                py-xdis
+revision            0
+
 supported_archs     noarch
+platforms           {darwin any}
 license             GPL-2
 maintainers         {khindenburg @kurthindenburg} openmaintainer
 
@@ -23,13 +27,11 @@ long_description \
     (NYU) called ACOR that estimates the autocorrelation time \
     of time series data very quickly.
 
-homepage            https://github.com/rocky/python-xdis
+checksums           rmd160  3e7777a9b3bcd5497da6a3040ec76c3989828d2d \
+                    sha256  be573650450d736a426534985673104349a0bacc3944864822c60de24a81935a \
+                    size    260472
 
-checksums           rmd160  d07632db86822b33d447085dfbe8952a933069a5 \
-                    sha256  4de95534c1096609be6950061ea25ffb4ecb89dbaca7469de4f9e2e4ee46a0ca \
-                    size    233290
-
-python.versions     27 35 36 37 38
+python.versions     37 38 39 310
 
 if {${name} ne ${subport}} {
     depends_lib-append  port:py${python.version}-click \
@@ -43,10 +45,8 @@ if {${name} ne ${subport}} {
     depends_test-append port:py${python.version}-pytest
 
     test.run        yes
+    python.test_framework
     test.dir        ${build.dir}/test
     test.cmd        make
     test.target     check-full
-    test.env        PYTHONPATH=${worksrcpath}/build/lib
-
-    livecheck.type  none
 }

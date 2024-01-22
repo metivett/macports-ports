@@ -1,10 +1,11 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
+PortGroup           fuse 1.0
+PortGroup           github 1.0
 
-name                ntfs-3g
-version             2017.3.23
-revision            1
+github.setup        tuxera ntfs-3g 2022.10.3
+revision            0
 categories          fuse
 platforms           darwin
 maintainers         nomaintainer
@@ -19,31 +20,21 @@ long_description    The NTFS-3G driver is an open source, freely available \
                     Also included are ntfsprogs, a set of utilities to create \
                     and manipulate NTFS file systems.
 
-homepage            http://www.tuxera.com/community/ntfs-3g-download/
+homepage            https://www.tuxera.com/company/open-source/
 distname            ntfs-3g_ntfsprogs-${version}
 extract.suffix      .tgz
 
-master_sites        http://tuxera.com/opensource/
+master_sites        https://tuxera.com/opensource/
 
-checksums           rmd160  aae0cd7a2560ad87ba41832f1b34af5aaaa38739 \
-                    sha256  3e5a021d7b761261836dcb305370af299793eedbded731df3d6943802e1262d5
+checksums           rmd160  4f17aecd0a9e6ff1fd44e434d0484ac1e784ef1e \
+                    sha256  f20e36ee68074b845e3629e6bced4706ad053804cbaf062fbae60738f854170c \
+                    size    1324320
 
-livecheck.type      regex
-livecheck.regex     {stable version</span></b> is <a href="https://tuxera.com/opensource/ntfs-3g_ntfsprogs-(.+?)\.tgz"}
-
-depends_build       port:pkgconfig
-
-depends_lib         path:lib/pkgconfig/fuse.pc:osxfuse \
-                    port:ossp-uuid
-
-# osxfuse is not universal
-universal_variant   no
+depends_lib-append  port:ossp-uuid
 
 # Use default PKG_CONFIG_PATH to avoid picking up a FUSE installation
 # in /usr/local (see #30537)
-patchfiles          patch-configure.diff \
-                    libntfs-3g_Makefile.in.patch \
-                    patch-CVE-2019-9755.diff
+patchfiles          patch-configure.diff
 
 configure.args      --exec-prefix=${prefix} --with-fuse=external
 # do not try to use this function in macOS 10.13 to avoid compilation error

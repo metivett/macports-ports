@@ -2,31 +2,35 @@
 
 PortSystem          1.0
 PortGroup           python 1.0
-PortGroup           github 1.0
 
-github.setup        rtfd sphinx_rtd_theme 0.4.3
-revision            0
 name                py-sphinx_rtd_theme
-platforms           darwin
+version             2.0.0
+revision            0
+
 supported_archs     noarch
+platforms           {darwin any}
 license             MIT BSD
 maintainers         nomaintainer
 
 description         ReadTheDocs.org mobile-friendly Sphinx theme.
-long_description    ${description}
+long_description    {*}${description}
 
-# do not download file from github since the one from pypi is significantly smaller
-master_sites        pypi:s/sphinx_rtd_theme
+homepage            https://sphinx-rtd-theme.readthedocs.io/
 
-checksums           rmd160  4445532bc9604877e8a28c819a403bc47f49895d \
-                    sha256  728607e34d60456d736cc7991fd236afb828b21b82f956c5ea75f94c8414040a \
-                    size    5391190
+checksums           rmd160  9b46f9c8b20aeec21d26279bb078408204088e06 \
+                    sha256  bd5d7b80622406762073a04ef8fadc5f9151261563d47027de09910ce03afe6b \
+                    size    2785005
 
-python.versions     27 35 36 37 38 39
+python.versions     38 39 310 311 312
 
 if {${subport} ne ${name}} {
     depends_build-append \
                     port:py${python.version}-setuptools
+
+    depends_lib-append \
+                    port:py${python.version}-docutils \
+                    port:py${python.version}-sphinx \
+                    port:py${python.version}-sphinxcontrib-jquery
 
     post-destroot {
         set docdir ${prefix}/share/doc/${subport}
@@ -34,6 +38,4 @@ if {${subport} ne ${name}} {
         xinstall -m 0644 -W ${worksrcpath} LICENSE OFL-License.txt \
             Apache-License-2.0.txt README.rst ${destroot}${docdir}
     }
-
-    livecheck.type  none
 }

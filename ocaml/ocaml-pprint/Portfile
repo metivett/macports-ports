@@ -5,7 +5,7 @@ PortGroup github    1.0
 PortGroup ocaml     1.1
 
 name                ocaml-pprint
-github.setup        fpottier pprint 20180528
+github.setup        fpottier pprint 20230830
 
 categories          ocaml devel
 maintainers         {landonf @landonf} openmaintainer
@@ -13,14 +13,9 @@ license             LGPL-2
 description         Pretty-printing library for OCaml
 long_description    A pretty-printing combinator library and rendering engine for OCaml.
 
-platforms           darwin
+checksums           rmd160  75cf4253ee5a33ecb485476901e5d2846607ad04 \
+                    sha256  3eddd10895d7abe792bdfb3af39af169d4aaacc41b4a4e9a11250f60bcd6ebf0 \
+                    size    52012
+github.tarball_from archive
 
-distname            ${version}
-checksums           rmd160  4cd561dca3c43cae8fddc8fe9ac086277f9fc47d \
-                    sha256  bed5297cda86ceedcf32a12dc0456d605a1653a4f5c69a06aea380b1b6f71fb4 \
-                    size    40098
-
-depends_build       port:ocaml-ocamlbuild
-
-use_configure       no
-ocaml.use_findlib   yes
+ocaml.build_type    dune

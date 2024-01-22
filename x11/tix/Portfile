@@ -5,11 +5,11 @@ PortGroup           active_variants 1.1
 
 name                tix
 version             8.4.3
-revision            3
+revision            5
 platforms           darwin
 categories          x11
 license             BSD
-maintainers         nomaintainer
+maintainers         {gmx.us:chrischavez @chrstphrchvz} openmaintainer
 description         Tk Interface eXtension
 long_description    Tix, the Tk Interface eXtension, is a powerful set of \
                     user interface components that expands the capabilities \
@@ -35,7 +35,7 @@ depends_lib         port:tcl \
 patchfiles          patch-generic-tixGrSort.c.diff \
                     patch-tk_x11.diff \
                     patch-dyld_variable.diff \
-                    implicit.patch
+                    patch-tk_aqua.diff
 
 # Fix implicit function declarations
 patchfiles-append   patch-missing-headers.diff \
@@ -51,6 +51,11 @@ variant quartz conflicts x11 {
 
 variant x11 conflicts quartz {
     require_active_variants tk x11
+
+    configure.args-append \
+                    --with-x \
+                    --x-includes=${prefix}/include \
+                    --x-libraries=${prefix}/lib
 }
 
 if {![variant_isset quartz]} {

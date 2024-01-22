@@ -4,10 +4,10 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-aiojobs
-version             0.3.0
+version             1.2.1
 license             Apache-2
-platforms           darwin
 supported_archs     noarch
+platforms           {darwin any}
 maintainers         {toby @tobypeterson} openmaintainer
 description         Jobs scheduler for managing background task
 long_description    Jobs scheduler for managing background task (asyncio). The \
@@ -16,17 +16,20 @@ long_description    Jobs scheduler for managing background task (asyncio). The \
 
 homepage            https://github.com/aio-libs/aiojobs
 
-checksums           rmd160 ecf3120b199d66f0f5ccadfb1b726d2f52f75aa7 \
-                    sha256 f6631d42dc4308f7d883abbd70d4e976f3fcc35a3ba1e8eae5d4af4940a1e0c3 \
-                    size 136975
+checksums           rmd160  50107fb88e557dae32bba843acc55801852d3aa9 \
+                    sha256  59d6e7ad7829e9d0f73bfceeae28153b541be6b0959a08cc5ceb222717c888ff \
+                    size    135182
 
-python.versions     37 38 39
+python.versions     38 39 310 311 312
+
+python.pep517       yes
 
 if {${name} ne ${subport}} {
-    depends_build   port:py${python.version}-setuptools
-    depends_lib     port:py${python.version}-aiohttp
+    depends_lib-append      port:py${python.version}-aiohttp \
+
+    if {${python.version} < 311} {
+        depends_lib-append  port:py${python.version}-async-timeout
+    }
 
     livecheck.type  none
-} else {
-    livecheck.type  pypi
 }

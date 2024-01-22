@@ -1,0 +1,35 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+# GitHub version lags behind.
+R.setup             cran yihui xfun 0.41
+revision            0
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             BSD
+description         Miscellaneous R functions
+long_description    {*}${description}
+homepage            https://yihui.org/xfun
+checksums           rmd160  a3b9ef0cc3a7b8ee22c08cf6915649e82d661fae \
+                    sha256  2374c3b8f141f1e5ff01b291d8aa5c3dc807dd8e99ab4dc7a048c9534a7e3b02 \
+                    size    135720
+
+depends_test-append port:R-curl \
+                    port:R-htmltools \
+                    port:R-jsonlite \
+                    port:R-knitr \
+                    port:R-magick \
+                    port:R-markdown \
+                    port:R-mime \
+                    port:R-pak \
+                    port:R-remotes \
+                    port:R-renv \
+                    port:R-rhub \
+                    port:R-rmarkdown \
+                    port:R-rstudioapi \
+                    port:R-testit \
+                    port:R-tinytex \
+                    port:R-yaml
+
+test.run            yes

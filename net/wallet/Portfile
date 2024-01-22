@@ -5,8 +5,8 @@ PortGroup           perl5 1.0
 
 perl5.require_variant   yes
 perl5.conflict_variants yes
-perl5.branches          5.26 5.28 5.30
-perl5.default_branch    5.28
+perl5.branches          5.28 5.30 5.32 5.34
+perl5.default_branch    5.34
 perl5.create_variants   ${perl5.branches}
 
 name                wallet
@@ -27,13 +27,14 @@ long_description    The wallet is a system for managing secure data, \
                     is Kerberos keytabs, making it suitable as a \
                     user-accessible front-end to Kerberos kadmind with \
                     richer ACL and metadata operations.
-homepage            http://eyrie.org/~eagle/software/wallet/
+homepage            https://eyrie.org/~eagle/software/wallet/
 
-platforms           darwin
-master_sites        http://archives.eyrie.org/software/kerberos/ \
-                    http://archives.eyrie.org/software/ARCHIVE/wallet/
-checksums           rmd160 188b3561fcffe99342fcfb1312b58df3f3d919b5 \
-                    sha256 676d3d6e407509fc9da1dd87d98fadc71920dabfbc4bdeb8cde5e2bc937268b8
+master_sites        https://archives.eyrie.org/software/kerberos/ \
+                    https://archives.eyrie.org/software/ARCHIVE/wallet/
+
+checksums           rmd160  188b3561fcffe99342fcfb1312b58df3f3d919b5 \
+                    sha256  676d3d6e407509fc9da1dd87d98fadc71920dabfbc4bdeb8cde5e2bc937268b8 \
+                    size    475277
 
 # Start with the dependencies we know we need
 depends_lib-append  port:kerberos5 \
@@ -101,6 +102,9 @@ subport wallet-server {
     # We can't use perl5.setup because it overrides alot of settings that
     # we need.
     #perl5.setup		Wallet 1.003
+
+    platforms           {darwin any}
+    supported_archs     noarch
 
     long_description-append The wallet server, run by remctld, maintains \
                             the database of object metadata and secure \
@@ -194,6 +198,9 @@ and is configured correctly!
 # can use to generate unchanging keytabs for a Wallet server.
 # TODO: Patch keytab and wallet remctl config files to use ${destroot}${prefix}
 subport wallet-kdc {
+    platforms           any
+    supported_archs     noarch
+
     long_description-append This port contains a remctl script, to be \
                             run on the Kerberos 5 KDC, that will generate \
                             keytabs at the request of a Wallet server.  This \

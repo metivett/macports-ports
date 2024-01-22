@@ -4,7 +4,7 @@ PortSystem              1.0
 PortGroup               github 1.0
 PortGroup               makefile 1.0
 
-github.setup            hashcat hashcat 6.1.1 v
+github.setup            hashcat hashcat 6.2.5 v
 github.tarball_from     archive
 
 categories              security
@@ -25,7 +25,6 @@ homepage                https://hashcat.net/hashcat/
 
 build.target            {}
 
-checksums               rmd160  ded2fc1bdbf71836f260df35a909fdc660b780f6 \
-                        sha256  39c140bbb3c0bdb1564bfa9b9a1cff49115a42f4c9c19e9b066b617aea309f80 \
-                        size    5385180
-
+checksums               rmd160  77eadd5b4a583db336ba4e22a395da4acd3d5494 \
+                        sha256  6f6899d7ad899659f7b43a4d68098543ab546d2171f8e51d691d08a659378969 \
+                        size    6341872

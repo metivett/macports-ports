@@ -4,31 +4,35 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-tomlkit
-version             0.5.8
+version             0.12.3
 revision            0
 categories-append   devel
-platforms           darwin
+platforms           {darwin any}
 license             MIT
 supported_archs     noarch
 
-python.versions     37 38 39
+python.versions     37 38 39 310 311 312
 
-maintainers         {gmail.com:davidgilman1 @dgilman} openmaintainer
+maintainers         {gmail.com:davidgilman1 @dgilman} {judaew @judaew} \
+                    openmaintainer
 
 description         Style preserving TOML library
-long_description    ${description}
-
+long_description    {*}${description}
 homepage            https://github.com/sdispater/tomlkit
 
-checksums           rmd160  594810a362d5ba3bca3d1154ea11fcf923f12574 \
-                    sha256  32c10cc16ded7e4101c79f269910658cc2a0be5913f1252121c3cd603051c269 \
-                    size    66567
-
+checksums           rmd160  d09f01f6103a57ba296e65b38118fb51042e4ad4 \
+                    sha256  75baf5012d06501f07bee5bf8e801b9f343e7aac5a92581f20f80ce632e6b5a4 \
+                    size    190967
 
 if {${name} ne ${subport}} {
-    post-destroot {
-        # https://github.com/sdispater/tomlkit/issues/69
-        delete      ${destroot}${python.pkgd}/tests
-    }
-    livecheck.type  none
+    python.pep517   yes
+    python.pep517_backend \
+                    poetry
+
+    depends_build-append \
+                    port:py${python.version}-setuptools
+    depends_test-append \
+                    port:py${python.version}-yaml
+
+    test.run        yes
 }

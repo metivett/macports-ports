@@ -1,0 +1,22 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran mplex multiplex 3.1.1
+revision            0
+categories-append   math
+maintainers         nomaintainer
+license             GPL-3
+description         Algebraic tools for the analysis of multiple social networks
+long_description    {*}${description}
+checksums           rmd160  c7a5643daf83b0a2d7a0548171d81fa4174609c9 \
+                    sha256  70dcb992e4ffe83b96c3330c1d730eac9e2861e613087714510c08551b66eb78 \
+                    size    341744
+supported_archs     noarch
+
+depends_test-append port:R-knitr \
+                    port:R-multigraph \
+                    port:R-Rgraphviz
+
+test.run            yes

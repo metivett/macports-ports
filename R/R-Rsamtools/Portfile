@@ -1,0 +1,29 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             github Bioconductor Rsamtools cb532a85d712c82431ed72e874f97e71e08d588a
+version             2.19.0
+revision            0
+maintainers         nomaintainer
+license             Artistic-2
+description         Binary alignment (BAM), FASTA, variant call (BCF) and tabix file import
+long_description    {*}${description}
+homepage            https://bioconductor.org/packages/${R.package}
+checksums           rmd160  59a349af41459807672ba699670cdbc718c2f1b0 \
+                    sha256  bc6eab191fb59e7335ff9b6ba461d7521218535b29cc87d0c43edc8bdaa75f2f \
+                    size    2682456
+
+depends_lib-append  port:curl \
+                    port:R-BiocGenerics \
+                    port:R-BiocParallel \
+                    port:R-Biostrings \
+                    port:R-bitops \
+                    port:R-GenomeInfoDb \
+                    port:R-GenomicRanges \
+                    port:R-IRanges \
+                    port:R-Rhtslib \
+                    port:R-S4Vectors \
+                    port:R-XVector \
+                    port:R-zlibbioc

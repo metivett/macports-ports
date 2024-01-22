@@ -1,0 +1,35 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           cmake 1.1
+PortGroup           github 1.0
+
+github.setup        lexbor lexbor 2.3.0 v
+revision            0
+checksums           rmd160  deac7830fce8949467e4063911b959d187126cb8 \
+                    sha256  522ad446cd01d89cb870c6561944674e897f8ada523f234d5be1f8d2d7d236b7 \
+                    size    4213726
+
+description         a fast embeddable web browser engine
+
+long_description    ${name} is {*}${description} written in C with no \
+                    dependencies.
+
+categories          net www
+platforms           darwin
+maintainers         {ryandesign @ryandesign} openmaintainer
+license             Apache-2
+
+homepage            https://lexbor.com
+github.tarball_from archive
+
+compiler.c_standard 1999
+
+set docdir          ${prefix}/share/doc/${subport}
+
+post-destroot {
+    xinstall -d ${destroot}${docdir}
+    xinstall -m 0644 -W ${worksrcpath} \
+        CHANGELOG.md LICENSE NOTICE README.md \
+        ${destroot}${docdir}
+}

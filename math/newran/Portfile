@@ -1,34 +1,39 @@
-PortSystem 1.0
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
-name              newran
-version           02
-categories        math
-maintainers       nomaintainer
+PortSystem          1.0
+PortGroup           cmake 1.1
 
-description       This is a C++ library for generating sequences of random numbers from a wide variety of distributions.
+name                newran
+version             03
+revision            0
+checksums           rmd160  2e8ef1496011105d0663d86a0649ec27fe3e2fc1 \
+                    sha256  127b69ebd886bf8051de0c4cc1c936db2f395650860351891fda4acd84e6bfb6 \
+                    size    102984
 
-long_description This is a C++ library for generating sequences of random numbers from a wide variety of distributions. It is particularly appropriate for the situation where one requires sequences of identically distributed random numbers since the set up time for each type of distribution is relatively long but it is efficient when generating each new random number. The library includes classes for generating random numbers from a number of distributions and is easily extended to be able to generate random numbers from almost any of the standard distributions.
+categories          math
+maintainers         nomaintainer
+license             permissive
 
-homepage          http://www.robertnz.net/
-platforms         darwin
-master_sites      http://www.robertnz.net/ftp/
-distname          ${name}${version}
-checksums         md5 db2bb22b6d96f1c04ce25f91ec7aeece \
-                  sha1 6c5b0493b11732c2f9152fe0f73bb6d4605f2da8 \
-                  rmd160 4693b8a85945468c173695c0da07a63d408d0392
+description         This is a C++ library for generating sequences of random numbers from a wide variety of distributions.
 
-depends_build     path:bin/cmake:cmake
-configure.cmd     cmake
+long_description    {*}${description} It is particularly appropriate for the situation where one requires sequences \
+                    of identically distributed random numbers since the set up time for each type of distribution \
+                    is relatively long but it is efficient when generating each new random number. The library includes \
+                    classes for generating random numbers from a number of distributions and is easily extended \
+                    to be able to generate random numbers from almost any of the standard distributions.
 
-configure.pre_args
-configure.args    -DCMAKE_INSTALL_PREFIX:PATH=${prefix}
+homepage            https://www.robertnz.net
+master_sites        https://www.robertnz.net/ftp/
+distname            ${name}${version}
 
-use_parallel_build yes
-extract.mkdir     yes
-pre-configure {
+extract.mkdir       yes
+
+post-patch {
   file copy ${filespath}/CMakeLists.txt ${worksrcpath}
 }
 
-livecheck.type    regex
-livecheck.url     ${homepage}/download.html
-livecheck.regex   {newran([0-9.]+).tar.gz.*}
+configure.cxxflags-append -D_STANDARD_
+
+livecheck.type      regex
+livecheck.url       ${homepage}/download.html
+livecheck.regex     {newran([0-9.]+)\.tar\.gz}

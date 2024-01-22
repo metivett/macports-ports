@@ -10,8 +10,8 @@ legacysupport.newest_darwin_requires_legacy 10
 
 name                sslh
 epoch               1
-version             1.21c
-revision            1
+version             2.0.1
+revision            0
 categories          net security www
 platforms           darwin
 maintainers         {amake @amake} openmaintainer
@@ -25,27 +25,26 @@ long_description    sslh lets one accept both HTTPS and SSH connections \
                     corporate firewall) while still serving HTTPS on \
                     that port.
 
-homepage            http://rutschle.net/tech/sslh/README.html
-master_sites        http://rutschle.net/tech/sslh/
+homepage            https://rutschle.net/tech/sslh/README.html
+master_sites        https://rutschle.net/tech/sslh/
 
 distname            ${name}-v${version}
 
-checksums           rmd160  c1e6ba33aab928f2a78cc16fe4ba57980d784128 \
-                    sha256  3bfe783726f82c1f5a4be630ddc494ebb08dbb69980662cd7ffdeb7bc9e1e706 \
-                    size    111894
+checksums           rmd160  8e069e81f0998e15ad875be15703900749b6161a \
+                    sha256  d88d43ee11cf1324983c196c894b41766c33d957b6af53b62c8479703bbbd26c \
+                    size    175297
 
 depends_lib         port:libconfig-hr \
-                    port:pcre
+                    port:pcre2 \
+                    port:libev
 
 depends_build-append \
                     port:conf2struct
 
-patchfiles          Makefile.patch
-
 use_parallel_build  no
 
 destroot {
-    xinstall -W ${worksrcpath} sslh-fork sslh-select ${destroot}${prefix}/sbin/
+    xinstall -W ${worksrcpath} sslh-fork sslh-select sslh-ev ${destroot}${prefix}/sbin/
     ln -s sslh-fork ${destroot}${prefix}/sbin/sslh
 
     xinstall -m 0644 ${worksrcpath}/sslh.8.gz ${destroot}${prefix}/share/man/man8/
@@ -57,5 +56,5 @@ destroot {
 }
 
 livecheck.type      regex
-livecheck.url       http://rutschle.net/tech/sslh/download.html
+livecheck.url       https://rutschle.net/tech/sslh/download.html
 livecheck.regex     ${name}-v(\[0-9.\]+\[a-z\]?)${extract.suffix}

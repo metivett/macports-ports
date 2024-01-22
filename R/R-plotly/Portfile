@@ -1,0 +1,38 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran plotly plotly 4.10.3
+revision            0
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             MIT
+description         Create interactive web graphics via plotly.js
+long_description    {*}${description}
+homepage-append     https://plotly-r.com
+checksums           rmd160  a8fb1aed3ea16b960af2297ade0c7bf70d07db92 \
+                    sha256  8b7a6c26443088c8aae4624e01cf726a91fee875c2e60b6c439375d1adaa5d8f \
+                    size    3903037
+supported_archs     noarch
+
+depends_lib-append  port:R-base64enc \
+                    port:R-crosstalk \
+                    port:R-data.table \
+                    port:R-dplyr \
+                    port:R-digest \
+                    port:R-ggplot2 \
+                    port:R-htmltools \
+                    port:R-htmlwidgets \
+                    port:R-httr \
+                    port:R-jsonlite \
+                    port:R-lazyeval \
+                    port:R-magrittr \
+                    port:R-promises \
+                    port:R-purrr \
+                    port:R-RColorBrewer \
+                    port:R-rlang \
+                    port:R-scales \
+                    port:R-tibble \
+                    port:R-tidyr \
+                    port:R-vctrs \
+                    port:R-viridisLite

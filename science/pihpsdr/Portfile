@@ -1,12 +1,12 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:filetype=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
+PortGroup           legacysupport 1.1
 PortGroup           makefile 1.0
 PortGroup           github 1.0
-PortGroup           legacysupport 1.1
 
-# strnlen
-legacysupport.newest_darwin_requires_legacy 10
+# strnlen, clock_gettime
+legacysupport.newest_darwin_requires_legacy 15
 
 name                pihpsdr
 categories          science comms
@@ -16,11 +16,11 @@ maintainers         {ra1nb0w @ra1nb0w} openmaintainer
 description         piHPSDR is an HPSDR application designed for low power boards, like Raspberry.
 long_description    ${description}
 
-github.setup        dl1ycf pihpsdr 2161fc051c9c0369dde65c32af884b59b6ccf636
-version             20210210-[string range ${github.version} 0 7]
-checksums           rmd160  142fccda2475f280cc3d0c96858ce4b75fe2e441 \
-                    sha256  72f5a1aab5a3f4ea430bd250bbbf2e8e86e24c6a8800ce7954bf5212038eca54 \
-                    size    114571484
+github.setup        dl1ycf pihpsdr a5992fe8f83669561eb162d018c41787c360d341
+version             20230516-[string range ${github.version} 0 7]
+checksums           rmd160  ced4a947f136996cf61d780519b84b3c348a5bf5 \
+                    sha256  f3f6c41d97ebc6e7918e82c9261fc3e2540e49dcb3b8aea95a1870298bc6af7d \
+                    size    119067573
 revision            0
 
 compiler.c_standard 1999
@@ -29,10 +29,10 @@ depends_build-append \
     port:pkgconfig
 
 depends_lib-append \
-    port:gtk3 \
+    path:lib/pkgconfig/gtk+-3.0.pc:gtk3 \
     path:lib/pkgconfig/pango.pc:pango \
     port:atk \
-    port:gdk-pixbuf2 \
+    path:lib/pkgconfig/gdk-pixbuf-2.0.pc:gdk-pixbuf2 \
     path:lib/pkgconfig/glib-2.0.pc:glib2 \
     port:gettext \
     port:portaudio \
@@ -41,8 +41,12 @@ depends_lib-append \
     port:curl
 
 use_configure       no
-build.args-append   -f Makefile.mac
 makefile.override   CFLAGS LDFLAGS
+
+build.args-append \
+    GPIO_INCLUDE= \
+    LOCALCW_INCLUDE= \
+    STEMLAB_DISCOVERY=STEMLAB_DISCOVERY_NOAVAHI
 
 pre-configure {
     # fix image path
@@ -54,13 +58,23 @@ variant soapysdr description "Enable SoapySDR support" {
     depends_lib-append \
         port:SoapySDR
 
-    patchfiles-delete \
-        disable-soapysdr.patch
+    build.args-append \
+        SOAPYSDR_INCLUDE=SOAPYSDR
 }
 
 variant window1440x900 description "Enable 1440x900 resolution on the main window" {
     patchfiles-append \
        largewindow-1440x900.patch
+}
+
+variant native description "Native CPU flags" {
+    configure.cflags-append -march=native
+}
+
+variant localcw description "Enable local CW iambic" {
+    build.args-replace \
+        LOCALCW_INCLUDE= \
+        LOCALCW_INCLUDE=LOCALCW
 }
 
 destroot {

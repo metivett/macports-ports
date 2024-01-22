@@ -1,0 +1,19 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran jeroen unix 1.5.6
+revision            0
+categories-append   sysutils
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             MIT
+description         POSIX system utilities
+long_description    {*}${description}
+checksums           rmd160  3237fc612bd03dcada7511c49ec9fcbe4952cdf9 \
+                    sha256  576172d667598245413374121bdcefe6445773aedbb6ce3baf0be2ad5a9a19b9 \
+                    size    20679
+
+depends_test-append port:R-testthat
+
+test.run            yes

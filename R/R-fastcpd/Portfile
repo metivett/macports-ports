@@ -1,0 +1,55 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran doccstat fastcpd 0.10.1
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             GPL-3+
+description         Fast change point detection via sequential gradient descent
+long_description    {*}${description}
+homepage            https://fastcpd.xingchi.li
+checksums           rmd160  8174e44592054cac6e43d00237a1bdb9d2ce252d \
+                    sha256  5d3432fa2c60e63741293cca78cbd9bc74fb1c9e3001e86a8fa93f85a72f4197 \
+                    size    3396122
+
+depends_lib-append  port:R-fastglm \
+                    port:R-forecast \
+                    port:R-glmnet \
+                    port:R-progress \
+                    port:R-Rcpp \
+                    port:R-RcppArmadillo \
+                    port:R-testthat \
+                    port:R-tseries
+
+compilers.setup     require_fortran
+
+depends_test-append port:R-abind \
+                    port:R-bcp \
+                    port:R-breakfast \
+                    port:R-changepoint \
+                    port:R-cpm \
+                    port:R-ecp \
+                    port:R-fpop \
+                    port:R-ggplot2 \
+                    port:R-gridExtra \
+                    port:R-knitr \
+                    port:R-lubridate \
+                    port:R-mcp \
+                    port:R-mockthat \
+                    port:R-mosum \
+                    port:R-mvtnorm \
+                    port:R-not \
+                    port:R-numDeriv \
+                    port:R-rmarkdown \
+                    port:R-segmented \
+                    port:R-stepR \
+                    port:R-strucchange \
+                    port:R-testthat \
+                    port:R-wbs \
+                    port:R-xml2 \
+                    port:R-zoo
+
+test.run            yes

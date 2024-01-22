@@ -1,0 +1,55 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           github 1.0
+PortGroup           app 1.0
+PortGroup           meson 1.0
+PortGroup           legacysupport 1.1
+
+github.setup        lite-xl lite-xl 2.1.2 v
+github.tarball_from archive
+revision            0
+maintainers         {harens @harens} openmaintainer
+categories          editors lua
+description         A lightweight text editor written in Lua
+long_description    {*}${description}, adapted from lite. It aims to provide \
+                    something practical, pretty, small and fast. Easy to modify and \
+                    extend, or to use without doing either.
+platforms           darwin
+license             MIT
+homepage            https://${name}.com/
+
+checksums           rmd160  8bb876a99199998aa2a35b138205db186d9818fd \
+                    sha256  0ad5acbdc7a08f771386283f40f967c87a1d002bc5232ca78af2aa4fdb7bf38b \
+                    size    552492
+
+app.name            Lite XL
+app.icon            resources/icons/${name}.svg
+app.retina          yes
+
+# clock_gettime required by reproc dependency
+legacysupport.newest_darwin_requires_legacy 15
+
+# Do not download any subprojects
+meson.wrap_mode     nodownload
+
+configure.args-append \
+                    --buildtype=release \
+                    -Duse_system_lua=true
+
+# See https://github.com/macports/macports-ports/commit/5f87a7089d78f08e0674db5de0a27c1b4ea528e4
+compiler.cxx_standard 2003
+configure.cxxflags-append -std=c++03
+
+compiler.c_standard 2011
+
+depends_build-append \
+                    path:bin/cmake:cmake \
+                    port:pkgconfig
+
+depends_lib-append  port:antigraingeometry \
+                    port:freetype \
+                    port:libsdl2 \
+                    port:lua54 \
+                    port:pcre2 \
+                    port:reproc

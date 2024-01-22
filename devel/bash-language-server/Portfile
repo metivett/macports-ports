@@ -1,0 +1,22 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           npm 1.0
+
+name                bash-language-server
+version             5.1.2
+revision            0
+
+categories          devel
+license             MIT
+platforms           any
+supported_archs     noarch
+maintainers         {judaew @judaew} openmaintainer
+
+description         A language server for Bash
+long_description    {*}${description}
+homepage            https://github.com/bash-lsp/bash-language-server
+
+checksums           rmd160  d07dd783f029e96dfb3444e6682b7427ceb5db58 \
+                    sha256  4a951fbbe6d7df7f5ed6e6facd9ba1856bddec6b3e0d25517495f68a014fb052 \
+                    size    211254

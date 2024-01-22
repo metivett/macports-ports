@@ -2,16 +2,15 @@
 
 PortSystem          1.0
 PortGroup           python 1.0
-PortGroup           meson 1.0
 
 name                py-gobject3
 set my_name         pygobject
-version             3.38.0
+version             3.46.0
 revision            0
-set branch          [join [lrange [split ${version} .] 0 1] .]
+
 categories-append   gnome
 license             LGPL-2.1+
-maintainers         {devans @dbevans} openmaintainer
+maintainers         {devans @dbevans} {mascguy @mascguy} openmaintainer
 platforms           darwin
 description         Python bindings for GObject, version 3
 
@@ -19,51 +18,56 @@ long_description    PyGObject is a Python dynamic module that enables developers
                     power of GObject, which is part of the GNOME platform.
 
 homepage            https://pygobject.readthedocs.io/
-master_sites        gnome:sources/${my_name}/${branch}/
-distname            ${my_name}-${version}
 use_xz              yes
 
-checksums           rmd160  6f4d13c182cd8fedd78c01527efcc1cf116cde7e \
-                    sha256  0372d1bb9122fc19f500a249b1f38c2bb67485000f5887497b4b205b3e7084d5 \
-                    size    553892
+checksums           rmd160  ab889fe19d883dbe9ce693cfe6d4af048a353014 \
+                    sha256  426008b2dad548c9af1c7b03b59df0440fde5c33f38fb5406b103a43d653cafc \
+                    size    561552
 
-python.versions     35 36 37 38 39
+python.versions     36 37 38 39 310 311 312
+python.pep517       no
 
 if {${name} ne ${subport}} {
-    depends_build-append    port:pkgconfig
+    if {${python.version} < 38} {
+        version     3.44.1
+        revision    0
 
-    depends_lib-append      path:lib/pkgconfig/glib-2.0.pc:glib2 \
+        checksums   rmd160  6c6eb71defdef6095371bcddc33faf4db4e856e9 \
+                    sha256  3c6805d1321be90cc32e648215a562430e0d3d6edcda8f4c5e7a9daffcad5710 \
+                    size    559432
+    }
+
+    set branch              [join [lrange [split ${version} .] 0 1] .]
+    master_sites            gnome:sources/${my_name}/${branch}/
+    distname                ${my_name}-${version}
+
+    depends_build-append \
+                            port:pkgconfig \
+                            port:py${python.version}-setuptools
+
+    depends_lib-append \
+                            path:lib/pkgconfig/glib-2.0.pc:glib2 \
+                            path:lib/pkgconfig/gobject-introspection-1.0.pc:gobject-introspection \
                             port:libffi \
-                            port:py${python.version}-cairo \
-                            port:gobject-introspection
+                            port:py${python.version}-cairo
 
     compiler.c_standard     2011
 
-    use_configure           yes
+    build.target            build_ext
+    build.args-append       --inplace
 
-    configure.pkg_config_path \
-                            ${python.prefix}/lib/pkgconfig
-
-    configure.pre_args      --prefix='${python.prefix}'
-    configure.args          -Dpython=${python.bin}
-    configure.cppflags-append \
-                            -I${python.prefix}/include
-
-    destroot.cmd            ${build.cmd}
-
-if {![info exists universal_possible]} {
-    set universal_possible [expr {${os.universal_supported} && [llength ${configure.universal_archs}] >= 2}]
-}
-# uses g-ir-scanner, which uses $CC from env
-if {${universal_possible} && [variant_isset universal]} {
-    foreach arch ${configure.universal_archs} {
-        lappend merger_build_env(${arch})  "CC=${configure.cc} -arch ${arch}"
-        lappend merger_destroot_env(${arch})  "CC=${configure.cc} -arch ${arch}"
+    # uses g-ir-scanner, which uses $CC from env
+    if {${universal_possible} && [variant_isset universal]} {
+        foreach arch ${configure.universal_archs} {
+            lappend merger_build_env(${arch}) \
+                            "CC=${configure.cc} -arch ${arch}"
+            lappend merger_destroot_env(${arch}) \
+                            "CC=${configure.cc} -arch ${arch}"
+        }
+    } else {
+        build.env-append    "CC=${configure.cc} ${configure.cc_archflags}"
+        destroot.env-append "CC=${configure.cc} ${configure.cc_archflags}"
     }
-} else {
-    build.env-append       "CC=${configure.cc} ${configure.cc_archflags}"
-    destroot.env-append    "CC=${configure.cc} ${configure.cc_archflags}"
-}
 
     livecheck.type          none
 } else {

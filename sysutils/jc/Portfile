@@ -1,0 +1,36 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem              1.0
+PortGroup               python 1.0
+
+name                    jc
+version                 1.24.0
+revision                0
+
+homepage                https://pypi.org/project/jc
+
+description             ${name} converts the output of popular command-line \
+                        tools and file-types to JSON.
+
+long_description        {*}${description} This allows for piping the output \
+                        to tools like jq, and/or for easier parsing within \
+                        scripts.
+
+categories              sysutils textproc python
+license                 MIT
+maintainers             {gmail.com:herby.gillot @herbygillot} \
+                        openmaintainer
+supported_archs         noarch
+platforms               {darwin any}
+
+checksums               rmd160  a5c7337d0b9219f71ae341686001af9a75ca908d \
+                        sha256  13af052923db3eabd3a8118048763f852c7be9773e81f00035e18402726de05b \
+                        size    462436
+
+python.default_version  312
+
+depends_build-append    port:py${python.version}-setuptools
+
+depends_lib-append      port:py${python.version}-ruamel-yaml  \
+                        port:py${python.version}-pygments     \
+                        port:py${python.version}-xmltodict

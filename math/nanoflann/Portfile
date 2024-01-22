@@ -4,23 +4,24 @@ PortSystem              1.0
 PortGroup               github 1.0
 PortGroup               cmake 1.1
 
-github.setup            jlblancoc nanoflann 1.3.1 v
+github.setup            jlblancoc nanoflann 1.5.0 v
 categories              math science
-platforms               darwin
+platforms               any
 maintainers             {mcalhoun @MarcusCalhoun-Lopez} openmaintainer
 license                 BSD
 
 description             A C++11 header-only library for Nearest Neighbor (NN) search wih KD-trees
 
-long_description        ${description}
+long_description        {*}${description}
 
-checksums               rmd160  6cb81439055b7e1bcbaefc31821e0bc5ab0ee318 \
-                        sha256  27aa9f2b2eebe7a1c34ad6db621b3a5d6c18cb79a62ff4c442675f1ab5651cde \
-                        size    684984
+checksums               rmd160  ea1d4a95a8cdd155f8bdb19e39176b978aa3c915 \
+                        sha256  4a37eda5a1ade90a33d2485f75df92939e9e145717ff2e141cda6709e294cd47 \
+                        size    518828
 
 compiler.cxx_standard   2011
 
-installs_libs           no
 supported_archs         noarch
 
-configure.args-append   -DBUILD_EXAMPLES=OFF
+configure.args-append   -DNANOFLANN_BUILD_EXAMPLES=OFF
+
+test.run                yes

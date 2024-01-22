@@ -1,6 +1,7 @@
---- configure.ac.orig	2019-06-27 00:35:06.000000000 -0500
-+++ configure.ac	2019-06-29 20:31:54.000000000 -0500
-@@ -104,9 +104,7 @@
+Do not use paths from Fink, /usr/local, or other non-MacPorts locations.
+--- configure.ac.orig	2022-06-02 12:57:16.000000000 -0500
++++ configure.ac	2022-06-03 14:51:48.000000000 -0500
+@@ -128,9 +128,7 @@
  AC_SUBST([HOGWEED_EXTRA_SYMBOLS])
  
  LSH_RPATH_INIT([`echo $with_lib_path | sed 's/:/ /g'` \

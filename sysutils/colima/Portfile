@@ -1,0 +1,44 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           golang 1.0
+
+go.setup            github.com/abiosoft/colima 0.6.7 v
+github.tarball_from archive
+revision            0
+
+description         Container runtimes on MacOS with minimal setup
+
+long_description    {*}${description}
+
+categories          sysutils
+installs_libs       no
+license             MIT
+maintainers         {gmail.com:herby.gillot @herbygillot} \
+                    {macports.halostatue.ca:austin @halostatue} \
+                    openmaintainer
+
+checksums           rmd160  855f02e1a84da3347a9166d08af7fc96c850e44f \
+                    sha256  e0ebd208098d4b92d2c37c62f72e7d999b83c10895b620339dca80471c4462d6 \
+                    size    608510
+
+depends_run         port:lima
+
+go.offline_build no
+
+build.pre_args-append \
+    -ldflags \" \
+        -X ${go.package}/config.appVersion=${github.tag_prefix}${version} \
+        -X ${go.package}/config.revision= \
+    \"
+
+build.args          ./cmd/${name}
+
+destroot {
+    xinstall -m 0755 ${worksrcpath}/${name} ${destroot}${prefix}/bin/
+}
+
+notes {
+    If upgrading from Colima 0.5.6 or earlier, both colima instances and
+    profiles must be deleted and recreated.
+}

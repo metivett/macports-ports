@@ -3,14 +3,13 @@
 PortSystem          1.0
 PortGroup           perl5 1.0
 
-perl5.branches      5.26 5.28 5.30
-perl5.setup         libwww-perl 6.52 ../../authors/id/O/OA/OALDERS
+perl5.branches      5.28 5.30 5.32 5.34
+perl5.setup         libwww-perl 6.73 ../../authors/id/O/OA/OALDERS
 revision            0
 maintainers         nomaintainer
 license             {Artistic-1 GPL}
-supported_archs     noarch
 
-homepage            https://metacpan.org/release/${perl5.module}
+homepage            https://metacpan.org/pod/LWP
 
 description         The World-Wide Web library for Perl
 long_description    The libwww-perl collection is a set of Perl \
@@ -23,11 +22,12 @@ long_description    The libwww-perl collection is a set of Perl \
                     and even classes that help you implement \
                     simple HTTP servers.
 
-checksums           rmd160  e350f75e0b427267364244b51da49fd05491a163 \
-                    sha256  b63f67647b7cfb0bace19ada32e4feb2c2e8e0f4204546c62ce6247fa59d778d \
-                    size    177480
+platforms           {darwin any}
+supported_archs     noarch
 
-platforms           darwin
+checksums           rmd160  202a3fd67542b991117fe3327ceae493148d6bbb \
+                    sha256  41afb949b5ab95251bed45defcbd3811b75fc41d1b6ba48003fcd7704f86db3c \
+                    size    184336
 
 if {${perl5.major} != ""} {
     depends_build-append \
@@ -40,14 +40,17 @@ if {${perl5.major} != ""} {
                     port:p${perl5.major}-data-dump \
                     port:p${perl5.major}-encode-locale \
                     port:p${perl5.major}-file-listing \
+                    port:p${perl5.major}-getopt-long \
                     port:p${perl5.major}-html-form \
                     port:p${perl5.major}-html-parser \
+                    port:p${perl5.major}-http-cookiejar \
                     port:p${perl5.major}-http-cookies \
                     port:p${perl5.major}-http-daemon \
                     port:p${perl5.major}-http-date \
                     port:p${perl5.major}-http-message \
                     port:p${perl5.major}-http-negotiate \
                     port:p${perl5.major}-lwp-mediatypes \
+                    port:p${perl5.major}-module-load \
                     port:p${perl5.major}-net-http \
                     port:p${perl5.major}-try-tiny \
                     port:p${perl5.major}-uri \

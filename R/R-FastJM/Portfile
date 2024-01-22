@@ -1,0 +1,27 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran lishanpeng0913 FastJM 1.4.1
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             GPL-3+
+description         Semi-parametric joint modeling of longitudinal and survival data
+long_description    {*}${description}
+checksums           rmd160  773be4d5bdc8e1ba9e3b2666e3b5aef0a71382cf \
+                    sha256  7ce48ebd3b8b3500e13f5cfd787a623fbd3727db82da04aa5ff58c56c0417332 \
+                    size    154567
+
+depends_lib-append  port:R-caret \
+                    port:R-dplyr \
+                    port:R-Rcpp \
+                    port:R-RcppEigen \
+                    port:R-statmod \
+                    port:R-timeROC
+
+depends_test-append port:R-spelling \
+                    port:R-testthat
+
+test.run            yes

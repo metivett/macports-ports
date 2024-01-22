@@ -3,12 +3,18 @@
 PortSystem          1.0
 PortGroup           cmake 1.1
 PortGroup           github 1.0
+PortGroup           legacysupport 1.1
+PortGroup           compiler_blacklist_versions 1.0
 
-github.setup        abseil abseil-cpp 20200923.2
+# MAP_ANONYMOUS and clock_gettime
+legacysupport.newest_darwin_requires_legacy 15
+
+# Ports that depend on this port must be revbump after update.
+github.setup        abseil abseil-cpp 20230802.1
 name                abseil
 revision            0
 categories          devel
-maintainers         nomaintainer
+maintainers         {judaew @judaew} openmaintainer
 license             Apache-2
 
 description         Abseil - C++ Common Libraries
@@ -18,17 +24,59 @@ long_description    Abseil is an open-source collection of C++ library \
                     Google's own C++ code base, has been extensively \
                     tested and used in production.
 
-platforms           darwin
+checksums           rmd160  3f3a0f90a467ca9db123a903a67aed08dee41b1c \
+                    sha256  05226cd015c04a3039d5fbe3f81c222033a4cd0eefa621cce96f24a09cd91f78 \
+                    size    2157067
 
-checksums           rmd160  a955b64f5c9e0a41d0f82fb5ffcb513c1621ce62 \
-                    sha256  6fd80141327af2ba500251458a0fcd0b0eaee5201b113206f876749813759508 \
-                    size    1783859
+patchfiles          patch-remove-Xarch-from-pkg-config.diff
+
+# Abseil broken for 10.4-10.5, it's the pthread issue.
+# See https://github.com/macports/macports-ports/pull/19905#issuecomment-1679652939
+patchfiles-append   patch-pthread.diff
+
+platform darwin {
+    if {${build_arch} in [list ppc ppc64]} {
+        patchfiles-append patch-darwin-ppc.diff
+    }
+    if {[string match *gcc* ${configure.compiler}]} {
+        configure.ldflags-append \
+                    -latomic
+    }
+}
+
+platform darwin {
+    if {${os.major} >= 11 && ${os.major} <= 12} {
+        # some functions in xlocale.h are hidden without this define
+        # https://trac.macports.org/ticket/67988
+        configure.cxxflags-append -D_DARWIN_C_SOURCE
+    }
+}
 
 # ignore pre releases
 github.livecheck.regex  {([0-9.]+)}
 
-compiler.cxx_standard   2011
+compiler.cxx_standard   2014
+
+# https://trac.macports.org/ticket/67553
+# error: default initialization of an object of const type 'const absl::lts_20230125::Condition'
+#   without a user-provided default constructo
+compiler.blacklist-append \
+                    {clang < 900}
 
 configure.args-append \
                     -DBUILD_SHARED_LIBS=ON \
-                    -DCMAKE_CXX_STANDARD=11
+                    -DCMAKE_CXX_STANDARD=14 \
+                    -DABSL_PROPAGATE_CXX_STD=ON
+
+variant test description "Provide testing" {
+    configure.args-append \
+                    -DBUILD_SHARED_LIBS=OFF \
+                    -DABSL_BUILD_TESTING=ON \
+                    -DABSL_USE_EXTERNAL_GOOGLETEST=ON \
+                    -DABSL_LOCAL_GOOGLETEST_DIR=${prefix}/src/googletest
+
+    depends_test    port:gtest
+
+    test.run        yes
+    test.target     test
+}

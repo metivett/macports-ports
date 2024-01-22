@@ -7,14 +7,14 @@ PortGroup           github           1.0
 name                py-srsly
 epoch               1
 # Don't upgrade past py-spaCy's highest supported version.
-github.setup        explosion srsly 1.0.2 v
+github.setup        explosion srsly 2.4.7 v
 revision            0
-checksums           rmd160  2ef0645c3072b55ef85cb3aef280b3800aac1898 \
-                    sha256  180a1456862a5a86b93ed9ab6cd47c5292de481af4c8fb6d48694e411883c8b6 \
-                    size    241824
 
-platforms           darwin
-supported_archs     x86_64
+checksums           rmd160  cc92bc96ae2ad23ecbcf052f06bc8418b771e565 \
+                    sha256  2c9c0910e09d29ab79913eeab49d22be9da92b7a01f08370545cc509b78cfdae \
+                    size    235244
+
+supported_archs     arm64 x86_64
 
 license             MIT
 
@@ -24,22 +24,26 @@ description         Modern high-performance serialization utilities for Python
 long_description    {*}${description}
 
 # Supported python versions
-python.versions     36 37 38 39
+python.versions     37 38 39 310 311 312
 
 if {${name} ne ${subport}} {
-
     depends_build-append \
         port:py${python.version}-setuptools
 
+    # Not yet compatible with Cython 3
+    depends_build-append \
+        port:py${python.version}-cython-compat
+    set compat_path [string replace ${python.pkgd} 0 [string length ${python.prefix}]-1 ${prefix}/lib/py${python.version}-cython-compat]
+    build.env-append    PYTHONPATH=${compat_path}
+
     depends_lib-append \
-        port:py${python.version}-cython \
-        port:py${python.version}-numpy 
+        port:py${python.version}-numpy
 
     depends_test-append \
         port:py${python.version}-pytest \
         port:py${python.version}-mock \
         port:py${python.version}-tz
-
-    livecheck.type none 
-
 }
+
+# Exclude pre-release candidates
+github.livecheck.regex {([0-9.]+)}

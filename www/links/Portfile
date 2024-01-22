@@ -1,9 +1,10 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem      1.0
+PortGroup       openssl 1.0
 
 name            links
-version         2.21
+version         2.29
 revision        0
 description     Lynx-like WWW browser that supports tables, menus, etc
 
@@ -17,9 +18,9 @@ license         GPL-2+
 homepage        http://links.twibright.com/
 master_sites    http://links.twibright.com/download/
 
-checksums       rmd160  c03da60d98d6c48b56ac3365d19fabb9aa39f105 \
-                sha256  285eed8591c7781ec26213df82786665aaa1b9286782e8a7a1a7e2a6e1630d63 \
-                size    6491465
+checksums       rmd160  46b06e2cd42ac7fccf51317c8986bd658df77988 \
+                sha256  22aa96c0b38e1a6f8f7ed9d7a4167a47fc37246097759ef6059ecf8f9ead7998 \
+                size    6521024
 
 maintainers     nomaintainer
 use_bzip2       yes
@@ -27,9 +28,12 @@ use_bzip2       yes
 depends_build   port:pkgconfig
 depends_lib     port:bzip2 \
                 port:libevent \
-                path:lib/libssl.dylib:openssl \
                 port:xz \
                 port:zlib
+
+openssl.branch  3
+
+patchfiles      implicit.patch
 
 configure.args  --disable-graphics \
                 --disable-javascript \
@@ -42,12 +46,14 @@ configure.args  --disable-graphics \
                 --without-openmp \
                 --without-x
 
+configure.checks.implicit_function_declaration.whitelist-append memrchr
+
 post-patch {
-    reinplace s|/etc/|${prefix}/etc/| ${workpath}/${worksrcdir}/os_dep.h
+    reinplace s|/etc/|${prefix}/etc/| ${worksrcpath}/os_dep.h
 }
 
 variant svg requires x11 description {Enable SVG support} {
-    depends_lib-append      port:librsvg
+    depends_lib-append      path:lib/pkgconfig/librsvg-2.0.pc:librsvg
     configure.args-replace  --without-librsvg --with-librsvg
 }
 

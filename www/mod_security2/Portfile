@@ -1,11 +1,13 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
+PortGroup           github 1.0
+PortGroup           lua 1.0
 
 name                mod_security2
 set name_package    modsecurity
-version             2.9.3
-revision            3
+github.setup        SpiderLabs ${name_package} 2.9.7 v
+revision            2
 categories          www security
 license             Apache-2
 platforms           darwin
@@ -15,35 +17,39 @@ long_description    ModSecurity is an open source intrusion detection and \
                     prevention engine for web applications. It operates \
                     embedded into the web server, acting as a powerful \
                     umbrella - shielding applications from attacks.
-homepage            http://www.modsecurity.org
-master_sites        https://www.modsecurity.org/tarball/${version}/
+homepage            https://github.com/SpiderLabs/ModSecurity
+
+github.tarball_from releases
 distname            ${name_package}-${version}
 
-checksums           rmd160  de34a027da168abdb3397a2c3ca4ac5ba4081e73 \
-                    sha256  4192019d169d3f1dd82cc4714db6986df54c6ceb4ee1c8f253de78d1a6b62118 \
-                    size    4307670
+checksums           rmd160  1bc3f07518c411686f7a1aee937135fa5d64cb3f \
+                    sha256  2a28fcfccfef21581486f98d8d5fe0397499749b8380f60ec7bb1c08478e1839 \
+                    size    4320766
 
 worksrcdir          ${distname}
 
 depends_build       port:pkgconfig
 
 depends_lib         port:apache2 \
-                    port:icu \
+                    path:lib/pkgconfig/icu-uc.pc:icu \
                     port:libxml2 \
-                    port:lua \
                     port:curl
+
+patchfiles          dynamic_lookup-11.patch
 
 set apxs            ${prefix}/bin/apxs
 set httpd_conf      ${prefix}/etc/apache2/httpd.conf
 set mdir            ${destroot}${prefix}/lib/apache2/modules/
+
+lua.version         5.3
+lua.finds_versioned yes
 
 configure.args      --with-apxs=${apxs} \
                     --with-pcre=${prefix}/bin/pcre-config \
                     --with-apr=${prefix}/bin/apr-1-config \
                     --with-apu=${prefix}/bin/apu-1-config \
                     --with-curl=${prefix}/bin/curl-config \
-                    --with-libxml=${prefix} \
-                    --with-lua=${prefix}
+                    --with-libxml=${prefix}
 
 destroot {
     xinstall -d -m 755 ${mdir}
@@ -60,10 +66,6 @@ destroot {
                         ${destroot}${prefix}/share/doc/${name}
 }
 
-livecheck.type      regex
-livecheck.url       http://www.modsecurity.org/download.html
-livecheck.regex     "tarball/(\\d+(?:\\.\\d+)*)/modsecurity-\\1.tar.gz"
-
 notes "
 
 # Now edit ${httpd_conf} and add the following lines at the end of the LoadModules section:
@@ -75,3 +77,5 @@ notes "
     $ sudo apachectl graceful
 
 "
+
+github.livecheck.regex  (2\.\[0-9.\]+)

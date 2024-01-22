@@ -1,44 +1,51 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem              1.0
-PortGroup               github 1.0
 PortGroup               cmake 1.1
+PortGroup               compiler_blacklist_versions 1.0
+PortGroup               github 1.0
 
-github.setup            FNA-XNA FAudio 20.12
+github.setup            FNA-XNA FAudio 23.12
 revision                0
 
 license                 zlib
 categories              audio
-platforms               darwin
 maintainers             nomaintainer
 description             XAudio reimplementation
-long_description        an XAudio reimplementation that focuses solely on developing \
-                        fully accurate DirectX Audio runtime libraries for the FNA project,\
+long_description        An XAudio reimplementation that focuses solely on developing \
+                        fully accurate DirectX Audio runtime libraries for the FNA project, \
                         including XAudio2, X3DAudio, XAPO, and XACT3.
 
 depends_lib-append      port:libsdl2
 
-checksums               rmd160  a735305895754d503a71c03a71225513c0d55ddc \
-                        sha256  5599d4351b716e1dc8716b3ddd5855fddbf7a48f47558e04648a8a731cb39637 \
-                        size    1134780
+checksums               rmd160  027aa7b46e11b86f780f052589d6a64bdff30fab \
+                        sha256  e0f8ff262c57e86715397ab168d9d4363d6cc2e67ffef38aa249ca7415af4c2f \
+                        size    1120337
 
 # remove set deployment target and hard-coded RPATH setting
 patchfiles              patch-faudio-remove-deployment-target.diff
 
-configure.args          -DGSTREAMER=OFF \
-                        -DBUILD_UTILS=OFF \
+configure.args          -DBUILD_UTILS=OFF \
                         -DBUILD_TESTS=ON \
                         -DXNASONG=ON \
                         -DCMAKE_INSTALL_INCLUDEDIR=include/FAudio
 
-variant wma description "Use gstreamer1-gst-libav for additional xWMA support - note license changes" {
-    license                   GPL-2+
-    depends_lib-append        port:gstreamer1-gst-libav
-    configure.args-replace    -DGSTREAMER=OFF -DGSTREAMER=ON
+# FAudio has a hard requirment of SDL 2.24, since 22.09
+if {${os.major} <= 10} {
+    github.setup        FNA-XNA FAudio 22.08
+
+    checksums           rmd160  efcded088e1076b086d6db12b0cb135da66a794f \
+                        sha256  f3975715f7ba915fa6f2d6ca1d050e838ada814b327fec5a0833e52e26dec31b \
+                        size    1110469
+
+    patchfiles-append   patch-Unbreak-build-on-Darwin-PowerPC.diff
 }
 
-# This legacy compatibility variant can be removed after August 2021.
-variant ffmpeg requires wma description {Legacy compatibility variant} {}
+# https://github.com/FNA-XNA/FAudio/issues/321
+# Xcode clang on 10.6 also fails to build it.
+# FAudio.h: error: wrong number of arguments specified for ‘deprecated’ attribute
+compiler.blacklist-append \
+                        *gcc-4.* {clang < 421}
 
 #pre-destroot {
 #    there are some utilities to consider, but the facttool segfaulted when I tried to open an audio engine
@@ -48,5 +55,9 @@ variant ffmpeg requires wma description {Legacy compatibility variant} {}
 #}
 
 test.run                 yes
+# Otherwise it looks in prefix, and if the port has not been installed earlier, that fails:
+# dyld: Library not loaded: /opt/local/lib/libFAudio.0.dylib
+# On PowerPC tests do not run: https://github.com/FNA-XNA/FAudio/issues/319
+test.env-append          DYLD_LIBRARY_PATH=${cmake.build_dir}
 test.cmd                 ./faudio_tests
 test.target

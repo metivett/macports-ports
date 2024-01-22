@@ -1,0 +1,98 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem       1.0
+
+name             openjdk11-zulu
+categories       java devel
+maintainers      {breun.nl:nils @breun} openmaintainer
+platforms        {darwin any}
+# This port uses prebuilt binaries; 'NoMirror' makes sure MacPorts doesn't mirror/distribute these third-party binaries
+license          GPL-2 NoMirror
+# This port uses prebuilt binaries for a particular architecture; they are not universal binaries
+universal_variant no
+
+# https://www.azul.com/downloads/?version=java-11-lts&os=macos&package=jdk
+supported_archs  x86_64 arm64
+
+version      11.70.15
+revision     0
+
+set openjdk_version 11.0.22
+
+description  Azul Zulu Community OpenJDK 11 (Long Term Support)
+long_description Azul® Zulu® is a Java Development Kit (JDK), and a compliant implementation of the Java Standard Edition (SE)\
+                 specification that contains all the Java components needed to build and run Java SE applications. Zulu has been\
+                 verified by passing all tests of the OpenJDK Community Technology Compatibility Kit (TCK) as available for each\
+                 respective Java SE version.
+
+master_sites https://cdn.azul.com/zulu/bin/
+
+if {${configure.build_arch} eq "x86_64"} {
+    distname     zulu${version}-ca-jdk${openjdk_version}-macosx_x64
+    checksums    rmd160  7dba06a920d4bd2fed5a5f2cfc3f3cd2097584dc \
+                 sha256  71afedb643dedad6dc9b5aee82e0e03ecc4a59b11d29c202b0a0835daba9f4de \
+                 size    194428089
+} elseif {${configure.build_arch} eq "arm64"} {
+    distname     zulu${version}-ca-jdk${openjdk_version}-macosx_aarch64
+    checksums    rmd160  fac4293b2c4f885aa54220118a8169d0de39ddc8 \
+                 sha256  3d640e17e3fd76365aae3009684dc8d2db88d44e07ffde7ce15374e013339af3 \
+                 size    192540120
+}
+
+worksrcdir   ${distname}/zulu-11.jdk
+
+homepage     https://www.azul.com/downloads/
+
+livecheck.type      regex
+livecheck.url       https://cdn.azul.com/zulu/bin/
+livecheck.regex     zulu(11\.\[0-9\.\]+)-ca-jdk\[0-9\.\]+-macosx_.*\.tar\.gz
+
+use_configure    no
+build {}
+
+variant Applets \
+    description { Advertise the JVM capability "Applets".} {}
+
+variant BundledApp \
+    description { Advertise the JVM capability "BundledApp". This is required by some java-based app bundles to recognize and use the JVM.} {}
+
+variant JNI \
+    description { Advertise the JVM capability "JNI". This is required by some java-based app bundles to recognize and use the JVM.} {}
+
+variant WebStart \
+    description { Advertise the JVM capability "WebStart".} {}
+
+patch {
+    foreach var { Applets BundledApp JNI WebStart } {
+        if {[variant_isset ${var}]} {
+            reinplace -E "s|^(\[\[:space:\]\]*<string>)CommandLine(</string>)|\\1${var}\\2\\\n\\1CommandLine\\2|" ${worksrcpath}/Contents/Info.plist
+        }
+    }
+}
+
+test.run    yes
+test.cmd    Contents/Home/bin/java
+test.target
+test.args   -version
+
+# macOS Java tools expect to find Java virtual machines under /Library/Java/JavaVirtualMachines, which is not under ${prefix}.
+destroot.violate_mtree yes
+
+set jvms /Library/Java/JavaVirtualMachines
+set jdk ${jvms}/${name}
+
+destroot {
+    xinstall -m 755 -d ${destroot}${prefix}${jdk}
+    copy ${worksrcpath}/Contents ${destroot}${prefix}${jdk}
+
+    # macOS Java tools expect to find Java virtual machines under /Library/Java/JavaVirtualMachines, so let's create a symlink there
+    xinstall -m 755 -d ${destroot}${jvms}
+    ln -s ${prefix}${jdk} ${destroot}${jdk}
+}
+
+notes "
+If you have more than one JDK installed you can make ${name} the default\
+by adding the following line to your shell profile:
+
+    export JAVA_HOME=${jdk}/Contents/Home
+"

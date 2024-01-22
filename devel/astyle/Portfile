@@ -5,8 +5,9 @@ PortGroup           cmake 1.1
 PortGroup           java 1.0
 
 name                astyle
-version             3.1
-revision            1
+version             3.4.10
+set branch          [join [lrange [split ${version} .] 0 1] .]
+revision            0
 categories          devel
 license             MIT
 platforms           darwin
@@ -17,16 +18,14 @@ long_description    Artistic Style is a source code indenter, source code format
                     and source code beautifier for the C, C++, C# and Java \
                     programming languages.
 
-homepage            http://astyle.sourceforge.net
-master_sites        sourceforge:project/astyle/astyle/astyle%20${version}
-distname            ${name}_${version}_macos
-checksums           rmd160  5aed3c48b59aedf02e247652db6fad597ef9bd63 \
-                    sha256  c4eebbe082eb2cb98f90aafcce3da2daeb774dd092e4cf8b728102fded8d1dcf \
-                    size    187918
+homepage            https://astyle.sourceforge.net
+master_sites        sourceforge:project/astyle/astyle/astyle%20${branch}
+use_bzip2           yes
+checksums           rmd160  453d07857e8e6f0c69d9fcc5339998aae76511e9 \
+                    sha256  6f67ec872b437bd3c51e0f75e112e4dbfdb26d5fb7bd9cf8a480f10af5557063 \
+                    size    229951
 
-worksrcdir          ${name}
-
-patchfiles          patch-CMakeLists.txt.diff
+patchfiles          dont-force-stdlib.diff
 
 compiler.cxx_standard   2011
 
@@ -66,4 +65,4 @@ variant java description {Build and install the JNI library} {
     lappend builds  java        {-DBUILD_JAVA_LIBS=ON}
 }
 
-livecheck.regex     "[quotemeta $name] (\\d+(\\.\\d+)*)"
+livecheck.regex     "[quotemeta $name]-(\\d+(\\.\\d+)*)"

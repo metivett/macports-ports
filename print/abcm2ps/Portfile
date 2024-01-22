@@ -3,15 +3,12 @@
 PortSystem          1.0
 PortGroup           github 1.0
 
-github.setup        leesavide abcm2ps 8.14.9 v
+github.setup        leesavide abcm2ps 8.14.15 v
+github.tarball_from archive
 revision            0
-checksums           rmd160  19ac97f1eeddb38b00700383028ec6ba15a7e317 \
-                    sha256  9d91c215d59bb3704fe174ba0729f634e656ab42210cfabf02f0c5c4e0c9d877 \
-                    size    259238
 
 categories          print audio
-platforms           darwin
-maintainers         nomaintainer
+maintainers         {judaew @judaew} openmaintainer
 license             GPL-2+
 description         abcm2ps converts abc music tunes to PostScript
 long_description    abcm2ps is a package that converts music tunes from \
@@ -19,7 +16,10 @@ long_description    abcm2ps is a package that converts music tunes from \
                     extensions to the ABC language that make it suitable \
                     for classical music.
 homepage            http://moinejf.free.fr/
-github.tarball_from archive
+
+checksums           rmd160  5bbbe423d3e0bd81ecdcde4e2fe82cf2311da85b \
+                    sha256  5f02ac6203c4226cfbc6206935dca715ed7c45328535ee23e776c9da0219c822 \
+                    size    260077
 
 depends_build       port:pkgconfig
 depends_lib         port:freetype \

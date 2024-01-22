@@ -1,11 +1,11 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
-PortGroup           active_variants 1.1
+PortGroup           github 1.0
 
 name                ocaml-findlib
-version             1.8.1
-revision            0
+github.setup        ocaml ocamlfind 1.9.6 findlib-
+revision            1
 distname            findlib-${version}
 categories          ocaml devel
 maintainers         {pmetzger @pmetzger} openmaintainer
@@ -28,31 +28,26 @@ long_description    The findlib library provides a scheme to manage reusable \
                     are new frontends of the various OCaml compilers that \
                     can directly deal with packages.
 
-homepage            http://projects.camlcity.org/projects/findlib.html
-master_sites        http://download.camlcity.org/download/
-
-checksums           rmd160  ad880f92351ea31e3741b683d85d1fe04df387d2 \
-                    sha256  8e85cfa57e8745715432df3116697c8f41cb24b5ec16d1d5acd25e0196d34303 \
-                    size    261544
-
-livecheck.type      regex
-livecheck.regex     "findlib-(.*?).tar.gz"
+checksums           rmd160  1f9ccf5b1320db9e7da71f19ab5cdcb904ad2cbf \
+                    sha256  decd1b18e38a5c5c6f555a2ba792f23e3660cc38763d181e28291eb467e90256 \
+                    size    166771
 
 depends_lib         port:ocaml
 
-# see #44929
-# patch modified from https://gitweb.gentoo.org/repo/gentoo.git/tree/dev-ml/findlib/files
-# if labltk is updated, patchfile will have to remove labltk META file as well
-patchfiles-append   patch-meta.diff
-
 configure.args      -bindir ${prefix}/bin \
                     -mandir ${prefix}/share/man \
-                    -sitelib ${prefix}/lib/ocaml/site-lib
+                    -sitelib ${prefix}/lib/ocaml/site-lib \
+                    -no-camlp4
 
-configure.pre_args  ""
+configure.pre_args
 
 use_parallel_build  no
-build.target        all opt
+
+if {${build_arch} eq "ppc" || ${build_arch} eq "ppc64"} {
+    build.target    all
+    } else {
+    build.target    all opt
+}
 
 universal_variant   no
 
@@ -63,10 +58,6 @@ destroot.keepdirs   ${destroot}${ocamlfind_destdir}
 
 destroot.env-append OCAMLFIND_DESTDIR=${destroot}${prefix}/lib/ocaml/site-lib
 destroot.destdir    prefix=${destroot}
-
-#post-destroot {
-#    xinstall -m 755 ${filespath}/camlp4find ${destroot}${prefix}/bin/camlp4find
-#}
 
 post-activate {
         # Add our stublibs dir path to ld.conf
@@ -83,7 +74,7 @@ post-activate {
             }
           }
           if {!$has_line} {
-            if {${registry.format} == "receipt_flat"} {
+            if {${registry.format} eq "receipt_flat"} {
                 ui_msg "## Adding line `${ocamlfind_destdir}' to file ${ldconfpath}"
                 ui_msg "## Be sure to remove this line if you uninstall ${name}"
             }
@@ -118,12 +109,4 @@ pre-deactivate {
 variant toolbox description {build the toolbox wizard, requires labltk} {
         configure.args-append -with-toolbox
         depends_lib-append port:ocaml-labltk
-}
-
-# findlib builds differently depending on graph variant of ocaml
-variant graph description {add support for the graph library} {
-    require_active_variants ocaml graph
-}
-if {![variant_isset graph]} {
-    require_active_variants ocaml "" graph
 }

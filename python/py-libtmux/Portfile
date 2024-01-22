@@ -4,40 +4,41 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-libtmux
-version             0.8.5
+version             0.25.0
 revision            0
 
 categories-append   devel
-platforms           darwin
 supported_archs     noarch
+platforms           {darwin any}
 license             MIT
-maintainers         {@egorenar posteo.net:egorenar-dev} openmaintainer
+maintainers         {@egorenar posteo.net:egorenar-dev} \
+                    {@judaew judaew} openmaintainer
 
 description         Python binding for tmux
-long_description    ${description}
+long_description    {*}${description}
 
 homepage            https://github.com/tmux-python/libtmux
-master_sites        pypi:l/${python.rootname}/
-distname            ${python.rootname}-${version}
 
-checksums           rmd160  ace9b7341b48f683911bece86bf6040270d498e9 \
-                    sha256  1d35b9f8451944d31c5ed22ed9e6c8e18034adcc75718fcc5b27fbd9621543e1 \
-                    size    36961
+checksums           rmd160  963b421b7d546934abd9e258929f65ffa0936a5e \
+                    sha256  54037f57c7411d2896bcfdb6085d4b1d0eed411e1ff72ba258ecf5d2e803f0b0 \
+                    size    239500
 
-python.versions     27 35 36 37 38 39
+python.versions     39 310 311 312
+python.pep517       yes
+python.pep517_backend poetry
 
 if {${name} ne ${subport}} {
+    # py-setuptools required by pyproject.toml
     depends_build-append \
                     port:py${python.version}-setuptools
+
+    depends_run-append \
+                    port:tmux
 
     post-destroot {
         set docdir ${prefix}/share/doc/${subport}
         xinstall -d ${destroot}${docdir}
-        xinstall -m 0644 -W ${worksrcpath} README.rst LICENSE \
+        xinstall -m 0644 -W ${worksrcpath} README.md LICENSE \
            CHANGES ${destroot}${docdir}
     }
-
-    livecheck.type  none
-} else {
-    livecheck.type  pypi
 }

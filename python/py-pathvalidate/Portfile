@@ -1,0 +1,26 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           python 1.0
+
+name                py-pathvalidate
+version             3.2.0
+revision            0
+
+categories-append   devel
+platforms           {darwin any}
+supported_archs     noarch
+license             MIT
+maintainers         {@catap korins.ky:kirill} openmaintainer
+
+description         pathvalidate is a Python library to sanitize/validate a string such as filenames/file-paths/etc.
+long_description    {*}${description}
+
+homepage            https://github.com/thombashi/pathvalidate
+
+checksums           rmd160  4c1f00c7c899aa69f27e2bafcba844b54b9dd59b \
+                    sha256  5e8378cf6712bff67fbe7a8307d99fa8c1a0cb28aa477056f8fc374f0dff24ad \
+                    size    31246
+
+python.pep517       yes
+python.versions     38 39 310 311 312

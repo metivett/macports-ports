@@ -1,0 +1,45 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran osqp-r osqp 0.6.3.2
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             Apache-2
+description         Quadratic programming solver using the OSQP library
+long_description    Provides bindings to the OSQP solver. The OSQP solver is a numerical optimization package \
+                    for solving convex quadratic programs, written in C and based on the alternating direction method of multipliers.
+homepage            https://osqp.org
+checksums           rmd160  e435737825f12a70b105d1b407caf9f0f42e89ba \
+                    sha256  18543b329a42be0f419dff4aa42f4401c2afb18f46276ce359853494dd803244 \
+                    size    144332
+
+depends_build-append \
+                    path:bin/cmake:cmake
+depends_lib-append  port:R-R6 \
+                    port:R-Rcpp
+
+patchfiles          patch-archflags-compiler.diff
+
+post-patch {
+    reinplace "s,@ARCHFLAGS@,[get_canonical_archflags cxx]," ${worksrcpath}/src/Makevars
+    reinplace "s,@CC@,${configure.cc}," ${worksrcpath}/src/Makevars
+    reinplace "s,@CXX@,${configure.cxx}," ${worksrcpath}/src/Makevars
+    reinplace "s,@ARCH@,${configure.build_arch}," ${worksrcpath}/src/osqp_sources/CMakeLists.txt
+}
+
+compiler.cxx_standard 2017
+
+destroot.env-append CC=${configure.cc} CXX=${configure.cxx}
+
+depends_test-append port:R-slam \
+                    port:R-testthat
+
+pre-test {
+    configure.pre_args-append \
+                    -DCMAKE_C_COMPILER=${configure.cc} -DCMAKE_CXX_COMPILER=${configure.cxx}
+}
+
+test.run            yes

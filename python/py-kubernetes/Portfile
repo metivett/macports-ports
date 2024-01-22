@@ -1,0 +1,45 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           python 1.0
+
+name                py-kubernetes
+version             28.1.0
+revision            0
+
+homepage            https://github.com/kubernetes-client/python
+
+description         Official Python Client Library for Kubernetes
+
+long_description    {*}${description}
+
+license             Apache-2
+maintainers         {gmail.com:herby.gillot @herbygillot} \
+                    openmaintainer
+platforms           {darwin any}
+supported_archs     noarch
+categories-append   sysutils
+
+python.versions     39 310 311
+
+checksums           rmd160  9465a5cf732e61c73b2fb8b052574be419246e0c \
+                    sha256  1468069a573430fb1cb5ad22876868f57977930f80a6749405da31cd6086a7e9 \
+                    size    817854
+
+if {${name} ne ${subport}} {
+    depends_build-append \
+                    port:py${python.version}-setuptools
+
+    depends_lib-append \
+                    port:py${python.version}-certifi \
+                    port:py${python.version}-dateutil \
+                    port:py${python.version}-google-auth \
+                    port:py${python.version}-requests \
+                    port:py${python.version}-requests-oauthlib \
+                    port:py${python.version}-six \
+                    port:py${python.version}-urllib3 \
+                    port:py${python.version}-websocket-client \
+                    port:py${python.version}-yaml
+
+    livecheck.type  none
+}

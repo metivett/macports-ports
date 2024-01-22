@@ -1,0 +1,37 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran mboeck11 BGVAR 2.5.5
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             GPL-3
+description         Bayesian global vector autoregressions
+long_description    {*}${description}
+homepage            https://github.com/mboeck11/BGVAR
+checksums           rmd160  b3d39385fa2edb0154d7a0daa3d245e255d3a579 \
+                    sha256  4832b69ec9a64a953c8bf8ca2efde675b8cdd526f29363f8aebfc9613a459281 \
+                    size    3193302
+
+depends_lib-append  port:R-abind \
+                    port:R-bayesm \
+                    port:R-coda \
+                    port:R-GIGrvg \
+                    port:R-knitr \
+                    port:R-Rcpp \
+                    port:R-RcppArmadillo \
+                    port:R-RcppParallel \
+                    port:R-RcppProgress \
+                    port:R-readxl \
+                    port:R-stochvol \
+                    port:R-xts \
+                    port:R-zoo
+
+compilers.setup     require_fortran
+
+depends_test-append port:R-rmarkdown \
+                    port:R-testthat
+
+test.run            yes

@@ -5,20 +5,21 @@ PortGroup               php 1.1
 
 name                    php-event
 categories-append       devel
-platforms               darwin
 maintainers             {ryandesign @ryandesign} openmaintainer
 license                 PHP-3.01
 
-php.branches            5.4 5.5 5.6 7.0 7.1 7.2 7.3 7.4
+php.branches            5.4 5.5 5.6 7.0 7.1 7.2 7.3 7.4 8.0 8.1 8.2 8.3
 php.pecl                yes
 
-if {[vercmp ${php.branch} 5.4] >= 0} {
-    version             2.5.7
-    revision            0
-    checksums           rmd160  4cfeb8c8cf236be78c70236e12a9ad3f7de9bfd9 \
-                        sha256  3512d2fab1aee8e37215c83937fbea869a8593e66adcc36400e1ad5a4b657f4a \
-                        size    141451
+# This extension must load after the sockets extension.
+php.extension_ini       ~${php.extension_ini}
 
+if {[vercmp ${php.branch} >= 5.4]} {
+    version             3.1.0
+    revision            0
+    checksums           rmd160  6fa016aed1215691221b18f542088dce16588aa6 \
+                        sha256  3e0e811c54a64b7c6871fbd4557cc3f03bfd31a53f9504b479102c767a23ce41 \
+                        size    204576
 }
 
 description             efficiently schedule I/O, time and signal based events
@@ -33,10 +34,10 @@ if {${name} ne ${subport}} {
     configure.args-append \
                         --with-event-libevent-dir=${prefix}
 
-    if {[vercmp ${php.branch} 7.4] < 0} {
+    if {[vercmp ${php.branch} < 7.4]} {
         configure.args-append \
                         --with-openssl-dir=${prefix}
     } else {
-        depends_build-append    port:pkgconfig
+        depends_build-append    path:bin/pkg-config:pkgconfig
     }
 }

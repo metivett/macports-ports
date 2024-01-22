@@ -4,26 +4,32 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-param
-version             1.10.1
+version             2.0.2
 revision            0
 license             BSD
 maintainers         {mps @Schamschula} openmaintainer
 description         Param is a library providing Parameters.
-long_description    ${description}: Python attributes extended to have features such as \
+long_description    {*}${description} Python attributes extended to have features such as \
                     type and range checking, dynamically generated values, documentation \
                     strings, default values, etc., each of which is inherited from \
                     parent classes if not specified in a subclass.
-platforms           darwin
+supported_archs     noarch
+platforms           {darwin any}
 homepage            https://github.com/holoviz/param
 
-checksums           rmd160  5a1b9bcd22af661c18fdb3e60ce30b3e66a37775 \
-                    sha256  1f0f1133fbadcd2c5138e579b9934e29fd00f803af01d9bf6f9e6b80ecf1999b \
-                    size    74216
+checksums           rmd160  0d87aaf672c7b390aea1b9a0bbc0941f2951327b \
+                    sha256  785845a727a588eb94c7666d80551c7e2bb97d4309d3507beab66f95e57f7527 \
+                    size    168511
 
-python.versions     36 37 38 39
+python.versions     38 39 310 311 312
 
 if {${name} ne ${subport}} {
-    depends_lib     port:py${python.version}-numpy \
-                    port:py${python.version}-pyobjc \
-                    port:py${python.version}-setuptools
+    python.pep517   yes
+    python.pep517_backend \
+                    hatch
+
+    depends_build-append \
+                    port:py${python.version}-hatch-vcs \
+                    port:py${python.version}-numpy \
+                    port:py${python.version}-pyobjc
 }

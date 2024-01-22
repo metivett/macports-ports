@@ -4,8 +4,8 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-flit
-version             3.0.0
-platforms           darwin
+version             3.9.0
+platforms           {darwin any}
 supported_archs     noarch
 maintainers         nomaintainer
 license             BSD
@@ -17,17 +17,20 @@ long_description    Flit is a simple way to put Python packages and \
 
 homepage            https://github.com/takluyver/flit
 
-checksums           rmd160 64fa5298971d094e0a7e8b096a39ded7bc8c854b \
-                    sha256 b4fe0f84a1ffbf125d003e253ec98c0b6e3e31290b31fba3ad22d28588c20893 \
-                    size   109641
+checksums           rmd160 23eaf71e1d56308be6190094776bdce9f575dbdc \
+                    sha256 d75edf5eb324da20d53570a6a6f87f51e606eee8384925cd66a90611140844c7 \
+                    size   141104
 
-python.versions     37 38 39
+python.versions     37 38 39 310 311
+
+python.pep517       yes
+python.pep517_backend   other
 
 if {$subport ne $name} {
-    # Note: pytoml will change to toml in a future update
     depends_run-append  port:py${python.version}-flit_core \
                         port:py${python.version}-requests \
                         port:py${python.version}-docutils \
-                        port:py${python.version}-pytoml
+                        port:py${python.version}-tomli \
+                        port:py${python.version}-tomli-w
     livecheck.type  none
 }

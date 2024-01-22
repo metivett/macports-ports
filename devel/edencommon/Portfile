@@ -1,0 +1,71 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim: fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           boost 1.0
+PortGroup           cmake 1.1
+PortGroup           compiler_blacklist_versions 1.0
+PortGroup           github 1.0
+PortGroup           openssl 1.0
+PortGroup           legacysupport 1.1
+
+# O_CLOEXEC
+legacysupport.newest_darwin_requires_legacy 10
+
+boost.version       1.81
+
+github.setup        facebookexperimental edencommon 2024.01.08.00 v
+revision            0
+checksums           rmd160  c44d41318dcc634643e1f567cabcdcad14b4a84b \
+                    sha256  3e962dbb69e1f70ea4394b3216db0649969b10c2c0a7431bea2d1f042c6bf33d \
+                    size    150088
+
+categories          devel
+license             BSD
+maintainers         nomaintainer
+
+description         Shared library for Watchman and Eden projects
+long_description    {*}${description}
+
+distname            ${name}-v${version}
+
+set port_libfmt     libfmt10
+cmake.module_path-append \
+                    ${prefix}/lib/${port_libfmt}/cmake
+
+depends_build-append \
+                    port:cpptoml \
+                    port:yarn \
+                    port:gtest \
+                    port:pkgconfig
+
+depends_lib-append  port:bzip2 \
+                    port:double-conversion \
+                    port:folly \
+                    port:gflags \
+                    port:google-glog \
+                    port:libevent \
+                    port:libsodium \
+                    port:libunwind \
+                    port:lz4 \
+                    port:zlib \
+                    port:zstd \
+                    port:${port_libfmt}
+
+patchfiles          no-tests.diff
+
+# Fix error: invalid output constraint '=@ccc' in asm
+compiler.blacklist-append \
+                    {clang < 1200}
+
+compiler.cxx_standard   2017
+cmake.generator     Ninja
+
+configure.args-append \
+                    -DBUILD_TESTING=OFF \
+                    -DBUILD_TESTS=OFF \
+                    -DBUILD_SHARED_LIBS=ON
+
+if {[string match *gcc* ${configure.compiler}]} {
+    # ___atomic_fetch_add_8
+    configure.ldflags-append  -latomic
+}

@@ -8,7 +8,7 @@ version             4.14.3
 revision            3
 categories          kde kde4
 license             LGPL-2 LGPL-2+ BSD
-maintainers         {nicos @NicosPavlov} openmaintainer
+maintainers         nomaintainer
 description         KolourPaint is a free, easy-to-use paint program for KDE.
 long_description    ${description}
 platforms           darwin
@@ -22,6 +22,10 @@ checksums           rmd160  7e1fb9111bbe44e57439d221493d9165c594275e \
 depends_lib-append  port:kdelibs4 \
                     port:oxygen-icons \
                     port:qimageblitz
+
+post-configure {
+    move ${worksrcpath}/VERSION ${worksrcpath}/VERSION.txt
+}
 
 if {![variant_isset docs]} {
     patchfiles      patch-CMakeLists.txt.diff

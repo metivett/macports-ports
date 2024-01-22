@@ -4,32 +4,33 @@ PortSystem          1.0
 PortGroup           github 1.0
 PortGroup           python 1.0
 
-github.setup        pyviz holoviews 1.14.1 v
+github.setup        pyviz holoviews 1.18.1 v
 revision            0
 categories-prepend  science
 license             BSD
 maintainers         {mps @Schamschula} openmaintainer
 description         HoloViews is an open-source Python library designed to make data \
                     analysis and visualization seamless and simple.
-long_description    ${description} With HoloViews, you can usually express what you \
+long_description    {*}${description} With HoloViews, you can usually express what you \
                     want to do in very few lines of code, letting you focus on what you \
                     are trying to explore and convey, not on the process of plotting.
-platforms           darwin
+supported_archs     noarch
+platforms           {darwin any}
+homepage            https://github.com/holoviz/holoviews
 
-checksums           rmd160  634920b4236e22e11dbfd2227f56035e8711f9af \
-                    sha256  2ee490e93a6ffe097c12cd707fed319232d6f3d665044e30978e7c574313ed1b \
-                    size    4773696
+checksums           rmd160  79866ad873c28cad643ea61c4bc1c45f4935752f \
+                    sha256  af069fb840aedf077b23472e7f4f3693dbf993072cae9a8aafec5d7d8c0bfd25 \
+                    size    4878512
 
-variant python36 conflicts python37 python38 python39 description {Use Python 3.6} {}
-variant python37 conflicts python36 python38 python39 description {Use Python 3.7} {}
-variant python38 conflicts python36 python37 python39 description {Use Python 3.8} {}
-variant python39 conflicts python36 python37 python38 description {Use Python 3.9} {}
+variant python39 conflicts python310 python311 description {Use Python 3.9} {}
+variant python310 conflicts python39 python311 description {Use Python 3.10} {}
+variant python311 conflicts  python39 python310 description {Use Python 3.11} {}
 
-if {![variant_isset python36] && ![variant_isset python37] && ![variant_isset python39]} {
-    default_variants +python38
+if {![variant_isset python39] && ![variant_isset python310]} {
+    default_variants +python311
 }
 
-foreach pv {39 38 37 36} {
+foreach pv {311 310 39} {
     if {[variant_isset python${pv}]} {
         python.default_version ${pv}
         break
@@ -39,8 +40,12 @@ foreach pv {39 38 37 36} {
 depends_build-append \
                     port:py${python.version}-setuptools
 
-depends_lib-append  port:py${python.version}-matplotlib \
+depends_lib-append  port:py${python.version}-bokeh \
+                    port:py${python.version}-colorcet \
+                    port:py${python.version}-matplotlib \
                     port:py${python.version}-notebook \
+                    port:py${python.version}-pandas \
+                    port:py${python.version}-panel \
                     port:py${python.version}-param \
                     port:py${python.version}-pyct \
                     port:py${python.version}-pyviz_comms

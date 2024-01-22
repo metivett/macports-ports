@@ -1,3 +1,6 @@
+Fix:
+
+error: implicit declaration of function 'panic' is invalid in C99 [-Werror,-Wimplicit-function-declaration]
 --- generic/tixDiStyle.c.orig	2004-03-27 20:44:56.000000000 -0600
 +++ generic/tixDiStyle.c	2020-12-10 01:14:46.000000000 -0600
 @@ -785,7 +785,7 @@
@@ -84,7 +87,7 @@
  	Tcl_ResetResult(interp);
 --- generic/tixImgXpm.c.orig	2008-02-27 22:05:29.000000000 -0600
 +++ generic/tixImgXpm.c	2020-12-10 03:41:43.000000000 -0600
-@@ -1213,7 +1213,7 @@
+@@ -1214,7 +1214,7 @@
      PixmapMaster *masterPtr = (PixmapMaster *) masterData;
  
      if (masterPtr->instancePtr != NULL) {

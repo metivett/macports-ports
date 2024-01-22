@@ -2,17 +2,16 @@
 
 PortSystem              1.0
 PortGroup               python 1.0
-PortGroup               gitlab 1.0
 
-gitlab.instance         https://foss.heptapod.net
-gitlab.setup            mercurial hg-git 0.9.0
+name                    hg-git
+version                 1.1.0
 revision                0
 
 categories              devel
 license                 GPL-2
-platforms               darwin
+platforms               {darwin any}
 supported_archs         noarch
-maintainers             {danchr @danchr} openmaintainer
+maintainers             {danchr @danchr}
 
 homepage                https://www.mercurial-scm.org/wiki/HgGit
 description             Push to and pull from a Git server repository from Mercurial.
@@ -22,16 +21,25 @@ long_description        This is the Hg-Git plugin for Mercurial, adding the abil
                         or use a Git server as a collaboration point for a team with \
                         developers using both Git and Mercurial.
 
-checksums               rmd160  c492877cdcdffeae972f3791f391f22516db9997 \
-                        sha256  eedd8773de76b21b47fd21a7e5c04c05c7ab0ecfc62a54bc947eb225b2c44424 \
-                        size    129138
+checksums               rmd160  0611c428e88be04f473da2f8a8c0a176b8e79a0d \
+                        sha256  6ed11a9862ea082e4f4628311db7b8f7f6e724d5469ba0b37fce7625a01d077f \
+                        size    218228
 
-python.default_version  38
+python.default_version  311
+python.pep517           yes
+
+depends_build-append    port:py${python.version}-setuptools_scm
 
 depends_lib-append      port:mercurial port:py${python.version}-dulwich
 
-# workaround for https://foss.heptapod.net/mercurial/hg-git/-/issues/326
+# used by urllib3 for better compression when cloning using HTTP, e.g.
+# from Github
 depends_lib-append      port:py${python.version}-brotli
+
+depends_test-append     port:git port:gnupg2 \
+                        port:py${python.version}-pygments \
+                        port:py${python.version}-pyflakes \
+                        port:dash
 
 notes               "
 To enable hggit, add the following to your ~/.hgrc:
@@ -40,9 +48,18 @@ To enable hggit, add the following to your ~/.hgrc:
 hggit =
 "
 
-test {
-    system -W ${worksrcpath} "${python.bin} ./tests/run-tests.py -v -j ${build.jobs}"
+test.run               yes
+
+pre-test {
+    # output some useful diagnostics
+    system -W ${worksrcpath} {
+        set -x
+        hg debuginstall
+        hg --config extensions.hggit=./hggit version -v
+    }
 }
 
-# reject alphas and betas, for now
-gitlab.livecheck.regex (\[0-9.]+)
+test.cmd               ${python.bin} ./run-tests.py
+test.args              -j ${build.jobs} --shell=${prefix}/bin/dash
+test.target
+test.dir               ${worksrcpath}/tests

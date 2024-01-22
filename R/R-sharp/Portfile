@@ -1,0 +1,29 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+# GitHub version lags behind.
+R.setup             cran barbarabodinier sharp 1.4.4
+revision            0
+categories-append   math
+maintainers         nomaintainer
+license             GPL-3+
+description         Stability-enhanced approaches using resampling procedures
+long_description    {*}${description}
+homepage            https://barbarabodinier.github.io/drat
+checksums           rmd160  8e56d30b3e8c1ed34e0f3ea86e92d20854ebd342 \
+                    sha256  5f9bd101f53c8e735336c36080f4864d16c14c3e26a94709138a16ac5057e290 \
+                    size    4145928
+supported_archs     noarch
+
+depends_lib-append  port:R-abind \
+                    port:R-beepr \
+                    port:R-fake \
+                    port:R-glassoFast \
+                    port:R-glmnet \
+                    port:R-igraph \
+                    port:R-mclust \
+                    port:R-plotrix \
+                    port:R-Rdpack \
+                    port:R-withr

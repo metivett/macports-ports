@@ -1,0 +1,89 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem              1.0
+PortGroup               cmake 1.1
+PortGroup               compiler_blacklist_versions 1.0
+PortGroup               github 1.0
+PortGroup               legacysupport 1.1
+
+# clock_gettime
+legacysupport.newest_darwin_requires_legacy 16
+
+github.setup            lfortran lfortran 0.30.0 v
+revision                0
+categories              lang fortran
+maintainers             {@barracuda156 gmail.com:vital.had} openmaintainer
+license                 BSD
+description             Modern open-source interactive Fortran compiler
+long_description        LFortran is a modern open-source interactive Fortran compiler built on top of LLVM. \
+                        It can execute user’s code interactively to allow exploratory work \
+                        (much like Python, MATLAB or Julia) as well as compile to binaries \
+                        with the goal to run user’s code on modern architectures such as multi-core CPUs and GPUs.
+homepage                https://lfortran.org
+
+checksums               rmd160  d82cf630e4da93846fc5abf3268a305ab7577929 \
+                        sha256  672d212456308db151210a1248a50b68e6f86658b78a2fe441626003b6039262 \
+                        size    2488225
+github.tarball_from     archive
+
+# Build system is a bit handicapped.
+cmake.out_of_source     no
+
+set port_libfmt         libfmt10
+cmake.module_path-append \
+                        ${prefix}/lib/${port_libfmt}/cmake
+
+depends_build-append    port:bash \
+                        port:bison \
+                        port:re2c
+depends_lib-append      path:lib/pkgconfig/RapidJSON.pc:rapidjson \
+                        port:zlib \
+                        port:${port_libfmt}
+
+set py_ver              3.11
+set py_ver_nodot        [string map {. {}} ${py_ver}]
+depends_lib-append      port:python${py_ver_nodot}
+
+# Install into meaningful locations:
+patchfiles-append       patch-use-sane-install-dirs.diff \
+                        patch-version.diff
+# TODO: add CMake config files.
+
+configure.python        ${prefix}/bin/python${py_ver}
+
+post-patch {
+    reinplace "s|@VERSION@|${version}|" ${worksrcpath}/ci/version.sh
+    reinplace "s|python src|${configure.python} src|g" ${worksrcpath}/build0.sh
+    reinplace "s|/usr/bin/env python|${configure.python}|" ${worksrcpath}/run_tests.py
+}
+
+# FIXME: this is likely wrong: https://github.com/lfortran/lfortran/issues/2689
+compiler.cxx_standard   2017
+# Use LLVM clangs
+compiler.blacklist-append {clang}
+
+configure.args-append   -DLFORTRAN_BUILD_ALL=YES \
+                        -DLFORTRAN_STATIC_BIN=NO \
+                        -DWITH_FMT=YES \
+                        -DWITH_JSON=YES \
+                        -DWITH_LLVM=NO \
+                        -DWITH_RUNTIME_LIBRARY=YES \
+                        -DWITH_ZLIB=YES
+
+if {${configure.build_arch} ni [list ppc ppc64]} {
+    set llvm_version    16
+    set llvm_prefix     ${prefix}/libexec/llvm-${llvm_version}
+    set llvm_bin        ${llvm_prefix}/bin
+
+    cmake.module_path-append \
+                        ${llvm_prefix}/lib/cmake/llvm
+    depends_lib-append  port:llvm-${llvm_version}
+    configure.args-append \
+                        -DLLVM_ROOT:PATH=${llvm_prefix}
+    configure.args-replace \
+                        -DWITH_LLVM=NO -DWITH_LLVM=YES
+}
+
+cmake.build_type        Release
+
+test.run                yes

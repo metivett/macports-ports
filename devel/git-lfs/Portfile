@@ -3,24 +3,23 @@
 PortSystem              1.0
 PortGroup               golang 1.0
 
-go.setup                github.com/git-lfs/git-lfs 2.13.2 v
+go.setup                github.com/git-lfs/git-lfs 3.4.1 v
 revision                0
-maintainers             {raimue @raimue} \
+maintainers             {raimue @raimue} {judaew @judaew} \
                         openmaintainer
-platforms               darwin
 categories              devel
-supported_archs         noarch
 
 description             Git Large File Storage
 long_description        {*}${description} is an extension for versioning large files
 homepage                https://git-lfs.github.com/
 license                 MIT
 
-checksums               rmd160  b0c385f014971857a939f93118753de53a10ab5a \
-                        sha256  7e9c1e2c2a02be327b31cb25c033c563555cfc67565219866d50837d4641894d \
-                        size    2528000
+checksums               rmd160  05c75a703322094bb5c134bc193bfda992da2aff \
+                        sha256  f279317f1c10c956440c9859b9bfe24c33e7df9dabb7b693f0b78f89248e755d \
+                        size    674234
 
-depends_build-append    port:rb27-ronn-ng
+depends_build-append    port:asciidoctor \
+                        port:rb31-ronn-ng
 depends_run             port:git
 
 if {${os.platform} eq "darwin" && ${os.major} < 16} {
@@ -36,18 +35,22 @@ use_configure no
 
 build.cmd               make
 build.target            bin/git-lfs man
-build.args              RONN=${prefix}/bin/ronn-2.7
+build.args              RONN=${prefix}/bin/ronn-3.1
+go.offline_build no
 
 destroot {
     set bindir ${destroot}${prefix}/bin
     xinstall -m 755 ${worksrcpath}/bin/git-lfs ${bindir}
 
     set mandir ${destroot}${prefix}/share/man/man1
-    set manfiles [glob ${worksrcpath}/man/*.1]
+    set manfiles [glob ${worksrcpath}/man/man1/*.1]
+    xinstall -m 644 {*}${manfiles} ${mandir}
+    set mandir ${destroot}${prefix}/share/man/man5
+    set manfiles [glob ${worksrcpath}/man/man5/*.5]
     xinstall -m 644 {*}${manfiles} ${mandir}
 
     set docdir ${destroot}${prefix}/share/doc/${subport}
     xinstall -d ${docdir}
-    set docfiles [glob ${worksrcpath}/man/*.html]
+    set docfiles [glob ${worksrcpath}/man/html/*.html]
     xinstall -m 644 {*}${docfiles} ${docdir}
 }

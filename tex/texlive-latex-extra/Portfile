@@ -4,7 +4,7 @@ PortSystem          1.0
 PortGroup           texlive 1.0
 
 name                texlive-latex-extra
-version             54584
+version             66551
 revision            0
 
 categories          tex
@@ -13,33 +13,33 @@ license             Copyleft Permissive
 description         TeX Live: LaTeX additional packages
 long_description    A very large collection of add-on packages for LaTeX.
 
-checksums           texlive-latex-extra-54584-run.tar.xz \
-                    rmd160  d9b189c45621a58b742f3a5481990c505fa57a01 \
-                    sha256  6748e18c08a0838d75a4a3858c3b9d940a87a0be68cf70f1983a8b7decba1b0d \
-                    size    515254492 \
-                    texlive-latex-extra-54584-doc.tar.xz \
-                    rmd160  cea40766c0805c592b0ec333410bbebb267cb23e \
-                    sha256  1980709a7db7d5095ea271c3817c0861ca5979cbb90443c118b4269520a378ca \
-                    size    488809080 \
-                    texlive-latex-extra-54584-src.tar.xz \
-                    rmd160  f91ab49d9911916c7b70ed4de4fa7ef7dd501ced \
-                    sha256  eb7d6f7b1a28e37c236438a10f9e758260dd1edd99e4708e9b4cfe0f2a135d64 \
-                    size    13439468
+checksums           texlive-latex-extra-66551-run.tar.xz \
+                    rmd160  3ee20c59d891575c383a8faaf5d189ca952b9027 \
+                    sha256  08861d8fd861a4ae7ad53309064c2fc91b5885e929525ad9fca146d5862d1520 \
+                    size    668490840 \
+                    texlive-latex-extra-66551-doc.tar.xz \
+                    rmd160  c7f2b55b42e30b2b8158c44d09479170dff56926 \
+                    sha256  68c5c5217e5b5fadd0a6cb7fff4554858140c950518742aff0facf70c207b703 \
+                    size    624732152 \
+                    texlive-latex-extra-66551-src.tar.xz \
+                    rmd160  825fd4b1ec43814284a295ce505aa9d063c12fc3 \
+                    sha256  ad1513d44e5aaa02b884ce15d76542e3979f3ad40080f08c013b7fda3c2b053b \
+                    size    19254432
 
 depends_lib         port:texlive-latex-recommended port:texlive-pictures
 
 texlive.formats      \
-    {1 latex-dev pdftex language.dat {-translate-file=cp227.tcx *latex.ini}} \
-    {1 pdflatex-dev pdftex language.dat {-translate-file=cp227.tcx *pdflatex.ini}} \
     {1 dvilualatex-dev luatex language.dat,language.dat.lua {dvilualatex.ini}} \
-    {1 lualatex-dev luahbtex language.dat,language.dat.lua {lualatex.ini}}
+    {1 latex-dev pdftex language.dat {-translate-file=cp227.tcx *latex.ini}} \
+    {1 lualatex-dev luahbtex language.dat,language.dat.lua {lualatex.ini}} \
+    {1 pdflatex-dev pdftex language.dat {-translate-file=cp227.tcx *pdflatex.ini}}
 
 texlive.maps      \
     {Map epiolmec.map} \
     {MixedMap esint.map} \
     {Map scanpages.map}
 
-texlive.binaries    authorindex dvilualatex-dev exceltex l3build latex-dev lualatex-dev makedtx makeglossaries makeglossaries-lite pdfannotextractor pdflatex-dev perltex pygmentex splitindex svn-multi vpe webquiz wordcount yplan
+texlive.binaries    authorindex dvilualatex-dev exceltex hyperxmp-add-bytecount l3build latex-dev lualatex-dev makedtx makeglossaries makeglossaries-lite pagelayoutapi pdfannotextractor pdflatex-dev perltex pygmentex splitindex svn-multi textestvis vpe webquiz wordcount yplan
 
 pre-activate {
     # Handle conflicts for TL2019 upgrade

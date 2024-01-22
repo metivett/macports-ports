@@ -4,10 +4,9 @@ PortSystem          1.0
 PortGroup           app 1.0
 
 name                bzflag
-version             2.4.18
-revision            1
+version             2.4.26
+revision            0
 categories          games
-platforms           darwin
 maintainers         {allejo.io:me @allejo} openmaintainer
 license             {LGPL-2.1 MPL-2}
 
@@ -19,9 +18,9 @@ homepage            https://www.bzflag.org/
 master_sites        https://download.bzflag.org/bzflag/source/${version}/
 use_bzip2           yes
 
-checksums           rmd160  b9116b75d749aaeec191d8c43613bd0e139b17ab \
-                    sha256  9d0d512f3a09a207ab399a8dc4807224564cdc7a9346b702fec80d5b7918bfbe \
-                    size    14011236
+checksums           rmd160  2aa5256083f20845b8bfddb3f7c3db7991324682 \
+                    sha256  01830405ff26ad1dc595a7e0695c824c2786e678868d9ff822aeb14ac7481014 \
+                    size    14107130
 
 depends_build       port:pkgconfig
 depends_lib         port:c-ares \
@@ -30,6 +29,8 @@ depends_lib         port:c-ares \
                     port:libsdl2 \
                     port:ncurses \
                     port:zlib
+
+patchfiles          dynamic_lookup-11.patch
 
 compiler.cxx_standard 2011
 
@@ -40,4 +41,4 @@ app.name            BZFlag
 app.icon            data/bzflag-256x256.png
 
 livecheck.url       https://download.bzflag.org/bzflag/source/
-livecheck.regex     {(\d+(?:\.\d+)*)/}
+livecheck.regex     {(\d+(?:\.(?:\d|\w)+)*)/}

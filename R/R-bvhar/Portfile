@@ -1,0 +1,43 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             github ygeunkim bvhar 1.2.0 v
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             MIT
+description         Bayesian Vector Heterogeneous Autoregressive Modelling
+long_description    {*}${description}
+homepage            https://ygeunkim.github.io/package/bvhar
+checksums           rmd160  4e4ff27223c1f501418ce1dddb1ac692593fc289 \
+                    sha256  396fcc7aff99d415d3988e1950cdb71ef3282dbce6276a1315fc5a468bde49ac \
+                    size    810983
+
+depends_lib-append  port:R-bayesplot \
+                    port:R-doRNG \
+                    port:R-dplyr \
+                    port:R-forcats \
+                    port:R-foreach \
+                    port:R-ggplot2 \
+                    port:R-knitr \
+                    port:R-lifecycle \
+                    port:R-magrittr \
+                    port:R-optimParallel \
+                    port:R-posterior \
+                    port:R-purrr \
+                    port:R-Rcpp \
+                    port:R-RcppEigen \
+                    port:R-RcppProgress \
+                    port:R-tibble \
+                    port:R-tidyr
+
+compilers.setup     require_fortran
+
+depends_test-append port:R-covr \
+                    port:R-knitr \
+                    port:R-rmarkdown \
+                    port:R-testthat
+
+test.run            yes

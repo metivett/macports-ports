@@ -3,7 +3,7 @@
 PortSystem          1.0
 
 name                dart-sdk
-version             2.10.5
+version             3.2.5
 categories          lang
 license             BSD
 maintainers         {amake @amake} openmaintainer
@@ -12,8 +12,8 @@ long_description    Dart is an open-source, scalable programming language, \
                     with robust libraries and runtimes, for building web, \
                     server, and mobile apps.
 
-platforms           darwin
-supported_archs     x86_64
+platforms           {darwin any}
+supported_archs     x86_64 arm64
 
 homepage            https://dart.dev/
 master_sites        https://storage.googleapis.com/dart-archive/channels/stable/release/${version}/sdk/
@@ -23,28 +23,27 @@ use_zip             yes
 dist_subdir         ${name}/${version}
 worksrcdir          ${name}
 
-checksums           rmd160  b6a75b7cc28b96b09ffba35412fc4129d9e6d155 \
-                    sha256  31a507a0baad581704fefee2d37ad7c028970c4e56799d5a0c206dc38ba862ed \
-                    size    165478718
+if {${configure.build_arch} eq "x86_64"} {
+    distname     dartsdk-macos-x64-release
+    checksums    rmd160  2a00041bdf504aad2ef6a8df2f486276e090c4e5 \
+                 sha256  ec4891331e3424418ea56976f262a408e8d7655b2917dcb5844557a7c971d349 \
+                 size    218483149
+} elseif {${configure.build_arch} eq "arm64"} {
+    distname     dartsdk-macos-arm64-release
+    checksums    rmd160  23b643f69188a66e3342db268332672024b24c77 \
+                 sha256  a218f96080403e261c5986ce0ed4c4ee3f9d872b800f34540c2a8526cbea6b52 \
+                 size    216761620
+}
 
 use_configure       no
 build               {}
-
-post-extract {
-    # Fix permissions
-    fs-traverse dir ${worksrcpath} {
-        if {[file isdirectory ${dir}]} {
-            file attributes ${dir} -permissions 0755
-        }
-    }
-}
 
 destroot {
     set libexecdir ${prefix}/libexec/${name}
     copy ${worksrcpath} ${destroot}${libexecdir}
     ln -s ${libexecdir}/bin/dart ${destroot}${prefix}/bin
     foreach bin [glob -tails -directory ${destroot}${libexecdir}/bin pub dart?*] {
-        xinstall -m 755 ${filespath}/shim.in ${destroot}${prefix}/bin/${bin}
+        xinstall -m 0755 ${filespath}/shim.in ${destroot}${prefix}/bin/${bin}
         reinplace "s|@@BIN@@|${libexecdir}/bin/${bin}|g" ${destroot}${prefix}/bin/${bin}
     }
 }

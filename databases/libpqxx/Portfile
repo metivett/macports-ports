@@ -1,17 +1,17 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
-PortSystem 1.0
-PortGroup github 1.0
+PortSystem      1.0
+PortGroup       compiler_blacklist_versions 1.0
+PortGroup       github 1.0
 
-github.setup jtv libpqxx 6.4.5
+github.setup    jtv libpqxx 7.8.1
 
-categories  databases devel
-platforms   darwin
-license     BSD
+categories      databases devel
+license         BSD
 
-maintainers nomaintainer
+maintainers     nomaintainer
 
-description Official C++ client API for PostgreSQL
+description     Official C++ client API for PostgreSQL
 
 long_description \
 libpqxx is the official C++ client API for PostgreSQL, the enterprise-strength \
@@ -28,14 +28,15 @@ resource management under control, and even basic object orientation to give \
 you some extra reliability features that would be hard to get with most other \
 database interfaces.
 
-homepage        http://pqxx.org/development/libpqxx/
+homepage        https://pqxx.org/development/libpqxx
 
-checksums       rmd160  a0eb3fb9eb0ac107e2307e695fe2ed9750d9be5d \
-                sha256  d9ef1da01feeeb6cecc36edf3f93bb07d13612e7d87b6f95b6dbe2bd9a671740 \
-                size    715157
+checksums       rmd160  130f4ee924b34b618392fb91463d160ef28608c8 \
+                sha256  0f4c0762de45a415c9fd7357ce508666fa88b9a4a463f5fb76c235bc80dd6a84 \
+                size    776338
+github.tarball_from archive
 
-set pg_ports [list postgresql91 postgresql92 postgresql93 postgresql94 \
-              postgresql95 postgresql96 postgresql10 postgresql11 postgresql12]
+set pg_ports [list postgresql91 postgresql92 postgresql93 postgresql94 postgresql95 postgresql96 \
+              postgresql10 postgresql11 postgresql12 postgresql13 postgresql14 postgresql15 postgresql16]
 
 set any_variant_set no
 foreach pg_port $pg_ports {
@@ -48,21 +49,24 @@ foreach pg_port $pg_ports {
     }
 }
 if {!$any_variant_set} {
-    default_variants +postgresql12
-    set server postgresql12
+    default_variants +postgresql16
+    set server postgresql16
 }
 
 depends_build   port:pkgconfig
 
-if {${os.platform} eq "darwin" && ${os.major} < 11} {
-    depends_build-append    port:python27
+if {${os.platform} eq "darwin" && ${os.major} < 20} {
+    depends_build-append  port:python311
     post-patch {
-        reinplace -W ${worksrcpath} "s| /usr/bin/env python|${prefix}/bin/python2.7|" \
-            tools/splitconfig tools/template2mak.py
+        reinplace -W ${worksrcpath} "s| /usr/bin/env python3|${prefix}/bin/python3.11|" \
+            tools/splitconfig tools/template2mak.py tools/test_all.py tools/m4esc.py
     }
 }
 
-compiler.cxx_standard   2011
+compiler.cxx_standard   2017
+# configure is unhappy about Xcode clang being used.
+compiler.blacklist-append \
+                        {clang}
 
 configure.env \
     PG_CONFIG=${prefix}/lib/${server}/bin/pg_config

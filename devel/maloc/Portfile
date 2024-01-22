@@ -5,7 +5,7 @@ PortGroup           muniversal 1.0
 
 name                maloc
 version             1.5
-revision            4
+revision            6
 categories          devel math
 maintainers         nomaintainer
 platforms           darwin
@@ -34,9 +34,10 @@ checksums           rmd160  23f51192a15c3b713d55091cee60c3653be84948 \
 worksrcdir          ${name}
 
 patchfiles          patch-Makefile.in.diff \
-                    patch-doc-doxygen-Makefile.in.diff
+                    patch-doc-doxygen-Makefile.in.diff \
+                    patch-aaa_lib-Makefile.in.diff
 
-depends_build       port:doxygen \
+depends_build       path:bin/doxygen:doxygen \
                     path:bin/dot:graphviz
 license_noconflict  graphviz
 depends_lib         port:ncurses \

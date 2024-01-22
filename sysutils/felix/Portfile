@@ -1,0 +1,32 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           cargo   1.0
+PortGroup           github  1.0
+
+github.setup        kyoheiu felix 2.11.1 v
+github.tarball_from archive
+revision            0
+
+description         tui file manager with vim-like key mapping
+
+long_description    {*}${description}
+
+categories          sysutils
+installs_libs       no
+license             MIT
+maintainers         {gmail.com:herby.gillot @herbygillot} \
+                    openmaintainer
+
+build.pre_args-delete \
+                    --frozen --offline
+
+checksums           rmd160  54888c8b1ced133aeea80dc85278645df98f4c04 \
+                    sha256  837ac1401c04e0ad07db5adf428fa43ddb3cfa12bb5ae18cb4c4dc59de3cbfc7 \
+                    size    13353415
+
+destroot {
+    xinstall -m 0755 \
+        ${worksrcpath}/target/[cargo.rust_platform]/release/fx \
+        ${destroot}${prefix}/bin/
+}

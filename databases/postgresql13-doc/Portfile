@@ -3,14 +3,16 @@
 PortSystem 1.0
 
 name                postgresql13-doc
-conflicts           postgresql95-doc postgresql96-doc postgresql10-doc \
-    postgresql11-doc postgresql12-doc
-version             13.2
+conflicts           postgresql96-doc postgresql10-doc postgresql11-doc \
+    postgresql12-doc postgresql14-doc
+version             13.13
+revision            0
 categories          databases
-platforms           darwin
+platforms           any
+supported_archs     noarch
 maintainers         {jwa @jyrkiwahlstedt}
 license             Permissive
-description         Documentation for the postgresql database BETA release.
+description         Documentation for the PostgreSQL database version 13
 long_description    PostgreSQL is Object-Relational Database Management System.\
                 It supports almost all SQL constructs, including transactions, \
                 subselects, and user-defined types and functions. Write-ahead \
@@ -22,9 +24,9 @@ master_sites        postgresql:source/v${version}
 distname            postgresql-${version}
 set rname           postgresql13
 
-checksums           rmd160  834069b800e8dcad67c5472dc23bc126e8c411fc \
-                    sha256  5fd7fcd08db86f5b2aed28fcfaf9ae0aca8e9428561ac547764c2a2b0f41adfc \
-                    size    21057276
+checksums           rmd160  23e88ae4d558fefd3b5a43777965fdce6f23a273 \
+                    sha256  8af69c2599047a2ad246567d68ec4131aef116954d8c3e469e9789080b37a474 \
+                    size    21563452
 
 use_bzip2           yes
 dist_subdir         ${rname}
@@ -35,6 +37,7 @@ configure.args      --mandir=${prefix}/share/man \
                     --without-readline \
                     --without-zlib
 
+depends_build       port:docbook-xml-4.5 port:docbook-xsl-nons
 build.dir           ${worksrcpath}/doc
 build.type          gnu
 build.target

@@ -3,19 +3,20 @@
 PortSystem          1.0
 PortGroup           github 1.0
 
-github.setup        dvorka hstr 2.3
+github.setup        dvorka hstr 3.1
 while {[llength [split ${version} .]] < 3} {
     version         ${version}.0
 }
 revision            0
-checksums           rmd160  36a1efb4dec7025a5fbbf0995f8d241e3e91689b \
-                    sha256  23731e4f59527c96b48ffe762abb3d484ddaa66e6849d0325de2d7bb8b0e7787 \
-                    size    178652
+checksums           rmd160  ce9052b797caaf234702cffae787889cd222e479 \
+                    sha256  4dabf61f045f022bac8bc909e5fd96041af6c53df56d97dfa3cfbf49af4453a5 \
+                    size    180182
 
 categories          shells
-platforms           darwin
 license             Apache-2
-maintainers         {ryandesign @ryandesign} openmaintainer
+maintainers         {ryandesign @ryandesign} \
+                    {gmail.com:herby.gillot @herbygillot} \
+                    openmaintainer
 
 description         Bash and Zsh shell history suggest box
 
@@ -26,7 +27,7 @@ long_description    HSTR is a command line utility that brings improved \
                     commands that e.g. contain sensitive information like passwords) \
                     and bookmark your favorite commands.
 
-homepage            http://me.mindforger.com/projects/hh.html
+homepage            https://me.mindforger.com/projects/hh.html
 github.tarball_from releases
 distname            ${name}-${version}-tarball
 extract.suffix      .tgz

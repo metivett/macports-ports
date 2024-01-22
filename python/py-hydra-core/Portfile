@@ -1,0 +1,42 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           github 1.0
+PortGroup           python 1.0
+
+github.setup        facebookresearch hydra 1.2.0 v
+revision            0
+name                py-${github.project}-core
+
+license             MIT
+maintainers         nomaintainer
+platforms           {darwin any}
+supported_archs     noarch
+
+description         Hydra is a framework for elegantly configuring complex applications
+
+long_description    Hydra is an open-source Python framework that \
+                    simplifies the development of research and other \
+                    complex applications. The key feature is the \
+                    ability to dynamically create a hierarchical \
+                    configuration by composition and override it \
+                    through config files and the command line. The \
+                    name Hydra comes from its ability to run multiple \
+                    similar jobs - much like a Hydra with multiple \
+                    heads.
+
+homepage            https://hydra.cc/
+
+checksums           rmd160  3b883e65ba382aeaf72f831b2635097f0b1e6472 \
+                    sha256  3f96761ab786103be7dff8a09c3747be13bc0105e9e2a501895bf6954bb1c0bf \
+                    size    4230033
+
+python.versions     38 39 310
+
+if {${name} ne ${subport}} {
+    depends_run-append \
+                    port:py${python.version}-antlr4-python3-runtime \
+                    port:py${python.version}-omegaconf
+
+    test.run        yes
+}

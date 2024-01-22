@@ -4,14 +4,20 @@ PortSystem          1.0
 PortGroup           cmake 1.0
 
 name                wireshark22
-version             2.2.10
-revision            4
+version             2.2.17
+revision            0
 categories          net
 license             {GPL-2 GPL-3}
-maintainers         darkart.com:opendarwin.org
+maintainers         {darkart.com:opendarwin.org @ghosthound}
 description         Graphical network analyzer and capture tool
 homepage            https://www.wireshark.org/
-platforms           darwin
+# macOS 10.12 and later ones are supported with Wireshark 3.x/4.x; 10.11 and below are limited to 2.x.
+# It is not clear which is the latest macOS which still allows to build Wireshark 2.x,
+# but it is known to fail on the recent ones. Related info:
+# https://gitlab.com/wireshark/wireshark/-/issues/19285
+# https://www.wireshark.org/lists/wireshark-dev/202305/msg00004.html
+# https://gitlab.com/wireshark/wireshark/-/wikis/Development/LifeCycle
+platforms           {darwin < 16}
 
 long_description    A network analyzer that lets you capture and \
                     interactively browse Ethernet frames. \
@@ -27,11 +33,11 @@ distfiles           wireshark-${version}${extract.suffix}
 
 worksrcdir          wireshark-${version}
 
-checksums           sha256  8574a5e1fdec7affae640924bd46c1aed1bd866e02632fa5625e1450e4a50707 \
-                    rmd160  a0164ae5e48de588bcc4df4f3c537dbf83b70cda \
-                    sha1    14ff541e84b43f5cff52fe44cdc1fbbcb8643dd2
+checksums           sha256  923d39ff9c6df83b9594868542061da33bf330e12526778a8cb3adcf912eebb0 \
+                    rmd160  06086c787720d126be5d47411b601ff59d9f4ba9 \
+                    size    32551027
 
-conflicts           wireshark-devel wireshark wireshark2 wireshark24 wireshark30 wireshark3
+conflicts           wireshark2 wireshark3 wireshark30 wireshark4
 
 depends_build-append \
                     port:pkgconfig
@@ -97,7 +103,7 @@ variant qt5 conflicts no_gui qt4 gtk2 gtk3 description {Build wireshark with a q
 variant gtk2 conflicts no_gui qt4 qt5 gtk3 description {Build wireshark with a gtk2 GUI} {
     configure.args-replace  -DBUILD_wireshark_gtk=OFF -DBUILD_wireshark_gtk=ON
     configure.args-append   -DENABLE_GTK3=OFF
-    depends_lib-append      port:gtk2
+    depends_lib-append      path:lib/pkgconfig/gtk+-2.0.pc:gtk2
     
     # post-destroot {
     #         file mkdir ${destroot}${applications_dir}/Wireshark.app/Contents/MacOS
@@ -112,7 +118,7 @@ variant gtk2 conflicts no_gui qt4 qt5 gtk3 description {Build wireshark with a g
 variant gtk3 conflicts no_gui qt4 qt5 gtk2 description {Build wireshark with a gtk3 GUI} {
     configure.args-replace  -DBUILD_wireshark_gtk=OFF -DBUILD_wireshark_gtk=ON
     configure.args-append   -DENABLE_GTK3=ON
-    depends_lib-append      port:gtk3 \
+    depends_lib-append      path:lib/pkgconfig/gtk+-3.0.pc:gtk3 \
                             port:adwaita-icon-theme
     post-destroot {
         file mkdir ${destroot}${applications_dir}/Wireshark.app/Contents/MacOS
@@ -156,7 +162,7 @@ variant libsmi description {Build with libsmi snmp support} {
 
 variant gnutls description {Build with GNU TLS support} {
     configure.args-replace  -DENABLE_GNUTLS=OFF -DENABLE_GNUTLS=ON
-    depends_lib-append      port:gnutls
+    depends_lib-append      path:lib/pkgconfig/gnutls.pc:gnutls
 }
 
 variant libgcrypt description {Build with GNU crypto support} {
@@ -184,10 +190,14 @@ variant chmodbpf description {Enable Wireshark to acces macOS capture devices} {
     depends_run             port:wireshark-chmodbpf
 }
 
-default_variants +portaudio +zlib +libsmi +gnutls +libgcrypt +cares +geoip +kerberos5 +chmodbpf
+default_variants +portaudio +zlib +libsmi +gnutls +libgcrypt +geoip +kerberos5 +chmodbpf
 
 if {![variant_isset qt4] && ![variant_isset qt5] && ![variant_isset gtk2] && ![variant_isset gtk3] && ![variant_isset no_gui]} {
     default_variants-append +qt4
+}
+
+if {![variant_isset adns] && ![variant_isset cares]} {
+    default_variants-append +cares
 }
 
 post-destroot {

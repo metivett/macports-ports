@@ -4,9 +4,8 @@ PortSystem          1.0
 PortGroup           compiler_blacklist_versions 1.0
 PortGroup           github 1.0
 
-github.setup        aria2 aria2 1.35.0 release-
-revision            2
-github.tarball_from releases
+github.setup        aria2 aria2 1.37.0 release-
+revision            4
 categories          net
 platforms           darwin
 maintainers         {mps @Schamschula}
@@ -14,32 +13,50 @@ license             {GPL-2+ OpenSSLException}
 description         download utility with resuming and segmented downloading
 long_description    aria2 is a download utility with resuming and segmented \
                     downloading. Supported protocols are HTTP/HTTPS/FTP/BitTorrent.
-                    
-use_xz              yes
 
-checksums           rmd160  9264f00160eca215a709ad442fd14316457a2e66 \
-                    sha256  1e2b7fd08d6af228856e51c07173cfcf987528f1ac97e04c5af4a47642617dfd \
-                    size    1534460
+checksums           rmd160  942de85a653d890bfa1198dc82069cff8267991b \
+                    sha256  7e7541966bc0f1d7b121ea9f4189c65b5782e78771ec4f49f40b6cf53d7a12df \
+                    size    4186060
 
-depends_build-append    port:pkgconfig
-depends_lib-append      port:gettext \
+depends_build-append    port:pkgconfig \
+                        port:gettext
+
+depends_lib-append      port:gettext-runtime \
                         port:libiconv \
                         port:libuv \
                         port:libxml2
 
+# Don't build pt and ru man pages
+patchfiles-append       patch-doc-manual-src-Makefile.am.diff
+
 # use_* must be defined after depends_*, otherwise the automatic dependencies
 # will be overwritten.
 # Alternatively, depends_*-append could be used.
-#use_autoreconf      yes
+use_autoreconf      yes
 
-configure.cxxflags-append -I${prefix}/include/libxml2
-configure.ldflags-append  -lintl
+configure.cxxflags-append \
+                    -I${prefix}/include/libxml2
+configure.ldflags-append \
+                    -lintl
 configure.args      --with-libiconv-prefix=${prefix} \
                     --with-libintl-prefix=${prefix} \
                     --with-libuv \
                     --with-xml-prefix=${prefix} \
                     --without-libcares \
                     --without-sqlite3
+
+# See https://trac.macports.org/ticket/68951
+# and https://github.com/aria2/aria2/issues/2083
+if {${os.platform} eq "darwin" && ${os.major} == 23} {
+    configure.ldflags-append  -framework CoreServices
+}
+
+post-destroot {
+    xinstall -d -m 0755 "${destroot}${prefix}/share/bash-completion/completions"
+    xinstall -m 0644 "${destroot}${prefix}/share/doc/aria2/bash_completion/aria2c" \
+        "${destroot}${prefix}/share/bash-completion/completions/aria2c"
+    file delete -force "${destroot}${prefix}/share/doc/aria2/bash_completion"
+}
 
 if {![variant_isset gnutls]} {
     # C++14
@@ -55,11 +72,31 @@ variant cares description {Add c-ares support} {
     depends_lib-append      port:c-ares
 }
 
+variant docs description {Build documentation using sphinx} {
+    set python.version  312
+
+    # check if docutils and sphinx don't have 'none' selected
+    pre-configure {
+        if {![catch { exec ${prefix}/bin/port select sphinx | /usr/bin/grep active | /usr/bin/grep none } eq ""]} {
+            ui_error "Didn't find sphinx, please use sudo port select sphinx py${python.version}-sphinx."
+            return -code error
+        }
+        if {![catch { exec ${prefix}/bin/port select docutils | /usr/bin/grep active | /usr/bin/grep none } eq ""]} {
+            ui_error "Didn't find docutils, please use sudo port select docutils py${python.version}-docutils."
+            return -code error
+        }
+    }
+
+    depends_build-append \
+                        port:py${python.version}-docutils \
+                        port:py${python.version}-sphinx
+}
+
 variant gnutls conflicts openssl description {Use GNU TLS instead of Apple built-in TLS library} {
     configure.args-append   --without-appletls \
                             --with-gnutls \
                             --with-libgnutls-prefix=${prefix}
-    depends_lib-append      port:gnutls
+    depends_lib-append      path:lib/pkgconfig/gnutls.pc:gnutls
 }
 
 variant openssl conflicts gnutls description {Use OpenSSL instead of Apple built-in TLS library} {
@@ -78,6 +115,7 @@ variant sqlite3 description {Add sqlite3 support} {
 # appletls not available on 10.6 or earlier
 if {${os.platform} eq "darwin" && ${os.major} <= 10} {
         default_variants-append +gnutls
+        patchfiles-append       patch-src-SimpleRandomizer.cc.diff
 }
 
 # libuv presently not available on 10.4 or earlier

@@ -1,0 +1,22 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             github easystats performance 0.10.8 v
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             GPL-3
+description         Assessment of regression models performance
+long_description    {*}${description}
+homepage            https://easystats.github.io/performance
+checksums           rmd160  92f5c14540297ddfb7c6775dd7c92a1c55292571 \
+                    sha256  f25336acefd333efad1c005136f7559a9a77ac87c4004801c029a97bab7c482c \
+                    size    4042408
+github.tarball_from archive
+supported_archs     noarch
+
+depends_lib-append  port:R-bayestestR \
+                    port:R-datawizard \
+                    port:R-insight

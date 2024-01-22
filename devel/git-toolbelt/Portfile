@@ -1,0 +1,48 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           github  1.0
+
+github.setup        nvie git-toolbelt 1.9.0 v
+github.tarball_from archive
+revision            0
+
+description         \
+    Helper tools to make everyday life with Git much easier
+
+long_description    \
+    {*}${description}. A suite of useful Git commands that aid with scripting \
+    or every day command line usage
+    
+categories          devel
+installs_libs       no
+license             BSD
+maintainers         {gmail.com:herby.gillot @herbygillot} \
+                    openmaintainer
+supported_archs     noarch
+platforms           any
+
+checksums           ${distname}${extract.suffix} \
+                    rmd160  15053c18ff714241e754dde2003afed035d52476 \
+                    sha256  50f743ddefbc8d015880d6476e00f7fc319a909ff4beb69dd8d777fc8277e085 \
+                    size    140437
+
+depends_run-append  path:bin/git:git \
+                    port:fzf \
+                    port:realpath
+
+if {${os.platform} eq "darwin" && ${os.major} < 17} {
+    # fzf is not building on older macOS because of older Go.
+    # Do without it on those platforms.
+    depends_run-delete port:fzf
+}
+
+use_configure       no
+
+build {}
+
+destroot {
+    foreach _bin [glob ${worksrcpath}/git-*] {
+        xinstall -m 0755 ${_bin} ${destroot}${prefix}/bin/
+    }
+}

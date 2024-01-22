@@ -5,9 +5,10 @@ PortSystem              1.0
 name                    evas
 epoch                   2
 version                 1.7.10
+revision                1
+
 categories              devel x11
-platforms               darwin
-maintainers             ryandesign openmaintainer
+maintainers             nomaintainer
 license                 BSD
 
 description             Evas is a hardware-accelerated canvas API for X11.
@@ -26,13 +27,17 @@ homepage                http://trac.enlightenment.org/e/wiki/Evas
 master_sites            http://download.enlightenment.org/releases/
 use_bzip2               yes
 
+# possible fix of https://trac.macports.org/ticket/39344
+configure.cflags-append -Wno-error=implicit-function-declaration
+configure.ldflags-append    {-framework OpenGL}
+
 depends_build           port:pkgconfig \
                         port:mesa
 
 depends_lib             port:eet \
                         port:fribidi \
                         port:libpng \
-                        port:librsvg \
+                        path:lib/pkgconfig/librsvg-2.0.pc:librsvg \
                         port:tiff \
                         port:giflib
 

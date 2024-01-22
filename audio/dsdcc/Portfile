@@ -12,10 +12,10 @@ maintainers         {ra1nb0w @ra1nb0w} openmaintainer
 description         Digital Speech Decoder (DSD) rewritten as a C++ library
 long_description    ${description}
 
-github.setup        f4exb dsdcc 1.9.0 v
-checksums           rmd160  455fe886fe988e1e717e68f97c60390e8a67e770 \
-                    sha256  e7c2e009924a4d77645a55531fb6e0224d598de480b37be9868d8ad82511319a \
-                    size    12750366
+github.setup        f4exb dsdcc 1.9.4 v
+checksums           rmd160  c725cc4892cb15baccd860dedb33140b6374f457 \
+                    sha256  84926d57fb209290725abf2c7106d8e0d1cd759edc802729902768d11c970b45 \
+                    size    12751542
 revision            0
 
 compiler.cxx_standard 2011

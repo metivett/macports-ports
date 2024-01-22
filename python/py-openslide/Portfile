@@ -4,15 +4,14 @@ PortSystem          1.0
 PortGroup           python 1.0
 PortGroup           github 1.0
 
-github.setup        openslide openslide-python 1.1.2 v
+github.setup        openslide openslide-python 1.3.1 v
 name                py-openslide
+revision            0
 categories-append   graphics
-platforms           darwin
 license             LGPL-2.1 MIT BSD
 maintainers         {bgilbert @bgilbert}
 
-python.versions     27 35 36 37 38
-python.default_version  38
+python.versions     38 39 310 311
 
 description         Python binding for the OpenSlide library.
 
@@ -29,49 +28,37 @@ long_description    OpenSlide Python allows the OpenSlide library to be \
                     amount of image data at the resolution closest to a \
                     desired zoom level.
 
-homepage            http://openslide.org/
+homepage            https://openslide.org/
 github.tarball_from releases
 use_xz              yes
 
-checksums           rmd160  31fc77b7afcd9ebade4b773046298a62f11e6bee \
-                    sha256  0b8bfd13116144a9b048d414f73a08ce4adc839b1ae19070588ee78dde6ec1be \
-                    size    263688
+checksums           rmd160  acee9140b5a7c453ff13dadee59efeb6f35396cd \
+                    sha256  c59b4b03b0c5f8a37a7b92db1f6aa6109b3e733a00115e1857e1735f0ec1f061 \
+                    size    292080
 
 if {${name} ne ${subport}} {
     depends_build       port:py${python.version}-sphinx
     # py-flask is only needed for the examples.
-    # On Python 2.x, we can use either PIL or Pillow.
     depends_lib-append  port:openslide \
                         port:py${python.version}-flask \
-                        path:${frameworks_dir}/Python.framework/Versions/${python.branch}/lib/python${python.branch}/site-packages/PIL/Image.py:py${python.version}-Pillow
+                        port:py${python.version}-Pillow
 
-    livecheck.type      none
-
-    build.target-append build_sphinx
     test.run            yes
 
-    patchfiles          patch-disable-find_library-fallback.diff
-
-    post-patch {
-        reinplace "s|@@PREFIX@@|${prefix}|g" \
-            ${worksrcpath}/openslide/lowlevel.py
+    post-build {
+        system -W ${worksrcpath} \
+            "${prefix}/bin/sphinx-build-${python.branch} -d build/doctrees doc build/html"
     }
 
     post-destroot {
         set docdir ${prefix}/share/doc/${subport}
         xinstall -m 644 -W ${worksrcpath} \
-            CHANGELOG.txt \
-            LICENSE.txt \
-            lgpl-2.1.txt \
+            CHANGELOG.md \
+            COPYING.LESSER \
             ${destroot}${docdir}
-        file copy ${worksrcpath}/build/sphinx/html ${destroot}${docdir}
+        file copy ${worksrcpath}/build/html ${destroot}${docdir}
         # Empty examples directory created by python portgroup
         file delete ${destroot}${docdir}/examples
         file copy ${worksrcpath}/examples ${destroot}${docdir}
     }
-}
-
-subport py34-${python.rootname} {
-    replaced_by py35-${python.rootname}
-    PortGroup obsolete 1.0
 }

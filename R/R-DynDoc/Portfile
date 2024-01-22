@@ -1,0 +1,17 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             bioconductor Bioconductor DynDoc 1.80.0
+revision            0
+maintainers         nomaintainer
+license             Artistic-2
+description         Dynamic document tools
+long_description    A set of functions to create and interact with dynamic documents and vignettes.
+checksums           rmd160  56c8802d3a557623fabcff3abae3ba4511315956 \
+                    sha256  c115174fcf50197ccb7b57d90f48b7a354707e687093e70f89371fffb5ea4a34 \
+                    size    11216
+supported_archs     noarch
+
+test.run            yes

@@ -4,15 +4,16 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                git-review
-version             1.28.0
-revision            1
-platforms           darwin
+version             2.3.1
+revision            0
+platforms           {darwin any}
 license             Apache-2
 categories          devel python
 maintainers         {gmail.com:herby.gillot @herbygillot} \
                     openmaintainer
+supported_archs     noarch
 
-homepage            http://docs.openstack.org/infra/git-review/
+homepage            http://docs.openstack.org/infra/git-review
 
 description         Tool to submit code to Gerrit
 
@@ -20,11 +21,11 @@ long_description    {*}${description}. ${name} is a command-line tool for \
                     Git / Gerrit to submit a change or to fetch an existing \
                     one.
 
-checksums           rmd160  16e673e3c2eafc2b7b0ce0dcf216611a723f9390 \
-                    sha256  8e3aabb7b9484063e49c2504d137609401e32ad5128ff2a5cf43e98d5d3dc15a \
-                    size    60496
+checksums           rmd160  c7216693210085e9493fbf7276c39f12e8c3d4c5 \
+                    sha256  24e938136eecb6e6cbb38b5e2b034a286b70b5bb8b5a2853585c9ed23636014f \
+                    size    66400
 
-python.default_version      38
+python.default_version      310
 
 depends_build-append \
                     port:py${python.version}-pbr \

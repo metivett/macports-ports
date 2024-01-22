@@ -2,16 +2,16 @@
 
 PortSystem          1.0
 PortGroup           github 1.0
+PortGroup           makefile 1.0
 
-github.setup        auriamg macdylibbundler 0.4.5 {} -release
+github.setup        auriamg macdylibbundler 1.0.5
 revision            0
-checksums           rmd160  e87ffd25d5405e78bf02cb3c57795b0d5502bfec \
-                    sha256  cd41e45115371721e0aa94e70c457134acf49f6d5f6d359b5bae060fd876d887 \
-                    size    11114
+checksums           rmd160  3c5b9db4e8d71ba4d8ed18a9ebf1f1815f28aa0c \
+                    sha256  13384ebe7ca841ec392ac49dc5e50b1470190466623fa0e5cd30f1c634858530 \
+                    size    13101
 
 name                dylibbundler
 categories          devel
-platforms           darwin
 maintainers         {ryandesign @ryandesign} openmaintainer
 license             MIT
 
@@ -36,16 +36,7 @@ pre-fetch {
     }
 }
 
-patchfiles          patch-src-main.cpp.diff
-
-use_configure       no
-
-variant universal {}
-
-build.args          CXX="${configure.cxx}" \
-                    CXXFLAGS="${configure.cxxflags} [get_canonical_archflags cxx]"
-
-destroot.args       PREFIX=${prefix}
+compiler.cxx_standard 2011
 
 post-destroot {
     set docdir ${prefix}/share/doc/${subport}

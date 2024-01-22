@@ -11,41 +11,47 @@ description         ${name} is a project to build a low cost software radio (SDR
 
 categories          science comms
 license             GPL-3
-platforms           darwin macosx
 
-long_description    ${description}
+long_description    {*}${description}
 
 subport hackrf-devel {}
 
 if {${subport} eq ${name}} {
 
     # release
-    github.setup        mossmann hackrf 2018.01.1 v
-    checksums           rmd160 97e9e7ca94f91ba898dd9a20a56aa3843688be64 \
-                        sha256 e7ee6e09c1e0d2498cfdc974047cbe42177d3d6688a106be283d67d36051a155
-    revision            0
+    github.setup    greatscottgadgets hackrf 2021.03.1 v
+    github.tarball_from releases
+    use_xz          yes
+    checksums       rmd160 d8c454803cad3ae966192dc3668eceac534d60ab \
+                    sha256 a43e5080c11efdfe69ddebcc35a02b018e30e820de0e0ebdc7948cf7b0cd93a3 \
+                    size   13661964
+    revision        0
 
     # bump the epoch because I moved the version from 20170219 to 2017.02.1
-    epoch               1
+    epoch           1
 
-    conflicts           hackrf-devel
+    conflicts       hackrf-devel
 
 } else {
 
     # devel
-    github.setup    mossmann hackrf f2021608a6a0a860624c7b517568632ce601d2af
-    version         20210128-[string range ${github.version} 0 7]
-    checksums       rmd160  d74c5631795bc6aa92be855ad69a95bf0e68e59d \
-                    sha256  8388fa0e301ab1d0924b06833a35517e61412bcad2437c1362ae62d0537ef91a \
-                    size    15208159
+    github.setup    greatscottgadgets hackrf d94295edcf2b3bda84f2c1e2a442f695a41e24b3
+    version         20211108-[string range ${github.version} 0 7]
+    github.tarball_from archive
+    checksums       rmd160 619b8a4ea1275bc9dd129512a6e02b592b07c3ec \
+                    sha256 2e0158b07ec2f8a520749723378e42ab0b65bcc37cb99e94d537b42c89e8832f \
+                    size   11718520
     revision        0
 
     conflicts       hackrf
 
+    # Handle stealth update; remove with next version update
+    dist_subdir     ${name}/${version}_1
+
 }
 
 depends_build-append port:pkgconfig
-depends_lib-append   path:lib/libusb-1.0.dylib:libusb \
+depends_lib-append   path:lib/pkgconfig/libusb-1.0.pc:libusb \
                      port:fftw-3-single
 
 # Many compilers do not recognize "-std=gnu90", so remove it.

@@ -1,0 +1,44 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           golang 1.0
+
+go.setup            github.com/Versent/saml2aws 2.36.10 v
+go.package          github.com/versent/saml2aws
+go.offline_build    no
+github.tarball_from archive
+revision            0
+
+categories          security
+platforms           darwin
+license             MIT
+maintainers         {netinertia.co.uk:jamesog @jamesog} \
+                    openmaintainer
+
+description         Log in to AWS using a SAML IDP
+long_description    CLI tool which enables you to login and retrieve AWS \
+                    temporary credentials using a SAML IDP.
+
+homepage            https://github.com/Versent/saml2aws
+
+checksums           rmd160  57e797f570f4235e8e4a0f6a710619539352318b \
+                    sha256  5d1a9d0aa5e411ae5f890a7791db38123d9a8ecb8fed816e004ace0b21268c56 \
+                    size    266433
+
+if {${os.platform} eq "darwin" && ${os.major} < 13} {
+    # The github.com/keybase/go-keychain dependency requires >= 10.9
+    known_fail yes
+    pre-fetch {
+        ui_error "${name} requires OS X 10.9 or greater"
+        return -code error "unsupported platform version"
+    }
+}
+
+build.pre_args      -trimpath -ldflags \"-s -w -X main.Version=${version}\"
+build.args          ./cmd/${name}
+
+destroot {
+    xinstall -m 0755 ${worksrcpath}/${name} ${destroot}${prefix}/bin
+}
+
+github.livecheck.regex {(\d+(?:\.\d+)+)}

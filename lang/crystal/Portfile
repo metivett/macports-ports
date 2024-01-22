@@ -2,13 +2,12 @@
 
 PortSystem          1.0
 PortGroup           github 1.0
-PortGroup           compiler_blacklist_versions 1.0
 
-github.setup        crystal-lang crystal 0.35.1
+github.setup        crystal-lang crystal 1.11.0
+github.tarball_from archive
 revision            0
 categories          lang
-platforms           darwin
-supported_archs     x86_64
+supported_archs     x86_64 arm64
 license             Apache-2
 maintainers         {outlook.com:mohd.akram @mohd-akram} openmaintainer
 
@@ -19,14 +18,16 @@ long_description    Crystal is a fast, compiled programming language with a \
 
 homepage            https://crystal-lang.org
 
+set llvm_version    17
+
+# pkg-config is used when compiling user programs
 depends_lib         port:boehmgc \
                     port:gmp \
-                    port:libedit \
                     port:libevent \
                     port:libiconv \
                     port:libxml2 \
                     port:libyaml \
-                    port:llvm-9.0 \
+                    port:llvm-${llvm_version} \
                     path:lib/libssl.dylib:openssl \
                     port:pcre \
                     port:zlib \
@@ -37,47 +38,38 @@ set cr_ver          ${version}
 set cr_full_ver     ${cr_ver}-1
 
 master_sites-append https://github.com/crystal-lang/${name}/releases/download/${cr_ver}/:bootstrap
-distfiles-append    ${name}-${cr_full_ver}-${os.platform}-${build_arch}${extract.suffix}:bootstrap
+distfiles-append    ${name}-${cr_full_ver}-${os.platform}-universal${extract.suffix}:bootstrap
 
 checksums           ${distname}${extract.suffix} \
-                    rmd160  9d94c27552be6a3fa1947c47af3f5debb0fdd8cc \
-                    sha256  4114cd1c4cb087851a501760ad5886ea2303182d6838475963bed9c739cf0a49 \
-                    size    2350164 \
-                    ${name}-${cr_full_ver}-${os.platform}-${build_arch}${extract.suffix} \
-                    rmd160  fb39d2f6891221300e5ae0f0d799e3e322b47193 \
-                    sha256  7d75f70650900fa9f1ef932779bc23f79a199427c4219204fa9e221c330a1ab6 \
-                    size    19028706
+                    rmd160  4946400941a24d3307c5d4847599611acdc914f7 \
+                    sha256  3c4eeb1191478770172a6fa7c4afb074526db9ecf0a80d434d1f4a6441414ae6 \
+                    size    3619256 \
+                    ${name}-${cr_full_ver}-${os.platform}-universal${extract.suffix} \
+                    rmd160  86d329bbb6e20a1e7482d091a86ce60d3e955389 \
+                    sha256  c3aed8624c76047c03b607754781d2e8380b7005dc8a0d926cc044f893368fba \
+                    size    57811159
 
-patchfiles          patch-compiler.diff patch-xml.diff \
-                    patch-crypto.diff patch-ssl.diff
+patchfiles          patch-static.diff
 
 post-patch {
-    reinplace "s|\"/usr/lib\", \"/usr/local/lib\"|\"${prefix}/lib\"|" \
-        ${worksrcpath}/src/compiler/crystal/codegen/link.cr
-
-    file copy -force ${worksrcpath}/src/lib_c/amd64-unknown-openbsd/c/iconv.cr \
-        ${worksrcpath}/src/lib_c/x86_64-macosx-darwin/c/iconv.cr
+    file copy -force ${worksrcpath}/src/lib_c/x86_64-openbsd/c/iconv.cr \
+        ${worksrcpath}/src/lib_c/aarch64-darwin/c/iconv.cr
+    file copy -force ${worksrcpath}/src/lib_c/x86_64-openbsd/c/iconv.cr \
+        ${worksrcpath}/src/lib_c/x86_64-darwin/c/iconv.cr
 }
 
-configure.cmd       env | grep -v ^PATH=
+configure.cmd       env | grep -E '^(CC?|CPP|CXX|LD)(FLAGS)?='
 configure.pre_args  > Makefile.local
 
-set llvm_version    9.0
 set llvm_config     LLVM_CONFIG=llvm-config-mp-${llvm_version}
 
-# Use MP's clang based on above LLVM version
-compiler.blacklist-append *gcc* clang
-compiler.fallback   macports-clang-${llvm_version}
-compiler.whitelist  macports-clang-${llvm_version}
+compiler.cxx_standard  2014
 
-compiler.cxx_standard  2011
+build.args          release=1 interpreter=1 FLAGS=--no-debug \
+                    CRYSTAL_CONFIG_LIBRARY_PATH=${prefix}/lib
 
-build.args          CC="${configure.cc} -L${prefix}/lib" \
-                    FLAGS="--no-debug --release" \
-                    EXPORTS="CRYSTAL_CONFIG_PATH=lib:${prefix}/lib/${name} \
-                        PATH=${workpath}/${name}-${cr_full_ver}/bin:\$PATH"
-
-build.env           ${llvm_config}
+build.env           ${llvm_config} \
+                    CRYSTAL=${workpath}/${name}-${cr_full_ver}/bin/${name}
 
 post-build {
     system -W ${worksrcpath} "${llvm_config} ${build.cmd} docs"
@@ -85,22 +77,7 @@ post-build {
 
 test.run            yes
 test.target         spec
-test.env            ${llvm_config} PATH=${worksrcpath}/bin:$env(PATH)
+test.env            ${llvm_config}
 
-destroot {
-    xinstall ${worksrcpath}/.build/${name} ${destroot}${prefix}/bin
-    xinstall ${worksrcpath}/man/${name}.1 ${destroot}${prefix}/share/man/man1
-    file copy ${worksrcpath}/src ${destroot}${prefix}/lib/${name}
-
-    file copy ${worksrcpath}/docs ${destroot}${prefix}/share/doc/${name}
-    file copy ${worksrcpath}/samples \
-        ${destroot}${prefix}/share/doc/${name}/examples
-
-    xinstall -d ${destroot}${prefix}/etc/bash_completion.d
-    xinstall ${worksrcpath}/etc/completion.bash \
-        ${destroot}${prefix}/etc/bash_completion.d/${name}
-
-    xinstall -d ${destroot}${prefix}/share/zsh/site-functions
-    xinstall ${worksrcpath}/etc/completion.zsh \
-        ${destroot}${prefix}/share/zsh/site-functions/_${name}
-}
+destroot.target-append  install_docs
+destroot.args       -o docs PREFIX=${prefix}

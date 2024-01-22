@@ -1,0 +1,22 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran rsparapa BART 2.9.6
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             GPL-2+
+description         Bayesian Additive Regression Trees
+long_description    {*}${description}
+checksums           rmd160  edadad3062a34b4b783fafbae4b3f0c1abf8446d \
+                    sha256  6e23eac476e894c0e6540eaa80e8436ea04261ce6aaac8d4f6f8f7ceeb082e0f \
+                    size    3774280
+
+depends_lib-append  port:R-Rcpp
+
+depends_test-append port:R-knitr \
+                    port:R-rmarkdown
+
+test.run            yes

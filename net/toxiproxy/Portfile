@@ -3,10 +3,9 @@
 PortSystem          1.0
 PortGroup           golang 1.0
 
-go.setup            github.com/Shopify/toxiproxy 2.1.4 v
+go.setup            github.com/Shopify/toxiproxy 2.7.0 v
 categories          net
 platforms           darwin
-supported_archs     x86_64
 maintainers         {amake @amake} openmaintainer
 license             MIT
 
@@ -18,16 +17,138 @@ long_description    Toxiproxy is a framework for simulating network conditions. 
     randomized chaos and customization. Toxiproxy is the tool you need to prove \
     with tests that your application doesn't have single points of failure.
 
-checksums           rmd160  4d5e062f394c7cb71ab507282820e88272324ec8 \
-                    sha256  ae16fc8392a2728d0c058d2757be1673224ff65d502dc474e335fedd63e816fa \
-                    size    623940
+checksums           ${distname}${extract.suffix} \
+                        rmd160  76abe666ab10a54e75b9bdd84b45409ab0e1a3d8 \
+                        sha256  42d7669834e7d92ccc6620a1e7ab60913074d03288ddd306b94d1e6c9b1fae55 \
+                        size    72179
 
-build.cmd           make
-build.target        ${goos}
+go.vendors          gopkg.in/tomb.v1 \
+                        lock    dd632973f1e7 \
+                        rmd160  ae07f5ddbbc6afc772d6dc5273bb72eaba50529a \
+                        sha256  91c562a4e31c89d13e5391143ff653231fc2d80562743db89ce2172ad8f81008 \
+                        size    3636 \
+                    google.golang.org/protobuf \
+                        repo    github.com/protocolbuffers/protobuf-go \
+                        lock    v1.31.0 \
+                        rmd160  2a79f7c0fd76cecaf9c25e53ad925b9e8fb5f8dc \
+                        sha256  57f5c0096053ab69a9a74f2d815d23a25d6a1efcfc2f21ed92d7d8acf38bbfb1 \
+                        size    1312091 \
+                    golang.org/x/term \
+                        lock    v0.13.0 \
+                        rmd160  5575fcb908ce86b2e4ba2be7fe23b33b8ff707af \
+                        sha256  7fc5c4e59a7e0a0fce704201cdd95554d6ac1ca3972958797d91e35116f4b54f \
+                        size    14796 \
+                    golang.org/x/sys \
+                        lock    v0.13.0 \
+                        rmd160  6105681bf18684d55835bd5ba9b20f599488c623 \
+                        sha256  f35bdc78f45a0bab73411b3c117b134ae68eed96eb301f719f873fbbcd8abf33 \
+                        size    1442708 \
+                    github.com/xrash/smetrics \
+                        lock    039620a65673 \
+                        rmd160  55c9e9f554905046a0db05723db5a9d95c6b2d41 \
+                        sha256  996b007cfb8fd8308b8f1912bf3863a108edeb07e1e705b8294e13c7a3a662cb \
+                        size    1823438 \
+                    github.com/urfave/cli \
+                        lock    v2.25.7 \
+                        rmd160  54cb9b78d2762c931d2ec1f83015a8147158237e \
+                        sha256  a09c96d3722f1efdcba7677bc9ef9394947e22f7f1e235edf923607c3f8b942c \
+                        size    3482618 \
+                    github.com/russross/blackfriday \
+                        lock    v2.1.0 \
+                        rmd160  c42a9332a2c2f3074c6f7e8d37a58d6148d2af08 \
+                        sha256  c4df56f2012a7d16471418245e78b5790569e27bbe8d72a860d7117a801a7fae \
+                        size    92950 \
+                    github.com/rs/zerolog \
+                        lock    v1.31.0 \
+                        rmd160  e71230e910aceaa86f3eeafb5194086ef91a58ea \
+                        sha256  31c6480b2c626c2691875d89ba4193bb947a077536ba7dfba753a01524621860 \
+                        size    170453 \
+                    github.com/rs/xid \
+                        lock    v1.5.0 \
+                        rmd160  4557993bd48722fa80d3c209bc8dfc6dbaa20d45 \
+                        sha256  a115974291292b0d4c4dd7ecca75439a3199c19086ce2320f4b0368a90f88d15 \
+                        size    11533 \
+                    github.com/prometheus/procfs \
+                        lock    v0.11.1 \
+                        rmd160  3d2bccab0905250010a007a7ae0fb24e9f9e43cf \
+                        sha256  0848159df6544da44c501249391ef3441742854e38ce36f6eeec7db75dacf167 \
+                        size    229585 \
+                    github.com/prometheus/common \
+                        lock    v0.44.0 \
+                        rmd160  517e640eace1a4fe3361bf03ae25fbc3e84df85a \
+                        sha256  fdcbefe5a4ca7d7cb39cbb869da322bf61049c8e214dc21dbcc19bb21ff072e0 \
+                        size    133049 \
+                    github.com/prometheus/client_model \
+                        lock    9a2bf3000d16 \
+                        rmd160  ef3ee89b9a118fdafcb038e4b3ac34697e50eb17 \
+                        sha256  33469a9cf9507881c707a150cf783d9d34625f8459ddc792415d6d09d0039c04 \
+                        size    16941 \
+                    github.com/prometheus/client_golang \
+                        lock    v1.17.0 \
+                        rmd160  cb9ce9a863bef9731f0c80a523354d8db2e6beef \
+                        sha256  1b2f4294efb052f758a4b71145452f484967211d6415f3c271b2df6044252b37 \
+                        size    1077752 \
+                    github.com/matttproud/golang_protobuf_extensions \
+                        lock    v1.0.4 \
+                        rmd160  5cd0af4220838331f336b1dca99297e11441be69 \
+                        sha256  6c32596468a03ca847e3cc29e74d64e0b7a0bba64166343494696c418415d114 \
+                        size    37528 \
+                    github.com/mattn/go-isatty \
+                        lock    v0.0.19 \
+                        rmd160  8f61f923ba80435627c12d4fca2f6c58b27067ae \
+                        sha256  22af5e131d9b7a23dd6fef5a6bc78b229942583ce2581dade4bada0a65741289 \
+                        size    4686 \
+                    github.com/mattn/go-colorable \
+                        lock    v0.1.13 \
+                        rmd160  c9e8ab9d0773c0984f36235e3c9f8c033552ac1a \
+                        sha256  0cd9a951799c1a9f999df56e4b020170fa887456049c274aae6262d9ae3f7424 \
+                        size    9778 \
+                    github.com/gorilla/mux \
+                        lock    v1.8.0 \
+                        rmd160  0671fd049b24cb4c682168aef4e176793dd624a7 \
+                        sha256  b94c995107eaf9f5bcaa0a29629fb6c23bab9ec0606071c09070e143fdf323fa \
+                        size    45524 \
+                    github.com/google/go-cmp \
+                        lock    v0.5.9 \
+                        rmd160  9832ae80123461baed8aa20e830199c0e21e337b \
+                        sha256  3058d20d61f03aa05fca0fc07acb8c50850c68086998c542857aec7ad1529482 \
+                        size    104431 \
+                    github.com/golang/protobuf \
+                        lock    v1.5.3 \
+                        rmd160  b4e09ad842f6dcd3aea36b28ec64d6d9563fd1d8 \
+                        sha256  12e830fab630cabd279fca57e7089eeb1556e2c22b58eee64bb21bd3c8dfc706 \
+                        size    171856 \
+                    github.com/davecgh/go-spew \
+                        lock    v1.1.1 \
+                        rmd160  7c02883aa81f81aca14e13a27fdca9e7fbc136f7 \
+                        sha256  e85d6afa83e64962e0d63dd4812971eccf2b9b5445eda93f46a4406f0c177d5f \
+                        size    42171 \
+                    github.com/cpuguy83/go-md2man \
+                        lock    v2.0.2 \
+                        rmd160  23c11486c5bc6f87cb13d2cb2aa7c2c68fd28f96 \
+                        sha256  c0fe49af2717cef631621cbbf010c7ee69b7e5c8afcde33779e07ecece9c00cc \
+                        size    64382 \
+                    github.com/cespare/xxhash \
+                        lock    v2.2.0 \
+                        rmd160  17d6143308fd7f2ccf9b885b19a2445a612ce013 \
+                        sha256  d491baceb567c1fcc6eae97991816169f798ac2bfc9f62224bd6ad63b1a4e60e \
+                        size    12348 \
+                    github.com/beorn7/perks \
+                        lock    v1.0.1 \
+                        rmd160  c6c5c7fd2132f01925c7fccd9d27c9d7a80f2adb \
+                        sha256  78da4421e9f9fa2ee5e3855bdd31cfb04c7e823d9c0ec385cc2c008132d98b96 \
+                        size    10874
+
+build {
+    foreach bin {server cli} {
+        system -W ${worksrcpath}/cmd/${bin} \
+            "${build.env} ${go.bin} build -ldflags='-s -w -X github.com/Shopify/toxiproxy.Version=${version}'"
+    }
+}
 
 destroot {
-    xinstall -m 755 ${worksrcpath}/tmp/build/${name}-server-${goos}-${goarch} \
-        ${destroot}${prefix}/bin/${name}-server
-    xinstall -m 755 ${worksrcpath}/tmp/build/${name}-cli-${goos}-${goarch} \
-        ${destroot}${prefix}/bin/${name}-cli
+    xinstall -m 0755 ${worksrcpath}/cmd/server/server ${destroot}${prefix}/bin/${name}-server
+    xinstall -m 0755 ${worksrcpath}/cmd/cli/cli ${destroot}${prefix}/bin/${name}-cli
 }
+
+github.livecheck.regex {([0-9.]+)}

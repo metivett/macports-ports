@@ -2,11 +2,10 @@
 
 PortSystem          1.0
 PortGroup           github 1.0
-PortGroup           cmake  1.1
+PortGroup           cmake 1.1
 
-github.setup        davisking dlib 19.21 v
+github.setup        davisking dlib 19.24.2 v
 categories          math
-platforms           darwin
 maintainers         nomaintainer
 license             MIT
 
@@ -18,29 +17,32 @@ long_description    Dlib is a modern C++ toolkit containing machine \
                     complex software in C++ to solve real world \
                     problems. It is used in both industry and \
                     academia in a wide range of domains including \
-                    robotics, embedded devices, mobile phones, and \
-                    large high performance computing \
+                    robotics, embedded devices, mobile phones, \
+                    and large high performance computing \
                     environments. Dlib's open source licensing allows \
                     you to use it in any application, free of charge.
 
 homepage            http://dlib.net
 
-checksums           rmd160  58abe0906d68ee92936360e8c4c57076bacee75a \
-                    sha256  5895369a1625f833b41bafaf18a5587cbc293eb2f60a1905315441fbd83ecc23 \
-                    size    10587515
+checksums           rmd160  770378ea8c0436f3332055951975e57852161ee4 \
+                    sha256  b807c8b45cbbe96a930fe40f9d3ce8a2fca1d7868c84afb01adfb5c70d2d0fd6 \
+                    size    22253462
 
-compiler.cxx_standard   2011
+compiler.cxx_standard   2014
 compiler.thread_local_storage yes
 
 configure.cxxflags-append -fvisibility=hidden -fvisibility-inlines-hidden
 cmake.build_type    Release
 
 # create Python subports
-set python_versions {37 38}
+set python_versions {37 38 39 310 311}
 foreach v ${python_versions} {
     subport py${v}-${github.project} {
         PortGroup   python 1.0
+
         python.default_version  ${v}
+
+        master_sites ${github.master_sites}
     }
 }
 
@@ -64,6 +66,7 @@ if {[string match "py*" ${subport}]} {
     build.dir       ${worksrcpath}
     build.post_args
 
+    python.pep517   no
     destroot.target install
 
     post-destroot {

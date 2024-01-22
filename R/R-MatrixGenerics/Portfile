@@ -1,0 +1,28 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             github Bioconductor MatrixGenerics ed066a2f14bcf980cc19514544de9ab5cdb8d121
+version             1.15.0
+revision            0
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             Artistic-2
+description         S4 generic summary statistic functions that operate on matrix-like objects
+long_description    {*}${description}
+homepage            https://bioconductor.org/packages/${R.package}
+checksums           rmd160  9a5496159615f63c00fb1809e76260a2f79ba192 \
+                    sha256  79d235b67759b8583cb024e75bcfb9759c056ed716f8b12bf47495d09e59d05f \
+                    size    34544
+supported_archs     noarch
+
+depends_lib-append  port:R-matrixStats
+
+depends_test-append port:R-DelayedArray \
+                    port:R-DelayedMatrixStats \
+                    port:R-SparseArray \
+                    port:R-sparseMatrixStats \
+                    port:R-SummarizedExperiment \
+                    port:R-testthat
+
+test.run            yes

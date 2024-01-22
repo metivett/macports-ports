@@ -32,7 +32,7 @@ checksums               rmd160  249414b567bc4f3d2a939d8f7e71cd72f653ed3c \
 
 patchfiles-append       patch-CMakeLists.txt.diff
 
-depends_build-append    port:eigen3 \
+depends_build-append    path:share/pkgconfig/eigen3.pc:eigen3 \
                         port:libomp \
                         port:zlib
 
@@ -45,3 +45,6 @@ post-destroot {
         move ${destroot}${prefix}/${file} ${destroot}${prefix}/share/doc/${name}
     }
 }
+
+# version 1.x no longer developed
+livecheck.type          none

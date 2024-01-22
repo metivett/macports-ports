@@ -1,28 +1,34 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
+PortGroup           meson 1.0
 
 name                usbredir
-version             0.8.0
-maintainers         {danchr @danchr} openmaintainer
+version             0.13.0
+revision            0
+checksums           rmd160  393f8e793fb1a136aa857df61fb2679d80294969 \
+                    sha256  4ba6faa02c0ae6deeb4c53883d66ab54b3a5899bead42ce4ded9568b9a7dc46e \
+                    size    69580
+
+maintainers         nomaintainer
 categories          devel
-platforms           darwin
 license             BSD
 description         Remote virtual machine server
 long_description    {*}${description}
 
 homepage            https://www.spice-space.org/usbredir.html
 master_sites        https://www.spice-space.org/download/usbredir/
+use_xz              yes
 
-use_bzip2           yes
-
-checksums           rmd160  ff51d678e7e3b5d0bb3d7d16335349143e063c3b \
-                    sha256  87bc9c5a81c982517a1bec70dc8d22e15ae197847643d58f20c0ced3c38c5e00 \
-                    size    331349
-
-patch.pre_args      -p1
-patchfiles          sol_tcp.diff
+patchfiles-append   patch-ai_numericserv.diff
 
 depends_build       port:pkgconfig
 
-depends_lib         port:libusb
+depends_lib         path:lib/pkgconfig/glib-2.0.pc:glib2 \
+                    path:lib/pkgconfig/libusb-1.0.pc:libusb
+
+# filter.c:234: error: ‘for’ loop initial declaration used outside C99 mode
+# But then, passing -std=c99 does not help, it still fails with numerous errors, like:
+# usbredirparser.c:590: error: ‘struct usbredirparser_priv’ has no member named ‘header’
+compiler.blacklist-append \
+                    *gcc-4.0 *gcc-4.2

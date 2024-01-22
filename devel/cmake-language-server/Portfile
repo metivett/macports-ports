@@ -1,0 +1,43 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           python 1.0
+
+name                cmake-language-server
+version             0.1.9
+revision            0
+
+categories          devel python
+supported_archs     noarch
+platforms           {darwin any}
+license             MIT
+maintainers         {judaew @judaew} openmaintainer
+
+description         CMake LSP Implementation
+long_description    {*}${description}
+homepage            https://github.com/regen100/cmake-language-server
+
+distname            cmake_language_server-${version}
+
+checksums           rmd160  507ad111a96320899b1ea720207098a2794d9aec \
+                    sha256  6b4768d89788c582b61d4503f6a3b0e594318af9d67be6d5453cded6dec0d7a8 \
+                    size    11477
+
+python.pep517          yes
+python.default_version 312
+
+depends_build       port:py${python.version}-pdm-backend
+
+depends_run         path:bin/cmake:cmake \
+                    port:py${python.version}-pygls \
+                    port:py${python.version}-parsing
+
+notes "
+    To use in Neovim with lspconfig it is sufficient to specify cmd:
+
+    require'lspconfig'.cmake.setup \{
+        cmd = \{\"${prefix}/bin/cmake-language-server\"\};
+    \}
+
+    See other ways https://github.com/regen100/cmake-language-server#neovim
+"

@@ -2,26 +2,24 @@
 
 PortSystem          1.0
 PortGroup           python 1.0
-PortGroup           select 1.0
 
 name                py-ansible
-version             3.0.0
+version             8.1.0
+revision            0
 license             GPL-3+
 
 categories-append   sysutils
-platforms           darwin
 supported_archs     noarch
+platforms           {darwin any}
 
 maintainers         {adfernandes @adfernandes} {gmail.com:pedro.salgado @steenzout} openmaintainer
 
-master_sites        pypi:a/ansible
 homepage            https://github.com/ansible/ansible
 description         SSH-based configuration management and deployment system
 
-distname            ansible-${version}
-checksums           rmd160  807892f5f884f4a3ecde82b736d3a10d7eaf1fb2 \
-                    sha256  843aa807813318b0c8a6684a2895c74a4ccfb3c01d2bb41a53856b2434ebaaec \
-                    size    30760609
+checksums           rmd160  cd11d9c22172ec15f471390010a349b9751142f5 \
+                    sha256  91f20b5bfcf5f298533c174a93881e00bc9e6b41411464f44c054a38d716a56a \
+                    size    39391786
 
 conflicts           ansible
 
@@ -33,19 +31,19 @@ long_description \
     be written in any language and are transferred to managed machines \
     automatically.
 
-python.versions 27 35 36 37 38 39
+python.versions     39 310 311
+python.pep517       yes
 
 if {${name} ne ${subport}} {
     patch {
-        fs-traverse f ${worksrcpath} {
-            if {[file isfile ${f}] && [regexp {\.(py|yml|yaml)$} ${f} match]} {
-                reinplace -q "s#/etc/ansible#${prefix}/etc/ansible#g" ${f}
-                reinplace -q "s#/usr/share/ansible#${prefix}/share/ansible#g" ${f}
-            }
-        }
+        # This is a little ugly, but it works, and it is over 10x faster on
+        # systems with anti-virus than using a foreach (even a foreach limited
+        # to matching files).
+        system -W ${worksrcpath} \
+            "find -E . -type f -regex '.*\.(py|ya?ml)' \
+                  -exec egrep -l '(/etc|/usr/share)/ansible' '{}' '+' |
+             xargs sed -i '' -e 's^/etc/ansible^${prefix}/etc/ansible^g' \
+                       -e 's^/usr/share/ansible^${prefix}/share/ansible^g'"
     }
-    depends_lib-append  port:py${python.version}-ansible-base
-    livecheck.type  none
-} else {
-    livecheck.name  ansible
+    depends_lib-append  port:py${python.version}-ansible-core
 }

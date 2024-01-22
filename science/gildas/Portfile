@@ -2,14 +2,18 @@
 
 PortSystem          1.0
 PortGroup           compilers 1.0
-PortGroup           active_variants 1.1 
+PortGroup           active_variants 1.1
 
 name                gildas
-version             202102a
+version             202311b
 set my_version      [string tolower [clock format [clock scan 2000-[string range ${version} 4 5]-10] -format %b]][string range ${version} 2 3][string range ${version} 6 end]
+revision            1
+
+supported_archs     arm64 x86_64
+set my_machine      [if {[string match *arm* ${os.arch}]} {list arm64} {list x86_64}]
 categories          science
 platforms           darwin
-maintainers         {bardeau @bardeau}
+maintainers         {iram.fr:bardeau @bardeau}
 license             permissive
 
 description         Radioastronomy data analysis software
@@ -30,27 +34,29 @@ master_sites        https://www.iram.fr/~gildas/dist/ \
 distname            ${name}-src-${my_version}
 use_xz              yes
 
-checksums           rmd160  68c9a6ccdc18e25ff1af9822af47adbf3d2a9170 \
-                    sha256  a7d5ac991e3f506a698cbe689ff403a2d8ce4c08c68fb439b8d3a5f66b8a9014 \
-                    size    42941124
+checksums           rmd160  fb4fc67e00c07c3b0740cf8290dc9dda2fd4681e \
+                    sha256  a397c47a175ae4c75b0af2997a0a1bfeb9989bd975283f814aef5952c786072c \
+                    size    46220420
 
 patch.pre_args      -p1
 patchfiles          patch-admin-Makefile.def.diff \
                     patch-admin-Makefile.python.diff \
                     patch-admin-Makefile.build.diff \
                     patch-admin-gildas-env.sh.diff \
-                    patch-admin-define-system.sh.diff
+                    patch-admin-define-system.sh.diff \
+                    patch-admin-python-config-ldflags.py.diff
 
-depends_lib         port:gtk2 \
+depends_lib         path:lib/pkgconfig/gtk+-2.0.pc:gtk2 \
                     port:libpng \
-                    port:python38 \
-                    port:py38-numpy
+                    port:python311 \
+                    port:py311-numpy
 
 # coreutils needed to use GNU gsort instead of native BSD sort as older version
 # of sort do not support sort -V:
 depends_build       port:cfitsio \
                     port:pkgconfig \
-                    port:coreutils
+                    port:groff \
+                    path:libexec/coreutils/libstdbuf.so:coreutils
 
 set my_build_opts   ""
 variant openmp description {Add OpenMP support} {set my_build_opts "-o openmp"}
@@ -61,9 +67,11 @@ require_active_variants gtk2 x11 quartz
 # need the fortran interface; see ticket #50543
 compilers.enforce_some_fortran cfitsio
 
+compilers.add_gcc_rpath_support no
+
 compilers.choose    fc
-compilers.setup     -g95 -gcc44 -gcc45 -gcc46 require_fortran
-configure.python    ${prefix}/bin/python3.8
+compilers.setup     -gcc46 require_fortran
+configure.python    ${prefix}/bin/python3.11
 
 configure {
     set cxxstdlib {}
@@ -71,21 +79,20 @@ configure {
         set cxxstdlib [string map {lib -l} ${configure.cxx_stdlib}]
     }
 
-    reinplace -W ${worksrcpath}/admin "s|@PREFIX@|${prefix}|g" define-system.sh
-    reinplace -W ${worksrcpath}/admin "s|@CC@|${configure.cc}|g" Makefile.def Makefile.python gildas-env.sh define-system.sh
-    reinplace -W ${worksrcpath}/admin "s|@CCFLAGS@|${configure.cflags}|g" Makefile.def Makefile.python gildas-env.sh define-system.sh
-    reinplace -W ${worksrcpath}/admin "s|@FC@|${configure.fc}|g" Makefile.def Makefile.python gildas-env.sh define-system.sh
-    reinplace -W ${worksrcpath}/admin "s|@FCFLAGS@|${configure.fcflags}|g" Makefile.def Makefile.python gildas-env.sh define-system.sh
-    reinplace -W ${worksrcpath}/admin "s|@CXX@|${configure.cxx}|g" Makefile.def Makefile.python gildas-env.sh define-system.sh
-    reinplace -W ${worksrcpath}/admin "s|@CPP@|${configure.cpp}|g" Makefile.def Makefile.python gildas-env.sh define-system.sh
-    reinplace -W ${worksrcpath}/admin "s|@CPPFLAGS@|${configure.cppflags}|g" Makefile.def Makefile.python gildas-env.sh define-system.sh
-    reinplace -W ${worksrcpath}/admin "s|@LDFLAGS@|${configure.ldflags}|g" Makefile.def Makefile.python gildas-env.sh define-system.sh
-    reinplace -W ${worksrcpath}/admin "s|@PYTHON@|${configure.python}|g" Makefile.build Makefile.def Makefile.python gildas-env.sh define-system.sh
-    reinplace -W ${worksrcpath}/admin "s|@STDCXXLIB@|${cxxstdlib}|g" Makefile.def Makefile.python gildas-env.sh define-system.sh
+    reinplace -W ${worksrcpath}/admin "s|@PREFIX@|${prefix}|g" define-system.sh gildas-env.sh
+    reinplace -W ${worksrcpath}/admin "s|@CC@|${configure.cc}|g" define-system.sh
+    reinplace -W ${worksrcpath}/admin "s|@CCFLAGS@|${configure.cflags}|g" Makefile.def
+    reinplace -W ${worksrcpath}/admin "s|@FC@|${configure.fc}|g" define-system.sh
+    reinplace -W ${worksrcpath}/admin "s|@FCFLAGS@|${configure.fcflags}|g" Makefile.def
+    reinplace -W ${worksrcpath}/admin "s|@CXX@|${configure.cxx}|g" define-system.sh
+    reinplace -W ${worksrcpath}/admin "s|@CPP@|${configure.cpp}|g" Makefile.def define-system.sh
+    reinplace -W ${worksrcpath}/admin "s|@CPPFLAGS@|${configure.cppflags}|g" Makefile.def
+    reinplace -W ${worksrcpath}/admin "s|@LDFLAGS@|${configure.ldflags}|g" Makefile.def
+    reinplace -W ${worksrcpath}/admin "s|@PYTHON@|${configure.python}|g" Makefile.build Makefile.def Makefile.python gildas-env.sh python-config-ldflags.py
 }
 
 build {
-    system -W ${worksrcpath} "source admin/gildas-env.sh -c ${configure.fc} ${my_build_opts} -s ${prefix}/include:${prefix}/lib:/System/Library/Frameworks/Accelerate.framework/Frameworks/vecLib.framework/Versions/Current/ && export GAG_SLDFLAGS='-shared -o ${prefix}/lib/gildas/x86_64-darwin-gfortran/lib/\$(notdir \$@) -install_name ${prefix}/lib/gildas/x86_64-darwin-gfortran/lib/\$(notdir \$@)' && export DYLD_LIBRARY_PATH=${worksrcpath}/integ/x86_64-darwin-gfortran/lib && export GAG_ADDONS=yes && make -w install"
+    system -W ${worksrcpath} "source admin/gildas-env.sh -c ${configure.fc} ${my_build_opts} -s ${prefix}/include:${prefix}/lib:/System/Library/Frameworks/Accelerate.framework/Frameworks/vecLib.framework/Versions/Current/ && export GAG_SLDFLAGS='-shared -o ${prefix}/lib/gildas/${my_machine}-darwin-gfortran/lib/\$(notdir \$@) -install_name ${prefix}/lib/gildas/${my_machine}-darwin-gfortran/lib/\$(notdir \$@)' && export DYLD_LIBRARY_PATH=${worksrcpath}/integ/${my_machine}-darwin-gfortran/lib && export GAG_ADDONS=yes && make -w install"
 }
 
 destroot {
@@ -94,6 +101,7 @@ destroot {
     xinstall ${filespath}/astro.in ${destroot}${prefix}/bin/astro
     xinstall ${filespath}/class.in ${destroot}${prefix}/bin/class
     xinstall ${filespath}/clic.in ${destroot}${prefix}/bin/clic
+    xinstall ${filespath}/cube.in ${destroot}${prefix}/bin/cube
     xinstall ${filespath}/greg.in ${destroot}${prefix}/bin/greg
     xinstall ${filespath}/mapping.in ${destroot}${prefix}/bin/mapping
     xinstall ${filespath}/mira.in ${destroot}${prefix}/bin/mira
@@ -102,9 +110,10 @@ destroot {
     xinstall ${filespath}/sched-30m.in ${destroot}${prefix}/bin/sched-30m
     xinstall ${filespath}/imager.in ${destroot}${prefix}/bin/imager
 
-    reinplace -W ${destroot}${prefix}/bin s|@PREFIX@|${prefix}|g astro class clic greg mapping mira mrtcal sic sched-30m imager
+    reinplace -W ${destroot}${prefix}/bin s|@PREFIX@|${prefix}|g astro class clic cube greg mapping mira mrtcal sic sched-30m imager
+    reinplace -W ${destroot}${prefix}/bin s|@ARCH@|${my_machine}|g astro class clic cube greg mapping mira mrtcal sic sched-30m imager
 
     # delete broken module
-    delete ${destroot}${prefix}/lib/gildas/x86_64-darwin-gfortran/python/pyclassfiller
+    delete ${destroot}${prefix}/lib/gildas/${my_machine}-darwin-gfortran/python/pyclassfiller
     
 }

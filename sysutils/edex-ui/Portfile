@@ -2,36 +2,38 @@
 
 PortSystem          1.0
 PortGroup           github 1.0
+PortGroup           legacysupport 1.1
 
-github.setup        GitSquared edex-ui 2.2.5 v
-revision            1
+github.setup        GitSquared edex-ui 2.2.8 v
+github.tarball_from archive
+revision            0
 
-description         Science fiction terminal emulator with advanced monitoring
+description         \
+    Science fiction terminal emulator with advanced monitoring
 
-long_description    eDEX-UI is a fullscreen, cross-platform terminal emulator \
-                    and system monitor that looks and feels like a sci-fi \
-                    computer interface.  Heavily inspired from the TRON \
-                    Legacy movie effects (especially the Board Room \
-                    sequence), the eDEX-UI project was originally meant to be \
-                    a \"DEX-UI with less « art » and more « distributable \
-                    software »\". While keeping a futuristic look and feel, it \
-                    strives to maintain a certain level of functionality and \
-                    to be usable in real-life scenarios, with the larger goal \
-                    of bringing science-fiction UXs to the mainstream.
+long_description    \
+    eDEX-UI is a fullscreen, cross-platform terminal emulator and system \
+    monitor that looks and feels like a sci-fi computer interface.  Heavily \
+    inspired from the TRON Legacy movie effects (especially the Board Room \
+    sequence), the eDEX-UI project was originally meant to be a \"DEX-UI with \
+    less « art » and more « distributable software »\". While keeping a \
+    futuristic look and feel, it strives to maintain a certain level of \
+    functionality and to be usable in real-life scenarios, with the larger \
+    goal of bringing science-fiction UXs to the mainstream.
 
 categories          sysutils shells
 license             GPL-3
-platforms           darwin
-
 maintainers         {gmail.com:herby.gillot @herbygillot} \
                     openmaintainer
 
-checksums           ${distname}${extract.suffix} \
-                    rmd160  df968e5358ed9bf99a52749a002dd0f82e043b1c \
-                    sha256  6f1aad983711fb2e5dfc51043f7a64fb2c3594931060c0c1c063a1ad74291f2a \
-                    size    5564104
+checksums           rmd160  77d5d0596f973268b85bbbf728abaef9a43bdaf7 \
+                    sha256  c6a8ef34890c028ee2a1e4c64485db29d4d0aedda0d63c0fc5f8572d45226b51 \
+                    size    15611777
 
-depends_build       port:npm6 \
+# Use legacysupport for 10.11 and earlier; needed for missing syscalls 'clock_gettime', etc.
+legacysupport.newest_darwin_requires_legacy 15
+
+depends_build       port:npm7 \
                     port:yarn
 
 build.env-append    CSC_IDENTITY_AUTO_DISCOVERY=false
@@ -48,7 +50,9 @@ build {
 }
 
 destroot {
-    copy ${worksrcpath}/dist/mac/eDEX-UI.app ${destroot}${applications_dir}
+    copy \
+        {*}[glob ${worksrcpath}/dist/*/eDEX-UI.app] \
+        ${destroot}${applications_dir}
 }
 
 github.livecheck.regex {([0-9.]+)}

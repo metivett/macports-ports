@@ -2,12 +2,13 @@
 
 PortSystem          1.0
 PortGroup           github 1.0
+PortGroup           compiler_blacklist_versions 1.0
 
 # normally update mediainfo port at the same time
-github.setup        MediaArea MediaInfoLib 20.09 v
-checksums           rmd160  f1fa1928e044490fd4622bdf7d2f91e2e2bb1048 \
-                    sha256  04c7e8036cf74ca49d6420c007af1511473e40f542ef26793fcf0129db022403 \
-                    size    2610768
+github.setup        MediaArea MediaInfoLib 23.11 v
+checksums           rmd160  1f4927c9c682b8240fe56c53e79da2907ad6b570 \
+                    sha256  48c47c09481bd29299e1bac42ad8148aa2222db170cac23ee46a44e25ea3e837 \
+                    size    2876528
 
 name                mediainfolib
 description         Supplies technical and tag information about a video or audio file
@@ -18,10 +19,16 @@ platforms           darwin
 maintainers         {ctreleaven @ctreleaven} openmaintainer
 license             BSD
 
+# make pkg-config act like on Linux, no '-I/opt/local/include' in cflags
+configure.env-append    PKG_CONFIG_SYSTEM_INCLUDE_PATH=${prefix}/include
+
 # cascade of errors if no autoreconf
 use_autoreconf      yes
 autoreconf.args-append  --force --install
 configure.args      --with-libcurl
+
+# otherwise may find headers from libmd, maybe others
+configure.cppflags-delete -I${prefix}/include
 
 depends_build-append    port:pkgconfig
 depends_lib-append      port:curl \
@@ -29,3 +36,7 @@ depends_lib-append      port:curl \
                         port:zlib
 
 worksrcdir          ${worksrcdir}/Project/GNU/Library
+
+compiler.cxx_standard 2011
+# see https://trac.macports.org/ticket/67223
+compiler.blacklist-append {clang < 900}

@@ -4,21 +4,19 @@ PortSystem          1.0
 PortGroup           active_variants 1.1
 PortGroup           conflicts_build 1.0
 
-# Please keep the magic and magic-devel ports as similar as possible.
-
 name                magic
-conflicts           magic-devel
-version             8.1.224
+version             8.3.456
 revision            0
-checksums           rmd160  8d7c33a654239da2ba518a98bd33e2a915f11ac3 \
-                    sha256  618b872c69f291fd24dfa47d73807a03f80e9bb4ac781dee681090506c679bd8 \
-                    size    3937007
+checksums           rmd160  179e62f193e0eb5979508bc44980054ee82bb5d3 \
+                    sha256  3eb29b2de70527eb61d31f40d1fa79e7446703cc3da1611332d1694193fcb73c \
+                    size    4229024
 
 set branch          [join [lrange [split ${version} .] 0 1] .]
 categories          science
 # mostly very permissively licensed, but includes a copy of GNU readline
 license             GPL-2+
 maintainers         {ryandesign @ryandesign} openmaintainer
+
 description         A VLSI Layout System
 
 long_description    Magic is a venerable VLSI layout tool, written in the \
@@ -27,18 +25,21 @@ long_description    Magic is a venerable VLSI layout tool, written in the \
                     who ultimately rely on commercial tools for their product \
                     design flow.
 
-platforms           darwin
-
 homepage            http://opencircuitdesign.com/magic/
 master_sites        ${homepage}archive/
 
 extract.suffix      .tgz
 
 depends_lib         port:blt \
+                    path:lib/pkgconfig/cairo.pc:cairo \
                     port:libGLU \
                     port:mesa \
                     port:tcl \
-                    port:tk
+                    port:tk \
+                    port:xorg-libice \
+                    port:xorg-libXi \
+                    port:xorg-libXmu \
+                    port:zlib
 
 require_active_variants tk x11
 
@@ -46,23 +47,35 @@ universal_variant   no
 
 conflicts_build     gnome-keyring
 
-use_autoreconf      yes
-autoreconf.dir      ${worksrcpath}/scripts
+configure.dir       ${worksrcpath}/scripts
+
+if {${os.platform} eq "darwin" && ${os.major} < 19} {
+    depends_build-append \
+                    port:python311
+    configure.python \
+                    ${prefix}/bin/python3.11
+} else {
+    configure.python \
+                    /usr/bin/python3
+}
+
+configure.args-append \
+                    ac_cv_path_PYTHON3=${configure.python}
 
 use_parallel_build  no
 
 build.env           X11_LDFLAGS=-L${prefix}/lib
 
-post-build {
-    # The build and install don't notice when essential files don't get built,
-    # so we must exit for it when it fails. #32934
-    foreach f {magic/tclmagic.dylib} {
-        if {![file exists ${worksrcpath}/${f}]} {
-            return -code error "${f} did not get built"
-        }
-    }
-}
+# Avoid this build system's nonstandard behavior of hiding the real
+# build output in a make.log file, hiding the install output in an
+# install.log file, and returning a successful exit code even when
+# the build fails.
+build.target        tcllibrary
+destroot.target     install-tcl-real
+
+# TODO: Build fails in trace mode due to MacPorts base bug?
+# https://trac.macports.org/ticket/63359
 
 livecheck.type      regex
-livecheck.url       [lindex ${master_sites} 0]
-livecheck.regex     magic-(${branch}\\.\[0-9.\]+)${extract.suffix}
+livecheck.url       ${homepage}download.html
+livecheck.regex     ${name}-(\[0-9.\]+)[quotemeta ${extract.suffix}]

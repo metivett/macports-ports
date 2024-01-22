@@ -1,47 +1,52 @@
-# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:et:sw=4:ts=4:sts=4
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-zopeinterface
-version             5.1.0
-python.versions     27 35 36 37 38 39
+python.rootname     zope.interface
+version             6.1
+revision            0
+python.versions     27 35 36 37 38 39 310 311 312
 categories-append   zope
 license             ZPL-2.1
-platforms           darwin
 maintainers         {mcalhoun @MarcusCalhoun-Lopez} openmaintainer
 description         Python interfaces for Zope
-long_description    ${description}
+long_description    {*}${description}
 
 homepage            https://zopetoolkit.readthedocs.io/
-master_sites        pypi:z/zope.interface
-distname            zope.interface-${version}
 
-checksums           rmd160  0c437521e303e78eed94c5d721c14b7c962cc142 \
-                    sha256  40e4c42bd27ed3c11b2c983fecfb03356fae1209de10686d03c02c8696a1d90e \
-                    size    225400
+checksums           rmd160  b47e79fef2bb5bee43e0156b46a819ce0e63a6ba \
+                    sha256  2fdc7ccbd6eb6b7df5353012fbed6c3c5d04ceaca0038f75e601060e95345309 \
+                    size    293914
 
 if {${name} ne ${subport}} {
-
     depends_build   port:py${python.version}-setuptools
+
+    # Probably fails due to lack of port for zope.testing
+    depends_test    port:py${python.version}-coverage \
+                    port:py${python.version}-zope-event
+
+    if {${python.version} <= 36} {
+        version             5.5.2
+        revision            0
+
+        checksums           rmd160  b56a9e93853ccc43993cf3b6f893a9d1986e6917 \
+                            sha256  bfee1f3ff62143819499e348f5b8a7f3aa0259f9aca5e0ddae7391d059dce671 \
+                            size    300533
+
+        livecheck.type none
+    }
+
+    test.run        yes
+    test.args       --pyargs zope.interface.common.tests
 
     post-destroot {
         xinstall -d ${destroot}${prefix}/share/doc/${subport}
-        xinstall -m 644 -W ${worksrcpath} \
+        xinstall -m 0644 -W ${worksrcpath} \
             CHANGES.rst  README.rst \
             ${destroot}${prefix}/share/doc/${subport}
     }
 
-    variant tests description {Add dependencies needed to run tests} {
-        depends_build-append port:py${python.version}-zope-event
-        test.run    yes
-        test.cmd    ${python.bin} setup.py
-        test.target test
-    }
-
     livecheck.type      none
-} else {
-    livecheck.type      regex
-    livecheck.url       https://pypi.python.org/pypi/zope.interface/json
-    livecheck.regex     zope.interface-(\\d+(?:\\.\\d+)*)${extract.suffix}
 }

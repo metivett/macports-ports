@@ -4,7 +4,7 @@ PortSystem          1.0
 
 name                clojure
 epoch               20110929
-version             1.10.1.763
+version             1.11.1.1435
 revision            0
 license             EPL-1
 categories          lang java
@@ -16,14 +16,14 @@ long_description    Clojure is a dynamic programming language for the JVM. \
                     dialect of Lisp, with a rich set of immutable, \
                     persistent data structures and a macro system.
 homepage            https://clojure.org
-platforms           darwin
+platforms           any
 supported_archs     noarch
 master_sites        https://download.clojure.org/install/
 distname            clojure-tools-${version}
 worksrcdir          clojure-tools
-checksums           rmd160  366a16bb1c848ceeb56f2727c2120700cd909ede \
-                    sha256  2a3ec8a6c3639035c2bba10945ae9007ab0dc9136766b95d2161f354e62a4d10 \
-                    size    17514341
+checksums           rmd160  c56d7cc6ba7261e0a5d365a8a66a11bec00e73a3 \
+                    sha256  452fc579b2040fc45861745704a5d93d144e3b41eac83a34ce16fea784399bc0 \
+                    size    15109793
 use_configure       no
 build               {}
 
@@ -34,12 +34,13 @@ destroot {
     set clojure_libexec_dir ${clojure_lib_dir}/libexec
 
     xinstall -d ${destroot}${clojure_lib_dir}
-    xinstall -m 644 -W ${worksrcpath} deps.edn example-deps.edn ${destroot}${clojure_lib_dir}
+    xinstall -m 644 -W ${worksrcpath} deps.edn example-deps.edn tools.edn ${destroot}${clojure_lib_dir}
 
     xinstall -d ${destroot}${clojure_libexec_dir}
     xinstall -m 0644 -W ${worksrcpath} ${distname}.jar exec.jar ${destroot}${clojure_libexec_dir}
 
     reinplace "s|PREFIX|${clojure_lib_dir}|g" ${worksrcpath}/clojure
+    reinplace "s|BINDIR|${bin_dir}|g" ${worksrcpath}/clj
     xinstall -d ${destroot}${bin_dir}
     xinstall -m 0755 -W ${worksrcpath} clojure clj ${destroot}${bin_dir}
 
@@ -51,5 +52,5 @@ notes "Install the rlwrap port and invoke `clj` for more a more ergonomic REPL."
 
 # ${homepage} now returns 0 bytes; the only indication of the current version on
 # all of clojure.org is currently the Linux install script instructions.
-livecheck.url       https://clojure.org/guides/getting_started
+livecheck.url       https://clojure.org/guides/install_clojure
 livecheck.regex     {linux-install-(\d+(?:\.\d+)*)\.sh}

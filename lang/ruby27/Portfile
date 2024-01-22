@@ -2,13 +2,16 @@
 
 PortSystem          1.0
 PortGroup           select 1.0
+PortGroup           openssl 1.0
 
 name                ruby27
-version             2.7.2
-revision            2
+version             2.7.8
+revision            0
 
 categories          lang ruby
-maintainers         {kimuraw @kimuraw} openmaintainer
+maintainers         {kimuraw @kimuraw} \
+                    {fwright.net:fw @fhgwright} \
+                    openmaintainer
 platforms           darwin
 
 description         Powerful and clean object-oriented scripting language
@@ -26,15 +29,16 @@ use_bzip2           yes
 distname            ruby-${version}
 dist_subdir         ruby27
 
-checksums           md5 a8acc9c24708fe29dfc287823ecaae65 \
-                    rmd160 a07403393a576b8b5a01dd07af95d0a529a6908c \
-                    sha1 7e30ca324464eab2f4c2a56d8ab4a37174998062 \
-                    sha256 65a590313d244d48dc2ef9a9ad015dd8bc6faf821621bbb269aa7462829c75ed
+checksums           md5     f44dedf51fdb7441a7dba592d6a4a14d \
+                    rmd160  96ffa81c2a7373d1a92b51802b07d159a51a8e18 \
+                    sha1    3e1c6a7bac0b7ea6becb94a1a8e8630173903387 \
+                    sha256  09ccf12051d86e5b3877c9e9db8b7eb6495bea180cab88a1fc99851434137c67 \
+                    size    14851891
 
-use_parallel_build  no
+# ruby/openssl does not support openssl-3
+openssl.branch      1.1
 
 depends_lib         port:readline \
-                    path:lib/libssl.dylib:openssl \
                     port:zlib \
                     port:libyaml \
                     port:libffi \
@@ -55,7 +59,30 @@ configure.args      --enable-shared \
                     --with-opt-dir="${prefix}" \
                     --program-suffix=2.7 \
                     --with-rubylibprefix="${prefix}/lib/ruby2.7" \
+                    --with-openssl-dir=[openssl::install_area] \
                     --without-baseruby
+
+# Patches derived from MacPorts-enhanced GitHub fork at
+#   github.com/fhgwright/ruby
+# These replace and enhance the former topic-specific patches, and can be
+# seen more readably in the fork.
+
+# patch-sources.diff: fixes for various issues.
+# This includes the 'gem' versioning fix formerly handled via reinplace.
+#
+# This diff is from v2_7_8 vs. macports-2_7_8.
+#
+patchfiles-append   patch-sources.diff
+
+# patch-generated.diff: additional patches to generated files, which don't
+# exist in the upstream git sources, and which must be patched after the
+# source patches so that make doesn't regard them as outdated.
+# At present, the only patched generated file is 'configure', to avoid
+# the need to rerun autoconf, whose output has reproducibility issues.
+#
+# This diff is from tarball-2_7_8 vs. macports-tarball-2_7_8.
+#
+patchfiles-append   patch-generated.diff
 
 # [NOTE] workaround for mismatch of sdk versions on macOS 11.x,
 # such as MacOSX11.0.sdk (buildbot) <=> MacOSX11.1.sdk (user's Mac).
@@ -66,17 +93,17 @@ configure.args      --enable-shared \
 #   https://trac.macports.org/ticket/61827
 post-build {
     if {${os.major} >= 20} {
-        # ruby saves its' compile options (CFLAGS, LDFLAGS, ..) in "rbconfig.rb" at build,
-        # and uses the options when complile binary extensions.
+        # ruby saves its compile options (CFLAGS, LDFLAGS, ..) in "rbconfig.rb" at build,
+        # and uses the options when compiling binary extensions.
 
         # rewrite MacOSX11.1.sdk -> MacOSX.sdk in rbconfig.rb
         file copy ${worksrcpath}/rbconfig.rb ${worksrcpath}/rbconfig.rb.orig
         reinplace -E -q {s|(/MacOSX)[0-9\.]+(\.sdk[\'\"]?[[:blank:]])|\1\2|g} \
-		    ${worksrcpath}/rbconfig.rb \
-		    ${worksrcpath}/ruby-2.7.pc
+        ${worksrcpath}/rbconfig.rb \
+            ${worksrcpath}/ruby-2.7.pc
         reinplace -E -q {s|(/MacOSX)[0-9\.]+(\.sdk[\'\"]?)$|\1\2|g} \
-		    ${worksrcpath}/rbconfig.rb \
-		    ${worksrcpath}/ruby-2.7.pc
+            ${worksrcpath}/rbconfig.rb \
+            ${worksrcpath}/ruby-2.7.pc
     }
 }
 
@@ -86,10 +113,26 @@ if {[info exists build_arch] && ${build_arch} != ""} {
 }
 
 post-patch {
-    # (see rb-bundler) sh "gem build ..." -> sh "gem2.7 build ..."
-    reinplace -E "s/(gem) (build|install|push)/gem2.7 \\2/g" \
-        ${worksrcpath}/lib/bundler/gem_helper.rb
+    # Ensure that generated files have clearly later mtimes than sources,
+    # to avoid gratuitous rebuilds by make.
+    # This is already nominally true based on the patching order, but
+    # one-second resolution on timestamps may cover it up.
+    #
+    # The list of files here should match the list of files patched by
+    # patch-generated.diff.
+    #
+    # Increment the mtime(s) by one second.
+    foreach genfile [list configure] {
+        set genfull ${worksrcpath}/${genfile}
+        file mtime ${genfull} [expr [file mtime ${genfull}] + 1]
+    }
 }
+
+# KNOWN BUG:  If a previous install of ruby27 is already active, destroot
+# fails in trace mode, due to a blocked access to the *installed* library.
+# This seems to be due to something checking explicitly for the library's
+# existence during the install (destroot) phase.  It's not fixable by setting
+# DYLD_LIBRARY_PATH.
 
 post-destroot {
     foreach type {site vendor} {
@@ -104,6 +147,12 @@ post-destroot {
     xinstall -m 0755 -d ${destroot}${prefix}/libexec/ruby2.7
     destroot.keepdirs-append ${destroot}${prefix}/libexec/ruby2.7
 }
+
+notes-append "
+To make this the default Ruby (i.e., the version run by\
+the 'ruby', 'gem' or 'bundle' commands), run:
+    sudo port select --set ruby $name
+"
 
 variant doc description "Install rdoc indexes and C API documents" {
         configure.args-delete   --disable-install-doc
@@ -120,12 +169,26 @@ variant jemalloc description "use jemalloc" {
         depends_lib-append      port:jemalloc
 }
 
+variant universal {
+        # Disable parallel builds for Universal case
+        # See: https://trac.macports.org/ticket/24240
+        use_parallel_build      no
+
+        # use ruby built-in universal mechanism.
+        configure.args-append   --with-arch=[join ${universal_archs} ,]
+        # clear macports' universal flags
+        configure.universal_cflags
+        configure.universal_cppflags
+        configure.universal_cxxflags
+        configure.universal_ldflags
+}
+
 variant relative description "Enable relative loading of libraries to allow for relocation of binaries." {
         #enable relative loading
         configure.args-append  --enable-load-relative
 }
 
-# legacy systems suport
+# legacy systems support
 platform darwin {
 
     if {${os.major} < 11} {
@@ -140,6 +203,8 @@ platform darwin {
     }
 }
 
+test.run        yes
+test.target     check
 
 livecheck.type  regex
 livecheck.url   https://cache.ruby-lang.org/pub/ruby/2.7/

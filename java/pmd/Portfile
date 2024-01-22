@@ -1,54 +1,70 @@
-PortSystem 1.0
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:filetype=tcl:et:sw=4:ts=4:sts=4
 
-name             pmd
-version          3.9
+PortSystem          1.0
+PortGroup           github 1.0
+PortGroup           java 1.0
 
-categories       java lang
-platforms        darwin
-maintainers      nomaintainer
+github.setup        pmd pmd 6.55.0 pmd_releases/
+github.tarball_from releases
+revision            0
 
-description      PMD is a Java source code analyzer
-long_description PMD is a Java source code analyzer. It finds unused \
-                 variables, empty catch blocks, unnecessary object \
-                 creation, and so forth.
+categories          java lang
+license             {BSD Apache-2}
+platforms           any
+supported_archs     noarch
+maintainers         {judaew @judaew} openmaintainer
 
-homepage         http://pmd.sourceforge.net/
-master_sites     sourceforge
-distname         ${name}-src-${version}
-checksums        md5 2ddefa2c0aa890693e2ce07a548b189f
-use_zip          yes
+description         PMD is a Java source code analyzer
+long_description    PMD is a Java source code analyzer. It finds unused \
+                    variables, empty catch blocks, unnecessary object \
+                    creation, and so forth.
+homepage            https://pmd.github.io
 
-depends_build    bin:ant:apache-ant port:junit
+use_zip             yes
+distname            ${name}-bin-${version}
+checksums           ${distname}${extract.suffix} \
+                    rmd160  8b6c339ada9b52e7f13e8692f37bb52baa183f16 \
+                    sha256  21acf96d43cb40d591cacccc1c20a66fc796eaddf69ea61812594447bac7a11d \
+                    size    44492859 \
 
-worksrcdir       ${name}-${version}
+java.version        1.8+
+java.fallback       openjdk11
 
-post-extract   {
-    # Ensure this gets rebuilt
-    file delete ${worksrcpath}/lib/pmd-${version}.jar
+use_configure       no
+build {}
+
+variant doc description "Include offline documentation" {
+    distfiles-append    ${name}-doc-${version}${extract.suffix}:doc
+
+    checksums-append    ${name}-doc-${version}${extract.suffix} \
+                        rmd160  e6d738b40b7a14885da0992afdebc028da402c12 \
+                        sha256  ecbf825af1cdc76bc1a0952a8e06dfb9851237771cced0eaf76dedb86e94af98 \
+                        size    5800402
 }
 
-use_configure  no
-
-build.cmd      ant
-build.target   dist
-build.dir      ${worksrcpath}/bin
-
-build.args     -lib ${prefix}/share/java/junit.jar
+pre-destroot {
+    delete {*}[glob -directory ${worksrcpath}/bin *.bat]
+}
 
 destroot {
-    # Install the wrapper script
-    xinstall -m 755 ${filespath}/pmd ${destroot}${prefix}/bin
-    reinplace "s|_PREFIX_|${prefix}|g" ${destroot}${prefix}/bin/pmd
+    xinstall -m 755 -d ${destroot}${prefix}/share/java/${name}/bin
+    xinstall -m 755 ${worksrcpath}/bin/run.sh \
+        ${destroot}${prefix}/share/java/${name}/bin
 
-    # Install jars
-    xinstall -m 755 -d ${destroot}${prefix}/share/pmd
-    file copy ${worksrcpath}/rulesets ${destroot}${prefix}/share/pmd
-    foreach file [glob ${worksrcpath}/lib/*.jar] {
-        xinstall -m 644 ${file} ${destroot}${prefix}/share/pmd/
+    xinstall -m 755 -d ${destroot}${prefix}/share/java/${name}
+    move ${worksrcpath}/lib \
+        ${worksrcpath}/LICENSE \
+        ${destroot}${prefix}/share/java/${name}
+
+    ln -s ${prefix}/share/java/${name}/bin/run.sh ${destroot}${prefix}/bin/${name}
+
+    if {[variant_isset doc]} {
+        xinstall -m 755 -d ${destroot}${prefix}/share/java/${name}/doc
+
+        move {*}[glob -directory ${workpath}/${name}-doc-${version} *] \
+            ${destroot}${prefix}/share/java/${name}/doc
     }
-    system "cd ${destroot}${prefix}/share/pmd && ln -s pmd-${version}.jar pmd.jar"
-
-    # Install documentation
-    xinstall -m 755 -d ${destroot}${prefix}/share/doc/pmd
-    file copy ${worksrcpath}/docs ${destroot}${prefix}/share/doc/pmd
 }
+
+# Only allow numbers, to avoid pre-release versions
+github.livecheck.regex  {([0-9.]+)}

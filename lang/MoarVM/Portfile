@@ -3,54 +3,101 @@
 PortSystem          1.0
 
 PortGroup           compiler_blacklist_versions 1.0
+PortGroup           legacysupport 1.1
+
+# strnlen, arc4random_buf
+legacysupport.newest_darwin_requires_legacy 10
 
 name                MoarVM
-version             2020.12
+version             2023.12
+revision            0
 categories          lang devel
-platforms           darwin
-license             Artistic-2 MIT BSD ISC public-domain
-maintainers         {mojca @mojca} openmaintainer
-description         A virtual machine for Perl 6
-long_description    MoarVM is a virtual machine built especially for \
-                    Rakudo Perl 6 and the NQP Compiler Toolchain.
+license             Artistic-2 BSD ISC MIT public-domain
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+description         A virtual machine for NQP and Rakudo
+long_description    MoarVM is a modern virtual machine built for the Rakudo \
+                    compiler implementing the Raku programming language, \
+                    and the NQP compiler toolchain.
+
 homepage            https://moarvm.org/
 master_sites        https://moarvm.org/releases/
 
-checksums           rmd160  c7929d8953c02b2913f746b9f95436084a808ffe \
-                    sha256  08914f1c464151ebc678cf0d360c9e479a036178fa7c9ddfd34aa4d556d03ea2 \
-                    size    5429137
+checksums           rmd160  441dbf404ae775c4441d1513f02e2ce00bbc4b63 \
+                    sha256  08095605dd2b6a0ebb01394395a725ae561d655700835fa2eff90122a9b1d22a \
+                    size    14942980
 
-# TODO: https://github.com/MoarVM/MoarVM/issues/321
-# conflicts         dyncall libtommath libuv
-conflicts           libtommath
-
-# configure.cflags-append \
-#                   -I${prefix}/include/libtommath
-depends_build       port:perl5 \
+depends_build-append \
+                    port:perl5 \
                     port:pkgconfig
 
 # libatomic_ops:    https://trac.macports.org/ticket/53171
-depends_lib         port:dyncall \
+depends_lib-append  port:dyncall \
                     port:libatomic_ops \
-                    port:libuv
-#                   port:libtommath
+                    port:libtommath
+
+patchfiles          patch-Configure.diff \
+                    patch-dyncall.diff \
+                    patch-setup.pm.diff
+
+if ![variant_isset macports_libuv] {
+patchfiles-append   patch-libuv-includes-path.diff \
+                    patch-libuv-legacy.diff \
+                    patch-moar.pc.diff
+}
+
+if {[string match *gcc* ${configure.compiler}]} {
+    patchfiles-append patch-gcc.diff
+}
+
+post-patch {
+    reinplace "s,/usr/local,${prefix},g" ${worksrcpath}/Configure.pl
+    # The following are not built, but better have them fixed nevertheless:
+    reinplace "s,/usr/local,${prefix},g" ${worksrcpath}/3rdparty/dyncall/configure
+    reinplace "s,/usr/local,${prefix},g" ${worksrcpath}/3rdparty/dyncall/configure.rc
+    reinplace "s,/usr/local,${prefix},g" ${worksrcpath}/3rdparty/libatomicops/configure
+    reinplace "s,/usr/local,${prefix},g" ${worksrcpath}/3rdparty/libtommath/makefile.unix
+    reinplace "s,/usr/local,${prefix},g" ${worksrcpath}/3rdparty/libtommath/makefile_include.mk
+}
+
+# Building nqp on PPC results in malloc errors (though build still succeeds):
+# malloc: *** error for object: incorrect checksum for freed object - object was probably modified after being freed.
+legacysupport.redirect_bins moar
 
 # https://trac.macports.org/ticket/53950
 compiler.blacklist  cc gcc-* apple-gcc-* llvm-gcc-*
-if {${os.platform} eq "darwin" && ${os.arch} eq "powerpc"} {
-    # compiler.blacklist *clang*
-    compiler.whitelist \
-                    macports-gcc-6 macports-gcc-5 macports-gcc-4.9 macports-gcc-4.8 macports-gcc-4.7
-}
 
 configure.cmd       ${prefix}/bin/perl Configure.pl
 configure.args      --cc=${configure.cc} \
                     --has-dyncall \
                     --has-libatomic_ops \
-                    --has-libuv
-#                   --has-libtommath
+                    --has-libtommath
+
+configure.cflags-append \
+                    -I${prefix}/include/libtommath
+
+# The dylib machinery uses -rpath, not available on Tiger
+platform darwin 8 {
+    patchfiles-append patch-build-setup-tiger.diff
+}
+
+if {${os.platform} eq "darwin" && ${os.major} <= 10} {
+    configure.args-append \
+                    --no-mimalloc
+}
 
 # https://github.com/MoarVM/MoarVM/issues/414
 universal_variant   no
 # Unsupported by Configure.pl
 # configure.universal_args-delete --disable-dependency-tracking
+
+variant macports_libuv description "Use MacPorts' libuv" {
+    # Once libuv is updated, this should be changed to path-style dependency:
+    depends_lib-append  port:libuv-devel
+
+    configure.args-append \
+                    --has-libuv
+}
+
+# This can be enabled once libuv port is updated.
+# See: https://trac.macports.org/ticket/68464
+# default_variants-append macports_libuv

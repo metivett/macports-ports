@@ -1,6 +1,6 @@
 PortSystem 1.0
 name             epic5
-version          2.1.2
+version          2.1.12
 categories       irc
 maintainers      {toby @tobypeterson} openmaintainer
 description      (E)nhanced (P)rogrammable (I)RC-II (C)lient 5
@@ -20,9 +20,9 @@ master_sites     http://ftp.epicsol.org/pub/epic/EPIC5-PRODUCTION/ \
                  ftp://ftp.epicsol.org/pub/epic/EPIC5-PRODUCTION/
 use_xz           yes
 
-checksums        rmd160 acdb97910a3e2f5c36edbea2655b5e856a46434c \
-                 sha256 5e41cf00f924e79e3503dd456ecd9b1dd93ac447c2573d4fa7da03b8bd19dbad \
-                 size   853124
+checksums        rmd160 2e7a6ea91a400ee4bdb8fc80398925b9bdee06b3 \
+                 sha256 c89ae4fc014ddcf0084b748e22f47b46a85ab1ac9bf0b22560360ba8626b6da6 \
+                 size   891200
 
 patchfiles       patch-configure
 
@@ -33,7 +33,8 @@ configure.args   --mandir=${prefix}/share/man \
                  --without-socks5 \
                  --without-perl \
                  --without-tcl \
-                 --without-ruby
+                 --without-ruby \
+                 --without-python
 
 destroot.destdir IP=${destroot}
 

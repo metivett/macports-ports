@@ -9,10 +9,10 @@ PortGroup           xcode_workaround             1.0
 
 epoch               3
 name                gcc9
-version             9.3.0
-revision            5
-subport             libgcc9 { revision 3 }
-platforms           darwin
+version             9.5.0
+revision            1
+subport             libgcc9 { revision 2 }
+platforms           {darwin >= 10 < 15}
 categories          lang
 maintainers         nomaintainer
 # an exception in the license allows dependents to not be GPL
@@ -34,23 +34,45 @@ master_sites        ftp://ftp.funet.fi/pub/mirrors/sources.redhat.com/pub/gcc/re
 distname            gcc-${version}
 use_xz              yes
 
-checksums           rmd160  e0ade31726b8fbb1eb308e2b1383a79633aef996 \
-                    sha256  71e197867611f6054aa1119b13a0c0abac12834765fe2d81f35ac57f84f742d1 \
-                    size    70533868
+checksums           rmd160  2ba36108599ceee93931722d98e0d5280037b05c \
+                    sha256  27769f64ef1d4cd5e2be8682c0c93f9887983e6cfd1a927ce5a0a2915a95cf8f \
+                    size    72462752
 
 patchfiles          patch-fix-libgccjit-soname
 
-if { ${os.major} > 19 } {
-    # https://trac.macports.org/ticket/60908
-    # Patch for macOS 11 (Darwin20) version numbering taken from
-    # https://github.com/iains/gcc-darwin-arm64/commit/556ab512
-    patchfiles-append         big-sur-version-fix.diff
-    # Build doesn't understand a 11.0 deployment target so force to 10.16
-    macosx_deployment_target  10.16
-    # Fix detection of sanitizer support
-    # https://trac.macports.org/ticket/61494
-    patchfiles-append         fix-sanitisers-darwin20.diff
+patchfiles-append   patch-darwin21-support.diff
+
+if { ${os.platform} eq "darwin" && ${os.major} > 19 } {
+    # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=92061
+    patchfiles-append patch-genconditions.diff
 }
+
+if { ${configure.build_arch} eq "i386" && ${os.major} >= 10 } {
+
+    # fix no-pie clang bug bootstrapping gcc on i386
+    # https://trac.macports.org/ticket/63161
+    patchfiles-append  patch-gcc10-i686-clang-bootstrap-fix.diff
+}
+
+# Since GCC 7.4.0, during configure, it detects features supported by target-as.
+# On the other hand, MacPorts cctools contain a proxy for 'as' that runs system
+# 'as' or one of the supported MacPorts clang's 'as' if it is installed. Here,
+# we may encounter a misconfiguration when GCC builds on a system with some
+# MacPorts clang, and 'as' is using it. However, on a clean system, it uses
+# system 'as' if no MacPorts clang is installed, which may behave differently.
+# This can make GCC broken until MacPorts clang is installed. To avoid a stealth
+# dependency on the used clang, I enforce building with system 'as'.
+# See:
+#  - https://trac.macports.org/ticket/68683
+#  - https://github.com/gcc-mirror/gcc/commit/b410cf1dc056aab195c5408871ffca932df8a78a
+patchfiles-append   patch-gcc7-disable-macports-cctools-as-changes.diff
+
+configure.env-append \
+                    DISABLE_MACPORTS_AS_CLANG_SEARCH=1 \
+                    DISABLE_XCODE_AS_CLANG_SEARCH=1
+
+build.env-append    DISABLE_MACPORTS_AS_CLANG_SEARCH=1 \
+                    DISABLE_XCODE_AS_CLANG_SEARCH=1
 
 depends_lib         port:cctools \
                     port:gmp \
@@ -73,8 +95,12 @@ platform darwin {
 }
 
 set gcc_configure_langs {c c++ objc obj-c++ lto fortran}
-if {${subport} eq "gcc9"} {
-    lappend gcc_configure_langs jit
+if {${subport} eq ${name}} {
+    # the jit is not building on i386 systems
+    # see https://trac.macports.org/ticket/61130
+    if {${build_arch} ne "i386"} {
+        lappend gcc_configure_langs jit
+    }
 }
 
 configure.dir       ${workpath}/build
@@ -122,6 +148,25 @@ configure.env-append \
                     OTOOL=${prefix}/bin/otool \
                     OTOOL64=${prefix}/bin/otool
 
+# clang (as) from Xcode 12.5 has various problems with gcc build
+if { ${os.platform} eq "darwin" && \
+         ([vercmp ${xcodeversion} >= 12.5] || [vercmp ${xcodecltversion} >= 12.5]) } {
+    pre-configure {
+        ui_warn "Applying '--without-build-config' workaround to Xcode ${xcodeversion} / CLT ${xcodecltversion}"
+        ui_warn "If versions > 12.5 please check if it is still required"
+    }
+    # gcc has build issues on macOS 11.3 with the use of Xcode clang as 'as'
+    # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=100340
+    # https://trac.macports.org/ticket/62775
+    configure.args-append  --without-build-config
+}
+
+# https://trac.macports.org/ticket/65415
+# Need to disable bootstrap comparisons here as well
+if { ${os.platform} eq "darwin" && ${os.major} < 15 } {
+    configure.args-append  --without-build-config
+}
+
 pre-configure {
 
     # Set package info
@@ -145,6 +190,9 @@ pre-configure {
 # https://trac.macports.org/ticket/58493
 compiler.blacklist-append {clang < 800} gcc-4.0 *gcc-4.2 {macports-clang-3.[4-7]}
 
+# https://trac.macports.org/ticket/65415
+compiler.blacklist-append {macports-clang-1[2-9]}
+
 # "-stdlib" would be passed on to the bootstrap compiler if present
 configure.cxx_stdlib
 
@@ -154,15 +202,6 @@ use_parallel_build  yes
 
 destroot.target     install install-info-host
 
-# Is this gcc release supported here.
-if { ${os.major} < 11 || ${os.arch} eq "arm" } {
-    known_fail  yes
-    pre-fetch {
-        ui_error "${name} ${version} is not supported on Darwin ${os.major} ${os.arch}"
-        return -code error "incompatible OS X version"
-    }
-}
-
 # gcc cannot build if libunwind-headers is active
 conflicts_build-append libunwind-headers
 
@@ -171,12 +210,9 @@ conflicts_build-append libunwind-headers
 # doesn't know how to change the id of stubs, and it's easier than recreating them for each
 # gcc port.
 set all_dylibs {libgcc_ext.10.4.dylib libgcc_ext.10.5.dylib libgcc_s.1.dylib libgfortran.5.dylib libquadmath.0.dylib libstdc++.6.dylib libobjc-gnu.4.dylib libgomp.1.dylib libitm.1.dylib libssp.0.dylib libasan.5.dylib libubsan.1.dylib libatomic.1.dylib}
-set install_dylibs {libasan.5.dylib}
+set install_dylibs {libasan.5.dylib libgcc_ext.10.4.dylib libgcc_ext.10.5.dylib}
 
 if {${subport} eq "libgcc9"} {
-
-    # Always provides primary runtime so always in conflict
-    conflicts libgcc-devel
 
     # Activate hack for new libgcc
     # https://trac.macports.org/wiki/PortfileRecipes#deactivatehack
@@ -185,7 +221,7 @@ if {${subport} eq "libgcc9"} {
             # Extract the epoch of the installed libgcc8
             set _epoch [lindex $installed 5]
             # If < 4 need to deactivate
-            if {[vercmp $_epoch 4] < 0} {
+            if {[vercmp $_epoch < 4]} {
                 registry_deactivate_composite libgcc8 "" [list ports_nodepcheck 1]
             }
         }
@@ -193,7 +229,7 @@ if {${subport} eq "libgcc9"} {
             # Extract the epoch of the installed libgcc-devel
             set _epoch [lindex $installed 5]
             # If < 3 need to deactivate
-            if {[vercmp $_epoch 3] < 0} {
+            if {[vercmp $_epoch < 3]} {
                 registry_deactivate_composite libgcc-devel "" [list ports_nodepcheck 1]
             }
         }
@@ -211,7 +247,7 @@ if {${subport} eq "libgcc9"} {
     # version should continue to provide a subport for that and older gcc
     # versions.
 
-    depends_run path:share/doc/libgcc/README:libgcc
+    depends_run port:libgcc10
     depends_build-append {*}${depends_lib}
     depends_lib
 
@@ -227,15 +263,6 @@ if {${subport} eq "libgcc9"} {
     configure.args-replace \
         --with-gxx-include-dir=${prefix}/include/${name}/c++/ \
         --with-gxx-include-dir=${prefix}/include/gcc/c++/
-
-    # TODO: Possibly disable bootstrap with appropriate configure flags.
-    #       the problem is that libstdc++'s configure script tests for tls support
-    #       using the running compiler (not gcc for which libstdc++ is being built).
-    #       Thus when we build with clang, we get a mismatch
-    # http://trac.macports.org/ticket/36116
-    #compiler.blacklist-append {clang < 425}
-    #configure.args-append --disable-bootstrap
-    #build.target        all
 
     post-destroot {
 

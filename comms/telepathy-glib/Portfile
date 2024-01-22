@@ -5,6 +5,7 @@ PortGroup       gobject_introspection 1.0
 
 name            telepathy-glib
 version         0.24.1
+revision        1
 license         LGPL-2.1+
 description     The ${name} component of Telepathy - a Flexible Communications Framework.
 long_description \
@@ -34,7 +35,7 @@ use_parallel_build no
 configure.python ${prefix}/bin/python2.7
 
 variant vala description {Enable GObject introspection and Vala bindings} {
-    depends_build-append    port:vala
+    depends_build-append    path:bin/vala:vala
     gobject_introspection   yes
     configure.args-append   --enable-vala-bindings
 }

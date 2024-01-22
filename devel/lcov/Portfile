@@ -3,7 +3,7 @@
 PortSystem      1.0
 PortGroup       github 1.0
 
-github.setup    linux-test-project lcov 1.14 v
+github.setup    linux-test-project lcov 1.16 v
 categories      devel
 maintainers     {kimuraw @kimuraw} openmaintainer
 description     \
@@ -15,11 +15,11 @@ long_description \
         It also adds overview pages for easy navigation within the file \
         structure.
 
-homepage        http://ltp.sourceforge.net/coverage/lcov.php
 license         GPL-2+
-platforms       darwin
+platforms       any
 supported_archs noarch
 depends_lib     port:perl5
+
 use_configure   no
 build           {}
 patchfiles      patch-Makefile.diff
@@ -35,11 +35,15 @@ post-destroot   {
             xinstall -m 644 {*}[glob -type f ${worksrcpath}/${subdir}/*] \
                 ${destroot}${prefix}/share/doc/${name}/${subdir}
         }
-        foreach cmd [glob ${destroot}${prefix}/bin/*] {
-            reinplace "s|/usr/bin/perl|${prefix}/bin/perl5|" ${cmd}
-            reinplace "s|/etc/lcovrc|${prefix}/etc/lcovrc|" ${cmd}
+
+        foreach cmd {lcov gendesc genhtml geninfo genpng} {
+            reinplace "s|/usr/bin/env perl|${prefix}/bin/perl5|" ${destroot}${prefix}/bin/${cmd}
+        }
+        foreach cmd {lcov genhtml geninfo} {
+            reinplace "s|\"/etc/lcovrc\"|\"${prefix}/etc/lcovrc\"|" ${destroot}${prefix}/bin/${cmd}
         }
 }
-checksums       rmd160  55227eaf694a41f0c92970844ec175d3a4a97c99 \
-                sha256  dcfa6a33a1bbcfb937fa62f0bd44386ee1d101600c67c3c057e33f44b1995988 \
-                size    137507
+github.tarball_from releases
+checksums       rmd160  c3a76cb45d161f78b17277d3a04e1e5ab740e205 \
+                sha256  987031ad5528c8a746d4b52b380bc1bffe412de1f2b9c2ba5224995668e3240b \
+                size    196813

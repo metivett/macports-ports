@@ -2,16 +2,15 @@
 
 PortSystem          1.0
 PortGroup           python 1.0
-PortGroup           github 1.0
 PortGroup           linear_algebra  1.0
 
 linalg.setup        noveclibfort
 
-github.setup        cvxopt cvxopt 1.2.5
-revision            0
 name                py-cvxopt
+python.rootname     cvxopt
+version             1.3.2
+revision            2
 categories-append   math
-platforms           darwin
 license             GPL-3+
 maintainers         {gmail.com:jjstickel @jjstickel} openmaintainer
 
@@ -29,11 +28,12 @@ long_description    CVXOPT is a free software package for convex \
                     programming language.
 homepage            https://cvxopt.org/
 
-checksums           rmd160  e29d588d74213c7562a181a19a443740343487ca \
-                    sha256  a03c7fff342eecd258769b447e62955f0d34672f5f8fe558aeeaa0339f268b2c \
-                    size    6742604
 
-python.versions     27 35 36 37 38
+checksums           rmd160  e181f9ef9224136835a34f6142c9974335d95ebf \
+                    sha256  3461fa42c1b2240ba4da1d985ca73503914157fc4c77417327ed6d7d85acdbe6 \
+                    size    4108454
+
+python.versions     27 37 38 39 310 311
 
 if {${subport} ne ${name}} {
     # ignore empty BLAS and LAPACK inputs
@@ -42,7 +42,7 @@ if {${subport} ne ${name}} {
     build.env-append \
         CVXOPT_BLAS_LIB_DIR=${prefix}/lib \
         CVXOPT_LAPACK_LIB=
-
+    
     pre-build {
         set blas_lib {}
         set blas_extra_link_args {}
@@ -95,7 +95,7 @@ if {${subport} ne ${name}} {
             CVXOPT_DSDP_INC_DIR=${prefix}/include
     }
 
-    depends_build-append    port:py${python.version}-setuptools
+    depends_build-append    port:py${python.version}-setuptools_scm
 
     # link against MacPorts SuiteSparse
     depends_lib-append  port:SuiteSparse_config \
@@ -109,6 +109,4 @@ if {${subport} ne ${name}} {
         CVXOPT_SUITESPARSE_INC_DIR=${prefix}/include
 
     default_variants +gsl +glpk +fftw +dsdp
-
-    livecheck.type 	none
 }

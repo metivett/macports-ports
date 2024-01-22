@@ -1,0 +1,202 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           cmake 1.1
+PortGroup           gitlab 1.0
+PortGroup           boost 1.0
+
+name                kicad
+version             7.0.9
+description         KiCad is an electronic design automation software suite
+long_description    KiCad is an EDA software suite for the creation of professional schematics \
+                    and printed circuit boards up to 32 copper layers with additional technical layers.
+categories          science
+license             GPL-3
+maintainers         {ra1nb0w @ra1nb0w} openmaintainer
+homepage            https://www.kicad.org/
+
+set python_version  3.11
+set py_ver_no_dot   [join [split ${python_version} "."] ""]
+set python_framework_dir ${frameworks_dir}/Python.framework/Versions/${python_version}
+
+compiler.cxx_standard 2014
+
+if {${name} eq ${subport}} {
+
+    gitlab.setup        kicad/code kicad ${version}
+
+    checksums           rmd160  e52fee69a2d158a8be220880c7789560356c8860 \
+                        sha256  45322e7495cbf0b6bba70b8fb8b58fdafa408d4d8473209fd1c5e8bad5a818f7 \
+                        size    43964032
+    revision            0
+
+    patchfiles-append \
+        macports_prefix.patch \
+        0001-cmake-adding-KICAD_MACOSX_APP_BUNDLE-option.patch \
+        0002-disable-codesigning.patch
+
+    depends_build-append \
+        path:bin/doxygen:doxygen \
+        port:pkgconfig \
+        port:swig \
+        port:swig-python
+
+    depends_lib-append \
+        port:python${py_ver_no_dot} \
+        port:glew \
+        port:glm \
+        port:curl \
+        port:ngspice \
+        port:opencascade \
+        port:py${py_ver_no_dot}-wxpython-4.0 \
+        port:zlib \
+        path:lib/pkgconfig/cairo.pc:cairo \
+        port:py${py_ver_no_dot}-pybind11 \
+        path:lib/pkgconfig/pixman-1.pc:libpixman \
+        port:unixODBC \
+        port:harfbuzz \
+        port:kicad-docs \
+        port:kicad-symbols \
+        port:kicad-footprints \
+        port:kicad-packages3D \
+        port:kicad-templates
+
+    cmake.build_type Release
+
+    configure.args-append \
+        -DKICAD_MACOSX_APP_BUNDLE=OFF \
+        -DKICAD_USE_OCC=ON \
+        -DwxWidgets_CONFIG_EXECUTABLE=${python_framework_dir}/bin/wx-config \
+        -DKICAD_BUILD_QA_TESTS=OFF \
+        -DKICAD_SCRIPTING_MODULES=ON \
+        -DKICAD_SCRIPTING=ON \
+        -DKICAD_SCRIPTING_WXPYTHON=ON \
+        -DPYTHON_SITE_PACKAGE_PATH=${python_framework_dir}/lib/python${python_version}/site-packages \
+        -DPYTHON_EXECUTABLE=${python_framework_dir}/bin/python${python_version} \
+        -DPYTHON_INCLUDE_DIR=${python_framework_dir}/Headers \
+        -DPYTHON_LIBRARY=${python_framework_dir}/Python \
+        -DDOXYGEN_DOT_EXECUTABLE=${prefix}/bin/dot \
+        -DDOXYGEN_EXECUTABLE=${prefix}/bin/doxygen \
+        -DNGSPICE_LIB_NAME=libngspice.0.dylib \
+        -DOCC_INCLUDE_DIR=${prefix}/libexec/opencascade/include/opencascade \
+        -DOCC_LIBRARY_DIR=${prefix}/libexec/opencascade/lib \
+        -Wno-dev
+
+    post-patch {
+        reinplace "s|@PREFIX_BIN@|${prefix}/bin|g" ${worksrcpath}/common/gestfich.cpp
+        reinplace "s|@PREFIX_DIR@|${prefix}|g" ${worksrcpath}/eeschema/sim/ngspice.cpp
+    }
+
+    post-destroot {
+        foreach app_name {bitmap2component eeschema gerbview kicad pcb_calculator pcbnew} {
+            set app_dir ${destroot}${applications_dir}/KiCad/${app_name}.app/Contents
+            xinstall -d ${app_dir}/MacOS \
+                ${app_dir}/Resources
+            xinstall -m 0644 ${worksrcpath}/${app_name}/${app_name}.icns \
+                ${app_dir}/Resources/${app_name}.icns
+            if {[file exists ${worksrcpath}/${app_name}/${app_name}_doc.icns]} {
+                xinstall -m 0644 ${worksrcpath}/${app_name}/${app_name}_doc.icns \
+                    ${app_dir}/Resources/${app_name}_doc.icns
+            }
+            xinstall -m 0644 ${build.dir}/${app_name}/Info.plist \
+                ${app_dir}/Info.plist
+
+            ln -s ${prefix}/bin/${app_name} ${app_dir}/MacOS/${app_name}
+            foreach kiface [glob ${destroot}${prefix}/bin/*.kiface] {
+                set filename  [file tail $kiface]
+                ln -s ${prefix}/bin/$filename ${app_dir}/MacOS/${filename}
+            }
+        }
+    }
+
+    gitlab.livecheck.regex {([0-9]+\.[0-8]+\.[0-9]+)}
+
+} else {
+    livecheck.type      none
+}
+
+subport kicad-docs {
+    supported_archs     noarch
+    platforms           any
+    description         KiCad documentation
+    long_description    {*}${description}
+
+    # we use pre-compiled binary since it is very long to compile
+    # and requires many big dependencies
+    master_sites        https://kicad-downloads.s3.cern.ch/docs
+    distname            ${name}-doc-${version}
+
+    checksums           rmd160  e8020d677cd9bf1f58bab6d53fe50b19d1b63029 \
+                        sha256  3e276fd4d5ca1a2cc11cb35770c3ef6a33e02ec4a20243b28d110b647abef00b \
+                        size    694923369
+
+    use_configure       no
+
+    build {}
+
+    destroot {
+        xinstall -d ${destroot}${prefix}/share/doc
+        file copy ${worksrcpath}/share/doc/kicad ${destroot}${prefix}/share/doc
+    }
+}
+
+subport kicad-symbols {
+    supported_archs     noarch
+    platforms           any
+    description         Kicad symbols
+    long_description    {*}${description}
+
+    gitlab.setup        kicad/libraries kicad-symbols ${version}
+
+    checksums           rmd160  a4e17bdcfda2283a934e667f910d1fcc7ed35e15 \
+                        sha256  c1be547ab435cccf9c98d21c9a816ab3051ae8e306bcbcb4ac46a896c88210ab \
+                        size    3054537
+
+
+    patchfiles-append   kicad_libraries_cmakelists.txt.patch
+}
+
+subport kicad-footprints {
+    supported_archs     noarch
+    platforms           any
+    description         Kicad footprints
+    long_description    {*}${description}
+
+    gitlab.setup        kicad/libraries kicad-footprints ${version}
+
+    checksums           rmd160  1f8f14d49dc64342a080d78350e4f11fd0859996 \
+                        sha256  1307f37613c1971794940ee78ad49146ae10eb3525a0c9f427adb8900ddbee0e \
+                        size    24450969
+
+    patchfiles-append   kicad_libraries_cmakelists.txt.patch
+}
+
+subport kicad-packages3D {
+    supported_archs     noarch
+    platforms           any
+    description         Kicad package 3D
+    long_description    {*}${description}
+
+    gitlab.setup        kicad/libraries kicad-packages3D ${version}
+
+    checksums           rmd160  681a3188e25acc46fc86af91cead540e8ed76f4c \
+                        sha256  cf9dd300e4020f25e17835c7f930af1974d5953694d103b65bb0a41eb80bf19a \
+                        size    773284884
+
+    patchfiles-append   kicad_libraries_cmakelists.txt.patch
+}
+
+subport kicad-templates {
+    supported_archs     noarch
+    platforms           any
+    description         Kicad templates
+    long_description    {*}${description}
+
+    gitlab.setup        kicad/libraries kicad-templates ${version}
+
+    checksums           rmd160  0b32a8fd3aab53794190b52c3902f610d6ffa8f5 \
+                        sha256  3f87dfe352cf12e73cf7769202101935fba547da5f04e1029bdd786ad0f9f0a4 \
+                        size    1247499
+
+    patchfiles-append   kicad_libraries_cmakelists.txt.patch
+}

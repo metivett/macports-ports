@@ -4,17 +4,14 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-lxml
-version             4.4.1
+version             4.9.3
+revision            0
+
 categories-append   devel
-platforms           darwin
 license             BSD
-
-python.versions     27 35 36 37 38 39
-
 maintainers         {petr @petrrr} openmaintainer
 
 description         Powerful and Pythonic XML processing library
-
 long_description    lxml is a Pythonic binding for the libxml2 and \
                     libxslt libraries.  It is unique in that it \
                     combines the speed and feature completeness of \
@@ -23,31 +20,26 @@ long_description    lxml is a Pythonic binding for the libxml2 and \
                     the well-known ElementTree API.
 
 homepage            https://lxml.de/
-master_sites        pypi:[string index ${python.rootname} 0]/${python.rootname}
 
-distname            ${python.rootname}-${version}
+checksums           rmd160  e298e965c9786ddcd2bbc428cccbb9bcde25858c \
+                    sha256  48628bd53a426c9eb9bc066a923acaa0878d1e86129fd5359aee99285f4eed9c \
+                    size    3572158
 
-checksums           rmd160  59cdb459fe7c4f0b7e90fa4e133d6f88f55d226b \
-                    sha256  c81cb40bff373ab7a7446d6bbca0190bccc5be3448b47b51d729e37799bb5692 \
-                    size    4532114
+python.versions     27 35 36 37 38 39 310 311 312
 
 # https://trac.macports.org/ticket/56666
 patchfiles-append   patch-setupinfo-remove-xcrun-call.diff
 
 if {${name} ne ${subport}} {
     depends_build-append \
-                        port:py${python.version}-setuptools
+                    port:py${python.version}-setuptools
 
-    depends_lib-append  port:zlib \
-                        port:libxml2 \
-                        port:libxslt
+    depends_lib-append \
+                    port:zlib \
+                    port:libxml2 \
+                    port:libxslt
 
-    test.run            yes
-    test.cmd            ${python.bin} src/lxml/tests/selftest.py
-    test.target
-    test.env            PYTHONPATH=${worksrcpath}/build/lib
-
-    livecheck.type      none
-} else {
-    livecheck.type      pypi
+    test.run        yes
+    python.test_framework
+    test.cmd        ${python.bin} src/lxml/tests/selftest.py
 }

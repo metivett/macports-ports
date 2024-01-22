@@ -3,8 +3,12 @@
 PortSystem          1.0
 
 name                denemo
-version             1.2.4
+version             2.6.0
 revision            1
+checksums           rmd160  27af270ad5f80485565d0f4d95d99625d770768b \
+                    sha256  4be5970c69847f97f1f876275c9744e5034e7c983b12a1045fb20c236494b55d \
+                    size    17620623
+
 categories          print audio x11
 platforms           darwin
 maintainers         nomaintainer
@@ -22,9 +26,6 @@ long_description    Denemo is a unique score editor which exports notation \
 homepage            http://www.denemo.org/
 master_sites        gnu
 
-checksums           rmd160  428225696ef9d100ee6fe37422c46fe02c508c84 \
-                    sha256  9993bc4fa6ee9bc697e1091dcfa08254fa3ced1884c6b70b6e8e92c961b38db8
-
 depends_build       port:intltool \
                     port:pkgconfig \
                     port:autoconf \
@@ -33,20 +34,28 @@ depends_build       port:intltool \
 
 depends_lib         port:aubio \
                     port:evince \
+                    port:fftw-3 \
                     port:fluidsynth \
                     port:gettext \
                     port:gtksourceview3 \
-                    port:gtk3 \
+                    path:lib/pkgconfig/gtk+-3.0.pc:gtk3 \
                     port:guile \
                     port:jack \
-                    port:librsvg \
+                    path:lib/pkgconfig/librsvg-2.0.pc:librsvg \
+                    port:libsmf \
+                    port:libsndfile \
+                    port:libxml2 \
                     port:portaudio \
                     port:portmidi \
                     port:rubberband
 
-depends_run         port:qtplay
+depends_run         path:bin/lilypond:lilypond
 
-patchfiles          patch-configure.ac.diff
+# guile is not universal.
+universal_variant   no
+
+patchfiles          implicit.patch \
+                    patch-configure.ac.diff \
 
 # reconfigure using upstream autogen.sh for intltool 0.51 compatibility
 
@@ -60,7 +69,7 @@ configure.cmd       ./autogen.sh && ./configure
 configure.args      --enable-evince \
                     --enable-fluidsynth \
                     --enable-gtk3 \
-                    --enable-guile_2_0 \
+                    --enable-guile_2_2 \
                     --enable-jack \
                     --enable-portaudio \
                     --enable-portmidi \

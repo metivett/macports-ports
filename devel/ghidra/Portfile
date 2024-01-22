@@ -1,0 +1,60 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           github 1.0
+PortGroup           java 1.0
+PortGroup           app 1.0
+
+github.setup        NationalSecurityAgency ghidra 11.0 Ghidra_ _build
+checksums           rmd160  03582122652fb9913f4260adefba6a5781d90124 \
+                    sha256  09a24daa70b751fb7ca325c5b8cfb7ab56438ecbb50451ba2a20da6b5e094c7f \
+                    size    68980444
+
+categories          devel
+license             Apache
+maintainers         {1e0.co.uk:dev @hexagonal-sun} {crowell.biz:jeff @crowell} openmaintainer
+description         A software reverse engineering (SRE) suite of tools developed by NSA's \
+                    Research Directorate in support of the Cybersecurity mission
+long_description    ${description}
+homepage            https://ghidra-sre.org/
+
+java.version        17
+java.fallback       openjdk17
+
+universal_variant   no
+depends_build-append    port:gradle
+
+set javadest        ${prefix}/share/java/${name}-${version}
+configure.env-append    GRADLE_USER_HOME=${worksrcpath}
+configure.pre_args  ""
+configure.cmd       gradle -I gradle/support/fetchDependencies.gradle init
+build.env-append    GRADLE_USER_HOME=${worksrcpath}
+build.env-append    _JAVA_OPTIONS=-Duser.home=${worksrcpath}
+build.cmd           gradle
+build.target        buildGhidra
+
+set ghidra_copy_list \
+[list \
+    Extensions \
+    GPL \
+    Ghidra \
+    LICENSE \
+    docs \
+    ghidraRun \
+    licenses \
+    server \
+    support \
+]
+
+destroot {
+    system "unzip ${worksrcpath}/build/dist/ghidra*.zip -d ${worksrcpath}/ghbuild"
+    xinstall -d ${destroot}${javadest}
+    foreach item ${ghidra_copy_list} {
+        copy ${worksrcpath}/ghbuild/ghidra_${version}_DEV/${item} ${destroot}${javadest}/
+    }
+}
+
+# app settings
+app.executable      ${javadest}/ghidraRun
+app.icon            ${worksrcpath}/Ghidra/RuntimeScripts/Windows/support/ghidra.ico
+app.retina          yes

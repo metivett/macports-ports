@@ -1,0 +1,23 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             bioconductor sales-lab graphite 1.48.0
+revision            0
+maintainers         nomaintainer
+license             AGPL-3
+description         GRAPH interaction from pathway topological environment
+long_description    {*}${description}
+homepage            https://github.com/sales-lab/graphite
+checksums           rmd160  0e43018daecdc063fdafc91e3fbbd50464ccb9ec \
+                    sha256  5678e693530ed9e5727e45b938ff830db24efc1bbac59f8deefa0bd0250812c1 \
+                    size    782528
+supported_archs     noarch
+
+depends_lib-append  port:R-AnnotationDbi \
+                    port:R-graph \
+                    port:R-httr \
+                    port:R-purrr \
+                    port:R-rappdirs \
+                    port:R-rlang

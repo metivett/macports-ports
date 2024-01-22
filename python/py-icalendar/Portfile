@@ -4,12 +4,13 @@ PortSystem          1.0
 PortGroup           python 1.0
 PortGroup           github 1.0
 
-github.setup        collective icalendar 4.0.4
+github.setup        collective icalendar 4.0.9
 revision            0
 name                py-icalendar
 
-platforms           darwin
 license             BSD
+platforms           {darwin any}
+supported_archs     noarch
 maintainers         nomaintainer
 
 description         The iCalendar package is a parser/generator of \
@@ -24,11 +25,11 @@ long_description    The inspiration has come from the email package in \
 
 homepage            https://icalendar.readthedocs.org/
 
-checksums           rmd160  17521e3d82280b040b5a0e0f80695531951ace6e \
-                    sha256  01cadbeeeef806732a1098fa9960ba4957e8a99a1d39af306f3c00e504001436 \
-                    size    68895
+checksums           rmd160  c11d9f651aef4d7a468ac87a9edca681b9639198 \
+                    sha256  94e088645b3095b7533cda274f5a9f5766f527f572babb31567d386b2072dae1 \
+                    size    69620
 
-python.versions     27 35 36 37 38
+python.versions     37 38 39
 
 if {${name} ne ${subport}} {
     depends_lib-append  port:py${python.version}-dateutil \
@@ -36,8 +37,8 @@ if {${name} ne ${subport}} {
                         port:py${python.version}-tz
 
     test.run        yes
+    python.test_framework
     test.cmd        ${python.bin} setup.py
-    test.env        PYTHONPATH=${worksrcpath}/build/lib
 
     post-destroot {
         xinstall -m 0644 -W ${worksrcpath} \
@@ -47,6 +48,4 @@ if {${name} ne ${subport}} {
             README.rst \
             ${destroot}${prefix}/share/doc/${subport}
     }
-
-    livecheck.type  none
 }

@@ -1,0 +1,32 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran MatthewHeun RCLabels 0.1.9
+revision            0
+categories-append   math
+maintainers         nomaintainer
+license             MIT
+description         Manipulate matrix row and column labels with ease
+long_description    {*}${description}
+homepage            https://matthewheun.github.io/RCLabels
+checksums           rmd160  6c1f77f1b126a9688ab4e88384381c64bca0b424 \
+                    sha256  b7e2f68e6a05eb91e8fef39ac7933028fd572f12c9d7d20fc253f73213760f3d \
+                    size    85278
+supported_archs     noarch
+
+depends_lib-append  port:R-assertthat \
+                    port:R-Hmisc \
+                    port:R-magrittr \
+                    port:R-purrr
+
+depends_test-append port:R-dplyr \
+                    port:R-knitr \
+                    port:R-rmarkdown \
+                    port:R-spelling \
+                    port:R-stringr \
+                    port:R-testthat \
+                    port:R-tibble
+
+test.run            yes

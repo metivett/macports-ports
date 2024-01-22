@@ -4,11 +4,12 @@ PortSystem              1.0
 PortGroup               active_variants 1.1
 
 name                    tkimg
-version                 1.4.11
+version                 1.4.16
+revision                0
 categories              graphics
 license                 Tcl/Tk
-maintainers             {mcalhoun @MarcusCalhoun-Lopez} openmaintainer
-homepage                http://tkimg.sourceforge.net
+maintainers             {mcalhoun @MarcusCalhoun-Lopez} {gmx.us:chrischavez @chrstphrchvz} openmaintainer
+homepage                https://tkimg.sourceforge.net
 description             adds a lot of image formats to Tcl/Tk
 long_description        The \"Img\" package adds a lot of image formats to Tcl/Tk.
 
@@ -16,11 +17,11 @@ platforms               darwin
 
 master_sites            sourceforge:tkimg/tkimg/[join [lrange [split ${version} .] 0 1] .]/tkimg%20${version}
 distname                Img-${version}-Source
-worksrcdir              Img-${version}
+extract.rename          yes
 
-checksums               rmd160  7d7f40c59753f7fa2b5d84e86bfd0d285a61ef2e \
-                        sha256  a6b297950f701ec62b4931649ca5feb205d14d08020fe366d6cf69f0e7e05f88 \
-                        size    7610956
+checksums               rmd160  6b4fb4bd3558990ffc8aa4bb30246973027b5a7c \
+                        sha256  d99af4835fe3e20960817c7a1b5235dcfaa97c642593cce50bdb64c5827cd321 \
+                        size    12129708
 
 # ensure tkimg works when tk is installed +quartz
 patchfiles-append       patch-quartz.diff
@@ -32,6 +33,7 @@ patchfiles-append       patch-quartz.diff
 # See
 #    https://gitweb.gentoo.org/repo/gentoo.git/tree/dev-tcltk/tkimg
 #    https://packages.debian.org/sid/libtk-img
+
 
 # for dtplite
 depends_build-append    port:tcllib
@@ -53,7 +55,7 @@ variant x11 conflicts quartz {
     require_active_variants tk x11
 }
 
-if {![variant_isset quartz]} {
+if {![variant_isset x11] && ![variant_isset quartz]} {
     default_variants +x11
 }
 

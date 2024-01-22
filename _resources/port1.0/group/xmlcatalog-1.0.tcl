@@ -33,17 +33,17 @@ options xml.addtocatalog
 option_proc xml.addtocatalog xml._set_catalog_entry
 global xml.rootcatalog xml.catalog_list
 set xml.rootcatalog ${xml.confdir}/catalog
-set xml.catalog_list {}
+set xml.catalog_list [list]
 
 options xml.entity
 option_proc xml.entity xml._set_entity
 global xml.entity_list
-set xml.entity_list {}
+set xml.entity_list [list]
 
 options xml.rewrite
 option_proc xml.rewrite xml._set_rewrite
 global xml.rewrite_list
-set xml.rewrite_list {}
+set xml.rewrite_list [list]
 
 options sgml.catalog
 option_proc sgml.catalog sgml._set_catalog
@@ -51,14 +51,14 @@ options sgml.addtocatalog
 option_proc sgml.addtocatalog sgml._set_catalog_entry
 global sgml.rootcatalog sgml.catalog_list
 set sgml.rootcatalog ${sgml.confdir}/catalog
-set sgml.catalog_list {}
+set sgml.catalog_list [list]
 
 depends_lib-append port:xmlcatmgr
 
 proc xml._set_catalog {option action args} {
     global xml.catalog_list
     global xml.rootcatalog
-    if {$action != "set"} return
+    if {$action ne "set"} return
     foreach catalog [option ${option}] {
         ui_debug "add catalog ${catalog} to ${xml.rootcatalog}"
         lappend xml.catalog_list [subst {${xml.rootcatalog} ${catalog}}]
@@ -68,7 +68,7 @@ proc xml._set_catalog {option action args} {
 proc xml._set_catalog_entry {option action args} {
     global xml.catalog_list
     global xml.rootcatalog
-    if {$action != "set"} return
+    if {$action ne "set"} return
     set clist [option ${option}]
     if {[llength ${clist}] >= 2} {
         set c [lindex $clist 0]
@@ -81,7 +81,7 @@ proc xml._set_catalog_entry {option action args} {
 
 proc xml._set_entity {option action args} {
     global xml.entity_list
-    if {$action != "set"} return
+    if {$action ne "set"} return
     set entity [option ${option}]
     ui_debug "add entity ${entity}"
     lappend xml.entity_list ${entity}
@@ -89,7 +89,7 @@ proc xml._set_entity {option action args} {
 
 proc xml._set_rewrite {option action args} {
     global xml.rewrite_list
-    if {$action != "set"} return
+    if {$action ne "set"} return
     set rewrite [option ${option}]
     ui_debug "add rewrite ${rewrite}"
     lappend xml.rewrite_list ${rewrite}
@@ -194,7 +194,7 @@ proc xml._uninstall_catalogs {} {
 proc sgml._set_catalog {option action args} {
     global sgml.catalog_list
     global sgml.rootcatalog
-    if {$action != "set"} return
+    if {$action ne "set"} return
     foreach catalog [option ${option}] {
         ui_debug "add catalog ${catalog} to ${sgml.rootcatalog}"
         lappend sgml.catalog_list [subst {${sgml.rootcatalog} ${catalog}}]
@@ -204,7 +204,7 @@ proc sgml._set_catalog {option action args} {
 proc sgml._set_catalog_entry {option action args} {
     global sgml.catalog_list
     global sgml.rootcatalog
-    if {$action != "set"} return
+    if {$action ne "set"} return
     set clist [option ${option}]
     if {[llength ${clist}] >= 2} {
         set c [lindex $clist 0]

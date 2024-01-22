@@ -1,0 +1,24 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             github Bioconductor GenomeInfoDb 58da6591fb92a8665a83b755bbab7cbc54c1b965
+version             1.39.5
+revision            0
+maintainers         nomaintainer
+license             Artistic-2
+description         Utilities for manipulating chromosome names, \
+                    including modifying them to follow a particular naming style
+long_description    {*}${description}
+homepage            https://bioconductor.org/packages/${R.package}
+checksums           rmd160  87466df216e4f3d55b8ca66dfc4940dcccf55475 \
+                    sha256  1a0427348c54c1b8b465ae7329ee3cefb234800263dc36cea819240247bceda3 \
+                    size    3184532
+supported_archs     noarch
+
+depends_lib-append  port:R-BiocGenerics \
+                    port:R-GenomeInfoDbData \
+                    port:R-IRanges \
+                    port:R-RCurl \
+                    port:R-S4Vectors

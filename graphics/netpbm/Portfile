@@ -5,28 +5,28 @@ PortGroup               github 1.0
 
 # Download distfiles from GitHub mirror because fetching from svn keeps being
 # problematic.
-github.setup            leahneukirchen netpbm-mirror aff215cc29a295b7bdcc604ae1e71c5514113c29
+github.setup            leahneukirchen netpbm-mirror d21c9b3ce1847ee69ace9603aced3c35fbedfeee
 name                    netpbm
-version                 10.93.00
-svn.revision            4017
+version                 11.04.05
+svn.revision            4800
 set source_branch       advanced
 distname                ${source_branch}-r${svn.revision}
 set source_distfile     ${distfiles}
 
-set userguide_commit    f80c0f70f4ad013f09458728404296f8c814ff6c
-set userguide_revision  4001
+set userguide_commit    a389ddc05a66c41cf88bb95387a81607effdfdaf
+set userguide_revision  4798
 set userguide_branch    userguide
 set userguide_distname  ${userguide_branch}-r${userguide_revision}
 set userguide_distfile  ${userguide_distname}${extract.suffix}
 
 checksums               ${source_distfile} \
-                        rmd160  0dddce8cba831e1784bea4ca3f9229afb1cdfbcb \
-                        sha256  145cc33e2eefe30c998d13fc18c58008ff71a5406319a5fe32cde0e078033069 \
-                        size    2895250 \
+                        rmd160  1a8879447a113c7b536a4bbe8b3dabbae3f66ad6 \
+                        sha256  41096f53e620d956fcd39627914b258f52ae0af045e19b21cd8726cce4a70707 \
+                        size    2989568 \
                         ${userguide_distfile} \
-                        rmd160  84fa09ffb46f36cc248766e3d2ed3b01f23c938b \
-                        sha256  01b0128492bf1c7df29c666d3d633041dd1c3dc8299df1aa6798ec5de9df004f \
-                        size    1217601
+                        rmd160  ccf41ceec6de1eef877fe7c6986d074c7667f0dd \
+                        sha256  a8e0a7a27b6747a6eeebf9956004a6ea71c7f5b55759581e1a70e2319e60e08e \
+                        size    1819436
 
 categories              graphics
 platforms               darwin freebsd linux
@@ -41,7 +41,7 @@ long_description        A whole bunch of utilities for primitive manipulation \
                         jpeg. Many basic graphics editing tools such as \
                         magnifying and cropping.
 
-homepage                http://netpbm.sourceforge.net/
+homepage                http://netpbm.sourceforge.net
 github.tarball_from     archive
 
 distfiles               ${source_distfile}:source \
@@ -50,13 +50,17 @@ distfiles               ${source_distfile}:source \
 master_sites            ${github.master_sites}:source \
                         ${github.homepage}/archive/${userguide_commit}:userguide
 
+if {[exists extract.rename]} {
+    # set by the github portgroup, doesn't work with multiple dirs
+    extract.rename      no
+}
 post-extract {
     move ${workpath}/${github.project}-${git.branch} ${workpath}/${distname}
     move ${workpath}/${github.project}-${userguide_commit} ${workpath}/${userguide_distname}
 
     set newest_mtime 0
     fs-traverse item ${worksrcpath} {
-        if [file isfile ${item}] {
+        if {[file isfile ${item}]} {
             set item_mtime [file mtime ${item}]
             if {${item_mtime} > ${newest_mtime}} {
                 set newest_mtime ${item_mtime}
@@ -148,7 +152,7 @@ platform freebsd {
 
 pre-build {
     set fp [open ${workpath}/mtime r]
-    set mtime [read ${fp}]
+    set mtime [read -nonewline ${fp}]
     close ${fp}
     build.env-append    SOURCE_DATE_EPOCH=${mtime}
 }
@@ -173,7 +177,7 @@ destroot {
     move ${destroot}${prefix}/misc ${destroot}${prefix}/share/${name}
 
     # Fix ownership of files installed during the build phase.
-    # Not using fs-traverse to call file attributes, because that doesn't
+    # Not using fs-traverse to call file attributes because that doesn't
     # handle symlinks. Not using chown proc because that doesn't support
     # changing the group: https://trac.macports.org/ticket/55332
     #chown ${destroot} ${install.user} ${install.group}
@@ -181,7 +185,7 @@ destroot {
 }
 
 if {${subport} eq ${name}} {
-    revision            1
+    revision            0
     installs_libs       no
 
     # TODO: Don't build libnetpbm again in netpbm subport.
@@ -225,7 +229,6 @@ if {${subport} eq ${name}} {
             doc/COPYRIGHT.PATENT \
             doc/GPL_LICENSE.txt \
             doc/HISTORY \
-            doc/Netpbm.programming \
             doc/USERDOC \
             doc/copyright_summary \
             doc/lgpl_v21.txt \
@@ -301,21 +304,21 @@ platform darwin 8 {
         set data [read $fl]
         close $fl
         if {[regexp "build 4061" ${data}]} {
-            ui_msg "On Mac OS X ${macosx_version}, ${name} @${version} does not work with gcc version \"${data}\"."
+            ui_msg "On Mac OS X ${macos_version}, ${name} @${version} does not work with gcc version \"${data}\"."
             return -code error "incompatible gcc version"
         }
     }
 }
 
 patchfiles-append       patch-python.diff
-if {${os.platform} eq "darwin" && ${os.major} < 10} {
-    # the system python is too old to run scripts
-    depends_build-append \
-                        port:python27
-    configure.python    ${prefix}/bin/python2.7
-} else {
-    configure.python    /usr/bin/python
-}
+patchfiles-append       makeman.patch
+
+set python_branch       3.12
+set python_version      [string map {. {}} ${python_branch}]
+
+configure.python        ${prefix}/bin/python${python_branch}
+
+depends_build-append    port:python${python_version}
 post-patch {
     reinplace \
         "s|__MACPORTS_PYTHON__|${configure.python}|g" \

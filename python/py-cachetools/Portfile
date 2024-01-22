@@ -4,55 +4,36 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-cachetools
-version             4.2.1
+version             5.3.2
 revision            0
 
-platforms           darwin
+platforms           {darwin any}
 supported_archs     noarch
 license             MIT
-maintainers         nomaintainer
+maintainers         {reneeotten @reneeotten} openmaintainer
 
 description         memoizing collections and decorators
-long_description    This module provides various ${description}, including variants of the \
+long_description    This module provides various {*}${description}, including variants of the \
                     Python 3 Standard Library @lru_cache function decorator.
 
 homepage            https://github.com/tkem/cachetools
 
-checksums           rmd160  3b3e7c86ea221afdacfae49b8dd28bfc0b9d2c02 \
-                    sha256  f469e29e7aa4cff64d8de4aad95ce76de8ea1125a16c68e0d93f65c3c3dc92e9 \
-                    size    24753
+checksums           rmd160  b6b9b1beac6fff013e9ee68a2ae7d3a9186ef81e \
+                    sha256  086ee420196f7b2ab9ca2db2520aca326318b68fe5ba8bc4d49cca91add450f2 \
+                    size    26510
 
-python.versions     27 35 36 37 38 39
+python.versions     37 38 39 310 311 312
 
 if {${name} ne ${subport}} {
-    if {${python.version} == 27} {
-        version     3.1.1
-        revision    0
-        distname    ${python.rootname}-${version}
-        checksums   rmd160  0e0d6b72dbb60ee71a8e2c6f207b9a349868797e \
-                    sha256  8ea2d3ce97850f31e4a08b0e2b5e6c34997d7216a9d2c98e0f3978630d4da69a \
-                    size    22055
-    }
-
     depends_build-append \
                     port:py${python.version}-setuptools
 
-    depends_test-append \
-                    port:py${python.version}-pytest
-
     test.run        yes
-    test.cmd        py.test-${python.branch}
-    test.target
-    test.env        PYTHONPATH=${worksrcpath}/build/lib
 
     post-destroot {
         set docdir ${prefix}/share/doc/${subport}
         xinstall -d ${destroot}${docdir}
-        xinstall -m 0644 -W ${worksrcpath} README.rst LICENSE ${destroot}${docdir}
-        if {${python.version} == 27} {
-            xinstall -m 0644 -W ${worksrcpath} CHANGES.rst ${destroot}${docdir}
-        } else {
-            xinstall -m 0644 -W ${worksrcpath} CHANGELOG.rst ${destroot}${docdir}
-        }
+        xinstall -m 0644 -W ${worksrcpath} README.rst LICENSE \
+            CHANGELOG.rst ${destroot}${docdir}
     }
 }

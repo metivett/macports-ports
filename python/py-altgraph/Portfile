@@ -4,7 +4,7 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-altgraph
-version             0.17
+version             0.17.4
 categories-append   devel
 license             MIT
 maintainers         {jmr @jmroot} openmaintainer
@@ -16,18 +16,22 @@ long_description \
     altgraph includes some additional usage of Python 2.6+ features and \
     enhancements related to modulegraph and macholib.
 
-platforms           darwin
+platforms           {darwin any}
 supported_archs     noarch
 
-homepage            http://undefined.org/python/#altgraph
+homepage            https://pypi.org/project/altgraph/
 
-checksums           md5 9450020282270749db205038b8c90b55 \
-                    rmd160 01f1feb3a846dcc669e5329fc7cb15f41b0a3405 \
-                    sha256 1f05a47122542f97028caf78775a095fbe6a2699b5089de8477eb583167d69aa
+checksums           md5 6d84489cb25caed3f2033e53719c45c2 \
+                    rmd160 d60bd5997eefaed250bd6a7d17d97ef2bd9a86b7 \
+                    sha256 1b5afbb98f6c4dcadb2e2ae6ab9fa994bbb8c1d75f4fa96d340f9437ae454406
 
-python.versions     27 33 34 35 36 37 38 39
+python.versions     27 37 38 39 310 311 312
 
 if {$subport ne $name} {
-    depends_build   port:py${python.version}-setuptools
+    if {${python.version} >= 36} {
+        python.pep517   yes
+    }
+    # needs pkg_resources at runtime
+    depends_lib-append  port:py${python.version}-setuptools
     livecheck.type  none
 }

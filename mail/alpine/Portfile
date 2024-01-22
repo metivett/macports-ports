@@ -3,28 +3,39 @@
 PortSystem          1.0
 
 name                alpine
-version             2.23
+version             2.26
 revision            0
 categories          mail
 license             Apache-2
 maintainers         netpurgatory.com:john gmail.com:jerryyhom openmaintainer
 platforms           darwin
 
-homepage            http://alpine.x10host.com/
+homepage            https://alpineapp.email/
 description         alpine - a Program for Internet News and Email
 long_description    Alpine is a tool for reading, sending, and \
                     managing electronic messages that was designed \
                     with novice users in mind.
 
-master_sites        http://alpine.x10host.com/alpine/release/src
-use_xz              yes
-checksums           rmd160 e26cb9da9484b0d95daf0375553053b9210aaa2a \
-                    sha256 793a61215c005b5fcffb48f642f125915276b7ec7827508dd9e83d4c4da91f7b \
-                    size 6330784
+# Note: Only latest release in primary site; 'Old' subdir contains previous versions
+set alpine_master_site \
+                    ${homepage}alpine/release/src
+master_sites        ${alpine_master_site} \
+                    ${alpine_master_site}/Old
 
-depends_lib         port:gettext \
+use_xz              yes
+checksums           rmd160  edffd060c051f544be5acbe40e1be4b3143e42e8 \
+                    sha256  c0779c2be6c47d30554854a3e14ef5e36539502b331068851329275898a9baba \
+                    size    7517628
+
+depends_build-append \
+                    port:gettext
+
+depends_lib-append  port:gettext-runtime \
                     port:libiconv \
                     port:ncurses
+
+patchfiles-append   patch-fix-applekeychain.diff
+patch.pre_args      -p1
 
 configure.env       SSLDIR=${prefix}
 configure.args      --with-lib-path=${prefix}/lib \
@@ -62,7 +73,7 @@ variant kerberos description {Kerberos support} {
 }
 
 variant ldap description {LDAP support} {
-    depends_lib-append      port:openldap
+    depends_lib-append      path:lib/libldap.dylib:openldap
     configure.args-delete   --without-ldap
 }
 

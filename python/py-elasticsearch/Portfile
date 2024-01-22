@@ -4,21 +4,22 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-elasticsearch
-version             7.9.1
-platforms           darwin
+version             8.9.0
+platforms           {darwin any}
+supported_archs     noarch
 license             Apache-2
 maintainers         nomaintainer
 
 description         Python client for Elasticsearch
-long_description    ${description}
+long_description    {*}${description}
 
 homepage            https://github.com/elastic/elasticsearch-py
 
-checksums           rmd160  cf3fbb7fc917e7ef642473611b8872c58ef0828f \
-                    sha256  5e08776fbb30c6e92408c7fa8c37d939210d291475ae2f364f0497975918b6fe \
-                    size    169932
+checksums           rmd160  3f197083f5c342bd41aeab0e990f35f59c4320cc \
+                    sha256  d3367fc013e04fc7aad349a6de9fad1ee04fb6d627b0e7896aa505c12fde5e04 \
+                    size    313760
 
-python.versions     37 38
+python.versions     37 38 39 310 311
 
 if {${name} ne ${subport}} {
     depends_build-append \
@@ -27,6 +28,4 @@ if {${name} ne ${subport}} {
     depends_run-append \
                     port:py${python.version}-certifi \
                     port:py${python.version}-urllib3
-
-    livecheck.type  none
 }

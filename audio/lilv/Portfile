@@ -4,30 +4,34 @@ PortSystem              1.0
 PortGroup               waf 1.0
 
 name                    lilv
-version                 0.20.0
+version                 0.24.14
 license                 MIT
 categories              audio
 maintainers             {gmail.com:aggraef @agraef} openmaintainer
-platforms               darwin
 
 description             LV2 host reference implementation
 long_description        ${name} is an ${description}. \
                         It provides a C library to make the use of LV2 \
                         plugins as simple as possible for applications.
 
-homepage                http://drobilla.net/software/lilv/
-master_sites            http://download.drobilla.net/
+homepage                https://drobilla.net/software/lilv.html
+master_sites            https://download.drobilla.net/
 
 use_bzip2               yes
 
-checksums               rmd160  7830520d983fa8effa7c3e18fda545bc55253642 \
-                        sha256  428a39f1265d44c55f2604829a12ade0ea13e1a1022ff937ca2a9ad227bd422a
+checksums               rmd160  a88e5995f1156746e9ed14bf982d306be6e67658 \
+                        sha256  6399dfcbead61a143acef3a38ad078047ab225b00470ad5d33745637341d6406 \
+                        size    428004
 
 configure.args-append   --dyn-manifest
+configure.post_args-delete --nocache
 
 depends_build-append    port:pkgconfig
 
-depends_lib             port:lv2 port:serd port:sord port:sratom
+depends_lib             port:lv2 \
+                        port:serd \
+                        port:sord \
+                        port:sratom
 
 livecheck.type          regex
 livecheck.url           ${master_sites}

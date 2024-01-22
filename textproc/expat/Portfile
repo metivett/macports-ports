@@ -6,11 +6,11 @@ PortSystem          1.0
 PortGroup           muniversal 1.0
 
 name                expat
-version             2.2.10
+version             2.5.0
 revision            0
-checksums           rmd160  406b8758fe30f266941c3774f7668465afa3c623 \
-                    sha256  b2c160f1b60e92da69de8e12333096aeb0c3bf692d41c60794de278af72135a5 \
-                    size    523314
+checksums           rmd160  493d4d0b5ed08e2037fd44977218d36c80768392 \
+                    sha256  6f0e6e01f7b30025fa05c85fdad1e5d0ec7fd35d9f61b22f34998de11969ff67 \
+                    size    569205
 
 categories          textproc devel
 platforms           darwin freebsd
@@ -26,6 +26,9 @@ long_description    Expat is an XML parser library written in C. It is a \
 
 homepage            http://www.libexpat.org/
 master_sites        sourceforge:project/${name}/${name}/${version}
+# Don't use a compression format that necessitates a dependency on another
+# port since that causes a dependency cycle on older OS versions since
+# e.g. clang-3.4 depends on python27-bootstrap which depends on expat.
 use_bzip2           yes
 
 if {${os.platform} eq "darwin" && ${os.major} < 11} {
@@ -47,10 +50,10 @@ post-destroot {
     xinstall -m 0755 -d ${examplesdir} ${docdir}/html
     
     xinstall -m 0644 -W ${worksrcpath} COPYING Changes README.md ${docdir}
-    xinstall -m 0644 -W ${worksrcpath}/doc expat.png reference.html style.css \
-        valid-xhtml10.png ${docdir}/html
+    xinstall -m 0644 {*}[glob -directory ${worksrcpath}/doc *.css *.html] \
+        ${docdir}/html
     
-    xinstall -m 0644 -W ${worksrcpath}/examples elements.c outline.c \
+    xinstall -m 0644 {*}[glob -directory ${worksrcpath}/examples *.c] \
         ${examplesdir}
 }
 

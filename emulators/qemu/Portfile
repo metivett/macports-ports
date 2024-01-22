@@ -2,16 +2,16 @@
 
 PortSystem 1.0
 PortGroup compiler_blacklist_versions 1.0
+PortGroup legacysupport 1.1
 
-# https://trac.macports.org/ticket/58700
-PortGroup legacysupport 1.0
+# clock_gettime
+legacysupport.newest_darwin_requires_legacy 16
 
 name                    qemu
-version                 5.2.0
+version                 8.0.5
 revision                0
 categories              emulators
 license                 GPL-2+
-platforms               darwin
 maintainers             {raimue @raimue} \
                         openmaintainer
 
@@ -25,47 +25,73 @@ homepage                https://www.qemu.org
 master_sites            https://download.qemu.org/
 use_xz                  yes
 
-checksums               rmd160  2c33e773f012e333f99237e3d4ff1653ea0bc88f \
-                        sha256  cb18d889b628fbe637672b0326789d9b0e3b8027e0445b936537c78549df17bc \
-                        size    106902800
+checksums               rmd160  3673ec927f33f470081a467444eca30aa75742a2 \
+                        sha256  91d3024d51e441c235dcb1b0c87cb3aab302283166e8d3d5f8282aa06c346be1 \
+                        size    126175064
 
-patchfiles              patch-configure.diff
-patch.pre_args          -p1
+set py_version          311
+set py_branch           \
+    [string index ${py_version} 0].[string range ${py_version} 1 end]
 
-depends_build           port:texinfo \
+depends_build-append    port:texinfo \
                         port:libtool \
+                        port:meson \
                         port:ninja \
-                        port:pkgconfig
+                        port:pkgconfig \
+                        port:py${py_version}-sphinx
 
-# python/perl5 is only used for build scripts, no linking
-depends_build-append    port:python38 \
-                        port:perl5
+# perl5 is only used for build scripts, no linking
+depends_build-append    port:perl5
 
-license_noconflict      python38 \
-                        perl5
+license_noconflict      perl5
 
-depends_lib             path:lib/pkgconfig/glib-2.0.pc:glib2 \
+depends_lib-append      path:lib/pkgconfig/glib-2.0.pc:glib2 \
+                        path:lib/pkgconfig/gnutls.pc:gnutls \
+                        path:lib/pkgconfig/pixman-1.pc:libpixman \
+                        port:bzip2 \
+                        port:libslirp \
+                        port:lzfse \
+                        port:lzo2 \
+                        port:snappy \
                         port:zlib \
-                        path:lib/pkgconfig/pixman-1.pc:libpixman
+                        port:zstd
 
-# see #39058
-compiler.blacklist      {clang < 500} *gcc-4.2 *gcc-4.0 gcc-3.3
-if {${os.platform} eq "darwin" && ${os.major} < 11} {
+# This patch sets the python interpreter from meson's shebang line
+patchfiles-append       patch-qemu-configure.diff
+
+# "error: unknown type name 'fpunchhole_t'" pre-10.12.4
+patchfiles-append       patch-qemu-punchhole.diff
+
+# IPPROTO workarounds
+patchfiles-append       patch-qemu-net-colo.diff
+
+# MADV_DONTNEED workaround
+patchfiles-append       patch-qemu-include-qemu-madvise_h.diff
+
+# MAP_JIT workaround
+patchfiles-append       patch-qemu-tcg-region.diff
+
+# "ERROR: You need at least GCC v7.5 or Clang v6.0 (or XCode Clang v10.0)"
+compiler.blacklist      {clang < 1000} {macports-clang-[3-5].*} {macports-gcc-[56]} {*gcc-[34].*}
+if {${os.platform} eq "darwin" && ${os.major} < 11 && [string match *clang* ${configure.compiler}]} {
     # Emulated TLS needed, which was added in LLVM 3.8
-    compiler.blacklist-append   macports-clang-3.4 macports-clang-3.3 macports-clang-3.7
-    compiler.fallback-append    macports-clang-8.0 macports-clang-7.0 macports-clang-6.0 macports-clang-5.0
     configure.cflags-append     -femulated-tls
 }
 
+if {"${configure.build_arch}" eq "arm64"} {
+    set host_cpu "aarch64"
+} else {
+    set host_cpu "${configure.build_arch}"
+}
 # Select compiler
-configure.args          --cpu=${configure.build_arch} \
+configure.args          --cpu=${host_cpu} \
                         --cc=${configure.cc} \
                         --objcc=${configure.objc} \
                         --host-cc=${configure.cc} \
-                        --python=${prefix}/bin/python3.8
+                        --sphinx-build=${prefix}/bin/sphinx-build-${py_branch}
 
-# Use internal meson
-configure.args-append   --meson=internal
+# Use MacPorts meson, which includes platform-specific fixes
+configure.args-append   --meson=${prefix}/bin/meson
 
 # Do not use iasl, even if it is installed, #43911
 configure.args-append   --iasl=/usr/bin/false
@@ -78,11 +104,14 @@ configure.args-append   --disable-cocoa \
                         --disable-gtk \
                         --disable-opengl \
                         --enable-bzip2 \
+                        --enable-hvf \
                         --disable-curl \
                         --disable-attr \
                         --disable-vde \
+                        --disable-jack \
                         --disable-brlapi \
                         --disable-cap-ng \
+                        --disable-spice-protocol \
                         --disable-spice \
                         --disable-libiscsi \
                         --disable-rbd \
@@ -90,20 +119,46 @@ configure.args-append   --disable-cocoa \
                         --disable-libusb \
                         --disable-usb-redir \
                         --disable-seccomp \
+                        --enable-slirp \
                         --disable-linux-aio \
                         --disable-glusterfs \
                         --disable-rdma \
                         --disable-libssh \
                         --disable-vnc \
-                        --disable-gnutls \
+                        --enable-gnutls \
                         --disable-gcrypt \
                         --disable-nettle \
                         --disable-numa \
                         --disable-xen \
-                        --disable-snappy \
-                        --disable-lzo \
-                        --disable-lzfse \
-                        --disable-zstd
+                        --enable-snappy \
+                        --enable-lzo \
+                        --enable-lzfse \
+                        --disable-png \
+                        --enable-zstd \
+                        --disable-dbus-display \
+                        --enable-bochs \
+                        --enable-cloop \
+                        --enable-dmg \
+                        --enable-qcow1 \
+                        --enable-qed \
+                        --enable-tools \
+                        --enable-parallels \
+                        --enable-vdi \
+                        --enable-virtfs \
+                        --enable-vvfat
+
+# Use 'smbd' installed by samba port, rather than macOS; latter does not work with qemu.
+configure.args-append   --smbd=${prefix}/sbin/smbd
+
+# Hypervisor.framework introduced in 10.10
+if {${os.platform} eq "darwin" && ${os.major} < 14} {
+    configure.args-replace --enable-hvf --disable-hvf
+}
+
+# pthread_fchdir_np introduced in 10.12
+if {${os.platform} eq "darwin" && ${os.major} < 16} {
+    configure.args-replace --enable-virtfs --disable-virtfs
+}
 
 # libtool: unknown option character `-' in: --mode=compile
 configure.env-append   LIBTOOL=${prefix}/bin/glibtool
@@ -136,13 +191,18 @@ pre-configure {
 # disable silent rules
 build.args-append       V=1
 
-default_variants        +usb
+default_variants        +usb +spice +vnc
 
-foreach t {i386 x86_64 alpha {arm aarch64} cris hppa lm32 m68k {microblaze microblazeel} {mips mipsel mips64 mips64el} \
-           nios2 moxie or1k {ppc ppc64} riscv32 riscv64 rx s390x {sh4 sh4eb} {sparc sparc64} tricore unicore32 {xtensa xtensaeb}} {
+# https://trac.macports.org/ticket/62164#comment:10
+if {${os.platform} eq "darwin" && ${os.major} < 18} {
+    default_variants-append +curses
+}
+
+foreach t {i386 x86_64 alpha {arm aarch64} cris hppa m68k {microblaze microblazeel} {mips mipsel mips64 mips64el} \
+           nios2 or1k {ppc ppc64} riscv32 riscv64 rx s390x {sh4 sh4eb} {sparc sparc64} tricore {xtensa xtensaeb}} {
     variant target_[lindex $t 0] description "Add target support for [join $t {, }]" "append target_list \",[join $t -softmmu,]-softmmu\""
 }
-default_variants-append +target_i386 +target_x86_64
+default_variants-append +target_i386 +target_x86_64 +target_arm
 
 if {![variant_isset curses]} {
     default_variants-append +cocoa
@@ -160,36 +220,21 @@ variant curses description {Use the curses text-only user interface} {
 
 # XXX: gtk/sdl need libepoxy for OpenGL
 
-# XXX: Builds, but does not work as expected at runtime
-#variant gtk3 description {Build GTK+ GUI for GTK+ 3 (experimental)} conflicts cocoa curses gtk2 sdl sdl2 {
-#    configure.args-replace --disable-gtk --enable-gtk
-#    configure.args-append --with-gtkabi=3.0
-#    depends_lib-append     port:gtk3 port:vte
-#}
+variant gtk3 description {Use the GTK+3 graphical user interface} conflicts cocoa {
+    configure.args-replace  --disable-gtk --enable-gtk
+    depends_lib-append      path:lib/pkgconfig/gtk+-3.0.pc:gtk3 port:vte
+}
 
-# XXX: Builds, but user input does not work at runtime
-#variant gtk2 description {Use the GTK+ 2 graphical user interface} conflicts cocoa curses gtk3 sdl sdl2 {
-#    configure.args-replace --disable-gtk --enable-gtk
-#    configure.args-append  --with-gtkabi=2.0
-#    depends_lib-append     port:gtk2 port:vte
-#}
-
-# XXX: Build broken due to missing X11 symbols
-#variant sdl description {Use the SDL graphical user interface} conflicts cocoa curses gtk2 gtk3 sdl sdl2 {
-#    configure.args-replace --disable-sdl --enable-sdl
-#    depends_lib-append      port:libsdl
-#}
-
-# XXX: Broken at runtime, screen flickers and input does not work
-#variant sdl2 description {Use the SDL 2 graphical user interface} conflicts cocoa curses {
-#    configure.args-replace --disable-sdl --enable-sdl
-#    configure.args-append --with-sdlabi=2.0
-#    depends_lib-append      port:libsdl2
-#}
+variant sdl2 description {Use the SDL 2 graphical user interface} conflicts cocoa {
+    configure.args-replace  --disable-sdl --enable-sdl
+    depends_lib-append      port:libsdl2
+}
 
 variant usb description {Support forwarding of USB devices to the guest} {
     configure.args-replace  --disable-libusb --enable-libusb
-    depends_lib-append      path:lib/pkgconfig/libusb-1.0.pc:libusb
+    configure.args-replace  --disable-usb-redir --enable-usb-redir
+    depends_lib-append      path:lib/pkgconfig/libusb-1.0.pc:libusb \
+                            port:usbredir
 }
 
 variant curl description {Support network block devices using CURL} {
@@ -201,15 +246,23 @@ variant curl description {Support network block devices using CURL} {
 }
 
 variant vnc description {Support VNC server} {
-    configure.args-replace  --disable-vnc --enable-vnc
-    configure.args-append   --enable-gnutls \
-                            --enable-vnc-sasl \
-                            --enable-vnc-jpeg \
-                            --enable-vnc-png
-    depends_lib-append      port:gnutls \
-                            port:cyrus-sasl2 \
+    configure.args-replace  --disable-png --enable-png \
+                            --disable-vnc --enable-vnc
+    configure.args-append   --enable-vnc-jpeg \
+                            --enable-vnc-sasl
+    depends_lib-append      port:cyrus-sasl2 \
                             path:include/turbojpeg.h:libjpeg-turbo \
                             port:libpng
+}
+
+variant spice_protocol description {Support Spice protocol} {
+    configure.args-replace  --disable-spice-protocol --enable-spice-protocol
+    depends_lib-append      port:spice-protocol
+}
+
+variant spice requires spice_protocol description {Support Spice server} {
+    configure.args-replace  --disable-spice --enable-spice
+    depends_lib-append      port:spice-server
 }
 
 variant vde description {Support VDE networking} {
@@ -217,29 +270,14 @@ variant vde description {Support VDE networking} {
     depends_lib-append      port:vde2
 }
 
-variant lzo description {Support LZO compression} {
-    configure.args-replace  --disable-lzo --enable-lzo
-    depends_lib-append      port:lzo
-}
-
-variant lzfse description {Support lzfse compression} {
-    configure.args-replace  --disable-lzfse --enable-lzfse
-    depends_lib-append      port:lzfse
-}
-
-variant snappy description {Support Snappy compression} {
-    configure.args-replace  --disable-snappy --enable-snappy
-    depends_lib-append      port:snappy
-}
-
-variant zstd description {Support zstd compression} {
-    configure.args-replace  --disable-zstd --enable-zstd
-    depends_lib-append      port:zstd
-}
-
 variant ssh description {Support remote block devices over SSH} {
     configure.args-replace  --disable-libssh --enable-libssh
     depends_lib-append      port:libssh
+}
+
+variant dbus description {Export the VM display through D-Bus} {
+    configure.args-replace  --disable-dbus-display --enable-dbus-display
+    configure.args-append   --enable-modules
 }
 
 # Default universal variant does not work
@@ -248,13 +286,6 @@ universal_variant       no
 platform darwin 8 {
     depends_build-append port:gmake
     build.cmd ${prefix}/bin/gmake
-}
-
-platform darwin {
-    if {${os.major} < 15} {
-        depends_build-append    port:coreutils
-        patchfiles-append       patch-Makefile-legacy-mktemp-to-coreutils.diff
-    }
 }
 
 livecheck.type  regex

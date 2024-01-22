@@ -1,0 +1,29 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran cran restriktor 0.5-30
+revision            0
+categories-append   math
+maintainers         nomaintainer
+license             GPL-2+
+description         Restricted statistical estimation and inference for linear models
+long_description    {*}${description}
+checksums           rmd160  c11bb629a44aa6db6f0be7dc59334f9269558c9a \
+                    sha256  2f91995e1248280a4068017fa418431211a480a8add0166915248a9e45428be2 \
+                    size    195166
+supported_archs     noarch
+
+depends_lib-append  port:R-ggplot2 \
+                    port:R-ic.infer \
+                    port:R-lavaan \
+                    port:R-mvtnorm \
+                    port:R-norm \
+                    port:R-quadprog
+
+depends_test-append port:R-bain \
+                    port:R-knitr \
+                    port:R-rmarkdown
+
+test.run            yes

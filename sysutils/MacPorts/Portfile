@@ -1,8 +1,7 @@
 PortSystem          1.0
 PortGroup           github 1.0
 
-github.setup        macports macports-base 2.6.4 v
-revision            1
+github.setup        macports macports-base 2.9.0-rc2 v
 name                MacPorts
 
 categories          sysutils macports
@@ -18,15 +17,15 @@ long_description \
 notes "This port cannot directly be used to upgrade MacPorts; use 'port\
 selfupdate' for that."
 
-homepage            https://www.macports.org
+homepage            https://www.macports.org/
 distname            ${name}-${version}
 github.tarball_from releases
 # testing subdir is for non-final releases only
-#dist_subdir         ${name}/testing
+dist_subdir         ${name}/testing
 use_bzip2           yes
 
-checksums           rmd160 7dd671d2fd6a5aa5a22e3c47d16160ffa2efad8f \
-                    sha256 04e0dc4f44cbc6b59edb2873b3c73adf429e5053f20d2418387eeff776ec65d4
+checksums           rmd160 04b4403dcd3323bfadd679e7f86e774560d7b5de \
+                    sha256 99efc420d24373b1dc80249fa136a0e473e2bca1c8298a7ff695834552b4d01f
 
 variant keep_prefix description "Use configured prefix instead of enforcing /opt/local" {}
 if {![variant_isset keep_prefix]} {
@@ -89,10 +88,16 @@ pre-pkg {
 
     reinplace "s|__PREFIX__|${prefix}|g" \
               ${resources_lang}/ReadMe.rtf
-    if {${os.major} < 11} {
+    if {${os.major} < 11 || ${os.major} >= 20} {
         reinplace "s|is built|contains a Universal installer|" ${resources_lang}/ReadMe.rtf
     }
-    reinplace "s|__XVERS__|${macosx_deployment_target}|" ${resources_lang}/ReadMe.rtf
+
+    if {[vercmp $macosx_deployment_target >= 11]} {
+        set mdt_major [lindex [split $macosx_deployment_target .] 0]
+    } else {
+        set mdt_major $macosx_deployment_target
+    }
+    reinplace "s|__XVERS__|${mdt_major}|" ${resources_lang}/ReadMe.rtf
     if {${package.flat}} {
         file copy -force -- ${worksrcpath}/portmgr/dmg/Distribution ${workpath}
         file attributes ${workpath}/Distribution -permissions 0644
@@ -104,13 +109,16 @@ pre-pkg {
             default {set xcode_cli "Command Line Tools or UNIX Development"}
         }
         reinplace "s|__XCODECLITOOLS__|${xcode_cli}|g" ${workpath}/Distribution
-        reinplace "s|__XVERS__|${macosx_deployment_target}|" ${workpath}/Distribution
+        reinplace "s|__XVERS__|$mdt_major|" ${workpath}/Distribution
         if {[vercmp $macosx_deployment_target 11] >= 0} {
             set next_major [expr {[lindex [split $macosx_deployment_target .] 0]+1}].0
+            set hostArchs { hostArchitectures="arm64,x86_64"}
         } else {
             set next_major [lindex [split $macosx_deployment_target .] 0].[expr {[lindex [split $macosx_deployment_target .] 1] + 1}]
+            set hostArchs ""
         }
         reinplace "s|__NEXT_XVERS__|$next_major|" ${workpath}/Distribution
+        reinplace "s|__ARCHS__|$hostArchs|" ${workpath}/Distribution
         set pkgvers ${version}
         if {$revision != 0} {
             append pkgvers _${revision}
@@ -130,8 +138,12 @@ pre-pkg {
     }
 
     reinplace "s|or newer ||" ${resources_lang}/Welcome.html
-    if {${os.major} > 8} {
-        reinplace "s|10\\.4|${macosx_deployment_target}|" ${resources_lang}/Welcome.html
+    if {${os.major} >= 16} {
+        reinplace "s|Mac OS X 10\\.4|macOS ${mdt_major}|" ${resources_lang}/Welcome.html
+    } elseif {${os.major} >= 12} {
+        reinplace "s|Mac OS X 10\\.4|OS X ${mdt_major}|" ${resources_lang}/Welcome.html
+    } elseif {${os.major} > 8} {
+        reinplace "s|10\\.4|${mdt_major}|" ${resources_lang}/Welcome.html
     }
 }
 
@@ -178,7 +190,9 @@ platform darwin {
         # Notarization requires static libs to be signed, but
         # codesign(1) doesn't seem to be able to sign them properly.
         post-destroot {
-            delete ${destroot}${prefix}/libexec/macports/lib/libtclstub8.5.a
+            delete {*}[glob ${destroot}${prefix}/libexec/macports/lib/libtclstub*.a] \
+                {*}[glob ${destroot}${prefix}/libexec/macports/lib/tdbc*/libtdbcstub*.a] \
+                {*}[glob ${destroot}${prefix}/libexec/macports/lib/itcl*/libitclstub*.a]
         }
     } elseif {${os.major} >= 11} {
         # Lion through Catalina only run on x86_64.
@@ -191,7 +205,10 @@ platform darwin {
     }
 
     # FIXME: "error: The specified item could not be found in the keychain."
-    #if {${os.major} >= 18} {
+    if {${os.major} >= 18} {
+        # Workaround: in-tree tclsh can't be used to install tcllib
+        # when it has been signed (ignores DYLD_* vars).
+        patchfiles-append   tclsh.patch
     #    post-build {
     #        if {[getuid] == 0 && [info exists sudo_user]} {
     #            set codesign_cmd "/usr/bin/env SUDO_USER=${sudo_user} HOME=/Users/${sudo_user} ${build.cmd} codesign"
@@ -200,7 +217,7 @@ platform darwin {
     #        }
     #        system -W ${worksrcpath} ${codesign_cmd}
     #    }
-    #}
+    }
 }
 
 destroot.violate_mtree yes

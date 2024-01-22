@@ -1,0 +1,21 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran rolfturner deldir 2.0-2
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             GPL-2+
+description         Delaunay triangulation and Dirichlet (Voronoï) tessellation
+long_description    {*}${description}
+checksums           rmd160  37978a29a397f03be0fd19d80de260f7aac9952b \
+                    sha256  e9bf787f0c5877a8dc6b6c62c8f99b77dd9130337f946a4802f90eed0ec1eee3 \
+                    size    103483
+
+compilers.setup     require_fortran
+
+depends_test-append port:R-polyclip
+
+test.run            yes

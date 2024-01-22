@@ -4,17 +4,12 @@ PortSystem      1.0
 PortGroup       compiler_blacklist_versions 1.0
 PortGroup       texlive 1.0
 
-# Note: due to poppler compatibility issues, we are temporarily using
-# the texlive-provided version of poppler rather than the port; we'll
-# revisit on the next release. See
-# https://github.com/macports/macports-ports/pull/3098
-
 # luajittex requires muniversal (and some patches to configure
 # scripts) to build universal
-PortGroup       muniversal 1.0
+PortGroup       muniversal 1.1
 
 name            texlive-bin
-version         2020.54632
+version         2023.66589
 revision        3
 
 categories      tex
@@ -27,7 +22,6 @@ long_description    TeX Live is an easy way to get up and running with TeX. \
     software, including support for many languages around the world.
 
 homepage        http://www.tug.org/texlive/
-platforms       darwin
 
 # This port installs two libraries: kpathsea (LGPL-2.1+) and ptexenc (BSD).
 # The binaries are covered under various licenses, but all distributable;
@@ -36,13 +30,12 @@ license         Copyleft Permissive LGPL-2.1+ BSD
 
 # Our distfile is a stripped-down version of the texlive source
 # tarball, available from CTAN in systems/texlive/Source. For faster
-# download time, it omits a number of libraries and utilities that we
-# don't build. However, the port should still work with an unmodified
-# texlive distfile.
+# download (and configure) time, it omits a number of libraries and
+# utilities that we don't build. However, the port will still work
+# with an unmodified texlive distfile.
 master_sites    https://www.ambulatoryclam.net/texlive/ \
                 https://alpaca.cs.washington.edu/texlive/ \
                 https://giraffe.cs.washington.edu/texlive/
-
 
 use_xz          yes
 distname        texlive-source-${version}-stripped
@@ -55,14 +48,14 @@ compiler.cxx_standard \
 set tlpkgdistname   tlpkg-TeXLive-${version}
 distfiles-append    ${tlpkgdistname}${extract.suffix}
 
-checksums           texlive-source-2020.54632-stripped.tar.xz \
-                    rmd160  f9c6dac943ccb7fc4e53a7ade39540b419731612 \
-                    sha256  de5e59a075bfefe978cdd92e4a094b7b98921797eddabe071a426e2f33cdd3f5 \
-                    size    21592296 \
-                    tlpkg-TeXLive-2020.54632.tar.xz \
-                    rmd160  7641dd67484846a35485ce38cb6be3a59ac0061e \
-                    sha256  377babffdb8f92dc3e934f198edc71057110d66823709418c0fe71dade17ac64 \
-                    size    111368
+checksums           texlive-source-2023.66589-stripped.tar.xz \
+                    rmd160  ce70d3d301f09f73f432a909f2a49698369935c2 \
+                    sha256  45622f77afda8ce81ef4e6c7af12e00924af6266dd9274b006527ce7d4d1e775 \
+                    size    23701704 \
+                    tlpkg-TeXLive-2023.66589.tar.xz \
+                    rmd160  f227e9db7551599372d283e1fcbb9d8732f3d997 \
+                    sha256  56252cbcd852958946afee26308251e8755b1014f9e2075a4997241c2e5ed826 \
+                    size    116640
 
 depends_lib     port:fontconfig \
                 port:freetype \
@@ -73,13 +66,14 @@ depends_lib     port:fontconfig \
                 path:lib/pkgconfig/cairo.pc:cairo \
                 path:lib/pkgconfig/pixman-1.pc:libpixman \
                 port:graphite2 \
-                port:icu \
-                port:harfbuzz \
-                port:harfbuzz-icu \
+                path:lib/pkgconfig/icu-uc.pc:icu \
+                path:lib/pkgconfig/harfbuzz.pc:harfbuzz \
+                path:lib/pkgconfig/harfbuzz-icu.pc:harfbuzz-icu \
                 port:libpaper \
                 port:gmp \
                 port:mpfr \
                 port:potrace \
+                path:lib/pkgconfig/poppler.pc:poppler \
                 port:texlive-common
 
 depends_run     port:ghostscript
@@ -91,24 +85,17 @@ depends_build-append \
 # patches related to changes in install paths
 patchfiles-append  \
                    patch-texk_tex4htk_Makefile.in.diff \
-                   patch-texk_texlive_linked_scripts_Makefile.in.diff \
                    patch-texk_kpathsea_Makefile.in.diff \
                    patch-texk_chktex_Makefile.in.diff \
+                   patch-texk_texlive_linked_scripts_Makefile.in.diff \
                    patch-texk_xdvik_xdvi-sh.in.diff \
                    patch-utils_texdoctk_Makefile.in.diff
 
+    
 # patches to luajit/luajittex's config scripts to correctly detect
 # architecture in universal builds
 patchfiles-append  patch-libs_luajit_configure.diff \
                    patch-texk_web2c_configure.diff
-
-# fix finding of snprintf and vsnprintf on macOS 11.0
-# https://trac.macports.org/ticket/60963
-patchfiles-append  patch-texk_kpathsea_configure.diff
-
-# fix build on ARM64, which does not have "finite()"
-# https://trac.macports.org/ticket/61547
-patchfiles-append  patch-texk_web2c_luatexdir_luafontloader_fontforge_fontforge-fix_finite.diff
 
 post-patch {
     reinplace "s|@@TEXMFDIST@@|${texlive_texmfdist}|" ${worksrcpath}/texk/texlive/linked_scripts/Makefile.in
@@ -134,6 +121,15 @@ post-patch {
     reinplace "s|@@TEXMFSYSCONFIG@@|${texlive_texmfsysconfig}|" ${worksrcpath}/texk/kpathsea/paths.h
 
 }
+
+
+set build_dir ${workpath}/build
+pre-configure {
+    file mkdir ${build.dir}
+}
+configure.dir ${build_dir}
+configure.cmd ${worksrcpath}/configure
+build.dir ${build_dir}
 
 # We use MacPorts-provided libraries instead of the ones included in
 # texlive whenever possible, to avoid redundancy and to better keep
@@ -173,7 +169,7 @@ configure.args  --bindir=${texlive_bindir} \
                 --with-system-mpfr \
                 --with-system-ncurses \
                 --with-system-pixman \
-                --without-system-poppler \
+                --with-system-poppler \
                 --with-system-potrace \
                 --without-system-xpdf \
                 --with-system-zlib \
@@ -192,7 +188,6 @@ configure.args  --bindir=${texlive_bindir} \
                 --disable-xindy \
                 --without-x \
                 --without-pdfopen \
-                --enable-build-in-source-tree \
                 ac_cv_prog_AWK=/usr/bin/awk
 
 # makejvf has some invalid character encodings in one of its source
@@ -211,45 +206,28 @@ configure.ldflags-delete    -L${prefix}/lib
 configure.cppflags-append   -isystem${prefix}/include
 configure.env-append        LIBRARY_PATH=${prefix}/lib
 
-if {![info exists universal_possible]} {
-    set universal_possible [expr {${os.universal_supported} && [llength ${configure.universal_archs}] >= 2}]
-}
 # luajittex does not support ppc
-if {${universal_possible} && [variant_isset universal]} {
-    set merger_configure_args(ppc) --disable-luajittex
-    set merger_configure_args(ppc64) --disable-luajittex
-} else {
-    switch -- ${configure.build_arch} {
-        ppc -
-        ppc64 { configure.args-append --disable-luajittex }
-    }
-}
-
+configure.args.ppc-append   --disable-luajittex
+configure.args.ppc64-append --disable-luajittex
 
 # work around bug in texlive makefiles where $OBJC is not recorded
 # during configure phase
-if {[vercmp [macports_version] 2.5.99] >= 0} {
 build.env                   OBJC=${configure.objc} \
-                            "OBJCFLAGS=${configure.objcflags} [get_canonical_archflags objc]" \
                             OBJCXX=${configure.objcxx}
-} else {
-build.env                   OBJC=${configure.objc} \
-                            OBJCFLAGS="${configure.objcflags} [get_canonical_archflags objc]" \
-                            OBJCXX=${configure.objcxx}
-}
 
 # this is not optimal, but we have to duplicate this cxx11 PG logic here
 # because of https://trac.macports.org/ticket/56280
-if {[string match *clang* ${configure.cxx}]} {
+if {[string match *clang* ${configure.cxx}] && ${configure.cxx_stdlib} ne ""} {
     lappend configure.objcxxflags -stdlib=${configure.cxx_stdlib}
 }
 if {[string match macports-libstdc++ ${configure.cxx_stdlib}]} {
         lappend configure.objcxxflags -D_GLIBCXX_USE_CXX11_ABI=0
 }
-if {[vercmp [macports_version] 2.5.99] >= 0} {
-build.env-append        "OBJCXXFLAGS=${configure.objcxxflags} [get_canonical_archflags objcxx]"
-} else {
-build.env-append        OBJCXXFLAGS="${configure.objcxxflags} [get_canonical_archflags objcxx]"
+
+foreach arch {arm64 x86_64 i386 ppc ppc64} {
+    build.env.${arch}-append \
+                            "OBJCFLAGS=${configure.objcflags} [muniversal::get_archflag objc ${arch}]" \
+                            "OBJCXXFLAGS=${configure.objcxxflags} [muniversal::get_archflag objcxx ${arch}]"
 }
 
 # work around differences between libc++ and libstdc++ headers building with clang
@@ -275,6 +253,13 @@ set texdist_mp           ${texdist_root}/${texdist_name}.texdist
 set texdist_mpfd         ${texdist_root}/${texdist_fd}/${texdist_name}/Contents
 
 post-destroot   {
+    # TL2023: Some ConTeXt-related stubs are not currently
+    # installed. How these are installed will probably change in
+    # future releases
+    foreach bin {context contextjit ctxtools luatools mtxrun mtxrunjit pstopdf texexec texmfstart} {
+        file copy ${worksrcpath}/texk/texlive/linked_scripts/context/stubs/unix/${bin} ${destroot}${texlive_bindir}
+    }
+
     # Anything that gets installed into texmf-dist will be installed
     # by one of the texmf ports
     delete ${destroot}${prefix}/share/texmf-dist
@@ -433,7 +418,8 @@ post-activate {
     # Run mktexlsr if possible. Since mktexlsr is installed by
     # texlive-basic, it won't exist on a clean install, but we should
     # run it if upgrading.
-    catch {
+    if {[file exists ${prefix}/bin/mktexlsr]} {
+        ui_debug {Rebuilding TeX ls-R filename databases}
         system "${prefix}/bin/mktexlsr"
     }
 }

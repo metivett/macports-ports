@@ -3,7 +3,8 @@
 PortSystem          1.0
 
 name                arping
-version             2.21
+version             2.24
+revision            0
 categories          net
 platforms           darwin
 maintainers         {snc @nerdling} openmaintainer
@@ -14,17 +15,16 @@ long_description    Arping is a util to find out if a specific IP address on \
 
 homepage            http://www.habets.pp.se/synscan/programs.php?prog=arping
 master_sites        http://www.habets.pp.se/synscan/files/
-checksums           rmd160  13e645ccb52add237458862fb59ee4ccd581a57a \
-                    sha256  2b6566d838c5b68d6929620057dff63cf0ec9d40b04a2d842818cb94d7e209b0 \
-                    size    181039
+checksums           rmd160  e95612c20676c744aefd7b150afb5a2ee110b0be \
+                    sha256  69060a3be150e54dc571f5c600b85dd9f37d76f7df1b23cd5c131b2c1412c218 \
+                    size    194230
 
-depends_lib         port:libnet11 \
+depends_lib         port:libnet \
                     lib:libpcap.DP:libpcap
 
 post-destroot {
-    xinstall -m 755 ${worksrcpath}/src/arping ${destroot}${prefix}/bin
     xinstall -m 755 ${worksrcpath}/extra/arping-scan-net.sh \
-        ${destroot}${prefix}/bin/arping-scan-net
+        ${destroot}${prefix}/sbin/arping-scan-net
     xinstall -m 755 -d ${destroot}${prefix}/share/doc/${name}
     xinstall -m 644 -W ${worksrcpath} LICENSE README \
         ${destroot}${prefix}/share/doc/${name}

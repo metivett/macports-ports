@@ -1,0 +1,40 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           python 1.0
+
+name                py-plotly
+version             5.15.0
+revision            0
+
+categories          python graphics
+platforms           {darwin any}
+supported_archs     noarch
+license             MIT
+maintainers         {nist.gov:joe.fowler @joefowler} openmaintainer
+
+description         Interactive graphing library for Python.
+long_description \
+    Plotly's Python graphing library makes interactive, publication-quality graphs. Examples of how to \
+    make line plots, scatter plots, area charts, bar charts, error bars, box plots, histograms, \
+    heatmaps, subplots, multiple-axes, polar charts, and bubble charts.
+
+homepage            https://plotly.com/python/
+
+checksums           rmd160  1664fe0be9598b22ab79dbaa75c15161aabc0b9c \
+                    sha256  822eabe53997d5ebf23c77e1d1fcbf3bb6aa745eb05d532afd4b6f9a2e2ab02f \
+                    size    7757675
+
+python.versions     37 38 39 310 311
+
+if {${name} ne ${subport}} {
+    depends_build-append \
+        port:py${python.version}-setuptools
+
+    depends_lib-append \
+        port:py${python.version}-matplotlib \
+        port:py${python.version}-jupyterlab \
+        port:py${python.version}-tenacity
+
+    livecheck.type  none
+}

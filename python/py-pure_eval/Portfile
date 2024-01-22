@@ -1,0 +1,31 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim: fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           python 1.0
+
+name                py-pure_eval
+version             0.2.2
+revision            0
+categories-append   devel
+platforms           {darwin any}
+license             MIT
+supported_archs     noarch
+
+python.versions     37 38 39 310 311 312
+python.pep517       yes
+
+maintainers         {stromnov @stromnov} openmaintainer
+
+description         Safely evaluate certain AST nodes.
+long_description    {*}${description}
+
+homepage            http://github.com/alexmojaki/pure_eval
+
+checksums           rmd160  054082da18050a59091131d2e35c8d55c3d1b6a7 \
+                    sha256  2b45320af6dfaa1750f543d714b6d1c520a1688dec6fd24d339063ce0aaa9ac3 \
+                    size    19395
+
+if {${name} ne ${subport}} {
+    depends_build-append \
+                        port:py${python.version}-setuptools_scm
+}

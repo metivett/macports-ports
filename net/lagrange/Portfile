@@ -2,35 +2,59 @@
 
 PortSystem          1.0
 PortGroup           cmake 1.1
-PortGroup           github 1.0
-PortGroup           legacysupport 1.1
+PortGroup           gitea 1.0
+PortGroup           compiler_blacklist_versions 1.0
 
-# strnlen
-legacysupport.newest_darwin_requires_legacy 10
-
-github.setup        skyjake lagrange 1.1.2 v
-github.tarball_from releases
+gitea.domain        git.skyjake.fi
+gitea.setup         gemini lagrange 1.17.6 v
+revision            0
 categories          net gemini
-platforms           darwin
 license             BSD
-maintainers         {@sikmir gmail.com:sikmir} openmaintainer
+maintainers         {@sikmir disroot.org:sikmir} openmaintainer
 
 description         A Beautiful Gemini Client
-long_description    ${description}
+long_description    {*}${description}
 
-checksums           rmd160  a7f024a38b6ba40b813d93d540a9c03aae4e585a \
-                    sha256  e419c7827d3dda2cf5fd667eb4bed33a74c0174a91f71072080fb418f74d0e92 \
-                    size    14299169
+checksums           rmd160  fe1dbf94aa98182a9262fd318022887a2cf213a3 \
+                    sha256  e114b8af2636ccc18a4317a8c765a1d740c8834895248b2f4d8e7dacd22de671 \
+                    size    7733581
+
+worksrcdir          ${name}
 
 depends_build-append \
-                    port:pkgconfig
-depends_lib-append  port:libsdl2 \
-                    port:libunistring \
-                    path:lib/libssl.dylib:openssl \
-                    port:mpg123 \
-                    port:pcre \
-                    port:zlib
+                    port:pkgconfig \
+                    port:zip
+depends_lib-append  port:the_Foundation
 
-destroot {
-    copy ${build.dir}/Lagrange.app ${destroot}${applications_dir}
+variant gui conflicts tui description {Build the GUI interface} {
+    depends_lib-append \
+                    port:fribidi \
+                    path:lib/pkgconfig/harfbuzz.pc:harfbuzz \
+                    port:libsdl2 \
+                    port:mpg123 \
+                    port:webp
+
+    destroot {
+        copy ${build.dir}/Lagrange.app ${destroot}${applications_dir}
+    }
 }
+
+variant tui conflicts gui description {Build the TUI interface} {
+    configure.args-append \
+                    -DENABLE_TUI=YES \
+                    -DENABLE_MPG123=NO \
+                    -DENABLE_WEBP=NO \
+                    -DENABLE_FRIBIDI=NO \
+                    -DENABLE_HARFBUZZ=NO \
+                    -DENABLE_POPUP_MENUS=NO \
+                    -DENABLE_IDLE_SLEEP=NO
+
+    depends_lib-append \
+                    port:ncurses \
+                    port:sealcurses
+}
+
+default_variants    +gui
+
+compiler.c_standard 2011
+compiler.blacklist-append {clang < 800}

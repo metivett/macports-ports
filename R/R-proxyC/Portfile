@@ -1,0 +1,29 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran koheiw proxyC 0.3.4
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             GPL-3
+description         Computes proximity between rows or columns of large matrices efficiently in C++
+long_description    {*}${description}
+checksums           rmd160  deb5427aededfd8e6f3031dd1091932e336b6f2c \
+                    sha256  f39d1d3d34b4e26694e3916002ea370b2f4e745c0992e718bb024ed03a2b78ea \
+                    size    58761
+
+depends_lib-append  port:R-Rcpp \
+                    port:R-RcppArmadillo \
+                    port:R-RcppParallel
+
+compilers.setup     require_fortran
+
+depends_test-append port:R-entropy \
+                    port:R-knitr \
+                    port:R-proxy \
+                    port:R-rmarkdown \
+                    port:R-testthat
+
+test.run            yes

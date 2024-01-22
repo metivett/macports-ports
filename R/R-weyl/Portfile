@@ -1,0 +1,27 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             github RobinHankin weyl 0.0-4
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             GPL-2+
+description         A suite of routines for Weyl algebras
+long_description    {*}${description}
+checksums           rmd160  e6f4d03887f9490ce7595f873dc9411be13db7c4 \
+                    sha256  11c2fd4ab4be364adbfb5dab69aa365059c37d6480c00f19ac735e09ca8d92cc \
+                    size    385452
+supported_archs     noarch
+
+depends_lib-append  port:R-disordR \
+                    port:R-freealg \
+                    port:R-mathjaxr \
+                    port:R-spray
+
+depends_test-append port:R-knitr \
+                    port:R-rmarkdown \
+                    port:R-testthat
+
+test.run            yes

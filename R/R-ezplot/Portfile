@@ -1,0 +1,38 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran wojtek.kostelecki ezplot 0.7.11
+revision            0
+categories-append   graphics
+maintainers         nomaintainer
+license             MIT
+description         Functions for common chart types
+long_description    {*}${description}
+checksums           rmd160  9c93afb3c77912e4ecfc5bcf44877819cb84bb6b \
+                    sha256  1ae71c69200405bcf4344a35ddc2c3aa3d47ff6ea0a37597f6ef4533b91041bd \
+                    size    298255
+supported_archs     noarch
+
+depends_lib-append  port:R-dplyr \
+                    port:R-forcats \
+                    port:R-ggplot2 \
+                    port:R-lubridate \
+                    port:R-rlang
+
+depends_test-append port:R-covr \
+                    port:R-DT \
+                    port:R-e1071 \
+                    port:R-knitr \
+                    port:R-miniUI \
+                    port:R-rmarkdown \
+                    port:R-ROCR \
+                    port:R-shiny \
+                    port:R-testthat \
+                    port:R-tibble \
+                    port:R-tidyr \
+                    port:R-tsibble \
+                    port:R-tsibbledata
+
+test.run            yes

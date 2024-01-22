@@ -1,0 +1,33 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             cran lrberge fixest 0.11.2
+revision            0
+categories-append   math
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             GPL-3
+description         Fast fixed-effects estimations
+long_description    {*}${description}
+homepage            https://lrberge.github.io/fixest
+checksums           rmd160  7e49add680c8ccb5eb9a2b2faf89a913b86a66a1 \
+                    sha256  2dee113a0689e5c4dd842c451d35c9a94a5b37536f9484611a877c1ea10e2b65 \
+                    size    2290056
+
+depends_lib-append  port:R-dreamerr \
+                    port:R-numDeriv \
+                    port:R-Rcpp \
+                    port:R-sandwich
+
+depends_test-append port:R-data.table \
+                    port:R-ggplot2 \
+                    port:R-knitr \
+                    port:R-lfe \
+                    port:R-pander \
+                    port:R-pdftools \
+                    port:R-plm \
+                    port:R-rmarkdown \
+                    port:R-tinytex
+
+test.run            yes

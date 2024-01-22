@@ -5,6 +5,7 @@ PortGroup   cmake 1.1
 PortGroup   github 1.0
 PortGroup   muniversal 1.0
 PortGroup   active_variants 1.1
+PortGroup   boost 1.0
 
 name        uhd
 categories  science comms
@@ -25,7 +26,9 @@ Provides the release version, which is typically updated every month or so.
     checksums rmd160 ac9ef6473cd5b034650e3979236d2535f398dec2 \
               sha256 fe385e826b8fbf4e869b4b919b7b7b8f01fba283bc0b8ffb954947f819b9c07b \
               size   12896898
-    revision  4
+    revision  7
+
+    boost.version 1.71
 
     conflicts uhd-devel uhd-39lts
 
@@ -57,8 +60,9 @@ Provides the release version, which is typically updated every month or so.
 
 subport uhd-39lts {
 
-    long_description ${description}: \
-Provides UHD 3.9 Long-Term Service \(LTS\) branch. This branch is not updated except for compatibility with OSs released after it was finalized.
+    long_description ${description}: Provides UHD 3.9 Long-Term Service \(LTS\) branch. \
+                     This branch is not updated except for compatibility with OSs released \
+                     after it was finalized.
 
     name         uhd-39lts
     conflicts    uhd uhd-devel
@@ -67,7 +71,9 @@ Provides UHD 3.9 Long-Term Service \(LTS\) branch. This branch is not updated ex
     checksums    rmd160 0765543ffdc36df568012640422fda8c70809f62 \
                  sha256 a6b4055c5d2d007c978c6577d87151ce9d505d6f5c116f0d20f176497424147e \
                  size   2463897
-    revision     3
+    revision     6
+
+    boost.version 1.71
 
     # set the version override string
 
@@ -110,17 +116,19 @@ Provides UHD 3.9 Long-Term Service \(LTS\) branch. This branch is not updated ex
 
 subport uhd-devel {
 
-    long_description ${description}: \
-Provides the UHD GIT maint or master branch, depending on which is more advanced, and is typically updated every few days to week.
+    long_description ${description}: Provides the UHD GIT maint or master branch, depending \
+                     on which is more advanced, and is typically updated every few days to week.
 
-    github.setup EttusResearch uhd 3b9ced8f07c068faf1f494ce170cb44edaa47075
-    version   20201218-[string range ${github.version} 0 7]
-    checksums rmd160 a37be4e8c61a001960ccb17241db789812b023a7 \
-              sha256 df2d19a372159af5dd3cc12d9d61bb9870ffa2233eddbb03c3776c7dc219bfae \
-              size   33972899
-    revision  2
+    github.setup    EttusResearch uhd 5fac246bc18ab04cb4870026a630e46d0fd87b17
+    version         20230127-4.4.0.0-[string range ${github.version} 0 7]
+    checksums       rmd160  8e99ae1688803e9be0df23d7f52356b0d00d8f31 \
+                    sha256  2f34bfa88ee6f7f339d18f7ef0a8a3cc772472f18a36ead8a6e00347f3e9a62b \
+                    size    38202865
+    revision        0
 
-    conflicts uhd uhd-39lts
+    boost.version   1.81
+
+    conflicts       uhd uhd-39lts
 
     # set the version override string
 
@@ -131,14 +139,10 @@ Provides the UHD GIT maint or master branch, depending on which is more advanced
     patchfiles-append patch-host_CMakeLists.txt.devel.diff
     patch.pre_args -p1
 
-    # temporary patch to fix build on some systems
-
-    patchfiles-append patch-fix-APPLE-build.devel.diff
-
     # set the variable UHD_VERSION_DEVEL to TRUE, no matter its
     # current setting (so, quietly)
     post-patch {
-        reinplace -q "s@^set\(UHD_VERSION_DEVEL\[^\)\]*@set(UHD_VERSION_DEVEL TRUE@1" \
+        reinplace -q "s@^set\(UHD_VERSION_DEVEL\[^\)\]*@set(UHD_VERSION_DEVEL FALSE@1" \
             ${worksrcpath}/host/cmake/Modules/UHDVersion.cmake
     }
 
@@ -162,7 +166,7 @@ if {${subport} ne "uhd-39lts"} {
 
 }
 
-depends_lib-append port:boost port:ncurses
+depends_lib-append port:ncurses
 
 depends_build-append port:pkgconfig
 
@@ -255,23 +259,24 @@ default_variants +docs +examples +libusb +manual +test +manpages
 # specify the Python dependencies; these are checked for at configure,
 # then used for building, but not at runtime.
 
-set pythons_suffixes {27 35 36 37 38}
+set pythons_versions {2.7 3.5 3.6 3.7 3.8 3.9 3.10}
 
 set pythons_ports {}
-foreach s ${pythons_suffixes} {
-    lappend pythons_ports python${s}
+foreach s ${pythons_versions} {
+    lappend pythons_ports python[string map {. {}} ${s}]
 }
 
-foreach s ${pythons_suffixes} {
+foreach v ${pythons_versions} {
+    set s [string map {. {}} ${v}]
     set p python${s}
-    set v [string index ${s} 0].[string index ${s} 1]
     set i [lsearch -exact ${pythons_ports} ${p}]
     set c [lreplace ${pythons_ports} ${i} ${i}]
     variant ${p} description "Build ${name} using Python ${v}" conflicts {*}${c} ""
 }
 
-set selected_python_no_dot 38
-foreach s ${pythons_suffixes} {
+set selected_python_no_dot 310
+foreach v ${pythons_versions} {
+    set s [string map {. {}} ${v}]
     if {[variant_isset python${s}]} {
         set selected_python_no_dot ${s}
     }
@@ -281,7 +286,8 @@ default_variants +python${selected_python_no_dot}
 # make sure the default python variant wasn't
 # deselected without selecting another one
 set selected_python_no_dot ""
-foreach s ${pythons_suffixes} {
+foreach v ${pythons_versions} {
+    set s [string map {. {}} ${v}]
     if {[variant_isset python${s}]} {
         set selected_python_no_dot ${s}
     }
@@ -289,7 +295,7 @@ foreach s ${pythons_suffixes} {
 
 if {${selected_python_no_dot} eq ""} {
     set py_vars ""
-    set final_s [lindex ${pythons_suffixes} end]
+    set final_s [string map {. {}} [lindex ${pythons_versions} end]]
     foreach s ${pythons_suffixes} {
         if {${s} eq ${final_s}} {
             set py_vars "${py_vars}or "
@@ -305,7 +311,7 @@ if {${selected_python_no_dot} eq ""} {
 
 set PythonVersionNoDot ${selected_python_no_dot}
 
-set PythonVersionWithDot [join [split ${selected_python_no_dot} ""] "."]
+set PythonVersionWithDot [string index ${selected_python_no_dot} 0].[string range ${selected_python_no_dot} 1 end]
 
 set PythonTopDir "${frameworks_dir}/Python.framework/Versions/${PythonVersionWithDot}"
 
@@ -361,7 +367,7 @@ if {![variant_isset examples]} {
 }
 
 variant libusb description {enable USB support via libusb version 1.0} {
-    depends_lib-append path:lib/libusb-1.0.dylib:libusb
+    depends_lib-append path:lib/pkgconfig/libusb-1.0.pc:libusb
     configure.args-append \
         -DENABLE_USB=ON \
         -DLIBUSB_INCLUDE_DIRS=${prefix}/include/libusb-1.0
@@ -375,7 +381,7 @@ if {![variant_isset libusb]} {
 }
 
 variant docs description {build documentation} {
-    depends_lib-append port:doxygen
+    depends_build-append path:bin/doxygen:doxygen
     configure.args-append -DENABLE_DOXYGEN=ON
 }
 
@@ -412,7 +418,8 @@ if {${subport} ne "uhd-39lts"} {
             -DENABLE_PYTHON_API=ON \
             -DPYTHON_INCLUDE_DIR=${PythonTopDir}/Headers \
             -DPYTHON_LIBRARY=${PythonTopDir}/Python \
-            -DUHD_PYTHON_DIR=${PythonTopDir}/lib/${PythonName}/site-packages
+            -DUHD_PYTHON_DIR=${PythonTopDir}/lib/${PythonName}/site-packages \
+            -DUSRP_MPM_PYTHON_DIR=${PythonTopDir}/lib/${PythonName}/site-packages
     }
 
     if {![variant_isset python_api]} {

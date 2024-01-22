@@ -4,25 +4,15 @@ PortSystem                  1.0
 PortGroup                   muniversal 1.0
 
 name                        fontconfig
-version                     2.13.1
+version                     2.15.0
 revision                    0
-checksums                   rmd160  a971903874fb0395a7ab2d5705378af1ffce2b2c \
-                            sha256  f655dd2a986d7aa97e052261b36aa67b0a64989496361eca8d604e6414006741 \
-                            size    1723639
-
-# Update this patch and include it unconditionally when updating to the
-# next version.
-platform arm {
-    if {${version} eq {2.13.1}} {
-        incr revision
-    }
-    patchfiles-append       fc_atomic_ptr_cmpexch.patch
-}
+checksums                   rmd160  d999328f874e67b6f4d63f0f92947907f2774f71 \
+                            sha256  63a0658d0e06e0fa886106452b58ef04f21f58202ea02a94c39de0d3335d7c0e \
+                            size    1447820
 
 categories                  graphics
 maintainers                 {ryandesign @ryandesign}
 license                     fontconfig
-platforms                   darwin
 use_parallel_build          yes
 
 description                 An XML-based font configuration API for X Windows
@@ -32,13 +22,17 @@ long_description            Fontconfig is a library for configuring and \
 
 homepage                    https://www.freedesktop.org/wiki/Software/fontconfig/
 master_sites                https://www.freedesktop.org/software/fontconfig/release/
-use_bzip2                   yes
+use_xz                      yes
 
-depends_build               port:pkgconfig
+set python_version          3.12
+
+depends_build               port:gettext \
+                            path:bin/pkg-config:pkgconfig \
+                            port:python[string map {. {}} ${python_version}]
 
 depends_lib                 port:expat \
                             port:freetype \
-                            port:gettext \
+                            port:gettext-runtime \
                             port:libiconv \
                             port:ossp-uuid
 
@@ -53,6 +47,7 @@ set docdir                  ${prefix}/share/doc/${name}
 patchfiles-append           patch-docbook-4.2.diff
 patchfiles-append           no-json-c.patch
 
+configure.checks.implicit_function_declaration.whitelist-append strchr
 configure.args              --disable-silent-rules \
                             --enable-iconv \
                             --enable-shared \
@@ -62,6 +57,7 @@ configure.args              --disable-silent-rules \
                             --with-libiconv-prefix=${prefix} \
                             --with-libintl-prefix=${prefix} \
                             HASDOCBOOK=no
+configure.python            ${prefix}/bin/python${python_version}
 
 # We put this into a pre-configure block so it can be evaluated _after_ platform selection.
 pre-configure {
@@ -69,9 +65,8 @@ pre-configure {
 
     # Fix building for older macOS versions via MACOSX_DEPLOYMENT_TARGET
     # https://bugs.freedesktop.org/show_bug.cgi?id=102986
-    if {${os.platform} eq "darwin" && [vercmp $macosx_version 10.12] >= 0} {
-        if {[vercmp $macosx_deployment_target 10.12] < 0 } {
-            ui_info "Disabling mkostemp for older versions of macOS..."
+    if {${os.platform} eq "darwin" && [vercmp ${macosx_version} >= 10.12]} {
+        if {[vercmp ${macosx_deployment_target} < 10.12]} {
             configure.args-append ac_cv_func_mkostemp=no
         }
     }
@@ -84,7 +79,7 @@ post-destroot {
         COPYING \
         ChangeLog \
         NEWS \
-        README \
+        README.md \
         ${destroot}${docdir}
 }
 

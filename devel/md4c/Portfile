@@ -1,0 +1,18 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem                  1.0
+PortGroup                   github 1.0
+PortGroup                   cmake 1.1
+
+github.setup                mity md4c 0.4.8 release-
+revision                    0
+categories                  devel
+license                     MIT
+maintainers                 {mcalhoun @MarcusCalhoun-Lopez} openmaintainer
+platforms                   darwin
+description                 Markdown parser
+long_description            MD4C is Markdown parser implementation in C.
+
+checksums                   rmd160  d4f1de29212f16782b7884bb7a12e6d6cc2f1aa2 \
+                            sha256  0871ddfe97b7c734291462750e12dd23034af02495823019b0ccc417ee1c003c \
+                            size    229472

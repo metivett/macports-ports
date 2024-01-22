@@ -4,12 +4,12 @@ PortSystem          1.0
 PortGroup           github 1.0
 PortGroup           legacysupport 1.1
 
-github.setup        neomutt neomutt 20200925
+github.setup        neomutt neomutt 20230517
 revision            0
 categories          mail
 platforms           darwin
 license             GPL-2+
-maintainers         {lbschenkel @lbschenkel} {l2dy @l2dy} openmaintainer
+maintainers         {l2dy @l2dy} openmaintainer
 
 description         The Mutt E-Mail Client (patched version with added features)
 long_description    Mutt is a small but very powerful text-based MIME \
@@ -21,48 +21,45 @@ long_description    Mutt is a small but very powerful text-based MIME \
                     groups of messages.
 homepage            https://neomutt.org
 
-checksums           rmd160  37978a334d56cd97ce3d44ab810dc984008b6e0b \
-                    sha256  d3810dd665a839d5dfb4130a837ae6d0735a634bd2d936db21051ba160b4bf6e \
-                    size    3441887
+checksums           rmd160  1b6597e0c0b79999022f0e455db8a733ecbe402a \
+                    sha256  e6cf6f6d86a036bb793e1bae5e55ef8fbd306a1f49e9c160bd574ee95b5a3550 \
+                    size    3792562
 
+depends_build-append \
+                    port:pkgconfig
 depends_lib         path:bin/perl:perl5 \
                     path:lib/libssl.dylib:openssl \
                     port:gettext \
                     port:libiconv \
+                    port:lz4 \
                     port:ncurses \
-                    port:zlib
+                    port:zlib \
+                    port:zstd
 depends_run         path:share/curl/curl-ca-bundle.crt:curl-ca-bundle
 
 post-patch {
     # Use MacPorts Perl
     reinplace -W ${worksrcpath} "s|/usr/bin/perl|${prefix}/bin/perl|g" \
-              docs/gen-map-doc \
-              doxygen/doxygen.conf
+              docs/gen-map-doc
 
     reinplace -W ${worksrcpath} "s|/usr/bin/|${prefix}/bin/|g" \
-              contrib/sample.neomuttrc-tlr \
               contrib/smime_keys \
-              contrib/smime_keys_test.pl \
               docs/manual.xml.head
     reinplace -W ${worksrcpath} "s|/usr/libexec/|${prefix}/libexec/|g" \
-              contrib/gpg.rc \
-              contrib/smime.rc \
               docs/manual.xml.head
     reinplace -W ${worksrcpath} "s|/usr/local/|${prefix}/|g" \
-              init.h \
-              contrib/hcache-bench/README.md \
-              contrib/sample.neomuttrc \
               docs/manual.xml.head
     reinplace -W ${worksrcpath} "s|/usr/share|${prefix}/share|g" \
               docs/manual.xml.head
 }
 
 configure.args      --disable-doc \
-                    --disable-idn \
                     --with-ncurses=${prefix} \
                     --with-nls=${prefix} \
+                    --lz4 \
                     --with-ssl=${prefix} \
-                    --with-zlib=${prefix}
+                    --with-zlib=${prefix} \
+                    --zstd
 
 # disable ccache, build issues with autosetup
 configure.ccache     no
@@ -73,6 +70,9 @@ if {${install.user} ne "root"} {
     default_variants-append     +homespool
 }
 
+variant autocrypt requires gpgme sqlite description {Autocrypt support} {
+    configure.args-append       --autocrypt
+}
 variant db4 conflicts db5 description {Enable header cache using Berkeley DB database} {
     configure.args-append       --with-bdb=${prefix} --with-bdb-version=4.8
     depends_lib-append          port:db48
@@ -87,7 +87,7 @@ variant doc description {Build documentation} {
 
     post-destroot {
         # install mime.types in ${prefix}/etc as previous versions used to do
-        copy ${destroot}${prefix}/share/doc/neomutt/mime.types \
+        copy ${destroot}${prefix}/share/neomutt/mime.types \
              ${destroot}${prefix}/etc/mime.types.sample
     }
 }
@@ -97,10 +97,10 @@ variant gdbm description {Enable header cache using GNU dbm database} {
 }
 variant gnutls description {Use GnuTLS} {
     configure.args-replace      --with-ssl=${prefix} --with-gnutls=${prefix}
-    depends_lib-replace         path:lib/libssl.dylib:openssl port:gnutls
+    depends_lib-replace         path:lib/libssl.dylib:openssl path:lib/pkgconfig/gnutls.pc:gnutls
 }
 variant gpgme description {Enable GPGME crypto support} {
-    configure.args-append       --with-gpgme=${prefix}
+    configure.args-append       --gpgme
     depends_lib-append          port:gpgme
 }
 variant gss description {Support GSS API (Kerberos)} {
@@ -147,9 +147,9 @@ variant sasl description {Simple Authentication and Security Layer support} {
     configure.args-append       --with-sasl=${prefix}
     depends_lib-append          port:cyrus-sasl2
 }
-variant slang description {Use S-lang instead of ncurses} {
-    configure.args-append       --with-ui=slang --with-slang=${prefix}
-    depends_lib-replace         port:ncurses port:slang2
+variant sqlite description {SQLite support} {
+    configure.args-append       --with-sqlite=${prefix}
+    depends_lib-append          port:sqlite3
 }
 variant tdb description {Enable header cache using Trivial database} {
     configure.args-append       --with-tdb=${prefix}
@@ -163,10 +163,6 @@ variant tokyocabinet description {Enable header cache using Tokyo Cabinet databa
 post-destroot {
     move ${destroot}${prefix}/etc/neomuttrc \
          ${destroot}${prefix}/etc/neomuttrc.sample
-    # install examples in ${prefix}/share/examples
-    xinstall -d ${destroot}${prefix}/share/examples
-    move ${destroot}${prefix}/share/doc/neomutt/samples \
-         ${destroot}${prefix}/share/examples/neomutt
 }
 
 post-activate {

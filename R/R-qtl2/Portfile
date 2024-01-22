@@ -1,0 +1,31 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+# Revert to GitHub once updated there.
+R.setup             cran kbroman qtl2 0.34
+revision            0
+maintainers         nomaintainer
+license             GPL-3
+description         Quantitative trait locus mapping in experimental crosses
+long_description    {*}${description}
+homepage            https://kbroman.org/qtl2
+checksums           rmd160  6baef44d7eb8942a1e3caaa2ec5ef7cd834347ec \
+                    sha256  fe73625fe2c1d9c269665f1ff7497afb4c20aef3f6edf413985d2c50508d7cc0 \
+                    size    1421179
+
+depends_lib-append  port:R-data.table \
+                    port:R-jsonlite \
+                    port:R-Rcpp \
+                    port:R-RcppEigen \
+                    port:R-RSQLite \
+                    port:R-yaml  
+
+depends_test-append port:R-devtools \
+                    port:R-qtl \
+                    port:R-roxygen2 \
+                    port:R-testthat \
+                    port:R-vdiffr
+
+test.run            yes

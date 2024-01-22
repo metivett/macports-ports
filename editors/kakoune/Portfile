@@ -1,10 +1,12 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
-PortGroup           github 1.0
-PortGroup           makefile 1.0
+PortGroup           github          1.0
+PortGroup           legacysupport   1.1
+PortGroup           makefile        1.0
 
-github.setup        mawww kakoune 2020.09.01 v
+github.setup        mawww kakoune 2023.08.05 v
+github.tarball_from archive
 revision            0
 
 homepage            https://kakoune.org
@@ -33,14 +35,22 @@ long_description    Kakoune is a code editor that implements Vi’s \
 license             public-domain
 
 categories          editors
-platforms           darwin linux freebsd
-
-checksums           rmd160  793126df59847c8663be08688b32ded3f47c9314 \
-                    sha256  106adf110d1a4c17853b4783a4f4240270ca2b515f2cce5e04345d76767d97d9 \
-                    size    612988
-
+installs_libs       no
 maintainers         {gmail.com:herby.gillot @herbygillot} \
                     openmaintainer
+platforms           darwin linux freebsd
+
+checksums           rmd160  4ae13dce960a1fff40d955bad8626436aa132017 \
+                    sha256  1ad7bfe9e1d861115cd418cb500990ea5fa63726e998df13702e5caa8fc84356 \
+                    size    694458
+
+# error: 'uncaught_exceptions' is unavailable: introduced in macOS 10.12
+if {${os.platform} eq "darwin" && ${os.major} < 16} {
+    post-patch {
+        reinplace "s|std::uncaught_exceptions()|std::uncaught_exception()?1:0|" \
+            ${worksrcpath}/src/file.cc
+    }
+}
 
 pre-build {
     set _version_file [open ${worksrcpath}/src/.version "w"]
@@ -48,8 +58,10 @@ pre-build {
     close ${_version_file}
 }
 
-compiler.cxx_standard   2017
+compiler.cxx_standard   2020
 
 depends_lib-append      port:ncurses
 
 makefile.has_destdir    yes
+
+use_parallel_build      no

@@ -1,272 +1,362 @@
-# -*- coding: utf-8; mode: tcl; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=2:ts=2:sts=2
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
-PortGroup           wxWidgets 1.0
-PortGroup           active_variants 1.1
+PortGroup           debug 1.0
+
+epoch               1
 
 name                grass
-epoch               1
-version             6.4.6
-revision            4
-maintainers         nomaintainer
+version             8.3.1
+revision            2
+
+maintainers         {yahoo.com:n_larsson @nilason} openmaintainer
 categories          gis
 license             GPL-2+
-platforms           darwin
 
-description         GRASS
-long_description    GRASS is a Geographic Information System (GIS) used for \
-                    geospatial data management and analysis.
+description         GRASS Geographic Information System
+long_description    GRASS GIS offers powerful raster, vector, and geospatial   \
+                    processing engines in a single integrated software suite.  \
+                    It includes tools for terrain and ecosystem modeling,      \
+                    hydrology, visualization of raster and vector data,        \
+                    management and analysis of geospatial data, and the        \
+                    processing of satellite and aerial imagery. It comes with  \
+                    a temporal framework for advanced time series processing   \
+                    and a Python API for rapid geospatial programming.         \
+                    GRASS GIS has been optimized for performance and large     \
+                    geospatial data analysis.\nInstall the port `grass-gui`    \
+                    to enable graphical user interface.
 
-homepage            http://grass.osgeo.org/
-master_sites        ${homepage}grass[join [lrange [split ${version} .] 0 1] {}]/source/
+homepage            https://grass.osgeo.org
+master_sites        ${homepage}/grass[join [lrange [split ${version} .] 0 1] {}]/source/
+distname            grass-${version}
 
-checksums           rmd160  7c67afcd9ef8c75558ef8eafd8cab23ad257c37c \
-                    sha256  5a84754614619cc265d843980e28f39a1d24048805b9b2865e76a583d973f333 \
-                    size    25737006
+checksums           rmd160  323d456160ea82ecdd64a2009e610431c02baa6b \
+                    sha256  7eb1adadcc7336ce3bde72a4fbb7d72f10b444dc4d48d5dc8c24e78205b6a697 \
+                    size    68491177
 
-depends_build       port:pkgconfig
-depends_lib         port:fftw-3 \
+depends_build-append \
+                    port:bison \
+                    port:flex \
+                    port:pkgconfig
+
+depends_lib-append  port:bzip2 \
+                    path:lib/pkgconfig/cairo.pc:cairo \
+                    port:fftw-3 \
                     port:freetype \
                     port:gdal \
                     port:geos \
-                    path:include/turbojpeg.h:libjpeg-turbo \
+                    port:liblas \
                     port:libpng \
-                    port:mesa \
-                    lib:libXm:openmotif \
-                    port:proj4 \
-                    port:tk \
-                    path:lib/pkgconfig/cairo.pc:cairo \
-                    port:readline
+                    port:pdal \
+                    port:readline \
+                    port:sqlite3 \
+                    port:tiff \
+                    port:zlib \
 
-# https://trac.macports.org/ticket/32790
-# this should probably only apply to some Xcode versions
-# compiler.blacklist  *clang*
+patchfiles          01_patch-dyld-link.diff \
+                    02_grass-python.diff
 
-patchfiles          patch-configure.diff \
-                    patch-is_void.diff \
-                    patch-lib-init-grass.src.diff \
-                    patch-macosx_Makefile.diff \
-                    patch-Makefile.diff \
-                    patch-ffmpeg.diff
+# c++17 needed for PDAL 2.4+
+compiler.cxx_standard     2017
+configure.cxxflags-append -std=c++17
+configure.cflags-append   -DGL_SILENCE_DEPRECATION
 
-post-patch {
-    reinplace "s|@@APPLICATIONS_DIR@@|${applications_dir}|" ${worksrcpath}/configure
-    # https://trac.osgeo.org/grass/ticket/2169
-    reinplace "s|CC=gcc|CC=${configure.cc}|" ${worksrcpath}/gem/Makefile
-}
+configure.pre_args-append \
+                    --prefix=${prefix}/lib
+configure.args-append \
+                    --exec-prefix=${prefix} \
+                    --with-blas=no \
+                    --with-bzlib \
+                    --with-bzlib-includes=${prefix}/include \
+                    --with-bzlib-libs=${prefix}/lib \
+                    --with-cairo \
+                    --with-cairo-includes=${prefix}/include/cairo \
+                    --with-cairo-libs=${prefix}/lib \
+                    --with-fftw-includes=${prefix}/include \
+                    --with-fftw-libs=${prefix}/lib \
+                    --with-freetype \
+                    --with-freetype-includes=${prefix}/include/freetype2 \
+                    --with-freetype-libs=${prefix}/lib \
+                    --with-gdal=${prefix}/bin/gdal-config \
+                    --with-geos=${prefix}/bin/geos-config \
+                    --with-lapack=no \
+                    --with-liblas=${prefix}/bin/liblas-config \
+                    --with-mysql=no \
+                    --with-opencl=no \
+                    --with-opengl=osx \
+                    --with-openmp=no \
+                    --with-pdal=${prefix}/bin/pdal-config \
+                    --with-postgres=no \
+                    --with-pthread \
+                    --with-readline \
+                    --with-readline-includes=${prefix}/include/readline \
+                    --with-readline-libs=${prefix}/lib \
+                    --with-sqlite \
+                    --with-sqlite-includes=${prefix}/include \
+                    --with-sqlite-libs=${prefix}/lib \
+                    --with-tiff-includes=${prefix}/include \
+                    --with-tiff-libs=${prefix}/lib \
+                    --with-zstd \
+                    --with-zstd-includes=${prefix}/include \
+                    --with-zstd-libs=${prefix}/lib \
+                    --with-x=no
 
-configure.ldflags-append -framework OpenGL -framework Accelerate
-configure.args \
-    --with-fftw-includes=${prefix}/include \
-    --with-fftw-libs=${prefix}/lib \
-    --with-freetype \
-    --with-freetype-includes=${prefix}/include/freetype2 \
-    --with-freetype-libs=${prefix}/lib \
-    --with-gdal=${prefix}/bin/gdal-config \
-    --with-jpeg-includes=${prefix}/include \
-    --with-jpeg-libs=${prefix}/lib \
-    --with-motif \
-    --with-motif-includes=${prefix}/include \
-    --with-motif-libs=${prefix}/lib \
-    --with-png-includes=${prefix}/include \
-    --with-png-libs=${prefix}/lib \
-    --with-proj-includes=${prefix}/lib/proj49/include \
-    --with-proj-libs=${prefix}/lib/proj49/lib \
-    --with-proj-share=${prefix}/lib/proj49/share/proj \
-    --with-tcltk-includes=${prefix}/include \
-    --with-tcltk-libs=${prefix}/lib \
-    --with-cxx \
-    --with-x \
-    --without-postgres \
-    --enable-largefile \
-    --with-cairo \
-    --with-cairo-includes=${prefix}/include/cairo \
-    --with-cairo-libs=${prefix}/lib \
-    --with-blas \
-    --with-lapack \
-    --with-readline \
-    --with-readline-includes=${prefix}/include/readline \
-    --with-readline-libs=${prefix}/lib \
-    --with-regex-includes=/usr/include \
-    --with-regex-lib=/usr/lib
+set python_suffixes {38 39 310 311}
 
-build.target        default
+if {${subport} eq ${name}} {
+    build.target    default
 
-variant mysql5 description {Add MySQL 5 support} {
-    depends_lib-append      path:bin/mysql_config5:mysql5
-    configure.args-append   --with-mysql
-    configure.args-append   --with-mysql-includes=${prefix}/include/mysql5/mysql
-    configure.args-append   --with-mysql-libs=${prefix}/lib/mysql5/mysql
-    configure.env-append    MYSQLD_CONFIG=${prefix}/lib/mysql5/bin/mysql_config
-}
+    variant gui description {Obsolete variant} {
+        ui_error "The '+gui' variant is removed. It is replaced by 'grass-gui' subport"
+        return -code error "unsupported variant"
+    }
 
-variant postgresql83 conflicts postgresql84 postgresql90 postgresql91 postgresql92 postgresql93 description {Add PostgreSQL 8.3 support} {
-    depends_lib-append      port:postgresql83
-    configure.args-delete   --without-postgres
-    configure.args-append   --with-postgres
-    configure.args-append   --with-postgres-includes=${prefix}/include/postgresql83
-    configure.args-append   --with-postgres-libs=${prefix}/lib/postgresql83
-}
+    variant mysql57 conflicts mysql8 description {Add MySQL 5.7 support} {
+        depends_lib-append      port:mysql57
+        configure.args-delete   --with-mysql=no   --with-mysql=yes
+        configure.args-append   --with-mysql-includes=${prefix}/include/mysql57/mysql \
+                                --with-mysql-libs=${prefix}/lib/mysql57/mysql
+        configure.env-append    MYSQLD_CONFIG=${prefix}/lib/mysql57/bin/mysql_config
+    }
 
-variant postgresql84 conflicts postgresql83 postgresql90 postgresql91 postgresql92 postgresql93 description {Add PostgreSQL 8.4 support} {
-    depends_lib-append      port:postgresql84
-    configure.args-delete   --without-postgres
-    configure.args-append   --with-postgres
-    configure.args-append   --with-postgres-includes=${prefix}/include/postgresql84
-    configure.args-append   --with-postgres-libs=${prefix}/lib/postgresql84
-}
+    variant mysql8 conflicts mysql57 description {Add MySQL 8 support} {
+        depends_lib-append      port:mysql8
+        configure.args-replace  --with-mysql=no   --with-mysql=yes
+        configure.args-append   --with-mysql-includes=${prefix}/include/mysql8/mysql \
+                                --with-mysql-libs=${prefix}/lib/mysql8/mysql
+        configure.env-append    MYSQLD_CONFIG=${prefix}/lib/mysql8/bin/mysql_config
+    }
 
-variant postgresql90 conflicts postgresql83 postgresql84 postgresql91 postgresql92 postgresql93 description {Add PostgreSQL 9.0 support} {
-    depends_lib-append      port:postgresql90
-    configure.args-delete   --without-postgres
-    configure.args-append   --with-postgres
-    configure.args-append   --with-postgres-includes=${prefix}/include/postgresql90
-    configure.args-append   --with-postgres-libs=${prefix}/lib/postgresql90
-}
+    variant openblas description {Use OpenBLAS for BLAS/LAPACK} {
+        depends_lib-append      port:openblas
+        configure.args-replace  --with-blas=no    --with-blas=yes \
+                                --with-lapack=no  --with-lapack=yes
+        configure.args-append   --with-liblas=${prefix}/bin/liblas-config \
+                                --with-lapack-includes=${prefix}/include \
+                                --with-lapack-libs=${prefix}/lib
+    }
 
-variant postgresql91 conflicts postgresql83 postgresql84 postgresql90 postgresql92 postgresql93 description {Add PostgreSQL 9.1 support} {
-    depends_lib-append      port:postgresql91
-    configure.args-delete   --without-postgres
-    configure.args-append   --with-postgres
-    configure.args-append   --with-postgres-includes=${prefix}/include/postgresql91
-    configure.args-append   --with-postgres-libs=${prefix}/lib/postgresql91
-}
+    variant openmp description {Add OpenMP support} {
+        depends_lib-append      port:libomp
+        configure.args-replace  --with-openmp=no  --with-openmp=yes
+        configure.args-append   --with-openmp-includes=${prefix}/include/libomp \
+                                --with-openmp-libs=${prefix}/lib/libomp
+        compiler.openmp_version 4.0
+    }
 
-variant postgresql92 conflicts postgresql83 postgresql84 postgresql90 postgresql91 postgresql93 description {Add PostgreSQL 9.2 support} {
-    depends_lib-append      port:postgresql92
-    configure.args-delete   --without-postgres
-    configure.args-append   --with-postgres
-    configure.args-append   --with-postgres-includes=${prefix}/include/postgresql92
-    configure.args-append   --with-postgres-libs=${prefix}/lib/postgresql92
-}
+    # PostGreSQL variants
+    set postgresql_versions {12 13 14 15}
+    set postgresql_variants {}
+    foreach pg_version ${postgresql_versions} {
+        lappend postgresql_variants postgresql${pg_version}
+    }
+    foreach pg_version ${postgresql_versions} {
+        set vrt postgresql${pg_version}
+        set index [lsearch -exact ${postgresql_variants} ${vrt}]
+        set conf [lreplace ${postgresql_variants} ${index} ${index}]
+        variant ${vrt} description "Use PostgreSQL ${pg_version}" conflicts {*}${conf} "
+            depends_lib-append      port:${vrt}
+            configure.args-append   --with-postgres-includes=${prefix}/include/${vrt} \
+                                    --with-postgres-libs=${prefix}/lib/${vrt}
+            configure.args-replace  --with-postgres=no  --with-postgres=yes
+        "
+    }
+    # set PostGreSQL default variant
+    set pgdefault "if {"
+    foreach pg_version ${postgresql_versions} {
+        set pgdefault "${pgdefault}!\[variant_isset postgresql${pg_version}\] && "
+    }
+    set pgdefault   [string range ${pgdefault} 0 end-4]
+    set pgdefault   "${pgdefault}} { default_variants +postgresql${pg_version} }"
+    eval ${pgdefault}
 
-variant postgresql93 conflicts postgresql83 postgresql84 postgresql90 postgresql91 postgresql92 description {Add PostgreSQL 9.3 support} {
-    depends_lib-append      port:postgresql93
-    configure.args-delete   --without-postgres
-    configure.args-append   --with-postgres
-    configure.args-append   --with-postgres-includes=${prefix}/include/postgresql93
-    configure.args-append   --with-postgres-libs=${prefix}/lib/postgresql93
-}
+    # PROJ variants
+    set proj_versions {6 7 8 9}
+    set proj_variants {}
+    foreach pjver ${proj_versions} {
+        lappend proj_variants proj${pjver}
+    }
+    foreach proj_ver ${proj_versions} {
+        set index [lsearch -exact ${proj_variants} proj${proj_ver}]
+        set cflcts [lreplace ${proj_variants} ${index} ${index}]
+        variant proj${proj_ver} description "Use Proj${proj_ver}" conflicts {*}${cflcts} "
+            depends_lib-append      port:proj${proj_ver}
+            configure.env           PATH=$::env(PATH):${prefix}/lib/proj${proj_ver}/bin
+            build.env               PATH=$::env(PATH):${prefix}/lib/proj${proj_ver}/bin
+            configure.args-append   --with-proj-includes=${prefix}/lib/proj${proj_ver}/include \
+                                    --with-proj-libs=${prefix}/lib/proj${proj_ver}/lib \
+                                    --with-proj-share=${prefix}/lib/proj${proj_ver}/share/proj
+        "
+    }
+    # set PROJ default variant
+    set projdf "if {"
+    foreach pv ${proj_versions} {
+        set projdf "${projdf}!\[variant_isset proj${pv}\] && "
+    }
+    set projdf [string range ${projdf} 0 end-4]
+    set projdf "${projdf}} { default_variants +proj${pv} }"
+    eval ${projdf}
 
-variant sqlite3 description {Add SQLite 3 support} {
-    depends_lib-append      port:sqlite3
-    configure.args-append   --with-sqlite
-    configure.args-append   --with-sqlite-includes=${prefix}/include
-    configure.args-append   --with-sqlite-libs=${prefix}/lib
-}
-
-variant ffmpeg description {Add ffmpeg support} {
-    depends_lib-append      path:lib/libavcodec.dylib:ffmpeg
-    configure.args-append   --with-ffmpeg \
-                            --with-ffmpeg-includes=\"${prefix}/include/libavcodec  \
-                                                     ${prefix}/include/libavformat \
-                                                     ${prefix}/include/libswscale\" \
-                            --with-ffmpeglibs=${prefix}/lib
-}
-
-# python26 variant is only present to allow 'grass +wxgtk28' to coexist with py27-wxpython-3.0
-# once support for wxWidgets 3.0 is complete, support for Python 2.6 may be removed
-variant python26 conflicts python27 description {} {
-    depends_lib-append      port:python26
-    global python_bin
-    set python_bin          ${frameworks_dir}/Python.framework/Versions/2.6/bin/python2.6
-    #                       Enable support for wxGUI Python extensions
-    #                       (by removing this we wouldn't need to depend on py-wxpython-x.y)
-    configure.args-append   --with-python=${frameworks_dir}/Python.framework/Versions/2.6/bin/python2.6-config
-    build.args-append       PYTHON=${python_bin}
-    # TODO: this port doesn't work with the python portgroup because the group changes too much
-    # but it would make sense to fix this in such a way that python_bin could be determined automatically
-
+    # Python variants
+    set python_variants {}
+    foreach pyver ${python_suffixes} {
+        lappend python_variants python${pyver}
+    }
+    foreach pyver ${python_suffixes} {
+        set py_dot_ver [string index ${pyver} 0].[string range ${pyver} 1 end]
+        set index   [lsearch -exact ${python_variants} python${pyver}]
+        set conf    [lreplace ${python_variants} ${index} ${index}]
+        variant python${pyver} description "Use Python ${py_dot_ver}" conflicts {*}${conf} "
+            depends_lib-append      port:python${pyver} \
+                                    port:py${pyver}-Pillow \
+                                    port:py${pyver}-numpy \
+                                    port:py${pyver}-six
+            depends_run-append      port:py${pyver}-psycopg2
+        "
+    }
+    # Patches scripts to launch the selected Python version (fixes #59954)
     post-patch {
-        reinplace "s|@@PYTHON@@|${python_bin}|" ${worksrcpath}/lib/init/grass.src
-        fs-traverse f ${worksrcpath} {
-            if {[file extension ${f}] eq ".py"} {
-                # Ensure usage of python26/python27 (instead of the currently active python)
-                # Work around bug https://trac.osgeo.org/grass/ticket/1758
-                reinplace -q "s|/usr/bin/env python|${python_bin}|" ${f}
+        foreach pyver ${python_suffixes} {
+            if {[variant_isset python${pyver}]} {
+                set pyversion   [string index ${pyver} 0].[string range ${pyver} 1 end]
+                set pybin       ${prefix}/bin/python${pyversion}
+                fs-traverse f ${worksrcpath} {
+                    if {[file extension ${f}] eq ".py"} {
+                        reinplace -q "s|/usr/bin/env python3|${pybin}|" ${f}
+                    }
+                }
+                reinplace "s|PYVER.*|PYVER = ${pyversion}|" ${worksrcpath}/macosx/Makefile
+                reinplace "s|^PYTHON.*|PYTHON = ${pybin}|" ${worksrcpath}/include/Make/Platform.make.in
             }
         }
+        reinplace "s|@PYBIN@|${pybin}|" ${worksrcpath}/lib/init/grass.py
     }
+    # set Python default variant
+    set pydefault "if {"
+    foreach suffix ${python_suffixes} {
+        set pydefault "${pydefault}!\[variant_isset python${suffix}\] && "
+    }
+    set pydefault [string range ${pydefault} 0 end-4]
+    set pydefault "${pydefault}} { default_variants +python${suffix} }"
+    eval ${pydefault}
+
+    post-configure {
+        reinplace -E "s|\\\$\\\(CPPFLAGS)| \$(CPPFLAGS) \
+            \\\\\"-Drestrict=\\\\\" \\\\\"-D__attribute__(x)=\\\\\" \\\\\"-D_Nonnull=\\\\\" \
+            \\\\\"-Dint8_t=char\\\\\" \\\\\"-DCF_INLINE=\\\\\" \\\\\"-D_Null_unspecified=\\\\\" \
+            \\\\\"-D__DARWIN_OS_INLINE=\\\\\"|" ${worksrcpath}/python/libgrass_interface_generator/Makefile
+    }
+
+    post-destroot {
+        xinstall -d -m 0755 ${destroot}${prefix}/share/pkgconfig
+        xinstall -m 0644 -W ${worksrcpath} grass.pc ${destroot}${prefix}/share/pkgconfig/grass.pc
+    }
+
+    livecheck.type      regex
+    livecheck.url       ${master_sites}
+    livecheck.regex     grass-(\[0-9.\]+)[quotemeta ${extract.suffix}]
 }
 
-variant python27 conflicts python26 description {} {
-    depends_lib-append      port:python27
-    global python_bin
-    set python_bin          ${frameworks_dir}/Python.framework/Versions/2.7/bin/python2.7
-    configure.args-append   --with-python=${frameworks_dir}/Python.framework/Versions/2.7/bin/python2.7-config
-    build.args-append       PYTHON=${python_bin}
 
-    post-patch {
-        reinplace "s|@@PYTHON@@|${python_bin}|" ${worksrcpath}/lib/init/grass.src
-        fs-traverse f ${worksrcpath} {
-            if {[file extension ${f}] eq ".py"} {
-                # Ensure usage of python26/python27 (instead of the currently active python)
-                # Work around bug https://trac.osgeo.org/grass/ticket/1758
-                reinplace -q "s|/usr/bin/env python|${python_bin}|" ${f}
+subport grass-gui {
+    PortGroup           active_variants 1.1
+
+    epoch               0
+    revision            0
+
+    description         GUI support to GRASS Geographic Information System
+    long_description    {*}${description}, includes wxPython and application bundle.
+
+    platforms           {darwin any}
+    supported_archs     noarch
+
+    depends_build
+    depends_lib         port:grass
+    use_configure       no
+    build               {}
+    
+    # Python variants
+    set py_grass        [lindex $python_suffixes end]
+    set py_variant      ${py_grass}
+    foreach pyver ${python_suffixes} {
+        if {![catch {set result [active_variants grass python${pyver}]}]} {
+            if {$result} {
+                set py_grass ${pyver}
             }
         }
-    }
-}
-
-# TODO: in principle wxWidgets is optional and could be disable with
-#       --disable-wxwidgets if there is demand for that
-#       grass 4.6.3 is not compatible with wxWidgets 3.0 yet
-variant wxwidgets30 conflicts wxwidgets28 wxgtk28 description {Use Cocoa-based wxWidgets 3.0 (experimental)} {
-    wxWidgets.use           wxPython-3.0
-    depends_lib-append      port:${wxWidgets.port}
-    configure.args-append   --with-wxwidgets=${wxWidgets.wxconfig}
-}
-variant wxwidgets28 conflicts wxwidgets30 wxgtk28 description {Use Carbon-based wxWidgets 2.8} {
-    # untested (might not work)
-    wxWidgets.use           wxWidgets-2.8
-    depends_lib-append      port:${wxWidgets.port}
-    configure.args-append   --with-wxwidgets=${wxWidgets.wxconfig}
-}
-variant wxgtk28 conflicts wxwidgets30 wxwidgets28 description {Use GTK-based wxWidgets 2.8} {
-    wxWidgets.use           wxGTK-2.8
-    depends_lib-append      port:${wxWidgets.port}
-    configure.args-append   --with-wxwidgets=${wxWidgets.wxconfig}
-}
-
-if {![variant_isset wxwidgets30] && ![variant_isset wxwidgets28] && ![variant_isset wxgtk28]} {
-    default_variants-append +wxgtk28
-}
-if {![variant_isset python26] && ![variant_isset python27]} {
-    if {[variant_isset wxgtk28] || [variant_isset wxwidgets28]} {
-        default_variants-append +python26
-    } else {
-        default_variants-append +python27
-    }
-}
-
-# TODO: if py27-wxpython-3.0 is installed, grass +wxgtk28 cannot be installed with +python27
-#       we could remove this limitation by disabling wxpython support altogether
-#       (in case there is demand for it)
-# TODO: the code below is ugly; any suggestions for improving it are welcome
-if {[variant_isset wxwidgets30]} {
-    if {[variant_isset python26]} {
-        depends_lib-append port:py26-wxpython-3.0
-    } elseif {[variant_isset python27]} {
-        depends_lib-append port:py27-wxpython-3.0
-    }
-} else {
-    if {[variant_isset python26]} {
-        depends_lib-append port:py26-wxpython-2.8
-        if {[variant_isset wxwidgets28]} {
-            require_active_variants py26-wxpython-2.8 carbon gtk
-        } else {
-            require_active_variants py26-wxpython-2.8 gtk carbon
-        }
-    } elseif {[variant_isset python27]} {
-        depends_lib-append port:py27-wxpython-2.8
-        if {[variant_isset wxwidgets28]} {
-            require_active_variants py27-wxpython-2.8 carbon gtk
-        } else {
-            require_active_variants py27-wxpython-2.8 gtk carbon
+        if {[variant_isset python${pyver}]} {
+            set py_variant ${pyver}
         }
     }
-}
+    if {${py_grass} ne ${py_variant}} {
+        ui_error "Python variant must be the same as for 'grass', i.e. +python${py_grass}."
+        return -code error "Conflicting Python variants."
+    }
+    set python_variants {}
+    foreach pyver ${python_suffixes} {
+        lappend python_variants python${pyver}
+    }
+    foreach pyver ${python_suffixes} {
+        set py_dot_ver [string index ${pyver} 0].[string range ${pyver} 1 end]
+        set index   [lsearch -exact ${python_variants} python${pyver}]
+        set conf    [lreplace ${python_variants} ${index} ${index}]
 
-livecheck.type      regex
-livecheck.url       [lindex ${master_sites} 0]
-livecheck.regex     grass-(\[0-9.\]+)${extract.suffix}
+        variant python${pyver} description "Use Python ${py_dot_ver}" conflicts {*}${conf} "
+            depends_run-append      port:py${py_grass}-matplotlib \
+                                    port:py${py_grass}-termcolor \
+                                    port:py${py_grass}-wxpython-4.0
+        "
+    }
+    # set Python default variant
+    set pydefault "if {"
+    foreach suffix ${python_suffixes} {
+        set pydefault "${pydefault}!\[variant_isset python${suffix}\] && "
+    }
+    set pydefault [string range ${pydefault} 0 end-4]
+    set pydefault "${pydefault}} { default_variants +python${suffix} }"
+    eval ${pydefault}
+
+    # Create app bundle
+    global app_name
+    set app_name_version [join [lrange [split ${version} "."] 0 1] "."]
+    set app_name GRASS-${app_name_version}.app
+
+    destroot {
+        xinstall -d -m 0755 ${worksrcpath}/${app_name}/Contents
+        xinstall -d -m 0755 ${worksrcpath}/${app_name}/Contents/Resources
+        xinstall -d -m 0755 ${worksrcpath}/${app_name}/Contents/MacOS
+
+        set script [open "${worksrcpath}/${app_name}/Contents/MacOS/GRASS" w 0755]
+        puts ${script} "#!/usr/bin/osascript"
+        puts ${script} ""
+        puts ${script} "tell application \"Terminal\" to do script \"${prefix}/bin/grass --gui; exit\""
+        close ${script}
+
+        copy ${worksrcpath}/macosx/app/AppIcon.icns \
+            ${worksrcpath}/${app_name}/Contents/Resources/AppIcon.icns
+        copy ${worksrcpath}/macosx/app/GRASSDocument_gxw.icns \
+            ${worksrcpath}/${app_name}/Contents/Resources/GRASSDocument_gxw.icns
+
+        set info_plist ${worksrcpath}/${app_name}/Contents/Info.plist
+        copy ${worksrcpath}/macosx/app/Info.plist.in ${info_plist}
+
+        set version_file        [open ${worksrcpath}/include/VERSION]
+        set version_data        [split [read ${version_file}] "\n"]
+        close ${version_file}
+        
+        set grass_version_major [lindex ${version_data} 0]
+        set grass_version_minor [lindex ${version_data} 1]
+        set grass_version_date  [lindex ${version_data} 3]
+        set bundle_version      [join [lrange ${version_data} 0 2] "."]
+
+        reinplace "s|@GRASS_VERSION_MAJOR@|${grass_version_major}|" ${info_plist}
+        reinplace "s|@GRASS_VERSION_MINOR@|${grass_version_minor}|" ${info_plist}
+        reinplace "s|@GRASS_VERSION_DATE@|${grass_version_date}|" ${info_plist}
+        reinplace "s|@BUNDLE_VERSION@|${bundle_version}|" ${info_plist}
+        reinplace "s|@DEPLOYMENT_TARGET@|${macosx_deployment_target}|" ${info_plist}
+
+        copy ${worksrcpath}/${app_name} ${destroot}${applications_dir}
+    }
+
+    livecheck.type      none
+}

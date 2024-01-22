@@ -1,0 +1,32 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           R 1.0
+
+R.setup             github wlandau crew.cluster 0.2.0
+revision            0
+categories-append   parallel
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
+license             MIT
+description         Crew launcher plugins for traditional high-performance computing clusters
+long_description    {*}${description}
+homepage            https://wlandau.github.io/crew.cluster
+checksums           rmd160  9548ae24eb573704ab0095bad3c3a6315803d62a \
+                    sha256  8d7980185674a5c00305a6aa8584bc27c96c45025453d202c17113d3d7020de0 \
+                    size    298284
+supported_archs     noarch
+
+depends_lib-append  port:R-crew \
+                    port:R-lifecycle \
+                    port:R-ps \
+                    port:R-R6 \
+                    port:R-rlang \
+                    port:R-vctrs \
+                    port:R-xml2
+
+depends_test-append port:R-knitr \
+                    port:R-markdown \
+                    port:R-rmarkdown \
+                    port:R-testthat
+
+test.run            yes

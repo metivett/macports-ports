@@ -4,31 +4,31 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                sqlmap
-version             1.4.8
-revision            0
+version             1.8
+revision            1
 
 categories          security databases python
-maintainers         nomaintainer
-platforms           darwin
+maintainers         {judaew @judaew} openmaintainer
 supported_archs     noarch
+platforms           {darwin any}
 license             GPL-2+
 
 description         Automatic SQL injection and database takeover tool
-long_description    sqlmap is an open source penetration testing tool that automates the \
-                    process of detecting and exploiting SQL injection flaws and taking over \
-                    of database servers. It comes with a powerful detection engine, many \
-                    niche features for the ultimate penetration tester, and a broad range of \
-                    switches including database fingerprinting, over data fetching from the \
-                    database, accessing the underlying file system, and executing commands on \
-                    the operating system via out-of-band connections.
+long_description    \
+    sqlmap is an open source penetration testing tool that automates the \
+    process of detecting and exploiting SQL injection flaws and taking over of \
+    database servers. It comes with a powerful detection engine, many niche \
+    features for the ultimate penetration tester, and a broad range of \
+    switches including database fingerprinting, over data fetching from the \
+    database, accessing the underlying file system, and executing commands on \
+    the operating system via out-of-band connections.
+homepage            https://sqlmap.org/
 
-homepage            http://sqlmap.org/
+checksums           rmd160  ff99cc6e1f5637c4f971a3c7ca57c895247b81b6 \
+                    sha256  8dbb204ee36e57c123ff50f042345174dfd262f3ed0a044ed8d7251379472ba1 \
+                    size    7208171
 
-checksums           rmd160  57b33a48e985a32d97033e5d2b9a469dcf664c04 \
-                    sha256  af789cc2d9b7cab2f71087967867b3587db9636b38bef1ffb39165a0675a6d87 \
-                    size    6780324
-
-worksrcdir          ${name}
+patchfiles          patch-cmd-usage-string.diff
 
 post-patch {
     fs-traverse f ${worksrcpath} {
@@ -40,24 +40,47 @@ post-patch {
     }
 }
 
-variant python27 conflicts python37 python38 description {Build for Python 2.7} {
+variant python27 conflicts python38 python39 python310 python311 python312 \
+    description {Build for Python 2.7} {
     python.default_version 27
-    depends_build-append \
-                    port:py${python.version}-setuptools
 }
 
-variant python37 conflicts python27 python38 description {Build for Python 3.7} {
-    python.default_version 37
-    depends_build-append \
-                    port:py${python.version}-setuptools
-}
-
-variant python38 conflicts python27 python37 description {Build for Python 3.8} {
+variant python38 conflicts python27 python39 python310 python311 python312 \
+    description {Build for Python 3.8} {
     python.default_version 38
-    depends_build-append \
-                    port:py${python.version}-setuptools
 }
 
-if {![variant_isset python27] && ![variant_isset python37] && ![variant_isset python38]} {
-    default_variants +python38
+variant python39 conflicts python27 python38 python310 python311 python312 \
+    description {Build for Python 3.9} {
+    python.default_version 39
+}
+
+variant python310 conflicts python27 python38 python39 python311 python312 \
+    description {Build for Python 3.10} {
+    python.default_version 310
+}
+
+variant python311 conflicts python27 python38 python39 python310 python312 \
+    description {Build for Python 3.11} {
+    python.default_version 311
+}
+
+variant python312 conflicts python27 python38 python39 python310 python311 \
+    description {Build for Python 3.12} {
+    python.default_version 312
+}
+
+depends_build-append \
+                    port:py${python.version}-setuptools
+
+if {![variant_isset python27] && \
+    ![variant_isset python38] && ![variant_isset python39] && \
+    ![variant_isset python310] && ![variant_isset python311] && \
+    ![variant_isset python312]} {
+    default_variants +python312
+}
+
+post-destroot {
+    ln -s ${frameworks_dir}/Python.framework/Versions/[string index ${python.version} 0].[string range ${python.version} 1 end]/bin/${name} \
+        ${destroot}${prefix}/bin/${name}
 }

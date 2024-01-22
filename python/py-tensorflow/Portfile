@@ -1,103 +1,83 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
-PortSystem                                         1.0
-PortGroup           python                         1.0
-PortGroup           java                           1.0
-PortGroup           github                         1.0
-PortGroup           compilers                      1.0
-PortGroup           compiler_blacklist_versions    1.0
-PortGroup           xcode_workaround               1.0
+PortSystem          1.0
+PortGroup           python 1.0
+PortGroup           github 1.0
+PortGroup           compilers 1.0
+PortGroup           compiler_blacklist_versions 1.0
 
 name                py-tensorflow
-version             2.4.1
+version             2.12.0
 revision            0
 github.setup        tensorflow tensorflow ${version} v
-platforms           darwin
-supported_archs     x86_64
 
 license             Apache-2
-maintainers         {emcrisostomo @emcrisostomo} {jonesc @cjones051073} openmaintainer
+maintainers         {emcrisostomo @emcrisostomo} openmaintainer
+# Goal is darwin >= 18, but present failures prevent that for macOS 11.x+
+platforms           {darwin >= 18 <= 19}
+supported_archs     x86_64 arm64
 
 description         TensorFlow helps the tensors flow
-long_description    ${description}
-
+long_description    {*}${description}
 homepage            https://www.tensorflow.org/
+
+known_fail yes
+pre-fetch {
+    ui_error "${subport}: This port is presently broken on all macOS platforms"
+    return -code error "port broken"
+}
 
 github.livecheck.regex  {([0-9.]+)}
 
-checksums           rmd160  f322fcdc8ba71e48a33bec80a84f47e6f8b6c314 \
-                    sha256  69ab8a0ab585dd7d8d489227f0c0dd9dacf96f3e8eb844aa27f1198884773ebe \
-                    size    53266547
+checksums           rmd160  26051c2456224f94f82e896aff4cb8512c2f6dc3 \
+                    sha256  2b1725eccba5ee42347462f5a65b274a905f7946181fadafc7b44b5c85ba3041 \
+                    size    69709103
 
-set min_darwin 16
-if { ${os.major} < ${min_darwin} } {
-    known_fail yes
-    # https://trac.macports.org/ticket/58518
-    pre-fetch {
-        ui_error "${name} ${version} requires Darwin ${min_darwin} or newer."
-        return -code error "incompatible macOS version"
-    }
-}
+use_xcode           yes
 
-# Required java version
-java.version        11+
-# LTS JDK port to install if required java not found
-java.fallback       openjdk11
-# JDK only needed at build time, but java PG sets lib dependency so
-# declare no conflict to allow redistribution of binaries.
-license_noconflict  ${java.fallback}
+compiler.cxx_standard   2017
+compiler.blacklist-append {clang < 1000} {macports-clang-[4-9].0}
 
-compiler.cxx_standard 2014
-
-# The oldest Xcode version to use default Xcode compiler
-# https://github.com/tensorflow/tensorflow/issues/39262
-set tf_min_xcode    10.2
-compiler.blacklist-append {clang < 1001}
-
-# https://trac.macports.org/ticket/59192
-xcode_workaround.type                  avoid_xcode_compiler
-xcode_workaround.os_versions           18 19
-xcode_workaround.fixed_xcode_version   11.4
-
-# Work out if we should be using macports clang
-set use_mp_clang [ expr ( [ string match macports-clang-* ${configure.compiler} ] || [ vercmp ${xcodeversion} ${tf_min_xcode} ] < 0 ) ]
-
-variant mkl description {Enable Intel Math Kernel Library support} {
-    # Not obvious if this dep is needed ?
-    #depends_lib-append port:libomp
-}
-# Enable MKL by default on 10.12 and newer.
-# Currently not working due to
-# external/mkl_dnn_v1/src/common/dnnl_thread.hpp:42:10: fatal error: 'omp.h' file not found
-#if {${os.major} >= 16} {
-#    default_variants-append +mkl
-#}
-
-variant native description {Build from source for best native platform support} {
-    # Prevent precompiled binaries to let compilation optimise the library for the user processor
-    archive_sites
-}
-
-# Support python versions
-python.versions        37 38
-python.default_version 38
+# Supported python versions
+python.versions  39 310
 
 if {${name} ne ${subport}} {
+    PortGroup       bazel 1.0
 
     # TF versions 1 and 2 cannot be installed at once
-    conflicts py${python.version}-tensorflow1
+    if { ${python.version} < 310 } {
+        conflicts       py${python.version}-tensorflow1
+    }
+
+    # Conflicts with tensorflow-macos, tensorflow-metal
+    conflicts-append \
+                    py${python.version}-tensorflow-macos \
+                    py${python.version}-tensorflow-metal
+
+    # Relax Xcode minimum version, based on testing
+    bazel.min_xcode 10.3
+
+    variant mkl description {Enable Intel Math Kernel Library support} {
+        bazel.extra_build_opts-append --config=mkl
+        depends_lib-append port:py${python.version}-mkl
+    }
+    # Enable MKL by default on 10.15 and newer.
+    #if {${os.major} >= 19} {
+    #    default_variants-append +mkl
+    #}
 
     depends_build-append \
+        port:cctools \
+        port:ld64 \
         port:py${python.version}-future \
-        port:py${python.version}-pip \
         port:py${python.version}-mock \
-        port:bazel-3.7 \
-        port:cctools
+        port:py${python.version}-pip
 
     depends_lib-append \
         port:py${python.version}-absl \
         port:py${python.version}-astor \
         port:py${python.version}-astunparse \
+        port:py${python.version}-flatbuffers \
         port:py${python.version}-gast \
         port:py${python.version}-google-pasta \
         port:py${python.version}-grpcio \
@@ -113,120 +93,29 @@ if {${name} ne ${subport}} {
         port:py${python.version}-wrapt
 
     use_configure yes
+
     # Options passed to configure script via env vars
-    configure.env-append PYTHON_LIB_PATH=${python.prefix}/lib/python${python.branch}/site-packages
-    configure.env-append PYTHON_BIN_PATH=${prefix}/bin/python${python.branch}
-    configure.env-append JAVA_HOME=${java.home}
-    build.env-append     TMPDIR=${workpath}/tmp
-    build.env-append     JAVA_HOME=${java.home}
-    set base_march "-march=x86-64"
-    if {![variant_isset native]} {
-        configure.env-append CC_OPT_FLAGS=${base_march}
-        build.env-append     CC_OPT_FLAGS=${base_march}
-        notes "This version is built based on a base architecture for convenience,
-              which may not be optimized for your system. To build a version
-              customized for your machine, use the +native variant"
-    }
-    # Disable Xcode detection on older OSes, as we want the
-    # MP provided commandline utilities to be used instead.
-    if { ${use_mp_clang} } {
-        configure.env-append BAZEL_USE_CPP_ONLY_TOOLCHAIN=1
-        build.env-append     BAZEL_USE_CPP_ONLY_TOOLCHAIN=1
-    }
-    # Remove all arguments
-    configure.args
-    configure.pre_args
-    # configure command
-    configure.cmd ./configure
-    # Patch configuration
-    pre-configure {
-        # enforce correct build settings
-        # note final / is because ${worksrcpath} is a sym-link
-        foreach f [ exec find ${worksrcpath}/ -name "configure" -or -name "configure.py" -or -name "compile.sh" -or -name "*.tpl" -or -name "*.bzl" -or -name "CROSSTOOL" -or -name "configure.py" -or -name "MOCK_CROSSTOOL" ] {
-            foreach cmd {ar nm strip libtool ld objdump} {
-                reinplace -q "s|/usr/bin/${cmd}|${prefix}/bin/${cmd}|g" ${f}
-            }
-            reinplace -q "s|/usr/bin/clang|\"${configure.cc}\"|g"   ${f}
-            reinplace -q "s|\"clang\"|\"${configure.cc}\"|g"        ${f}
-            reinplace -q "s| clang | ${configure.cc} |g"            ${f}
-            reinplace -q "s|/usr/local/include|${prefix}/include|g" ${f}
-            reinplace -q "s|std=c++0x|std=c++11|g"                  ${f}
-            reinplace -q "s|std=c++1y|std=c++14|g"                  ${f}
-            reinplace -q "s|std=c++1z|std=c++17|g"                  ${f}
-        }
-        # If not native build, make sure not used...
-        if {![variant_isset native]} {
-            foreach f [ exec find ${worksrcpath}/ -name "configure" -or -name "configure.py" -or -name "CMakeLists.txt" -or -name "Makefile" -or -name "*.sh" ] {
-                reinplace -q "s|-march=native|${base_march}|g" ${f}
-            }
-        }
-    }
+    bazel::add_to_envs PYTHON_LIB_PATH=${python.prefix}/lib/python${python.branch}/site-packages
+    bazel::add_to_envs PYTHON_BIN_PATH=${prefix}/bin/python${python.branch}
 
-    build {
+    # Use correct python in bazel build
+    bazel.python_version ${python.branch}
 
-        # Limit the number of parallel jobs to the number of physical, not logical, cpus.
-        # First current setting to ensure we would be reducing the current setting.
-        set physicalcpus [sysctl hw.physicalcpu]
-        if { ${build.jobs} > ${physicalcpus} } {
-            build.jobs ${physicalcpus}
-        }
-        
-        # tensorflow(via bazel) cannot be built if gcc is 'port selected'
-        # https://trac.macports.org/ticket/58569
-        # https://trac.macports.org/ticket/58679
-        # Until it can be figured out how to stop bazel finding and using macports gcc
-        # just detect when this situation arises and error out...
-        if { [file exists ${prefix}/bin/gcc] } {
-            ui_error "${subport} cannot be built with 'port select gcc' active."
-            ui_error "Please run 'sudo port select gcc none' and try again."
-            ui_error "Once the build is complete, you can safely re-select your preferred gcc."
-            return -code error "build error"
-        }
-        # Build using the wonderful bazel build system ...
-        set tf_bazel_cmd "bazel --max_idle_secs=60 --output_user_root=${workpath}"
-        set tf_bazel_build_opts "-s -c opt --verbose_failures --config=opt"
-        # Limit bazel resource utilisation
-        set tf_bazel_build_opts "${tf_bazel_build_opts} --jobs ${build.jobs} --local_ram_resources=HOST_RAM*0.5 --local_cpu_resources=HOST_CPUS*.5"
-        # Explicitly pass SDK https://github.com/bazelbuild/rules_go/issues/1554
-        # Check versioned SDK actually exists... https://trac.macports.org/ticket/60317
-        if {[string first ${configure.sdk_version} ${configure.sdkroot}] != -1} {
-            set tf_bazel_build_opts "${tf_bazel_build_opts} --macos_sdk_version=${configure.sdk_version}"
-        } else {
-            ui_warn "configure.sdkroot='${configure.sdkroot}' does not match configure.sdk_version='${configure.sdk_version}'"
-        }
-        # hack to try and transfer MP c, c++ and ld options to bazel...
-        foreach opt [list {*}${configure.cflags} ] {
-            set tf_bazel_build_opts "${tf_bazel_build_opts} --conlyopt '${opt}'"
-        }
-        foreach opt [list {*}${configure.cxxflags} ] {
-            set tf_bazel_build_opts "${tf_bazel_build_opts} --cxxopt '${opt}'"
-        }
-        foreach opt [list {*}${configure.ldflags} ] {
-            set tf_bazel_build_opts "${tf_bazel_build_opts} --linkopt '${opt}'"
-        }
-        if { ${use_mp_clang} } {
-            set tf_bazel_build_opts "${tf_bazel_build_opts} --action_env CC=${configure.cc}"
-            set tf_bazel_cmd "BAZEL_USE_CPP_ONLY_TOOLCHAIN=1 ${tf_bazel_cmd}"
-        }
-        if {[variant_isset mkl]} {
-            # Hardcode disable MKL intil build issue is addressed
-            #set tf_bazel_build_opts "${tf_bazel_build_opts} --config=mkl"
-            # Is this required ?
-            #set tf_bazel_build_opts "${tf_bazel_build_opts} --cxxopt '-I${prefix}/include/libomp' --linkopt '-L${prefix}/lib/libomp'"
-        }
-        if {![variant_isset native]} {
-            set tf_bazel_build_opts "${tf_bazel_build_opts} --copt=${base_march}"
-            set tf_bazel_cmd "CC_OPT_FLAGS=${base_march} ${tf_bazel_cmd}"
-        }
-        ui_debug "Bazel build command : ${tf_bazel_cmd}"
-        ui_debug "Bazel build options : ${tf_bazel_build_opts}"
-        # Run the build
-        system -W ${worksrcpath} "${tf_bazel_cmd} build ${tf_bazel_build_opts} //tensorflow/tools/pip_package:build_pip_package"
-        # Build the python wheel
-        system -W ${worksrcpath} "./bazel-bin/tensorflow/tools/pip_package/build_pip_package ${workpath}"
-        # Clean up
-        system -W ${worksrcpath} "${tf_bazel_cmd} clean"
-    }
+    bazel.build_target     "//tensorflow/tools/pip_package:build_pip_package"
+    bazel.post_build_cmd   ./bazel-bin/tensorflow/tools/pip_package/build_pip_package [list $workpath]
+    # add -fuse-ld becase https://github.com/tensorflow/tensorflow/issues/58368
+    bazel.extra_build_opts-append \
+                           --config=opt \
+                           --linkopt="-fuse-ld=/usr/bin/ld"
+
+    bazel.limit_build_jobs no
+
+    # Overstep:
+    #   target '@tf_runtime//:support' is not visible from target '//tensorflow/compiler/xla/pjrt:pjrt_future'
+    # See: https://github.com/tensorflow/tensorflow/issues/58825
+    bazel.extra_build_opts-append \
+                            --noincompatible_fix_package_group_reporoot_syntax \
+                            --noincompatible_validate_top_level_header_inclusions
 
     destroot.cmd  pip-${python.branch}
     destroot.args           \
@@ -243,5 +132,15 @@ if {${name} ne ${subport}} {
     }
 
     livecheck.type  none
+
+    # If tensorflow-macos is available for this OS advertise it
+    if { ${os.major} > 19 } {
+        notes-append "
+* A hardware accelerated MacOS optimised port of tensorflow from Apple\
+is available as an alternative to ${subport}. To use run:
+    sudo port uninstall -f ${subport} ${subport}-addons
+    sudo port install ${subport}-macos
+"
+    }
 
 }

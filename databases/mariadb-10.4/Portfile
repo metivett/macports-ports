@@ -1,12 +1,13 @@
 # -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
 PortSystem          1.0
-PortGroup           legacysupport 1.0
-legacysupport.newest_darwin_requires_legacy 10
+PortGroup           legacysupport 1.1
+# CLOCK_REALTIME
+legacysupport.newest_darwin_requires_legacy 15
 
 name                mariadb-10.4
 set name_mysql      ${name}
-version             10.4.17
+version             10.4.27
 set version_branch  [join [lrange [split ${version} .] 0 1] .]
 # Please set revision_client and revision_server to 0 if you bump
 # version; these can be changed independently for the 2 subports, but
@@ -24,7 +25,9 @@ if {$subport eq $name} {
     PortGroup           select 1.0
     PortGroup           github 1.0
     PortGroup           compiler_blacklist_versions 1.0
+    PortGroup           boost 1.0
 
+    boost.version       1.78
     compiler.cxx_standard 2011
 
     # https://trac.macports.org/ticket/60805
@@ -51,15 +54,15 @@ if {$subport eq $name} {
 
     set libmariadb_github_author  MariaDB
     set libmariadb_github_project mariadb-connector-c
-    set libmariadb_github_branch  62427520a5ba20e42fe51f5045062a7a9cadb466
+    set libmariadb_github_branch  7fdb3eab66384a355475704332d11cc1ab82499a
 
     set wsrep_github_author  codership
     set wsrep_github_project wsrep-lib
-    set wsrep_github_branch  2da6e4894e1df5d1db51db2bbc49255e02251b9d
+    set wsrep_github_branch  8bfce04189671eb1f06e0fa83dff8c880f31088f
 
     set wsrep_api_github_author   codership
     set wsrep_api_github_project  wsrep-API
-    set wsrep_api_github_branch   12a50c43b112648fec3b1213a1470a85aca55f2c
+    set wsrep_api_github_branch   02ed17238cee97b5a3ea2495ca87b63570403f01
 
     set main_distname ${distname}
     set main_distfile ${distfiles}
@@ -84,21 +87,21 @@ if {$subport eq $name} {
                  https://github.com/${wsrep_api_github_author}/${wsrep_api_github_project}/archive/${wsrep_api_github_branch}:tagfour
 
     checksums       ${main_distfile} \
-                    rmd160  6e917d3478e053607c32db6182a773b025a41a4a \
-                    sha256  77757cb789dd86a230cb2e1890c820477691a42c090fb42f2788e1f5eca084f6 \
-                    size    63742292 \
+                    rmd160  2860e1dcd533c9b7d1b6de3ca81f48d824d1c52b \
+                    sha256  36800ce43a26af3a014abc9676c0947434f8427020b725378ee7101d68228562 \
+                    size    64687881 \
                     ${libmariadb_distfile} \
-                    rmd160  d611e4896b41be0ccfcc2d4b6d387227d669f1ca \
-                    sha256  6842c6d111e1dc05493f7948afc5d20ba32806c70c4a4b6a3c5739ece0b1fa3a \
-                    size    760298 \
+                    rmd160  c63e8387fa7bf3f2d6d4d7db87835f01875fcccf \
+                    sha256  37902fbad5b55968e297b071819228a0b58f253d82d2813f249a7ba230d71019 \
+                    size    1191573 \
                     ${wsrep_distfile} \
-                    rmd160  a229d2b6a24d49a146c6750bedc4f93db85fe311 \
-                    sha256  4990b30e01d2e7071c74018d765e5e30c2191a8b479623a6745b43329c932ef3 \
-                    size    145209 \
+                    rmd160  f5c1f52a07dcccd4babb0e4da5ddca52cd78c8e7 \
+                    sha256  8a64fbb42a76c9839e2aaf43ebeb143f39c2842874084b7f1f7ba1f842b7d052 \
+                    size    176413 \
                     ${wsrep_api_distfile} \
-                    rmd160  9de88c7e2154eb3ff1b5fc92e42cca2f487580df \
-                    sha256  2675869edc98e631337a6a235bc6494209be06826d4d4b7d610aa10eb5f81d88 \
-                    size    52889
+                    rmd160  996ddebec67793a0b15d9e2cff9aa70e7760550e \
+                    sha256  99960eb0ccb4dff5eb354289b0a8ec2ecb0dcc246f54edf292f69f340a916ee4 \
+                    size    91283
 
     worksrcdir   ${github.project}-${git.branch}
 
@@ -125,8 +128,9 @@ if {$subport eq $name} {
         move ${workpath}/${wsrep_api_distname} ${worksrcpath}/wsrep-lib/wsrep-API/v26
     }
 
+    depends_build-append port:bison
     depends_lib-append  port:zlib port:tcp_wrappers port:ncurses port:judy \
-                        path:lib/libssl.dylib:openssl port:libxml2
+                        port:openssl11 port:libxml2 port:pcre
     depends_run-append  port:mysql_select
 
     select.group        mysql
@@ -144,8 +148,8 @@ if {$subport eq $name} {
                    patch-CMakeLists.txt.diff \
                    patch-libmariadb_cmake_install.cmake.diff \
                    patch-libmariadb_libmariadb_CMakeLists.txt.diff \
-                   patch-libmariadb_mariadb_config_CMakeLists.txt.diff \
-                   patch-cmake_mysql_version.cmake.diff
+                   patch-cmake_mysql_version.cmake.diff \
+                   patch-SSL_INCLUDES_first.diff
 
     # patch to provide minimum changes required for ARM64 support;
     # guessing this will be fixed in the next release.
@@ -164,6 +168,8 @@ if {$subport eq $name} {
             ${cmake.build_dir}/macports/my.cnf
         move ${worksrcpath}/VERSION ${worksrcpath}/VERSION.txt
     }
+
+    configure.cppflags-delete -I${prefix}/include
 
     configure.args-delete \
                         -DCMAKE_INSTALL_NAME_DIR=${prefix}/lib
@@ -186,8 +192,7 @@ if {$subport eq $name} {
                         -DENABLE_DTRACE:BOOL=OFF \
                         -DWITH_READLINE:BOOL=ON \
                         -DWITH_LIBWRAP:BOOL=ON \
-                        -DWITH_SSL:STRING=yes \
-                        -DWITH_SSL_PATH=${prefix} \
+                        -DWITH_SSL:STRING=${prefix}/libexec/openssl11 \
                         -DMYSQL_MAINTAINER_MODE:STRING=AUTO \
                         -DICONV_LIBRARIES=${prefix}/lib/libiconv.dylib \
                         -DICONV_INCLUDE_DIR:PATH=${prefix}/include \
@@ -195,7 +200,11 @@ if {$subport eq $name} {
                         -DCONNECT_WITH_LIBXML2=ON \
                         -DCONNECT_WITH_MONGO=OFF \
                         -DCONNECT_WITH_ODBC=OFF \
-                        -DCONNECT_WITH_REST=OFF
+                        -DCONNECT_WITH_REST=OFF \
+                        -DWITH_PCRE=system \
+                        -DBISON_EXECUTABLE=${prefix}/bin/bison
+
+    configure.checks.implicit_function_declaration.whitelist-append select
 
     post-destroot {
         # proc portdestroot::destroot_finish fails to find and compress our man pages
@@ -265,7 +274,7 @@ possible to install and have running all the MacPorts mysql ports
 simultaneously.
 "
 
-    github.livecheck.regex (${version_branch}.\[0-9\]+)
+    github.livecheck.regex (${version_branch}\\.\[0-9\]+)
 
 }
 

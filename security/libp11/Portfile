@@ -3,11 +3,10 @@
 PortSystem              1.0
 PortGroup               github 1.0
 
-github.setup            OpenSC libp11 0.4.10 libp11-
+github.setup            OpenSC libp11 0.4.12 libp11-
 github.tarball_from     releases
-revision                1
+revision                0
 categories              security
-platforms               darwin
 license                 LGPL-2.1
 maintainers             {mail.ru:nano103 @nano103} openmaintainer
 
@@ -15,9 +14,9 @@ description             Interface to access PKCS#11 objects.
 long_description        libp11 is a library implementing a thin layer on top of PKCS#11 API \
                         to make using PKCS#11 implementations easier.
 
-checksums               rmd160  3a1368ff10f8481ee6a49812ceabd9877a171436 \
-                        sha256  639ea43c3341e267214b712e1e5e12397fd2d350899e673dd1220f3c6b8e3db4 \
-                        size    496891
+checksums               rmd160  caa418cd789205b59e70b25e5d02637b2a14db61 \
+                        sha256  1e1a2533b3fcc45fde4da64c9c00261b1047f14c3f911377ebd1b147b3321cfd \
+                        size    516414
 
 depends_build           port:docbook-xsl-nons \
                         port:gengetopt \
@@ -25,3 +24,9 @@ depends_build           port:docbook-xsl-nons \
                         port:libxslt \
                         port:pkgconfig
 depends_lib             path:lib/libcrypto.dylib:openssl
+
+# p11_attr.c:167: error: 'for' loop initial declaration used outside C99 mode
+compiler.c_standard     2011
+
+test.run                yes
+test.target             check

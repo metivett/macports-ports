@@ -1,0 +1,22 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           github 1.0
+PortGroup           tree_sitter 1.0
+
+github.setup        tree-sitter tree-sitter-json 0.20.1 v
+revision            0
+
+description         A tree-sitter parser for JSON
+
+long_description    {*}${description}
+
+categories          devel
+license             MIT
+maintainers         {amake @amake} openmaintainer
+
+checksums           rmd160  6ed4d293c3c2b5476b7930f46536e58e21cfb1dd \
+                    sha256  34507bd36d3729344a4f7b42a87e61a61db49743ce727f89ac8fe01b917f57f0 \
+                    size    15575
+
+worksrcdir          ${worksrcdir}/src

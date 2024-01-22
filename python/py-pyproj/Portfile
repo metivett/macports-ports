@@ -4,13 +4,12 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-pyproj
-version             3.0.0.post1
-revision            0
+version             3.6.1
 categories-append   devel
-platforms           darwin
 license             MIT
 
-python.versions     27 35 36 37 38 39
+python.versions     37 38 39 310 311 312
+python.pep517       yes
 
 maintainers         {stromnov @stromnov} openmaintainer
 
@@ -21,88 +20,92 @@ long_description    Pyrex wrapper to provide python interfaces to PROJ.4 \
 
 homepage            https://pyproj4.github.io/pyproj
 
-checksums           rmd160  c96a3415efa8e60254d6a748aafbf21c0fc70192 \
-                    sha256  a49581629cadd29e61fc061d153a4d62ff28b4063c71fe8ca881eeb98cd22017 \
-                    size    663801
+checksums           md5 09a67b757bc473b47fb2e247b9994228 \
+                    rmd160 4cea140c609a5e74dfb0de338e321bd670320329 \
+                    sha256 44aa7c704c2b7d8fb3d483bbf75af6cb2350d30a63b144279a09b75fead501bf \
+                    size   225131
 
 if {${name} ne ${subport}} {
-    depends_build-append \
-                        port:py${python.version}-setuptools \
-                        port:py${python.version}-cython
 
-    if {${python.version} < 36} {
-        if {${python.version} eq 27} {
-            version             2.2.2
-            revision            1
-            distname            ${python.rootname}-${version}
-            checksums           rmd160  39ea00d64f1b85f55c254fc4ee75ef37d879fc2d \
-                                sha256  6f129a00afdd817dbb331af5709221f35012bcc11a23b8c83fa09197c1190786 \
-                                size    7220807
+    if {${python.version} == 37} {
+        version             3.2.1
+        revision            0
+        checksums           rmd160  42ab02d994e1ee4b83b5692ee8a5c2d94ea4c54d \
+                            sha256  4a936093825ff55b24c1fc6cc093541fcf6d0f6d406589ed699e62048ebf3877 \
+                            size    213342
 
-            depends_lib-append  port:py${python.version}-aenum
-        } elseif {${python.version} < 36} {
-            version             2.6.1.post1
-            revision            1
-            distname            ${python.rootname}-${version}
-            checksums           rmd160  f7ab40847df75a601a72794ab2be52de1e839b68 \
-                                sha256  4f5b02b4abbd41610397c635b275a8ee4a2b5bc72a75572b98ac6ae7befa471e \
-                                size    545482
-        }
+        python.pep517       no
+        depends_build-append \
+                            port:py${python.version}-setuptools
+        depends_lib-append  port:proj8
 
-        variant proj6 conflicts proj7 {
-            depends_lib-append      port:proj6
-            configure.env-append    PROJ_DIR=${prefix}/lib/proj6
-            build.env-append        PROJ_DIR=${prefix}/lib/proj6
-            destroot.env-append     PROJ_DIR=${prefix}/lib/proj6
-        }
+        configure.env-append    PROJ_DIR=${prefix}/lib/proj8
+        build.env-append        PROJ_DIR=${prefix}/lib/proj8
+        destroot.env-append     PROJ_DIR=${prefix}/lib/proj8
 
-        variant proj7 conflicts proj6 {
-            depends_lib-append      port:proj7
-            configure.env-append    PROJ_DIR=${prefix}/lib/proj7
-            build.env-append        PROJ_DIR=${prefix}/lib/proj7
-            destroot.env-append     PROJ_DIR=${prefix}/lib/proj7
-        }
-
-        if {![variant_isset proj6] && ![variant_isset proj7]} {
-            default_variants +proj7
-        }
-
-        patchfiles-append   patch-pyproj_datadir.py.v2.diff
+        patchfiles-append   patch-pyproj_datadir.py.37.diff
 
         post-patch {
-            if {[variant_isset proj6]} {
-                reinplace "s|%%INTERNAL_DATADIR%%|${prefix}/lib/proj6/share/proj|" ${worksrcpath}/pyproj/datadir.py
-            } else {
-                reinplace "s|%%INTERNAL_DATADIR%%|${prefix}/lib/proj7/share/proj|" ${worksrcpath}/pyproj/datadir.py
-            }
+            reinplace "s|%%INTERNAL_DATADIR%%|${prefix}/lib/proj8/share/proj|" ${worksrcpath}/pyproj/datadir.py
+        }
+    } elseif {${python.version} == 38} {
+        version             3.4.1
+        revision            0
+        checksums           rmd160  435bff015e741fb24e21eea50b55bb0514fc2ebb \
+                            sha256  261eb29b1d55b1eb7f336127344d9b31284d950a9446d1e0d1c2411f7dd8e3ac \
+                            size    217916
 
-            # force cython usage
-            foreach f [glob ${worksrcpath}/pyproj/*.c] {
-                file delete $f
+        variant proj8 conflicts proj9 {
+            depends_lib-append      port:proj8
+            configure.env-append    PROJ_DIR=${prefix}/lib/proj8
+            build.env-append        PROJ_DIR=${prefix}/lib/proj8
+            destroot.env-append     PROJ_DIR=${prefix}/lib/proj8
+            post-patch {
+                reinplace "s|%%INTERNAL_DATADIR%%|${prefix}/lib/proj8/share/proj|" ${worksrcpath}/pyproj/datadir.py
             }
         }
-    } else {
-        depends_lib-append  port:py${python.version}-certifi \
-                            port:proj7
+
+        variant proj9 conflicts proj8 {
+            depends_lib-append      port:proj9
+            configure.env-append    PROJ_DIR=${prefix}/lib/proj9
+            build.env-append        PROJ_DIR=${prefix}/lib/proj9
+            destroot.env-append     PROJ_DIR=${prefix}/lib/proj9
+            post-patch {
+                reinplace "s|%%INTERNAL_DATADIR%%|${prefix}/lib/proj9/share/proj|" ${worksrcpath}/pyproj/datadir.py
+            }
+        }
+
+        if {![variant_isset proj8] && ![variant_isset proj9]} {
+            default_variants        +proj9
+        }
 
         patchfiles-append   patch-pyproj_datadir.py.diff
-
+    } else {
+        depends_lib-append      port:proj9
+        configure.env-append    PROJ_DIR=${prefix}/lib/proj9
+        build.env-append        PROJ_DIR=${prefix}/lib/proj9
+        destroot.env-append     PROJ_DIR=${prefix}/lib/proj9
+        patchfiles-append       patch-pyproj_datadir.py.diff
         post-patch {
-            reinplace "s|%%INTERNAL_DATADIR%%|${prefix}/lib/proj7/share/proj|" ${worksrcpath}/pyproj/datadir.py
-
-            # force cython usage
-            foreach f [glob ${worksrcpath}/pyproj/*.c] {
-                file delete $f
-            }
+            reinplace "s|%%INTERNAL_DATADIR%%|${prefix}/lib/proj9/share/proj|" ${worksrcpath}/pyproj/datadir.py
         }
-
-        configure.env-append    PROJ_DIR=${prefix}/lib/proj7
-        build.env-append        PROJ_DIR=${prefix}/lib/proj7
-        destroot.env-append     PROJ_DIR=${prefix}/lib/proj7
     }
 
+    if {${python.version} <= 38} {
+        depends_build-append \
+                        port:py${python.version}-cython-compat
+        set compat_path [string replace ${python.pkgd} 0 [string length ${python.prefix}]-1 ${prefix}/lib/py${python.version}-cython-compat]
+        build.env-append    PYTHONPATH=${compat_path}
+        destroot.env-append PYTHONPATH=${compat_path}
+    } else {
+        depends_build-append \
+                        port:py${python.version}-cython
+    }
+
+    depends_lib-append  port:py${python.version}-certifi
+
     post-destroot {
-        xinstall -m 644 -W ${worksrcpath} \
+        xinstall -m 0644 -W ${worksrcpath} \
             README.md PKG-INFO \
             ${destroot}${prefix}/share/doc/${subport}
     }

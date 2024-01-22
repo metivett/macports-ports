@@ -1,0 +1,50 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           github 1.0
+
+github.setup        TypedDevs bashunit 0.10.1
+github.tarball_from archive
+revision            0
+
+homepage            https://bashunit.typeddevs.com/
+
+description         A simple testing library for bash scripts.
+
+long_description    \
+    ${name} is a dedicated testing tool crafted specifically for Bash \
+    scripts. It empowers you with tests on your Bash codebase, ensuring that \
+    your scripts operate reliably and as intended. With an intuitive API and \
+    documentation, it streamlines the process for developers to implement and \
+    manage tests. This is beneficial regardless of the project's size or \
+    intricacy in Bash.
+
+categories          devel shells
+platforms           any
+license             MIT
+maintainers         {gmail.com:herby.gillot @herbygillot} \
+                    openmaintainer
+supported_archs     noarch
+
+checksums           rmd160  79916ff6e2d150d106daba6267238fb3417eb07b \
+                    sha256  c8e9633d5b009743db209d8d264bce5b1d15b5068db27c916ccecc28bc3f305e \
+                    size    1018141
+
+depends_lib-append  port:bash
+
+use_configure       no
+
+build.cmd           ./build.sh
+
+patch {
+    # Force use of MacPorts bash
+    foreach srcscript [glob ${worksrcpath}/src/*.sh] {
+        reinplace -E "s|#!/bin/bash|#!${prefix}/bin/bash|g" ${srcscript}
+    }
+
+    reinplace -E "s|#!/bin/bash|#!${prefix}/bin/bash|g" ${worksrcpath}/build.sh
+}
+
+destroot {
+    copy ${worksrcpath}/bin/${name} ${destroot}${prefix}/bin/
+}
