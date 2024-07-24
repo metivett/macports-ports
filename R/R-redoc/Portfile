@@ -4,7 +4,7 @@ PortSystem          1.0
 PortGroup           R 1.0
 
 R.setup             cran meztez redoc 2.0.0.75
-revision            0
+revision            1
 maintainers         nomaintainer
 license             {Apache-2 MIT}
 description         Generates Redoc documentation from an OpenAPI specification
@@ -14,6 +14,7 @@ checksums           rmd160  3409c872d41a64579e081b24476bc540cea9faee \
                     sha256  106b577145d85683fa43b3d8de98633b1a44ab1b277a0314d08ee67ea086a4cc \
                     size    442282
 supported_archs     noarch
+platforms           {darwin any}
 
 depends_lib-append  port:R-jsonlite
 

@@ -5,7 +5,7 @@ PortGroup           python 1.0
 PortGroup           compiler_blacklist_versions 1.0
 
 name                py-pandas
-version             2.2.0
+version             2.2.2
 revision            0
 categories-append   science
 license             BSD
@@ -21,13 +21,9 @@ long_description    {*}${description}
 
 homepage            https://pandas.pydata.org
 
-checksums           rmd160  c803d9d4543d188d2c63976118e447e2a3c2609e \
-                    sha256  30b83f7c3eb217fb4d1b494a57a2fda5444f17834f5df2de6b2ffff68dc3c8e2 \
-                    size    4390211
-
-# error: use of undeclared identifier 'signbit'; did you mean 'std::signbit'?
-compiler.blacklist-append \
-                    {clang < 600}
+checksums           rmd160  8041c577d00076a38b23f1c72783a1ec51cc1096 \
+                    sha256  9e79019aba43cb4fda9e4d983f8e88ca0373adbb697ae9c6c43093218de28b54 \
+                    size    4398391
 
 if {${name} ne ${subport}} {
     depends_build-append \
@@ -52,6 +48,11 @@ if {${name} ne ${subport}} {
             reinplace {s|oldest-supported-numpy>=2022\.8\.16|numpy|g} ${worksrcpath}/pyproject.toml
         }
 
+        # error: use of undeclared identifier 'signbit'; did you mean 'std::signbit'?
+        compiler.blacklist-append \
+                    {clang < 600} *gcc-3.* *gcc-4.*
+
+
         set compat_path [string replace ${python.pkgd} 0 [string length ${python.prefix}]-1 ${prefix}/lib/py${python.version}-cython-compat]
         build.env-append    PYTHONPATH=${compat_path}
 
@@ -62,6 +63,11 @@ if {${name} ne ${subport}} {
         depends_lib-delete  port:py${python.version}-pytzdata
     } else {
         patchfiles-append   patch-pyproject.toml.diff
+
+        # error: static_assert failed "Overflow checking not detected; please try a newer compiler"
+        compiler.blacklist-append \
+                    {clang < 800} *gcc-3.* *gcc-4.*
+
         build.env-append    CYTHON=${prefix}/bin/cython-${python.branch}
         build.env-append    PATH=${python.prefix}/bin:$::env(PATH)
     }

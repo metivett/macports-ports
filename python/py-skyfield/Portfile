@@ -4,7 +4,7 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-skyfield
-version             1.47
+version             1.49
 revision            0
 categories          python
 license             MIT
@@ -17,11 +17,11 @@ supported_archs     noarch
 platforms           {darwin any}
 homepage            https://rhodesmill.org/skyfield/
 
-checksums           rmd160  309c2d9047e3aef2d93544dc02088862541271dc \
-                    sha256  3ac3e178c20547fa8e86adae4fdebcc8b4a744a184394268ce55338426bfe208 \
-                    size    403275
+checksums           rmd160  18690f229e54e032c283bc5cc9cdf0d8556cb42a \
+                    sha256  20883027b2bbf4017dd916b64faaeb3713a8f88d7c8e353c15cd030ac63be92c \
+                    size    311074
 
-python.versions     38 39 310 311
+python.versions     38 39 310 311 312
 
 if {${name} ne ${subport}} {
     depends_build-append \

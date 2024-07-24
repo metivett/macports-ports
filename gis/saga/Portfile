@@ -10,7 +10,7 @@ wxWidgets.use       wxWidgets-3.2
 name                saga
 categories          gis
 license             GPL
-version             9.3.0
+version             9.4.1
 revision            0
 maintainers         {vince @Veence} {yahoo.com:n_larsson @nilason} openmaintainer
 
@@ -26,14 +26,15 @@ homepage            https://saga-gis.sourceforge.io/en/index.html
 set master_sites_in sourceforge:project/saga-gis/SAGA%20-%20[lindex [split ${version} "."] 0]/SAGA%20-%20${version}
 master_sites        ${master_sites_in}
 
-checksums           rmd160  7d2b7c16a1744e3e027eeea60e7298567a49e962 \
-                    sha256  cc1769e04cb3a5cdb5ce1036f940fa2eb5cd1feb127dbd1abceb1cc426c6c631 \
-                    size    9085741
+checksums           rmd160  bef66f9655e9543562f1aa63acf4f4a4180e8f87 \
+                    sha256  72de6fb5cb21f3a2cc19083c20d5ced0f77b0bacfbd5477c7f9f664649a6e699 \
+                    size    9165968
 
 cmake.source_dir    ${worksrcpath}/saga-gis
 
-patchfiles-append   shape_cpp.diff
-patchfiles-append   python_cmake.diff
+patchfiles-append   shape_cpp.diff \
+                    python_cmake.diff \
+                    patch-findpostgres-cmake.diff
 
 depends_build-append \
                     port:pkgconfig \
@@ -138,7 +139,7 @@ if {${subport} eq ${name}} {
     }
 
     # Set PostgreSQL variant
-    set postgresql_suffixes {12 13 14 15}
+    set postgresql_suffixes {12 13 14 15 16}
     set postgresql_variants {}
     foreach suffix ${postgresql_suffixes} {
         lappend postgresql_variants postgresql${suffix}
@@ -159,7 +160,7 @@ if {${subport} eq ${name}} {
         set pgdefault "${pgdefault}!\[variant_isset postgresql${suffix}\] && "
     }
     set pgdefault [string range ${pgdefault} 0 end-4]
-    set pgdefault "${pgdefault}} { default_variants +postgresql15 }"
+    set pgdefault "${pgdefault}} { default_variants +postgresql16 }"
     eval ${pgdefault}
 }
 
@@ -204,9 +205,6 @@ if {[string match "py*" ${subport}]} {
     }
 
     post-destroot {
-        xinstall -d ${destroot}${python.pkgd}
-        move ${destroot}${prefix}/lib/python${python.branch}/site-packages/PySAGA \
-            ${destroot}${python.pkgd}
         delete --force ${destroot}${prefix}/bin
         delete --force ${destroot}${prefix}/include
         delete --force ${destroot}${prefix}/lib

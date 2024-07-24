@@ -5,7 +5,7 @@ PortGroup           cmake 1.1
 PortGroup           github 1.0
 PortGroup           openssl 1.0
 
-github.setup        jupyter-xeus xeus-zmq 1.2.0
+github.setup        jupyter-xeus xeus-zmq 3.1.0
 revision            0
 categories          devel science
 license             BSD
@@ -16,9 +16,9 @@ long_description    {*}${description} These implementations all conform to the J
                     Kernel Protocol specification.
 homepage            https://github.com/jupyter-xeus/xeus-zmq
 
-checksums           rmd160  62e520858f1d5e5217d4b0b07231d69728968b80 \
-                    sha256  a7f8bab4140448fffb2f63669f68345b51e303b734501655cfe39c1ee83f3761 \
-                    size    36778
+checksums           rmd160  95ce03756e145e4c5346b66452b8d2b118b1d0c4 \
+                    sha256  90031a7c1a9e8838a8646f68975eee69a37626be0d2b82fb2d132bd002d9ffd1 \
+                    size    73874
 
 openssl.branch      3
 
@@ -30,4 +30,5 @@ depends_lib-append  port:cppzmq \
                     port:zmq
 
 # https://trac.macports.org/ticket/66817
-compiler.cxx_standard 2014
+# xclient_zmq.hpp:13:10: fatal error: 'optional' file not found
+compiler.cxx_standard 2017

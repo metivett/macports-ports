@@ -4,7 +4,7 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                qutebrowser
-version             3.1.0
+version             3.2.1
 revision            0
 
 description         A keyboard-driven, vim-like browser based on PyQt5
@@ -17,11 +17,11 @@ maintainers         {amake @amake} openmaintainer
 
 homepage            https://www.qutebrowser.org/
 
-checksums           rmd160  01b92caca54bcf821588e8e5dbaf74070e922957 \
-                    sha256  500dcc1cca08d6b0b814fa306e2208e25335acbe0e2cf999fb51916e0f4b2e5f \
-                    size    6045747
+checksums           rmd160  adcc0e8a4ec98c93f9215959077f1f3cfbc764a7 \
+                    sha256  02a7af2a6c5db38d87b225b0b8412c80d9838335f32d0e8a38f6d7fbcd38897d \
+                    size    6054942
 
-python.default_version 311
+python.default_version 312
 
 depends_build-append port:py${python.default_version}-setuptools
 

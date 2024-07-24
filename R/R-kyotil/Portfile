@@ -3,15 +3,16 @@
 PortSystem          1.0
 PortGroup           R 1.0
 
-R.setup             cran youyifong kyotil 2023.11-27
+R.setup             cran youyifong kyotil 2024.5-8
 revision            0
 maintainers         nomaintainer
 license             GPL-2+
-description         Utility functions for statistical analysis report generation and Monte Carlo studies
+description         Utility functions for statistical analysis report generation \
+                    and Monte Carlo studies
 long_description    {*}${description}
-checksums           rmd160  98bd6b38115cbbbc909c8d5a17b10e1fa35b785c \
-                    sha256  6663dd285119f548bfa58c31e4c0dc434d904452df32fe6e541915ae05533009 \
-                    size    210405
+checksums           rmd160  be2adc2896966bdb8085d90f547eb00d0133cd9b \
+                    sha256  221b0dffe418007623a1c74e54cde2ac3e3df51a6987ca3c5a128ad0d79996c9 \
+                    size    211782
 
 compilers.setup     require_fortran
 

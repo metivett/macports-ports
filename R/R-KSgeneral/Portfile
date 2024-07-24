@@ -4,16 +4,16 @@ PortSystem          1.0
 PortGroup           R 1.0
 
 # GitHub version lags behind.
-R.setup             cran raymondtsr KSgeneral 1.1.2
+R.setup             cran raymondtsr KSgeneral 2.0.0
 revision            0
 categories-append   math
 maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
 license             GPL-2+
 description         Compute p-values of the K-S test for (dis)continuous null distribution
 long_description    {*}${description}
-checksums           rmd160  ff22af1b67c7b23654a7e843788e6ae581d14e52 \
-                    sha256  aed92ccf5ee086517e4a0ccd75f837343c865ec35634933e0657d63233eb717a \
-                    size    71053
+checksums           rmd160  223781c55231da462305aa92c1927c62b5ddcf59 \
+                    sha256  1438cf69e6db336c35d340b3cc7eae3cdff219ddb545b92e5a781b338ac97854 \
+                    size    94188
 
 depends_build-append \
                     port:pkgconfig

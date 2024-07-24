@@ -3,11 +3,11 @@
 PortSystem          1.0
 
 name                fakeroot
-version             1.32.2
+version             1.35.1
 revision            0
-checksums           rmd160  3c11b90078d89128ce332564b2c1344811af6b40 \
-                    sha256  f0f72b504f288eea5b043cd5fe37585bc163f5acaacd386e1976b1055686116d \
-                    size    571345
+checksums           rmd160  7259bd6011ece81a07d837d37aa327d53a810711 \
+                    sha256  6a0de53b2de05277d4e6d4a884eb0de7a8ad467b82c07a6f8f2f6a629e655fdc \
+                    size    572985
 
 categories          sysutils
 license             GPL-3+

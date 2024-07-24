@@ -3,17 +3,19 @@
 PortSystem          1.0
 PortGroup           R 1.0
 
-R.setup             github easystats see 0.8.1
+R.setup             github easystats see 0.8.5
 revision            0
 categories-append   math
+platforms           {darwin any}
 maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
 license             GPL-3
-description         Model visualisation toolbox for easystats and ggplot2
+description         Model visualisation toolbox for R-easystats and R-ggplot2
 long_description    {*}${description}
 homepage            https://easystats.github.io/see
-checksums           rmd160  75a3d328f49fe4686c9dd94abc937ab76d61cfc2 \
-                    sha256  adb6bdebf4bb7eefc0310b337aa470eeafa01d5983a5c369decb6639bd0b6c1c \
-                    size    1852782
+checksums           rmd160  6cce29d8ae62a95c710ebe7ca793bf8d7634d94a \
+                    sha256  2dc3952599546bf76a78db7a89e0288c2270cc89d79f1287fe369dc2c4016ef4 \
+                    size    1905317
+github.tarball_from archive
 supported_archs     noarch
 
 depends_lib-append  port:R-bayestestR \
@@ -25,3 +27,40 @@ depends_lib-append  port:R-bayestestR \
                     port:R-modelbased \
                     port:R-parameters \
                     port:R-performance
+
+patchfiles-append   patch-no-qqplotr.diff
+
+depends_test-append port:R-brms \
+                    port:R-curl \
+                    port:R-DHARMa \
+                    port:R-emmeans \
+                    port:R-factoextra \
+                    port:R-ggdist \
+                    port:R-ggraph \
+                    port:R-ggrepel \
+                    port:R-ggridges \
+                    port:R-ggside \
+                    port:R-glmmTMB \
+                    port:R-httr \
+                    port:R-lavaan \
+                    port:R-lme4 \
+                    port:R-logspline \
+                    port:R-mclust \
+                    port:R-merDeriv \
+                    port:R-metafor \
+                    port:R-NbClust \
+                    port:R-nFactors \
+                    port:R-patchwork \
+                    port:R-poorman \
+                    port:R-psych \
+                    port:R-randomForest \
+                    port:R-RcppEigen \
+                    port:R-rlang \
+                    port:R-rmarkdown \
+                    port:R-rstanarm \
+                    port:R-scales \
+                    port:R-testthat \
+                    port:R-tidygraph \
+                    port:R-vdiffr
+
+test.run            yes

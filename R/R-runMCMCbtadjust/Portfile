@@ -3,16 +3,35 @@
 PortSystem          1.0
 PortGroup           R 1.0
 
-R.setup             cran frederic.gosselin runMCMCbtadjust 1.0.5
+R.setup             cran frederic.gosselin runMCMCbtadjust 1.1.1
 revision            0
 categories-append   math
+platforms           {darwin any}
 maintainers         nomaintainer
-license             CECILL-2.1
-description         Function runMCMC_btadjust() to use with JAGS, R-nimble etc.
+license             CeCILL-2.1
+description         Function runMCMC_btadjust() to use with JAGS, \
+                    R-nimble etc.
 long_description    {*}${description}
-checksums           rmd160  bd4949947a215fee606f4c3a8b0f917b43ff2ef1 \
-                    sha256  a0d1036ccc5098718b277a16b9883c566f1d8b13903884affb450548c021c151 \
-                    size    50796
+checksums           rmd160  2758e368f400fcc34cfa405c9764bc58f752632c \
+                    sha256  13907780cc8e3064dd619c738feb0630026f4c986b6915ea0506f864fa068ed4 \
+                    size    233983
 supported_archs     noarch
 
 depends_lib-append  port:R-coda
+
+# Some optional deps are omitted.
+depends_test-append port:R-ggmcmc \
+                    port:R-Hmisc \
+                    port:R-knitr \
+                    port:R-markdown \
+                    port:R-moments \
+                    port:R-nimble \
+                    port:R-nimbleAPT \
+                    port:R-nimbleHMC \
+                    port:R-R6 \
+                    port:R-rjags \
+                    port:R-rstan \
+                    port:R-runjags \
+                    port:R-testthat
+
+test.run            yes

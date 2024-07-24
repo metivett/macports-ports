@@ -3,7 +3,7 @@
 PortSystem          1.0
 PortGroup           golang 1.0
 
-go.setup            github.com/derailed/popeye 0.11.2 v
+go.setup            github.com/derailed/popeye 0.21.3 v
 github.tarball_from archive
 revision            0
 
@@ -30,9 +30,9 @@ license             Apache-2
 maintainers         {gmail.com:herby.gillot @herbygillot} \
                     openmaintainer
 
-checksums           rmd160  d758f0019886ce70582ee8ebc02ca7f94766e97e \
-                    sha256  f315efb2d4075bb8ada297e9c8f1b4ee408946224be9aa38d374350a03c58ff9 \
-                    size    4329394
+checksums           rmd160  33e5bce1503f98ef333fe25c801acd528274df41 \
+                    sha256  9f8f5b46a942ec7fcaf777ec7f16e6d64317cfdc7080e3d637018d778656ee94 \
+                    size    2625439
 
 # Allow Go to fetch deps at build time
 go.offline_build no

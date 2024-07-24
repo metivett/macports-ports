@@ -14,7 +14,7 @@ universal_variant no
 supported_archs  x86_64 arm64
 
 # https://www.oracle.com/java/technologies/downloads/#jdk21-mac
-version      21.0.2
+version      21.0.4
 revision     0
 
 description  Oracle Java SE Development Kit 21
@@ -26,14 +26,14 @@ master_sites https://download.oracle.com/java/21/archive/
 
 if {${configure.build_arch} eq "x86_64"} {
     distname     jdk-${version}_macos-x64_bin
-    checksums    rmd160  c3011bf9e5682f8f12048730b535e881e233f0ac \
-                 sha256  197a923b1f7ea2b224fafdfb9c3ef5fc8eb197d9817d7631d96da02b619f5975 \
-                 size    193307033
+    checksums    rmd160  db61c69287582fad46bf8ed2487072d24e3e3ef7 \
+                 sha256  b4818ec569fe91372bdd8c68409d391b048217642a6cd15c2f56c1bcde4f00a3 \
+                 size    193407206
 } elseif {${configure.build_arch} eq "arm64"} {
     distname     jdk-${version}_macos-aarch64_bin
-    checksums    rmd160  52ea466df3eb3f27b67d11868b9d68ddbd054530 \
-                 sha256  4b94951f03efe44cb6656e43f1098db3ce254a00412f9d22dff18a8328a7efdd \
-                 size    190953252
+    checksums    rmd160  437909c42a6578d1ac9faaeab66a3c4729ca88b6 \
+                 sha256  70aae35540e8d450bf00502f6bb40867142058ef8307e2e987048ac5b97aa4c2 \
+                 size    191050003
 }
 
 worksrcdir   jdk-${version}.jdk

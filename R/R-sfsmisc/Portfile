@@ -3,17 +3,19 @@
 PortSystem          1.0
 PortGroup           R 1.0
 
-R.setup             cran mmaechler sfsmisc 1.1-16
+R.setup             cran mmaechler sfsmisc 1.1-18
 revision            0
 categories-append   graphics sysutils
 maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
 license             GPL-2+
 description         Utilities from Seminar für Statistik, ETH Zürich
 long_description    {*}${description}
-checksums           rmd160  a586f134e11b59a3af5c6b883bdbeea0ec9a3801 \
-                    sha256  511b4a661e3cfec540eb3d08f67b715f3cda398eb135a011b9be84305c11436c \
-                    size    185782
+homepage            https://github.com/mmaechler/sfsmisc
+checksums           rmd160  21e68cc9259b1ff750d125a4ccc2ec80e4c50ace \
+                    sha256  33052ea0e9b7f2b8f079b2adbf58bd89a39b49e66a352df85191cc01adc483ad \
+                    size    186005
 supported_archs     noarch
+platforms           {darwin any}
 
 depends_test-append port:R-e1071 \
                     port:R-gmp \

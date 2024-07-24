@@ -3,18 +3,18 @@
 PortSystem          1.0
 PortGroup           R 1.0
 
-R.setup             github Bioconductor BiocFileCache 7b7c4d379f71261d9352b5ddbbbe9992f1b6b944
-version             2.11.1
+R.setup             bioconductor Bioconductor BiocFileCache 2.12.0
 revision            0
+categories-append   bioconductor
 maintainers         nomaintainer
 license             Artistic-2
 description         Manage files across sessions
 long_description    {*}${description}
-homepage            https://bioconductor.org/packages/${R.package}
-checksums           rmd160  c12369bda7557a207e4957aa32b4795724203807 \
-                    sha256  ea9616d44c929d14068ad67b63e623cf1dd3160c0ee3b627ac9fb8ed2fac7786 \
-                    size    52463
+checksums           rmd160  7537ab402764ab6bb14222a4fb3caec7e6455973 \
+                    sha256  2e716d10a27ecb677095144dd707273c534f8d1f11d248fed63aa45ea285664b \
+                    size    297080
 supported_archs     noarch
+platforms           {darwin any}
 
 depends_lib-append  port:R-curl \
                     port:R-DBI \

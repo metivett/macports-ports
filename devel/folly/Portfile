@@ -20,11 +20,11 @@ if {[string match *clang* ${configure.compiler}]} {
 # NB: Facebook does not do API stability, apparently, so please don't
 # upgrade without also upgrading its dependents, as listed by:
 # port list rdepends:folly
-github.setup        facebook folly 2024.01.08.00 v
+github.setup        facebook folly 2024.06.03.00 v
 revision            0
-checksums           rmd160  be1a27c48af23af50cee6268fd14a9fbaf5f454b \
-                    sha256  97334f8c7a8dfd933381c0afacd3ab48000f3a90f74d83482b8ec259b997d039 \
-                    size    3962098
+checksums           rmd160  b80342399a8cc1a63a0a57eea302d0522bc5ee14 \
+                    sha256  29c0fb464d081295f2c04c92414802b628e8c1d37b993948d22f62aed8ab2b56 \
+                    size    4110562
 
 categories          devel
 license             Apache-2
@@ -69,25 +69,26 @@ depends_lib-append  port:bzip2 \
 
 cmake.generator     Ninja
 
-patchfiles-append   patch-older-systems.diff
+# https://github.com/facebook/folly/pull/2124
+# https://github.com/facebook/folly/pull/1907
+patchfiles-append   patch-legacy-systems.diff
+
+# Ironically, commit claiming to fix unsupported platforms does the reverse
+# and breaks build of fizz. Revert it.
+patchfiles-append   patch-Revert-Break-static-trace-point-unused-variable-warn.diff
 
 configure.args-append   -DBUILD_SHARED_LIBS=ON \
                         -DFOLLY_USE_JEMALLOC=0
 
+compiler.thread_local_storage \
+                        yes
 compiler.cxx_standard   2017
 configure.cxxflags-append \
                         -std=c++17
 
-# error: TARGET_OS_xxx not defined, evaluates to 0
-configure.cppflags-append \
-                        -Wno-undef-prefix
-
 # error: typedef redefinition with different types ('uint8_t' (aka 'unsigned char') vs 'enum clockid_t')
-compiler.blacklist-append {clang < 1100}
-# error: 'path' is unavailable: introduced in macOS 10.15
-compiler.blacklist-append {macports-clang-[5-9].0}
-# Temporary blacklist; current gcc 12.2.0 fails with undefined symbols, while gcc 11.3.0 works fine.
-compiler.blacklist-append macports-gcc-12
+# error: no matching constructor for initialization of 'std::function<LocalRefCount ()>'
+compiler.blacklist-append {clang < 1400}
 
 platform darwin {
     # https://github.com/facebook/folly/issues/864
@@ -116,9 +117,13 @@ platform darwin {
             configure.ldflags-append \
                                 -latomic
         }
+    } elseif {[string match *clang* ${configure.compiler}]} {
+        # error: TARGET_OS_xxx not defined, evaluates to 0
+        configure.cppflags-append \
+                                -Wno-undef-prefix
     }
     # Fix for building in Rosetta, so that x86 SSE is not invoked:
-    if {${os.major} == 10 && ${build_arch} eq "ppc"} {
+    if {${os.major} == 10 && ${configure.build_arch} eq "ppc"} {
         configure.args-append   -DCMAKE_LIBRARY_ARCHITECTURE="ppc" \
                                 -DIS_X86_64_ARCH=OFF
     }
@@ -140,4 +145,40 @@ variant native description {Build with best native support for local CPU capabil
         configure.cxxflags-append \
                                 -march=native
     }
+}
+
+# FIXME: at the moment about 90% of tests pass on PowerPC.
+# This is somewhat worse than Sonoma arm64, where 91% of tests pass.
+# https://github.com/facebook/folly/issues/2128
+variant tests description {Enable testing} {
+    depends_build-append        port:gtest
+    configure.pre_args-replace  -DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=ON \
+                                -DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=OFF
+
+    configure.args-append       -DBUILD_TESTS=ON
+
+    pre-test {
+        if {${os.platform} eq "darwin" && ${configure.cxx_stdlib} ne "libc++"} {
+            foreach testexec    [glob ${cmake.build_dir}/*test] {
+                move            ${testexec} \
+                                ${testexec}-orig
+
+                set  wrapper    [open "${testexec}" w 0755]
+                puts ${wrapper} "#!/bin/bash"
+                puts ${wrapper} ""
+                puts ${wrapper} {if [ -n "$DYLD_LIBRARY_PATH" ]; then}
+                puts ${wrapper} "   DYLD_LIBRARY_PATH=${prefix}/lib/libgcc:\./:\${DYLD_LIBRARY_PATH}"
+                puts ${wrapper} {else}
+                puts ${wrapper} "   DYLD_LIBRARY_PATH=${prefix}/lib/libgcc:\./"
+                puts ${wrapper} {fi}
+                puts ${wrapper} {export DYLD_LIBRARY_PATH}
+                puts ${wrapper} ""
+                puts ${wrapper} {exec "${0}-orig" "$@"}
+                close $wrapper
+            }
+        }
+        # test infrastructure uses /bin/ps, which is forbidden by sandboxing
+        append portsandbox_profile " (allow process-exec (literal \"/bin/ps\") (with no-profile))"
+    }
+    test.run                    yes
 }

@@ -4,17 +4,18 @@ PortSystem          1.0
 PortGroup           R 1.0
 
 # GitHub version lags behind.
-R.setup             cran vincentarelbundock marginaleffects 0.17.0
+R.setup             cran vincentarelbundock marginaleffects 0.21.0
 revision            0
 categories-append   math
 maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
 license             GPL-3+
-description         Predictions, comparisons, slopes, marginal means and hypothesis tests
+description         Predictions, comparisons, slopes, marginal means \
+                    and hypothesis tests
 long_description    {*}${description}
 homepage            https://vincentarelbundock.github.io/marginaleffects
-checksums           rmd160  802b9cedaf8c74e5beb45d0fb5e814fb2c502b31 \
-                    sha256  50acdba0a5e19bf977cf9717f122ece5af17be81e9c88683110d689c456bbbc0 \
-                    size    1218610
+checksums           rmd160  1714b2e762ccf6d93d884488aa3a1326da031770 \
+                    sha256  b7e27e8b969a992ee3573259eed6655594d1f255b2c1a5f368c33fa6d4ec09ff \
+                    size    1513128
 
 depends_lib-append  port:R-checkmate \
                     port:R-data.table \

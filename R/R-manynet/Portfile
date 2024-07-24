@@ -3,30 +3,34 @@
 PortSystem          1.0
 PortGroup           R 1.0
 
-R.setup             cran snlab-ch manynet 0.3.0
+R.setup             cran snlab-ch manynet 1.0.1
 revision            0
 categories-append   math
+platforms           {darwin any}
 maintainers         nomaintainer
 license             MIT
 description         Many ways to make, manipulate and map myriad networks
 long_description    {*}${description}
 homepage            https://snlab-ch.github.io/manynet
-checksums           rmd160  dc6a03f47b9bf561c1db4663675daf63dc0f6da1 \
-                    sha256  683115433383be6da6c5a885da4a342cf8e99b512e2309f967abf067555de8d6 \
-                    size    1233473
+checksums           rmd160  b6d91bb22111219ae1d9b36d50a6e3151671c8cd \
+                    sha256  a0dca7cefb6e1b2902038c47553b903469a558c31f7370357235ade121011344 \
+                    size    1423868
 supported_archs     noarch
 
 depends_lib-append  port:R-dplyr \
                     port:R-ggplot2 \
                     port:R-ggraph \
                     port:R-igraph \
+                    port:R-minMSE \
                     port:R-network \
+                    port:R-pillar \
                     port:R-tidygraph
 
-# R-concaveman needs V8: https://github.com/joelgombin/concaveman/issues/18
-patchfiles          patch-remove-unavailable-suggests.diff
-
+# Some suggested deps are dropped:
+# https://github.com/joelgombin/concaveman/issues/18
 depends_test-append port:R-BiocManager \
+                    port:R-furrr \
+                    port:R-future \
                     port:R-gganimate \
                     port:R-ggforce \
                     port:R-graphlayouts \

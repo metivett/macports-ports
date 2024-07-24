@@ -4,17 +4,17 @@ PortSystem          1.0
 PortGroup           R 1.0
 
 # Revert to GitHub once updated there.
-R.setup             cran dmurdoch rgl 1.2.8
-revision            0
+R.setup             cran dmurdoch rgl 1.3.1
+revision            1
 categories-append   graphics
 maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
 license             GPL
 description         3D visualization using OpenGL
 long_description    {*}${description}
 homepage            https://dmurdoch.github.io/rgl
-checksums           rmd160  8168b41f80ac4c51c4f7b672941187e618885965 \
-                    sha256  e535e738702d0babe043c1fec3d358c7bfdfe202ad95d68971b28ad7a81717f4 \
-                    size    2557113
+checksums           rmd160  17a9ad0a2507546f9d85e42428bc05bc91b74a39 \
+                    sha256  9fea7b59dd7fef9bbd783c745d68325ec753ef412699d168bb6c664a56506d49 \
+                    size    3411341
 
 depends_build-append \
                     port:pkgconfig
@@ -37,19 +37,53 @@ if {(${os.platform} eq "darwin" && ${os.major} < 22) || ${os.platform} ne "darwi
     depends_lib-append \
                     port:xorg-libX11
 
-    destroot.pre_args-append \
-                    --configure-args=' \
-                        --with-x \
+    build.args-append \
+                    --configure-args="--with-x \
                         --x-includes=${prefix}/include/X11 \
-                        --x-libraries=${prefix}/lib \
-                        '
+                        --x-libraries=${prefix}/lib"
 }
 
-# TODO: implement tests, verify on PowerPC.
-# FIXME: https://github.com/dmurdoch/rgl/issues/317
+# https://github.com/dmurdoch/rgl/issues/317
 if {${os.platform} eq "darwin" && ${os.major} < 11} {
-    destroot.pre_args-append \
-                    --configure-args=' \
-                        --disable-opengl \
-                        '
+    build.args-append \
+                    --configure-args="--disable-opengl"
 }
+
+# Some deps are omitted.
+depends_test-append port:R-alphashape3d \
+                    port:R-crosstalk \
+                    port:R-deldir \
+                    port:R-downlit \
+                    port:R-extrafont \
+                    port:R-interp \
+                    port:R-jpeg \
+                    port:R-magick \
+                    port:R-manipulateWidget \
+                    port:R-markdown \
+                    port:R-misc3d \
+                    port:R-orientlib \
+                    port:R-pkgdown \
+                    port:R-plotrix \
+                    port:R-png \
+                    port:R-rmarkdown \
+                    port:R-shiny \
+                    port:R-testthat \
+                    port:R-tripack \
+                    port:R-waldo
+
+if {${configure.build_arch} in [list arm64 x86_64]} {
+    depends_test-append \
+                    port:R-js \
+                    port:R-V8
+}
+
+# Tests seem to pass fine even on old systems.
+# On PowerPC I get two minor errors presently.
+# One error in R-plot3d example:
+# XIO:  fatal IO error 0 (Unknown error: 0) on X server "/tmp/launch-TJkOdD/org.macports:0"
+# after 63713 requests (63713 known processed) with 0 events remaining.
+# This is most likely a bug in xorg-server-legacy
+# or rather specifically in its implementation for ppc.
+# Another error is with parsing pre-release versions of Darwin:
+# https://github.com/dmurdoch/rgl/issues/419
+test.run            yes

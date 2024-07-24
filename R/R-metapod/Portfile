@@ -3,15 +3,16 @@
 PortSystem          1.0
 PortGroup           R 1.0
 
-R.setup             bioconductor Bioconductor metapod 1.10.0
+R.setup             bioconductor Bioconductor metapod 1.12.0
 revision            0
+categories-append   bioconductor
 maintainers         nomaintainer
 license             GPL-3
 description         Meta-analyses on p-values of differential analyses
 long_description    {*}${description}
-checksums           rmd160  2c253ebaa55c55e88e3c2e804bf9a8cd24a800da \
-                    sha256  0c0b16f590f354e8ab68f0171ff6b62f4808acc1e1b278a2c47030fe8ce41dda \
-                    size    331377
+checksums           rmd160  99bb627067aaa158e1e9ca4a8de8772c02b3e2ef \
+                    sha256  16b9a417ec3bcb68a18e859f24e6ba1b3764892d53af32fbc9c980e3c5d31c80 \
+                    size    330991
 
 depends_lib-append  port:R-Rcpp
 
@@ -22,4 +23,4 @@ depends_test-append port:R-BiocStyle \
 
 # Tests err out due to a broken R-BATCH.
 # See: https://trac.macports.org/ticket/67059
-test.run            yes
+test.run            no

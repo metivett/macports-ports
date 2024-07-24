@@ -282,12 +282,11 @@ proc rust::old_macos_compatibility {cname cversion} {
     global cargo.home subport
 
     switch ${cname} {
-        "kqueue" {
-            if { [vercmp ${cversion} < 1.0.5] && "i386" in [option muniversal.architectures] } {
-                # see https://gitlab.com/worr/rust-kqueue/-/merge_requests/10
-                reinplace {s|all(target_os = "freebsd", target_arch = "x86")|all(any(target_os = "freebsd", target_os = "macos"), any(target_arch = "x86", target_arch = "powerpc"))|g} \
-                    ${cargo.home}/macports/${cname}-${cversion}/src/time.rs
-                cargo.offline_cmd-replace --frozen --offline
+        "cc" {
+            if { [vercmp ${cversion} < 1.0.94] && [vercmp ${cversion} >= 1.0.85] } {
+                # see https://github.com/rust-lang/cc-rs/pull/1007
+                reinplace "s|--show-sdk-platform-version|--show-sdk-version|g" \
+                    ${cargo.home}/macports/${cname}-${cversion}/src/lib.rs
             }
         }
         "curl-sys" {
@@ -306,8 +305,16 @@ proc rust::old_macos_compatibility {cname cversion} {
                     ${cargo.home}/macports/${cname}-${cversion}/build.rs
             }
         }
+        "kqueue" {
+            if { [vercmp ${cversion} < 1.0.5] && "i386" in [option muniversal.architectures] } {
+                # see https://gitlab.com/worr/rust-kqueue/-/merge_requests/10
+                reinplace {s|all(target_os = "freebsd", target_arch = "x86")|all(any(target_os = "freebsd", target_os = "macos"), any(target_arch = "x86", target_arch = "powerpc"))|g} \
+                    ${cargo.home}/macports/${cname}-${cversion}/src/time.rs
+                cargo.offline_cmd-replace --frozen --offline
+            }
+        }
         "rustix" {
-            if { [vercmp ${cversion} < 99999.0.0] && [vercmp ${cversion} >= 0.0] && "i386" in [option muniversal.architectures] } {
+            if { [vercmp ${cversion} < 0.38.31] && [vercmp ${cversion} >= 0.0] && "i386" in [option muniversal.architectures] } {
                 # see https://github.com/bytecodealliance/rustix/issues/991
                 reinplace "s|utimensat_old(dirfd, path, times, flags)|//utimensat_old(dirfd, path, times, flags)|g" \
                     ${cargo.home}/macports/${cname}-${cversion}/src/backend/libc/fs/syscalls.rs
@@ -329,6 +336,18 @@ proc rust::old_macos_compatibility {cname cversion} {
     }
 
     switch ${cname} {
+        "cc" {
+            if {[vercmp ${cversion} >= 1.0.85]} {
+                # cc ignores `MACOSX_DEPLOYMENT_TARGET` if it is too low (see https://github.com/rust-lang/cc-rs/commit/0a0ce5726d0b42d383bb50079bdb680dfddcc076)
+                # instead, cc runs `xcrun --show-sdk-platform-version` or `xcrun --show-sdk-version`, depening on the version of cc
+                # `xcrun --show-sdk-platform-version` was a mistake (see https://github.com/rust-lang/cc-rs/pull/1007)
+                # `xcrun --show-sdk-version` is only supported on 10.8 or above
+                # if `xcrun` fails, cc sets MACOSX_DEPLOYMENT_TARGET to a hardcoded value
+                # cc may remove `xcrun` in the future (see https://github.com/rust-lang/cc-rs/pull/1009)
+                reinplace "s|let default = \"10.7\";|let default = \"[option macosx_deployment_target]\";|g" \
+                    ${cargo.home}/macports/${cname}-${cversion}/src/lib.rs
+            }
+        }
         "crypto-hash" {
             # switch crypto-hash to use openssl instead of commoncrypto
             # See: https://github.com/malept/crypto-hash/issues/23
@@ -359,10 +378,6 @@ proc rust::old_macos_compatibility {cname cversion} {
     }
 
     switch ${cname} {
-        "notify" {
-            reinplace {s|default = \["macos_fsevent"\]|default = \["macos_kqueue"\]|g} \
-                ${cargo.home}/macports/${cname}-${cversion}/Cargo.toml
-        }
         "cargo-util" {
             reinplace {s|#\[cfg(not(target_os = "macos"))\]|#\[cfg(not(target_os = "macos_temp"))\]|g} \
                 ${cargo.home}/macports/${cname}-${cversion}/src/paths.rs
@@ -370,6 +385,10 @@ proc rust::old_macos_compatibility {cname cversion} {
                 ${cargo.home}/macports/${cname}-${cversion}/src/paths.rs
             reinplace {s|#\[cfg(not(target_os = "macos_temp"))\]|#\[cfg(target_os = "macos")\]|g} \
                 ${cargo.home}/macports/${cname}-${cversion}/src/paths.rs
+        }
+        "notify" {
+            reinplace {s|default = \["macos_fsevent"\]|default = \["macos_kqueue"\]|g} \
+                ${cargo.home}/macports/${cname}-${cversion}/Cargo.toml
         }
     }
 }
@@ -457,6 +476,86 @@ proc rust::append_envs { var {phases {configure build destroot}} } {
     }
 }
 
+# utility procedure to find SDK
+proc rust::get_sdkroot {sdk_version} {
+    if {[option os.platform] ne "darwin"} {
+        # only valid empty return
+        return {}
+    }
+
+    if {[option configure.sdkroot] ne ""} {
+        # SDK from base was found, so trust it
+        return [option configure.sdkroot]
+    }
+
+    if {![option use_xcode] && [file exists "/Library/Developer/CommandLineTools/SDKs"]} {
+        set sdks_dir        /Library/Developer/CommandLineTools/SDKs
+    } else {
+        # `configure.developer_dir` is not used in case `use_xcode` is true but SDKs directory does not exist
+        # early command line tools did not install SDKs
+        if {[vercmp [option xcodeversion] < 4.3]} {
+            set sdks_dir    [option developer_dir]/SDKs
+        } else {
+            set sdks_dir    [option developer_dir]/Platforms/MacOSX.platform/Developer/SDKs
+        }
+    }
+
+    if {$sdk_version eq "10.4"} {
+        set sdk ${sdks_dir}/MacOSX10.4u.sdk
+    } else {
+        set sdk ${sdks_dir}/MacOSX${sdk_version}.sdk
+    }
+    if {[file exists ${sdk}]} {
+        # exact SDK was found
+        return ${sdk}
+    }
+
+    set sdk_major [lindex [split $sdk_version .] 0]
+
+    set sdks [glob -nocomplain -directory ${sdks_dir} MacOSX${sdk_major}*.sdk]
+    foreach sdk [lreverse [lsort -command vercmp $sdks]] {
+        # Sanity check - mostly empty SDK directories are known to exist
+        if {[file exists ${sdk}/usr/include/sys/cdefs.h]} {
+            # SDK with same OS version found
+            return ${sdk}
+        }
+    }
+
+    if {$sdk_major >= 11 && $sdk_major == [option macos_version_major]} {
+        set try_versions [list ${sdk_major}.0 [option macos_version]]
+    } elseif {[option os.major] >= 12} {
+        set try_versions [list $sdk_version]
+    } else {
+        # `xcrun --show-sdk-path` fails prior to 10.8
+        set try_versions [list]
+    }
+    foreach try_version $try_versions {
+        if {![catch {exec env DEVELOPER_DIR=[option configure.developer_dir] xcrun --sdk macosx${try_version} --show-sdk-path 2> /dev/null} sdk]} {
+            # xcrun found SDK with same OS version
+            return ${sdk}
+        }
+    }
+
+    set sdk ${sdks_dir}/MacOSX.sdk
+    if {[file exists ${sdk}]} {
+        # unversioned SDK found
+        ui_warn "Rust PG: Unversioned SDK ${sdk} used for ${sdk_version}"
+        return ${sdk}
+    }
+
+    if {[option os.major] >= 12} {
+        # `xcrun --show-sdk-path` fails prior to 10.8
+        if {![catch {exec xcrun --sdk macosx --show-sdk-path 2> /dev/null} sdk]} {
+            # xcrun found unversioned SDK
+            ui_warn "Rust PG: Unversioned SDK ${sdk} used for ${sdk_version}"
+            return ${sdk}
+        }
+    }
+
+    ui_error "Rust PG: unable to find SDK for ${sdk_version}"
+    return -code error {}
+}
+
 # Is build caching enabled ?
 # WIP for now ...
 #if {[tbool configure.ccache]} {
@@ -535,6 +634,29 @@ proc rust::rust_pg_callback {} {
         depends_lib-append              port:openssl${openssl_ver}
     }
 
+    # rust-bootstrap requires `macosx_deployment_target` instead of `os.major`
+    if { [option os.platform] eq "darwin" && [vercmp [option macosx_deployment_target] < 10.12]} {
+        if { [join [lrange [split ${subport} -] 0 1] -] eq "rust-bootstrap" } {
+            # Bootstrap compilers are building on newer machines to be run on older ones.
+            # Use libMacportsLegacySystem.B.dylib since it is able to use the `__asm("$ld$add$os10.5$...")` trick for symbols that are part of legacy-support *only* on older systems.
+            set legacyLib               libMacportsLegacySystem.B.dylib
+            set dep_type                lib
+        } else {
+            # Use the static library since the Rust compiler looks up certain symbols at *runtime* (e.g. `openat`).
+            # Normally, we would want the additional functionality provided by MacPorts.
+            # However, for reasons yet unknown, the Rust file system (sys/unix/fs.rs) functions fail when they try to use MacPorts system calls.
+            set legacyLib               libMacportsLegacySupport.a
+            set dep_type                build
+        }
+
+        # LLVM: CFPropertyListCreateWithStream, uuid_string_t
+        # Rust: _posix_memalign, extended _realpath, _pthread_setname_np, _copyfile_state_get
+        depends_${dep_type}-delete      path:lib/${legacyLib}:legacy-support
+        depends_${dep_type}-append      path:lib/${legacyLib}:legacy-support
+        configure.ldflags-delete        -Wl,${prefix}/lib/${legacyLib}
+        configure.ldflags-append        -Wl,${prefix}/lib/${legacyLib}
+    }
+
     if { [string match "macports-clang*" [option configure.compiler]] && [option os.major] < 11 } {
         # by default, ld64 uses ld64-127 when 9 <= ${os.major} < 11
         # Rust fails to build when architecture is x86_64 and ld64 uses ld64-127
@@ -553,39 +675,6 @@ proc rust::rust_pg_callback {} {
         depends_lib-append              port:libunwind
         configure.ldflags-delete        -lunwind
         configure.ldflags-append        -lunwind
-
-        if { [join [lrange [split ${subport} -] 0 1] -] eq "rust-bootstrap" } {
-            # Bootstrap compilers are building on newer machines to be run on older ones.
-            # Use libMacportsLegacySystem.B.dylib since it is able to use the `__asm("$ld$add$os10.5$...")` trick for symbols that are part of legacy-support *only* on older systems.
-            set legacyLib               libMacportsLegacySystem.B.dylib
-            set dep_type                lib
-
-            # code should mimic legacy-support
-            # see https://github.com/macports/macports-ports/blob/master/devel/legacy-support/Portfile
-            set max_darwin_reexport 19
-            if { [option configure.build_arch] eq "arm64" || [option os.major] > ${max_darwin_reexport} } {
-                # ${prefix}/lib/libMacportsLegacySystem.B.dylib does not exist
-                # see https://trac.macports.org/ticket/65255
-                known_fail              yes
-                pre-fetch {
-                    ui_error "${subport} requires libMacportsLegacySystem.B.dylib, which is provided by legacy-support"
-                    return -code error "incompatible system configuration"
-                }
-            }
-        } else {
-            # Use the static library since the Rust compiler looks up certain symbols at *runtime* (e.g. `openat`).
-            # Normally, we would want the additional functionality provided by MacPorts.
-            # However, for reasons yet unknown, the Rust file system (sys/unix/fs.rs) functions fail when they try to use MacPorts system calls.
-            set legacyLib               libMacportsLegacySupport.a
-            set dep_type                build
-        }
-
-        # LLVM: CFPropertyListCreateWithStream, uuid_string_t
-        # Rust: _posix_memalign, extended _realpath, _pthread_setname_np, _copyfile_state_get
-        depends_${dep_type}-delete      path:lib/${legacyLib}:legacy-support
-        depends_${dep_type}-append      path:lib/${legacyLib}:legacy-support
-        configure.ldflags-delete        -Wl,${prefix}/lib/${legacyLib}
-        configure.ldflags-append        -Wl,${prefix}/lib/${legacyLib}
     }
 
     # sometimes Cargo.lock does not exist

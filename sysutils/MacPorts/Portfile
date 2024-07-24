@@ -1,7 +1,7 @@
 PortSystem          1.0
 PortGroup           github 1.0
 
-github.setup        macports macports-base 2.9.0-rc2 v
+github.setup        macports macports-base 2.10.0-beta1 v
 name                MacPorts
 
 categories          sysutils macports
@@ -24,8 +24,8 @@ github.tarball_from releases
 dist_subdir         ${name}/testing
 use_bzip2           yes
 
-checksums           rmd160 04b4403dcd3323bfadd679e7f86e774560d7b5de \
-                    sha256 99efc420d24373b1dc80249fa136a0e473e2bca1c8298a7ff695834552b4d01f
+checksums           rmd160 b5a6ddd686645ac1cfdff28f1975eb18bdfe3d9c \
+                    sha256 96d2bca912c181e6f5459d2d4b111aac68187e067f6fa5c8c328419c9fca6447
 
 variant keep_prefix description "Use configured prefix instead of enforcing /opt/local" {}
 if {![variant_isset keep_prefix]} {
@@ -209,6 +209,8 @@ platform darwin {
         # Workaround: in-tree tclsh can't be used to install tcllib
         # when it has been signed (ignores DYLD_* vars).
         patchfiles-append   tclsh.patch
+        # Stripping signify invalidates its signature
+        patchfiles-append   nostrip.patch
     #    post-build {
     #        if {[getuid] == 0 && [info exists sudo_user]} {
     #            set codesign_cmd "/usr/bin/env SUDO_USER=${sudo_user} HOME=/Users/${sudo_user} ${build.cmd} codesign"

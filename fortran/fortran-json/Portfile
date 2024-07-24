@@ -6,7 +6,7 @@ PortGroup           compiler_blacklist_versions 1.0
 PortGroup           compilers 1.0
 PortGroup           github 1.0
 
-github.setup        jacobwilliams json-fortran 8.3.0
+github.setup        jacobwilliams json-fortran 9.0.1
 name                fortran-json
 revision            0
 categories          fortran devel
@@ -15,9 +15,10 @@ maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
 description         Modern Fortran JSON API
 long_description    JSON-Fortran is a user-friendly, thread-safe and object-oriented API \
                     for reading and writing JSON files, written in modern Fortran.
-checksums           rmd160  781bc2fe1cf33e2a91e0134ac08f779875ba8410 \
-                    sha256  e55f9a25aa157b7f85efbcd126ef42da92099a8641a3a0f15572c887aa02a437 \
-                    size    1806133
+checksums           rmd160  c1240fa40cd43634ea72cd04ce77ce3b86101766 \
+                    sha256  1a6fd50220527d27ba0a46113b09b4f5cb5a48a0d090ddc36d3fddf6cf412e56 \
+                    size    1810293
+github.tarball_from archive
 
 compilers.setup     require_fortran
 compiler.blacklist-append \
@@ -28,3 +29,6 @@ configure.args-append \
                     -DENABLE_TESTS=OFF \
                     -DJSON_FORTRAN_USE_OpenCoarrays=OFF \
                     -DUSE_GNU_INSTALL_CONVENTION=ON
+
+# FIXME: fix building and running tests.
+# https://github.com/jacobwilliams/json-fortran/issues/532

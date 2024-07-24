@@ -4,7 +4,7 @@ PortSystem          1.0
 PortGroup           python 1.0
 PortGroup           sourcehut 1.0
 
-sourcehut.setup     lioploum offpunk 2.0 v
+sourcehut.setup     lioploum offpunk 2.3 v
 revision            0
 categories          net gemini
 license             AGPL
@@ -13,9 +13,9 @@ description         Command-line and offline-first smolnet browser/feed reader f
 long_description    {*}${description}. The goal of Offpunk is to be able to synchronise your content once (a day, a week, a month) \
                     and then browse/organise it while staying disconnected.
 
-checksums           rmd160  052a1086191173b6b0b028648a675ace7e6b928f \
-                    sha256  3d5abb1882fdf6dfd8fce2bbd960f30fd9e49c0619432de883b4ea8e048db56c \
-                    size    228392
+checksums           rmd160  065a61d99e890856ae46268d2ea95a6484c10d54 \
+                    sha256  9b3e4c38a9517b77280cc97a38f4a24e3b7ef07945bebdf2f7c58064a1d72b9e \
+                    size    232831
 
 python.default_version 311
 
@@ -24,6 +24,7 @@ depends_lib-append  port:chafa \
                     port:py${python.version}-chardet \
                     port:py${python.version}-feedparser \
                     port:py${python.version}-hatchling \
+                    port:py${python.version}-lxml_html_clean \
                     port:py${python.version}-Pillow \
                     port:py${python.version}-readability-lxml \
                     port:py${python.version}-requests \

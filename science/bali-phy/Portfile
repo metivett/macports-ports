@@ -59,14 +59,17 @@ patchfiles-append   patch-bali_phy_pkg.diff \
                     patch-bp_analyze.diff \
                     patch-run_tests.py.diff
 
+# https://trac.macports.org/ticket/70096
+patchfiles-append   patch-bitset.diff
+
 subport bali-phy-devel {
-    github.setup        bredelings BAli-Phy 4.0-beta8
+    github.setup        bredelings BAli-Phy 4.0-beta10
     github.tarball_from archive
     conflicts           bali-phy
-    revision            1
-    checksums           rmd160  fa01121bc561734e53d724687c1b1eef88b0d383 \
-                        sha256  ebeb4c94d41af31c204ea36f5829e81a7bb8b8a4599434e80c630658950c8de2 \
-                        size    2600919
+    revision            0
+    checksums           rmd160  428c80ec6455b22232c0c50b06d5e9a5323e2604 \
+                        sha256  f936edda2797e30d16b9a31c68e0a31831e5c9baefc99820c5383a2a11e6ad81 \
+                        size    2621272
     patchfiles-replace  patch-bp_analyze.diff \
                         patch-bp_analyze-devel.diff
     patchfiles-delete   patch-keep.pl.diff

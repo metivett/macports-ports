@@ -4,7 +4,7 @@ PortSystem          1.0
 PortGroup           R 1.0
 
 R.setup             cran tomoakin RPostgreSQL 0.7-6
-revision            0
+revision            1
 categories-append   databases
 maintainers         nomaintainer
 license             GPL-3
@@ -19,6 +19,6 @@ set pgsql           postgresql15
 depends_lib-append  port:${pgsql} \
                     port:R-DBI
 
-destroot.env-append PG_CONFIG=${prefix}/lib/${pgsql}/bin/pg_config
+build.env-append    PG_CONFIG=${prefix}/lib/${pgsql}/bin/pg_config
 
 test.run            no

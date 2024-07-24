@@ -10,9 +10,9 @@ legacysupport.newest_darwin_requires_legacy 8
 
 set major_v         3
 name                openssl$major_v
-# For rolling back to 3.1.4 release where needed. Must now stay.
+# For former rollback to 3.1.x release where needed. Must now stay.
 epoch               1
-version             ${major_v}.2.0
+version             ${major_v}.3.1
 revision            1
 
 # Please revbump these ports when updating the openssl3 version/revision
@@ -22,7 +22,6 @@ revision            1
 #  - openssl (to rebuild the shim links).
 
 categories          devel security
-platforms           darwin
 license             Apache-2
 maintainers         {larryv @larryv} {cal @neverpanic} openmaintainer
 
@@ -50,36 +49,39 @@ master_sites        ${homepage}/source \
                     ftp://ftp.linux.hr/pub/openssl/source/ \
                     ftp://guest.kuria.katowice.pl/pub/openssl/source/
 
-checksums           rmd160  88d268dca2256ce7d6db7cd20e54bd936d134dbb \
-                    sha256  14c826f07c7e433706fb5c69fa9e25dab95684844b4c962a2cf1bf183eb4690e \
-                    size    17698352
+checksums           rmd160  f7d3736a023dcf7d40db016182ca6d1de5a6fa69 \
+                    sha256  777cd596284c883375a2a7a11bf5d2786fc5413255efab20c50d6ffe6d020b7e \
+                    size    18055752
 
-patchfiles          0b0f7abfb37350794a4b8960fafc292cd5d1b84d.patch
-
-# 3.2.0 is currently broken for OS < 10.14
+# Old obsolete subport for overriding version holdback
+# Make it explicitly obsolete for now
+#
 if {${os.platform} eq "darwin" && ${os.major} < 18} {
 
     subport ${name}-devel {
-        conflicts           ${name}
+        PortGroup           obsolete 1.0
+
+        replaced_by         ${name}
     }
-
-    if {$subport eq $name} {
-        conflicts           ${name}-devel
-            version             ${major_v}.1.4
-            revision            1
-
-            distname            openssl-${version}
-
-            checksums           rmd160  44e8f5368a6f62508b8b83124239bf1ebbba8d18 \
-                                sha256  840af5366ab9b522bde525826be3ef0fb0af81c6a9ebd84caa600fea1731eee3 \
-                                size    15569450
-
-            patchfiles-delete   0b0f7abfb37350794a4b8960fafc292cd5d1b84d.patch
-            patchfiles          ddeb4b6c6d527e54ce9a99cba785c0f7776e54b6.patch \
-                                a830f551557d3d66a84bbb18a5b889c640c36294.patch
-    }
-
 }
+
+# Use timegm() in crypto/asn1/a_time.c
+# Fixes build on 10.4, and is generally preferable, anyway
+#
+# Since v3.2.0, crypto/asin1/a_time.c has included timezone compensation
+# which uses timegm() in some cases, or localtime() adjusted for the
+# timezone in others.  Since timegm() is considered nonstandard, it uses
+# it in an opt-in basis, which currently includes only FreeBSD and
+# WebAssembly.  On the Mac (at least) the 'timezone' variable which it
+# otherwise relies on is a variable when __DARWIN_UNIX03 is set, and is
+# a function when not, which is incompatible with this use.  By
+# default, __DARWIN_UNIX03 is set on 10.5+ but not on 10.4, leading to a
+# build failure on 10.4.  Meanwhile, timegm() is available on all Mac
+# versions, and is preferable when available.  This fix adds __APPLE__ to
+# the conditions for using timegm(), thereby building successfully on all
+# OS versions with slightly less code.
+#
+patchfiles-append   patch-use-timegm.diff
 
 if {${os.platform} eq "darwin" && ${os.major} < 11} {
     # Having the stdlib set to libc++ on 10.6 causes a dependency on a

@@ -3,7 +3,8 @@
 PortSystem          1.0
 PortGroup           golang 1.0
 
-go.setup            github.com/goreleaser/nfpm 2.35.2 v
+go.setup            github.com/goreleaser/nfpm 2.38.0 v
+go.offline_build    no
 go.package          github.com/goreleaser/nfpm/v2
 github.tarball_from archive
 revision            0
@@ -23,12 +24,9 @@ license             MIT
 maintainers         {gmail.com:herby.gillot @herbygillot} \
                     openmaintainer
 
-checksums           rmd160  fb28d3add0f027b966278b31280f27ad2c053761 \
-                    sha256  b94e49a0b57e28f4c73f28ef1518106220a8fdfd0fa586e7a3c2792a08ea0c7a \
-                    size    456865
-
-# Allow deps to be fetched at build-time.
-go.offline_build no
+checksums           rmd160  e05724327501641f5220893c9b07e34a537d99ff \
+                    sha256  2978338f442fbad59da8edd27512f1248226efc99dd8bac5c9ab7f3bd828c571 \
+                    size    464246
 
 build.pre_args-append \
     -ldflags \" \

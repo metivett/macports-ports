@@ -7,7 +7,7 @@ PortGroup               gitlab 1.0
 PortGroup               boost 1.0
 
 gitlab.instance         https://gitlab.nektar.info
-gitlab.setup            nektar nektar 5.4.0 v
+gitlab.setup            nektar nektar 5.6.0 v
 
 boost.version           1.76
 
@@ -33,10 +33,10 @@ master_sites            ${master_sites}:main \
 set main_distfile       ${distfiles}
 distfiles               ${main_distfile}:main
 
-checksums               nektar-5.4.0.tar.bz2 \
-                        rmd160  29a4f935109ef15fc8e2ffd2f2a511461f0bd123 \
-                        sha256  f0f7ac8a73278e7d308e950ea4542d29df8425e8df36325da097aec0eabc2ecc \
-                        size    62123363
+checksums               nektar-5.6.0.tar.bz2 \
+                        rmd160  508cebc13a9848180f6a7e49828478cbf1537450 \
+                        sha256  797d4b72d0fdd80efd8b8f5e2f4a1205d7f8e3fc2c6bce6dc6fd62a688ec9d50 \
+                        size    64546056 \
 
 # Only the full Nektar++ source should be extracted - CMake will extract any
 # third-party dependencies.
@@ -149,7 +149,7 @@ foreach s ${pythons_suffixes} {
 
         # Install Python libraries using setup.py.
         post-destroot {
-            system -W ${build.dir} \"${pe} setup.py install --root=${destroot}\"
+            system -W ${build.dir}/python \"${pe} setup.py install --root=${destroot}\"
         }
 
         require_active_variants boost       ${p}

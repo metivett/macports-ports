@@ -4,9 +4,8 @@ PortSystem              1.0
 PortGroup               github 1.0
 PortGroup               ocaml 1.1
 
-# https://github.com/stan-dev/stanc3/issues/1371
-github.setup            stan-dev stanc3 02a3a856b45dcd9afcc72f8539d5e45430cec70b
-version                 2023.12.08
+github.setup            stan-dev stanc3 2.35.0 v
+epoch                   1
 revision                0
 categories              math lang ocaml
 maintainers             {@barracuda156 gmail.com:vital.had} {@catap korins.ky:kirill} openmaintainer
@@ -14,12 +13,13 @@ license                 BSD
 description             New compiler for Stan, written in OCaml
 long_description        {*}${description}
 homepage                https://mc-stan.org/stanc3/stanc
-checksums               rmd160  357efbe291081693f9e9384c7798f7fd7d4f29ff \
-                        sha256  18cb2ce55d736f4678ad52e2fbb36a4fb16b78b05e46b0b7ba3c456da20dfeaa \
-                        size    3630544
+checksums               rmd160  065782d71577cea2ca65eabdf39e8a2199622989 \
+                        sha256  cc194400f64b9010094f25289c210e65b6ed740a117165acdc4a6c98b00ec56f \
+                        size    3628370
 github.tarball_from     archive
 
 set py_ver              3.11
+
 set py_ver_nodot        [string map {. {}} ${py_ver}]
 
 depends_lib-append      port:ocaml-core \
@@ -34,8 +34,8 @@ configure.python        ${prefix}/bin/python${py_ver}
 
 post-patch {
     reinplace "s|/usr/bin/python3|${configure.python}|" \
-                        ${worksrcpath}/src/frontend/add_missing_messages.py \
-                        ${worksrcpath}/src/frontend/strip_redundant_parser_state.py
+                        ${worksrcpath}/src/frontend/parser_add_missing_messages.py \
+                        ${worksrcpath}/src/frontend/parser_strip_redundant_state.py
     reinplace "s|python3|${configure.python}|" \
                         ${worksrcpath}/test/integration/cli-args/debug-generation.t/run.t
 }

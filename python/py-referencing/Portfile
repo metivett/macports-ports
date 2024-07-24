@@ -4,7 +4,7 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-referencing
-version             0.32.1
+version             0.35.1
 revision            0
 
 categories-append   devel
@@ -23,9 +23,9 @@ long_description    An implementation-agnostic implementation of JSON reference 
 
 homepage            https://github.com/python-jsonschema/referencing
 
-checksums           rmd160  6e2a8fb4dbc40e7f196018933d4c450772664d84 \
-                    sha256  3c57da0513e9563eb7e203ebe9bb3a1b509b042016433bd1e45a2853466c3dd3 \
-                    size    55523
+checksums           rmd160  e9a210d060922b4484bc8fe21aafe2b8b63323d5 \
+                    sha256  25b42124a6c8b632a425174f24087783efb348a6f1e0008e63cd4466fedf703c \
+                    size    62991
 
 if {${name} ne ${subport}} {
     depends_build-append \

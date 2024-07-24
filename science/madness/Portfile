@@ -9,8 +9,8 @@ PortGroup           legacysupport 1.1
 
 boost.version       1.81
 
-github.setup        m-a-d-n-e-s-s madness d108709161b5ee55ba238065e5e7ba62f888bcb8
-version             2023.12.03
+github.setup        m-a-d-n-e-s-s madness ede1667fefffc2e1d6e76a15895820c247531198
+version             2024.06.27
 revision            0
 categories          science math
 license             GPL-2
@@ -20,12 +20,12 @@ long_description    MADNESS provides a high-level environment for the solution \
                     of integral and differential equations in many dimensions \
                     using adaptive, fast methods with guaranteed precision \
                     based on multi-resolution analysis and novel separated representations.
-checksums           rmd160  88ca6a5dffdf8801e3c6cc26c28930836632ee61 \
-                    sha256  aca84aaa43affa39f7b3a204ac0a920890905dd20426194ec122251fbc691215 \
-                    size    36734418
+checksums           rmd160  1689838da6e097d2bd4df1d1e8f7f10382b0868b \
+                    sha256  3b7bea52d12efb74311a3744a23431a836378d1f0762ef79337418530307c5b0 \
+                    size    36804651
 github.tarball_from archive
 
-set py_ver          3.11
+set py_ver          3.12
 set py_ver_nodot    [string map {. {}} ${py_ver}]
 depends_build-append \
                     port:python${py_ver_nodot}
@@ -46,7 +46,7 @@ if {(${os.platform} eq "darwin" && ${os.major} < 20) || ${os.platform} ne "darwi
                     -DLAPACK_LIBRARIES=OpenBLAS
 }
 
-patch.pre_args      -p1
+patch.pre_args-replace  -p0 -p1
 # Temporarily avoid building chemistry part:
 # https://github.com/m-a-d-n-e-s-s/madness/issues/459
 patchfiles          0001-CMakeLists-support-ppc.patch \

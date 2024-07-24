@@ -7,11 +7,15 @@ PortGroup           compiler_blacklist_versions 1.0
 PortGroup           boost 1.0
 PortGroup           active_variants   1.1
 
-github.setup        remotesensinginfo rsgislib 5.1.0
+# Fails to build with gcc and old Boost.
+# Same std::__and_ error as in: https://trac.macports.org/ticket/68014
+boost.version       1.81
+
+github.setup        remotesensinginfo rsgislib 5.1.6
 revision            0
 categories          gis
 license             GPL-3
-maintainers         {vince @Veence}
+maintainers         {vince @Veence} {yahoo.com:n_larsson @nilason} openmaintainer
 description         RSGISlib - Remote Sensing and GIS Library
 long_description    The {*}${description} provides a lot of advanced tools \
                     to perform image analysis and feature detection in \
@@ -20,9 +24,9 @@ homepage            http://www.rsgislib.org
 
 github.tarball_from archive
 
-checksums           rmd160  af7645d8281da2f4570c164033db8fcf23f60023 \
-                    sha256  41e49245214e3fb75d67173c6e96150198dcd1a06d191d2611ad1fea56baf9ed \
-                    size    126163958
+checksums           rmd160  6a948eda0c7f13d2cbf163b4599a122e398a3190 \
+                    sha256  9547c0b00f963dcd9babaf679dc356a36e05c179f82bb55aa1e45268ce2bd1a4 \
+                    size    126188294
 
 depends_lib-append  port:gdal
 depends_lib-append  port:gsl

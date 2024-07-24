@@ -3,10 +3,14 @@
 PortSystem              1.0
 PortGroup               github  1.0
 PortGroup               meson   1.0
+PortGroup               legacysupport 1.1
 
-github.setup            tio tio 2.7 v
+# clock_gettime, strndup
+legacysupport.newest_darwin_requires_legacy 15
+
+github.setup            tio tio 3.6 v
 github.tarball_from     releases
-revision                0
+revision                1
 
 categories              comms
 installs_libs           no
@@ -23,11 +27,23 @@ long_description        tio is a simple serial device tool which \
                         connect to serial TTY devices for basic \
                         I/O operations.
 
-checksums               rmd160  247cf32c440e54633f16ac1972511a16bd40fa32 \
-                        sha256  bf8fe434848c2c1b6540af0b42503c986068176ddc1a988cf02e521e7de5daa5 \
-                        size    3432332
+checksums               rmd160  d403f8d5d371a8d6020a85c1ce5c7ecc729c5f27 \
+                        sha256  04a91686f8a19f157b885a7c146a138b4cff6a3fb8dba48723d1fdad15c61167 \
+                        size    3458048
 
-depends_build-append    port:pkgconfig
-depends_lib-append      port:inih
+# https://github.com/tio/tio/issues/265
+# remove this patch in the next release
+patchfiles-append       patch-socket.diff
+
+depends_build-append    path:bin/pkg-config:pkgconfig
+
+depends_lib-append      path:lib/pkgconfig/glib-2.0.pc:glib2 \
+                        port:inih   \
+                        port:lua54
 
 use_xz                  yes
+
+post-destroot {
+    xinstall -d ${destroot}${prefix}/share/${name}
+    copy ${worksrcpath}/examples ${destroot}${prefix}/share/${name}
+}

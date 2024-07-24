@@ -4,21 +4,22 @@ PortSystem          1.0
 
 name                miniupnpc
 epoch               2
-version             2.2.5
+version             2.2.7
 revision            0
 categories          net
 platforms           darwin freebsd
 license             BSD
-maintainers         nomaintainer
+maintainers         {@edilmedeiros gmail.com:jose.edil+miniupnp} \
+                    openmaintainer
 description         Lightweight client for UPnP protocol
 long_description    ${description}
 
 homepage            http://miniupnp.free.fr/
 master_sites        http://miniupnp.free.fr/files/
 
-checksums           rmd160  3ca0165c8985081b85d823524398430501f89523 \
-                    sha256  38acd5f4602f7cf8bcdc1ec30b2d58db2e9912e5d9f5350dd99b06bfdffb517c \
-                    size    103654
+checksums           rmd160  77df65cf89aaabb44efb3ef754bbdf13788d9490 \
+                    sha256  b0c3a27056840fd0ec9328a5a9bac3dc5e0ec6d2e8733349cf577b0aa1e70ac1 \
+                    size    104258
 
 variant universal   {}
 use_configure       no

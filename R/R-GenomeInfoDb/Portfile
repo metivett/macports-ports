@@ -3,22 +3,22 @@
 PortSystem          1.0
 PortGroup           R 1.0
 
-R.setup             github Bioconductor GenomeInfoDb 58da6591fb92a8665a83b755bbab7cbc54c1b965
-version             1.39.5
+R.setup             bioconductor Bioconductor GenomeInfoDb 1.40.1
 revision            0
+categories-append   bioconductor
 maintainers         nomaintainer
 license             Artistic-2
 description         Utilities for manipulating chromosome names, \
                     including modifying them to follow a particular naming style
 long_description    {*}${description}
-homepage            https://bioconductor.org/packages/${R.package}
-checksums           rmd160  87466df216e4f3d55b8ca66dfc4940dcccf55475 \
-                    sha256  1a0427348c54c1b8b465ae7329ee3cefb234800263dc36cea819240247bceda3 \
-                    size    3184532
+checksums           rmd160  9f5f6520129304c2b04e7c1e2005f979960b74fa \
+                    sha256  80432e8531dc1573a573f940ac3da294faf1b801bbc66a9eef71b5754f90bc94 \
+                    size    3582512
 supported_archs     noarch
+platforms           {darwin any}
 
 depends_lib-append  port:R-BiocGenerics \
                     port:R-GenomeInfoDbData \
                     port:R-IRanges \
-                    port:R-RCurl \
-                    port:R-S4Vectors
+                    port:R-S4Vectors \
+                    port:R-UCSC.utils

@@ -4,7 +4,7 @@ PortSystem          1.0
 PortGroup           cmake 1.1
 PortGroup           github 1.0
 
-github.setup        skypjack entt 3.13.0 v
+github.setup        skypjack entt 3.13.2 v
 revision            0
 
 categories          devel games
@@ -17,9 +17,9 @@ description         EnTT is a header-only, tiny and easy to use library for \
                     game programming and much more written in modern C++.    
 long_description    {*}${description}
 
-checksums           rmd160 7f54d2414b1f6dfd8deb96c31b0d707dfa9002d8 \
-                    sha256 ca81b5fee64c96c7f7d09691b2e980f9de6d11249d4567016c8ad23971addfe5 \
-                    size 853747
+checksums           rmd160 23e94f96ccb466eff805eb9c8216c52b413e5d7c \
+                    sha256 3d10a2ecdf0586c9265a927f579722979d8f92323fc7b1dc408d663dc299bccb \
+                    size 854320
 
 post-destroot {
     xinstall -d ${destroot}${prefix}/share/doc/${name}

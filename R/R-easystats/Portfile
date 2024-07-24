@@ -4,24 +4,26 @@ PortSystem          1.0
 PortGroup           R 1.0
 
 # Revert to GitHub once updated there.
-R.setup             cran easystats easystats 0.7.0
+R.setup             github easystats easystats 0.7.2 v
 revision            0
 categories-append   math
+platforms           {darwin any}
 maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
-license             GPL-3
-description         Framework for easy statistical modeling, visualization and reporting
+license             MIT
+description         Framework for easy statistical modelling, \
+                    visualization and reporting
 long_description    {*}${description}
 homepage            https://easystats.github.io/easystats
-checksums           rmd160  63d75b198578f9f2dc233487b4df02681889f909 \
-                    sha256  857b0576f386d10267156b5da68cb7d636d75163bda50b3dba10d9af430f93ba \
-                    size    1750347
+checksums           rmd160  546a386c984b04be91ae814e990e4b831a542644 \
+                    sha256  8afe133c70484b60972391c3bab53440499f48bb3f7e1ee4b111fd3110bbb261 \
+                    size    159272801
+github.tarball_from archive
 supported_archs     noarch
 
 depends_lib-append  port:R-bayestestR \
                     port:R-correlation \
                     port:R-datawizard \
                     port:R-effectsize \
-                    port:R-ggplot2 \
                     port:R-insight \
                     port:R-modelbased \
                     port:R-parameters \
@@ -29,11 +31,15 @@ depends_lib-append  port:R-bayestestR \
                     port:R-report \
                     port:R-see
 
-depends_test-append port:R-DT \
+depends_test-append port:R-DHARMa \
+                    port:R-DT \
                     port:R-flexdashboard \
+                    port:R-glmmTMB \
+                    port:R-httr \
                     port:R-jsonlite \
                     port:R-knitr \
                     port:R-mockery \
+                    port:R-patchwork \
                     port:R-rmarkdown \
                     port:R-testthat \
                     port:R-withr \

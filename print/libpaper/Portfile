@@ -7,11 +7,11 @@ PortGroup       legacysupport 1.1
 # Need getline(), strndup()
 legacysupport.newest_darwin_requires_legacy 10
 
-github.setup    rrthomas libpaper 2.1.2 v
+github.setup    rrthomas libpaper 2.2.5 v
 revision        0
-checksums       rmd160  6b3898d28155228927fa78f55bc747fbcd8e0bc2 \
-                sha256  1fda0cf64efa46b9684a4ccc17df4386c4cc83254805419222c064bf62ea001f \
-                size    1264200
+checksums       rmd160  aea2ed0756077fe113edb5c413da778d2bf3b11f \
+                sha256  7be50974ce0df0c74e7587f10b04272cd53fd675cb6a1273ae1cc5c9cc9cab09 \
+                size    1215652
 
 github.tarball_from releases
 
@@ -26,7 +26,7 @@ long_description \
                 actions based on a system- or user-specified paper size.
 
 subport libpaper-utils {
-    revision    1
+    revision    0
     # We introduce a subport for files with different licenses.
     # Including them in the 'libpaper' port would prevent the
     # distribution of MacPorts binary archives for some prominent
@@ -42,6 +42,12 @@ subport libpaper-utils {
 
 configure.args  --enable-relocatable \
                 --disable-silent-rules
+
+# https://trac.macports.org/ticket/69112
+platform darwin 8 {
+    configure.args-replace \
+                --enable-relocatable --disable-relocatable
+}
 
 if {${subport} eq ${name}} {
     test.run    yes

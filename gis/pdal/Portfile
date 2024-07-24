@@ -6,7 +6,7 @@ PortGroup           github        1.0
 PortGroup           legacysupport 1.1
 PortGroup           openssl       1.0
 
-github.setup        PDAL PDAL 2.6.2
+github.setup        PDAL PDAL 2.7.2
 revision            0
 
 name                pdal
@@ -31,9 +31,11 @@ legacysupport.newest_darwin_requires_legacy \
 compiler.cxx_standard  2017
 compiler.thread_local_storage yes
 
-checksums           rmd160  fd55fd1e9676087c7ecf1854a0faf3cb3886ab86 \
-                    sha256  1221022933fbfa5814eae9726a1e3adf2b04e89dc1e117de84a22d2df2e7f9b3 \
-                    size    92852010
+github.tarball_from releases
+
+checksums           rmd160  f85ff6d272df015f6934f414c7c81632792d7a4a \
+                    sha256  fcbaa9d6e3f82d19aabf0080e457a9d3c5cf7ef40a65f3a4064bb38702bd6ec4 \
+                    size    90063103
 
 depends_build-append \
                     port:pkgconfig \
@@ -94,7 +96,7 @@ variant draco description "Add Draco support" {
 }
 
 # PostgreSQL variants
-set postgresql_suffixes {15 14 13 12}
+set postgresql_suffixes {16 15 14 13 12}
 set def_psql_var "if {"
 
 set postgresql_variants {}
@@ -105,7 +107,7 @@ foreach suffix ${postgresql_suffixes} {
 
 # Set default variant
 set def_psql_var [string range ${def_psql_var} 0 end-4]
-set def_psql_var "${def_psql_var}} {default_variants +postgresql15}"
+set def_psql_var "${def_psql_var}} {default_variants +postgresql16}"
 eval ${def_psql_var}
 
 foreach suffix ${postgresql_suffixes} {
@@ -120,7 +122,7 @@ foreach suffix ${postgresql_suffixes} {
         configure.args-append   -DPostgreSQL_ROOT=${prefix}/lib/${vrt} \
                                 -DPostgreSQL_INCLUDE_DIR=${prefix}/include/${vrt}
         configure.args-replace  -DBUILD_PLUGIN_PGPOINTCLOUD=OFF -DBUILD_PLUGIN_PGPOINTCLOUD=ON
-        configure.env-append    PostgreSQL_ADDITIONAL_VERSIONS=15
+        configure.env-append    PostgreSQL_ADDITIONAL_VERSIONS=15,16
     "
 }
 
@@ -136,8 +138,7 @@ foreach proj_ver ${proj_versions} {
 
         variant proj${proj_ver} description "Use Proj${proj_ver}" conflicts {*}${cflcts} "
             depends_lib-append     port:proj${proj_ver}
-            configure.args-append  -DPROJ_INCLUDE_DIR=${prefix}/lib/proj${proj_ver}/include
-            configure.env-append   LIB=${prefix}/lib/proj${proj_ver}/lib/
+            configure.args-append  -DPROJ_DIR=${prefix}/lib/proj${proj_ver}/lib/cmake/proj
         "
 }
 set projdf "if {"

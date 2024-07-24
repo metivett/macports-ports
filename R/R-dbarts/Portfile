@@ -4,7 +4,7 @@ PortSystem          1.0
 PortGroup           R 1.0
 
 # GitHub version is outdated.
-R.setup             cran vdorie dbarts 0.9-25
+R.setup             cran vdorie dbarts 0.9-28
 revision            0
 categories-append   math
 maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
@@ -12,9 +12,9 @@ license             GPL-2+
 description         Discrete Bayesian Additive Regression Trees sampler
 long_description    {*}${description}
 homepage            https://github.com/vdorie/dbarts
-checksums           rmd160  988ba1909d3e1b018e58a1e7d8845015d614b26a \
-                    sha256  39a78228ead17c92bd88fe5f959c888412a22a7cbbc0edfa9c09072b4182d870 \
-                    size    851630
+checksums           rmd160  50491b0dabd16cfb48e7a59a86469a245c859fdc \
+                    sha256  d2e4b4ee1c191e7c506be3fec5a5e877c1b36754cba558bd75eaac9cc6ac0138 \
+                    size    851768
 
 # https://github.com/vdorie/dbarts/issues/55
 patchfiles          patch-fix-libs.diff

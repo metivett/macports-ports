@@ -3,16 +3,19 @@
 PortSystem          1.0
 PortGroup           R 1.0
 
-R.setup             cran rstudio tinytex 0.49
+R.setup             cran rstudio tinytex 0.52
 revision            0
 categories-append   tex
+platforms           {darwin any}
 maintainers         nomaintainer
 license             MIT
-description         Helper functions to install and maintain TeX Live, and compile LaTeX documents
+description         Helper functions to install and maintain TeX Live, \
+                    and compile LaTeX documents
 long_description    {*}${description}
-checksums           rmd160  087d5bcc3f1e9fef5b78255c14edae327c5fb432 \
-                    sha256  941169ec65445d172658d0fb6ea8d839736f3f1b5f6ce20637d7d8e299663145 \
-                    size    34205
+homepage            https://github.com/rstudio/tinytex
+checksums           rmd160  d72b4767e567d6f4e08fdf103fe6334a528bb7f3 \
+                    sha256  932a713b9fdd52fe8869e8c38d03f15602f2c02ec543d4dabffde2a3981f513a \
+                    size    35032
 supported_archs     noarch
 
 depends_lib-append  port:R-xfun

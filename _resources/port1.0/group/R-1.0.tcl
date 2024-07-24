@@ -66,9 +66,11 @@ proc R.setup {domain author package version {R_tag_prefix ""} {R_tag_suffix ""}}
         # Packages normally get updated on Bioconductor in bulk twice a year.
         # Development versions can be found on GitHub. However, Bioconductor upstream recommends
         # to keep its packages in sync pegged to a current Bioconductor release
-        # for the sake of better compatibility.
+        # for the sake of better compatibility. MacPorts follows this policy now.
+            set bioc_release    3.19
             homepage        https://bioconductor.org/packages/${R.package}
             master_sites    https://www.bioconductor.org/packages/release/bioc/src/contrib/ \
+                            https://bioconductor.org/packages/${bioc_release}/bioc/src/contrib/Archive/${R.package}/ \
                             https://www.bioconductor.org/packages/release/data/experiment/src/contrib/ \
                             https://www.bioconductor.org/packages/devel/data/experiment/src/contrib/
             distname        ${R.package}_${version}
@@ -96,22 +98,23 @@ compiler.cxx_standard       2011
 
 # Avoid Apple clangs:
 compiler.blacklist-append   {clang}
-# Blacklist macports-clang-16+. See discussion: https://trac.macports.org/ticket/67144
+# Blacklist macports-clang-17+. See discussion: https://trac.macports.org/ticket/67144
 # for rationale. The decision when to migrate to a new compiler
 # is then in the hands of the R maintainers and will not change
 # from the current defaults when these get bumped centrally.
 # NOTE : Keep this setting in sync with the one in the R port.
-compiler.blacklist-append   {macports-clang-1[6-9]}
-# Similarly, for gcc select the gcc12 variant of the compilers PG.
+compiler.blacklist-append   {macports-clang-1[7-9]}
+# Similarly, for gcc select the gcc13 variant of the compilers PG.
 # This setting should also be kept in sync with that in the R Port.
 # Updates should be coordinated with the R maintainers.
-# NOTE: upon the update to gcc13, please add a blacklist of newer gccs,
+compiler.blacklist-append   {macports-gcc-1[4-9]}
+# NOTE: upon the update to gcc14, please update the blacklist accordingly,
 # like it is done for clangs. We would prefer using the same version of gcc and gfortran.
 if {${os.platform} eq "darwin" && ${os.major} < 10} {
     # Until old platforms are switched to the new libgcc.
     default_variants-append +gcc7
 } else {
-    default_variants-append +gcc12
+    default_variants-append +gcc13
 }
 
 port::register_callback R.add_dependencies
@@ -151,12 +154,18 @@ proc R.add_dependencies {} {
 }
 
 # General fixes for PPC:
-global build_arch os.platform
-if {${os.platform} eq "darwin" && (${build_arch} in [list ppc ppc64])} {
+global configure.cxx_stdlib os.platform
+if {${os.platform} eq "darwin" && ${configure.cxx_stdlib} ne "libc++"} {
     # Avoid multiple malloc errors. See: https://github.com/iains/darwin-toolchains-start-here/discussions/20
+    # Normally should not be needed at configure stage,
+    # however R still builds some stuff there occasionally.
     configure.env-append \
                     DYLD_LIBRARY_PATH=${prefix}/lib/libgcc
     configure.cmd-prepend \
+                    DYLD_LIBRARY_PATH=${prefix}/lib/libgcc
+    build.env-append \
+                    DYLD_LIBRARY_PATH=${prefix}/lib/libgcc
+    build.cmd-prepend \
                     DYLD_LIBRARY_PATH=${prefix}/lib/libgcc
     destroot.env-append \
                     DYLD_LIBRARY_PATH=${prefix}/lib/libgcc
@@ -169,11 +178,12 @@ if {${os.platform} eq "darwin" && (${build_arch} in [list ppc ppc64])} {
 
 global prefix frameworks_dir
 # Please update R version here:
-set Rversion        4.3.2
+set Rversion        4.4.1
 set branch          [join [lrange [split ${Rversion} .] 0 1] .]
 set packages        ${frameworks_dir}/R.framework/Versions/${branch}/Resources/library
 set suffix          .tar.gz
 set r.cmd           ${prefix}/bin/R
+set builddir        ${workpath}/build
 
 # Get rid of unrecognized args:
 configure.pre_args-delete \
@@ -184,26 +194,23 @@ configure.cmd       ${r.cmd} CMD build .
 
 # Re --keep-empty-dirs see discussion in: https://github.com/Bioconductor/BSgenomeForge/issues/35
 configure.post_args --no-manual --no-build-vignettes --keep-empty-dirs
-                    
-# We build in destroot.
-build { }
 
 global package version
-pre-destroot {
-    xinstall -d -m 0755 ${destroot}${packages}
-    move ${worksrcpath}/${R.package}_${version}${suffix} ${destroot}${packages}
+pre-build {
+    xinstall -d -m 0755 ${builddir}
 }
 
-destroot.cmd        ${r.cmd} CMD INSTALL .
+build.cmd           ${r.cmd} CMD INSTALL .
 
 # Notice that while we install tests to make them available to the user,
 # in a case of testthat running test_check("${R.package}") from within R session will not work.
 # It has been left broken by upstream for years, see: https://github.com/r-lib/testthat/issues/205
-destroot.post_args --library=${destroot}${packages} --install-tests
-destroot.target
+build.post_args     --library=${builddir} --install-tests
+build.target
 
-post-destroot {
-    delete ${destroot}${packages}/${R.package}_${version}${suffix}
+destroot {
+    xinstall -d -m 0755 ${destroot}${packages}
+    move ${builddir}/${R.package} ${destroot}${packages}
 }
 
 # Default can be changed once the majority of packages implement testing:
@@ -211,6 +218,7 @@ default test.run    no
 
 # We do not need to check rebuilding vignettes, since that often requires Tex and even Pandoc,
 # and we do not want these as dependencies for tests. It also wastes time.
-test {
-    system -W ${worksrcpath} "${r.cmd} CMD check ./${R.package}_${version}${suffix} --ignore-vignettes"
-}
+default test.env    _R_CHECK_FORCE_SUGGESTS_=0
+default test.cmd    {${r.cmd}}
+default test.target {CMD check ./${R.package}_${version}${suffix}}
+default test.args   {--no-manual --no-build-vignettes}

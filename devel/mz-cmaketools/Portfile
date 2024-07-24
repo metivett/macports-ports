@@ -3,18 +3,19 @@
 PortSystem          1.0
 PortGroup           codeberg 1.0
 
-codeberg.setup      emzeat mz-cmaketools c3852c301586c53fed76d9201b8cb62377597650
-version             2023.12.19
+codeberg.setup      emzeat mz-cmaketools f44b45b2f04984cb40e735709f494ad2e9e986b8
+version             2024.04.29
 revision            0
 categories          devel
-platforms           {darwin any}
+# Please do not set platforms to any, this leads to having a random target
+# and breaks dependents.
 license             Apache-2
 maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
 description         Several handy macros and modules for use with CMake
 long_description    {*}${description}
-checksums           rmd160  c3e70c7fb791762388f3078e59217dbfdb9461a0 \
-                    sha256  9987cc702c9cfc02a08145f0658904c14c6c96c10144317b6dbe4d3d988b8a01 \
-                    size    54340
+checksums           rmd160  2c63a4cef91c75086e8df6c55dff79ecef14d6b2 \
+                    sha256  42975044fb4daa833e72900314d4635d15b227061c5349b92581a6a73f486562 \
+                    size    55391
 supported_archs     noarch
 
 extract.rename      no

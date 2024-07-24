@@ -5,7 +5,7 @@ PortGroup           R 1.0
 
 # GitHub version is archaic.
 R.setup             cran jamovi jmvcore 2.4.7
-revision            0
+revision            1
 categories-append   math
 maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
 license             GPL-2+
@@ -16,6 +16,7 @@ checksums           rmd160  10e8ab9da2f746c39150787b1bde1b3a861432be \
                     sha256  6a5c520ea8d94fbd4863415323a5dc6566579a29d7cde4d838cec13973d9ecdf \
                     size    54911
 supported_archs     noarch
+platforms           {darwin any}
 
 depends_lib-append  port:R-base64enc \
                     port:R-jsonlite \

@@ -20,11 +20,11 @@ if {${subport} eq "${name}-fstar"} {
                         sha256  4e8e232887ddfa643adb6a30dcd3743cb2fa6591735fbd302b49f7028cdc0363 \
                         size    4177051
 } else {
-    github.setup        Z3Prover z3 4.12.4 z3-
+    github.setup        Z3Prover z3 4.13.0 z3-
     revision            0
-    checksums           rmd160  205f658ed958fdb6650701adbb54a1af8071379f \
-                        sha256  25e9b18d04ee22f1d872dfe0daaf4c39034744525214e34fedd206e25140e96e \
-                        size    5471960
+    checksums           rmd160  686d192b250bb981c86d268a6ffb0c59a3fada38 \
+                        sha256  01bcc61c8362e37bb89fd2430f7e3385e86df7915019bd2ce45de9d9bd934502 \
+                        size    5520232
     github.tarball_from archive
 }
 
@@ -90,7 +90,7 @@ variant debug description {Enable the debug build configuration} {
 # Options not shared with our language-binding subports
 if {${subport} eq ${name} || ${subport} eq "${name}-fstar"} {
 
-    set py_ver              3.11
+    set py_ver              3.12
     set py_ver_nodot        [string map {. {}} ${py_ver}]
 
     depends_build-append    port:python${py_ver_nodot} \
@@ -204,7 +204,7 @@ if {${subport} eq ${name} || ${subport} eq "${name}-fstar"} {
         that this will introduce non-negligible runtime overhead.
 
         To generate profile data, specify an output path by setting the\
-        LLVM_PROFILE_FILE environmental variable before executing z3.
+        LLVM_PROFILE_FILE environment variable before executing z3.
         "
     }
 
@@ -250,9 +250,10 @@ if {${subport} eq ${name} || ${subport} eq "${name}-fstar"} {
         configure.optflags-append   -mllvm -polly-parallel
 
         # Generated OpenMP code requires libomp/libgomp
+        # LLVM uses libomp
         depends_lib-append          port:libomp
         configure.ldflags-append    -L${prefix}/lib/libomp \
-                                    -lgomp
+                                    -lomp
     }
 
     pre-configure {
@@ -295,6 +296,8 @@ subport ${name}-fstar {
     long_description        Private version of the Z3 theorem prover for use by (and qualified to work with) F*.
     cmake.install_prefix    ${prefix}/libexec/${subport}
 
+    depends_build-append    port:py${py_ver_nodot}-setuptools
+
     destroot {
         xinstall -d -m 755 "${destroot}${cmake.install_prefix}/bin"
         xinstall -m 755 "${cmake.build_dir}/z3" "${destroot}${cmake.install_prefix}/bin/z3"
@@ -326,7 +329,7 @@ subport ${name}-fstar {
     }
 }
 
-set pyversions {38 39 310 311}
+set pyversions {38 39 310 311 312}
 
 # Create a top-level Python binding metaport
 subport py-${name} {

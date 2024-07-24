@@ -19,7 +19,7 @@ universal_variant no
 supported_archs  x86_64 arm64
 
 # https://github.com/corretto/corretto-21/releases
-version      21.0.2.13.1
+version      21.0.4.7.1
 revision     0
 
 description  Amazon Corretto OpenJDK 21 (Long Term Support)
@@ -29,14 +29,14 @@ master_sites https://corretto.aws/downloads/resources/${version}/
 
 if {${configure.build_arch} eq "x86_64"} {
     distname     amazon-corretto-${version}-macosx-x64
-    checksums    rmd160  c95951b3d03d6b750beb8bac79993672305735b4 \
-                 sha256  c8629aaabb7641220f61797ea08d9b8c50f15a989c67363f5075fb20ff2c7679 \
-                 size    203261361
+    checksums    rmd160  f1cc5bfd6b81d7345754da378c5cd4090701666d \
+                 sha256  244a034c10774ae51f0b5c6fceed88f4afce6d60e9c560aa8c095bb463358541 \
+                 size    203411841
 } elseif {${configure.build_arch} eq "arm64"} {
     distname     amazon-corretto-${version}-macosx-aarch64
-    checksums    rmd160  f5337b9494c8d88fe36337cfd9d7d64d031c9b12 \
-                 sha256  14bb4b9146a15daad93b273a952f88f4e0e6256b2cdd9f45c1447555000a27ac \
-                 size    201066708
+    checksums    rmd160  800f34644c7f5acfe5ed19594e42459393dc014d \
+                 sha256  d93750240e4b8a81999b32e002cb1a08e537f2fe29af16bec8229dcf3c520222 \
+                 size    201257714
 }
 
 worksrcdir   amazon-corretto-21.jdk

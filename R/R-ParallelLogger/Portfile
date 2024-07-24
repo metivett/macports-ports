@@ -4,7 +4,7 @@ PortSystem          1.0
 PortGroup           R 1.0
 
 R.setup             github OHDSI ParallelLogger 3.3.0 v
-revision            1
+revision            2
 categories-append   sysutils
 maintainers         nomaintainer
 license             Apache-2
@@ -15,6 +15,7 @@ checksums           rmd160  e8b50a2951c246a7e1fc0dd07af7a48372fad048 \
                     sha256  ed591e97a5567bd8f4c04bb275558413b344096a94b3179d4730406ef1f39cfd \
                     size    755329
 supported_archs     noarch
+platforms           {darwin any}
 
 # Remove upon next update:
 dist_subdir         ${name}/${version}_1

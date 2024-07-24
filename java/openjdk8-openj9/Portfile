@@ -14,11 +14,11 @@ universal_variant no
 # https://developer.ibm.com/languages/java/semeru-runtimes/downloads?os=macOS
 supported_archs  x86_64
 
-version      8u392
+version      8u412
 revision     0
 
 set build    08
-set openj9_version 0.41.0
+set openj9_version 0.44.0
 
 description  IBM Semeru with Eclipse OpenJ9 VM distribution, based on OpenJDK 8
 long_description The IBM Semeru Runtimes are free production-ready open source binaries to run your Java applications\
@@ -29,9 +29,9 @@ master_sites https://github.com/ibmruntimes/semeru8-binaries/releases/download/j
 distname     ibm-semeru-open-jdk_x64_mac_${version}b${build}_openj9-${openj9_version}
 worksrcdir   jdk${version}-b${build}
 
-checksums    rmd160  845b18dcaabe37a9461bfe7e163ebd37b0d5bca3 \
-             sha256  2395f38110a3b633c4facb2b358d1b2f9d13d894296927318b555d5872832c88 \
-             size    130435873
+checksums    rmd160  67c3fa451cec32114957f08eb73c59601eda62fa \
+             sha256  4e8a34442fc0c1c1288ca4d251ecfe744c201ec6494103d8dafa52e785d3f8ae \
+             size    130528416
 
 homepage     https://developer.ibm.com/languages/java/semeru-runtimes/
 

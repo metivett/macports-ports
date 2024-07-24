@@ -6,14 +6,13 @@ PortGroup           compiler_wrapper 1.0
 
 name                py-levenshtein
 python.rootname     Levenshtein
-version             0.23.0
+version             0.25.1
 revision            0
 categories-append   textproc
 platforms           darwin freebsd
 license             GPL-2+
 
 python.versions     38 39 310 311 312
-python.pep517       yes
 
 maintainers         {stromnov @stromnov} openmaintainer
 
@@ -28,9 +27,9 @@ long_description    The Levenshtein Python C extension module contains \
 
 homepage            https://github.com/maxbachmann/Levenshtein
 
-checksums           rmd160  2d8a4eec1ed69da39e100fa36c177166624b8117 \
-                    sha256  de7ccc31a471ea5bfafabe804c12a63e18b4511afc1014f23c3cc7be8c70d3bd \
-                    size    142677
+checksums           rmd160  0591635ea30d7fd708a3d0e8f974c1209ca5f954 \
+                    sha256  2df14471c778c75ffbd59cb64bbecfd4b0ef320ef9f80e4804764be7d5678980 \
+                    size    149954
 
 if {${name} ne ${subport}} {
     compiler.cxx_standard 2017

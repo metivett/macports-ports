@@ -3,16 +3,17 @@
 PortSystem          1.0
 PortGroup           R 1.0
 
-R.setup             cran r-project tram 1.0-1
+R.setup             cran r-project tram 1.0-4
 revision            0
 categories-append   math
-maintainers         nomaintainer
+maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
 license             GPL-2
-description         Formula-based user-interfaces to specific transformation models implemented in R-mlt
-long_description    {*}${description}
-checksums           rmd160  5554f2a4dfdc8c54af34187e5e096fced7d7b54c \
-                    sha256  1b17148488163c8ab0a45b714352e29fe3a3d2e53863b7273f644bcdfc47d334 \
-                    size    1978698
+description         R-Formula-based user-interfaces to specific \
+                    transformation models
+long_description    {*}${description} implemented in R-mlt.
+checksums           rmd160  5d334c788d1a6a78491c6d4e581e88043b6bf48b \
+                    sha256  5f8aa49519369a35cb7d89da5cdfa5cf5e2a8def7cd9f5eb731b3baeb0de0b12 \
+                    size    1972934
 
 depends_lib-append  port:R-basefun \
                     port:R-Formula \
@@ -23,3 +24,29 @@ depends_lib-append  port:R-basefun \
                     port:R-variables
 
 compilers.setup     require_fortran
+
+depends_test-append \
+                    port:R-alabama \
+                    port:R-asht \
+                    port:R-ATR \
+                    port:R-coin \
+                    port:R-colorspace \
+                    port:R-coxme \
+                    port:R-gamlss \
+                    port:R-gridExtra \
+                    port:R-HSAUR3 \
+                    port:R-knitr \
+                    port:R-latticeExtra \
+                    port:R-lme4 \
+                    port:R-merDeriv \
+                    port:R-mlbench \
+                    port:R-mlt.docreg \
+                    port:R-numDeriv \
+                    port:R-ordinal \
+                    port:R-ordinalCont \
+                    port:R-quantreg \
+                    port:R-SparseGrid \
+                    port:R-TH.data \
+                    port:R-trtf
+
+test.run            yes

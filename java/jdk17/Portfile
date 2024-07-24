@@ -14,7 +14,7 @@ universal_variant no
 supported_archs  x86_64 arm64
 
 # https://www.oracle.com/java/technologies/downloads/#jdk17-mac
-version      17.0.10
+version      17.0.12
 revision     0
 
 description  Oracle Java SE Development Kit 17
@@ -26,14 +26,14 @@ master_sites https://download.oracle.com/java/17/archive/
 
 if {${configure.build_arch} eq "x86_64"} {
     distname     jdk-${version}_macos-x64_bin
-    checksums    rmd160  2272fd55801daf37148ac21f7ed060f1674cf2da \
-                 sha256  7b68b833f392aa543ba538f94c60fd477581fef96a9c1ae059fa4158e9ce75ff \
-                 size    178930871
+    checksums    rmd160  cf665cf7137fadc32ea734aa53f81ba6a69cf044 \
+                 sha256  4a157a935142096e1bac83e53a458e41c05c4aad0e8414c0a5c01f36dc44c901 \
+                 size    179208015
 } elseif {${configure.build_arch} eq "arm64"} {
     distname     jdk-${version}_macos-aarch64_bin
-    checksums    rmd160  bfe8ef24aae795bc177732962688d244739ebdc4 \
-                 sha256  d5bec93922815e9337040678ddf3f40e50b63c2b588cf63574fa1f2010206042 \
-                 size    176369331
+    checksums    rmd160  038d49828e5e8bf5ab49780e1e0914fd8f22c349 \
+                 sha256  d8866b3678123c629c1c0fb3bdd95e984fba415b17511c7a6ff2c95ff4e9a34c \
+                 size    177042954
 }
 
 worksrcdir   jdk-${version}.jdk

@@ -3,15 +3,16 @@
 PortSystem          1.0
 PortGroup           R 1.0
 
-R.setup             bioconductor Bioconductor limma 3.58.0
+R.setup             bioconductor Bioconductor limma 3.60.3
 revision            0
+categories-append   bioconductor
 maintainers         nomaintainer
 license             GPL-2+
 description         Linear models for microarray data
 long_description    {*}${description}
 homepage            https://bioinf.wehi.edu.au/limma
-checksums           rmd160  93e4fb9a7daeb52ed1f61da2facda635fe443468 \
-                    sha256  ee4510e8208e564dc5d32c2ba58741b6a3c155e9b90c5fe4a299e98886f71fd6 \
-                    size    2804842
+checksums           rmd160  d1a6d91063d44cd182bc8ca74c32e0b30ee04361 \
+                    sha256  ef46a3a924730d359df02f0f439ab2c3923a98b1252b977600e3789865a5c33b \
+                    size    2810230
 
 depends_lib-append  port:R-statmod

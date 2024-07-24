@@ -9,7 +9,7 @@ PortGroup           legacysupport 1.1
 # CLOCK_MONOTONIC
 legacysupport.newest_darwin_requires_legacy 15
 
-github.setup        ARMmbed mbedtls 3.5.1 mbedtls-
+github.setup        Mbed-TLS mbedtls 3.6.0 v
 name                mbedtls3
 revision            0
 
@@ -24,22 +24,25 @@ long_description    {*}${description}
 platforms           darwin
 
 homepage            https://tls.mbed.org
-github.tarball_from archive
+github.tarball_from releases
 
-checksums           rmd160  21b68dd0a7ef6148124ed4f0165299834bf7ebce \
-                    sha256  0da345cda55ec6f6d71afa84cfae55632a16ba0b8b4644f4d0e8a32c9d1117b0 \
-                    size    5580943
+use_bzip2           yes
 
-variant python38 conflicts python39 python310 python311 description {Use Python 3.8} {}
-variant python39 conflicts python38 python310 python311 description {Use Python 3.9} {}
-variant python310 conflicts python38 python39 python311 description {Use Python 3.10} {}
-variant python311 conflicts python38 python39 python310 description {Use Python 3.11} {}
+checksums           rmd160  b0104f6c8014ab0e940372f47d8b668675180f4d \
+                    sha256  3ecf94fcfdaacafb757786a01b7538a61750ebd85c4b024f56ff8ba1490fcd38 \
+                    size    4811255
 
-if {![variant_isset python38] && ![variant_isset python39] && ![variant_isset python310]} {
-    default_variants +python311
+variant python38 conflicts python39 python310 python311 python312 description {Use Python 3.8} {}
+variant python39 conflicts python38 python310 python311 python312 description {Use Python 3.9} {}
+variant python310 conflicts python38 python39 python311 python312 description {Use Python 3.10} {}
+variant python311 conflicts python38 python39 python310 python312 description {Use Python 3.11} {}
+variant python312 conflicts python38 python39 python310 python311 description {Use Python 3.12} {}
+
+if {![variant_isset python38] && ![variant_isset python39] && ![variant_isset python310] && ![variant_isset python311]} {
+    default_variants +python312
 }
 
-foreach pv {311 310 39 38} {
+foreach pv {312 311 310 39 38} {
     if {[variant_isset python${pv}]} {
         set python.branch "[string index ${pv} 0].[string range ${pv} 1 end]"
         depends_build-append \
@@ -54,6 +57,9 @@ depends_build-append \
                     port:perl5
 
 patchfiles          patch-CMakeLists.txt.diff
+
+# https://github.com/Mbed-TLS/mbedtls/commit/a2c45dc713b842906fbd8361692d4513d1a3e41b
+patchfiles-append   patch-Fix-compilation-of-ssl_tls13_generic.c-when-memcpy-i.diff
 
 # library/bignum.c:1435:9: error: cannot compile this unexpected cast lvalue yet
 # For related discussion see https://trac.macports.org/ticket/62185

@@ -10,7 +10,7 @@ PortSystem          1.0
 name                R-palmerpenguins
 set R.package       palmerpenguins
 version             0.1.1
-revision            0
+revision            2
 maintainers         nomaintainer
 license             public-domain
 description         Palmer Archipelago (Antarctica) penguin data
@@ -22,6 +22,7 @@ checksums           rmd160  ec30e91d1484561b08bc05e5575945861e1c2fc0 \
                     sha256  2a40d48ba6c7978fdf2a6daf647ccb39cd17590680138931d11194d3dd1a30b4 \
                     size    2995960
 supported_archs     noarch
+platforms           {darwin any}
 
 depends_lib-append  port:R
 
@@ -31,7 +32,7 @@ use_configure       no
 
 build               { }
 
-set branch          4.3
+set branch          4.4
 set packages        ${frameworks_dir}/R.framework/Versions/${branch}/Resources/library
 
 destroot {

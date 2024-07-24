@@ -4,7 +4,7 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                hatch
-version             1.9.2
+version             1.12.0
 revision            0
 categories-append   devel
 license             MIT
@@ -15,22 +15,21 @@ supported_archs     noarch
 platforms           {darwin any}
 homepage            https://github.com/ofek/hatch
 
-checksums           rmd160  6da683f8978d396b1ed9b9d06d9ba5c9f6035fd1 \
-                    sha256  1f4bc595cc30b86792e8058cc48cbe2ff9773bdd1dc53eb95d88d2b74b6f6ee1 \
-                    size    689507
+checksums           rmd160  043d07d13a4772402662880365143bf6e6ac6b03 \
+                    sha256  ae80478d10312df2b44d659c93bc2ed4d33aecddce4b76378231bdf81c8bf6ad \
+                    size    5187517
 
-variant python37 conflicts python38 python39 python310 python311 python312 description {Use Python 3.7} {}
-variant python38 conflicts python37 python39 python310 python311 python312 description {Use Python 3.8} {}
-variant python39 conflicts python37 python38 python310 python311 python312 description {Use Python 3.9} {}
-variant python310 conflicts python37 python38 python39 python311 python312 description {Use Python 3.10} {}
-variant python311 conflicts python37 python38 python39 python310 python312 description {Use Python 3.11} {}
-variant python312 conflicts python37 python38 python39 python310 python311 description {Use Python 3.12} {}
+variant python38 conflicts python39 python310 python311 python312 description {Use Python 3.8} {}
+variant python39 conflicts python38 python310 python311 python312 description {Use Python 3.9} {}
+variant python310 conflicts python38 python39 python311 python312 description {Use Python 3.10} {}
+variant python311 conflicts python38 python39 python310 python312 description {Use Python 3.11} {}
+variant python312 conflicts python38 python39 python310 python311 description {Use Python 3.12} {}
 
-if {![variant_isset python37] && ![variant_isset python38] && ![variant_isset python39] && ![variant_isset python310] && ![variant_isset python311]} {
+if {![variant_isset python38] && ![variant_isset python39] && ![variant_isset python310] && ![variant_isset python311]} {
     default_variants +python312
 }
 
-foreach pv {312 311 310 39 38 37} {
+foreach pv {312 311 310 39 38} {
     if {[variant_isset python${pv}]} {
         python.default_version  ${pv}
         break

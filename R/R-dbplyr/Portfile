@@ -4,18 +4,19 @@ PortSystem          1.0
 PortGroup           R 1.0
 
 # Revert to GitHub once updated there.
-R.setup             cran tidyverse dbplyr 2.4.0 v
-revision            0
+R.setup             cran tidyverse dbplyr 2.5.0 v
+revision            1
 categories-append   databases
 maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
 license             MIT
 description         R-dplyr back-end for databases
 long_description    {*}${description}
 homepage            https://dbplyr.tidyverse.org
-checksums           rmd160  fa165fefa6a38308f4afb1b8c2d226514b43d2a6 \
-                    sha256  9154f35771fa818456c6c6ec566699f2e1e7569aaa48209de80b44274240f1e7 \
-                    size    760884
+checksums           rmd160  481850ae7ccb718c76193cabef865b9591bb0c52 \
+                    sha256  bb475bdbe89487b189ecc257b5c92007a7458803c81aa77bfc4ed46f5f24bcff \
+                    size    770647
 supported_archs     noarch
+platforms           {darwin any}
 
 depends_lib-append  port:R-blob \
                     port:R-cli \

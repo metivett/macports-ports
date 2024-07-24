@@ -4,7 +4,7 @@ PortSystem              1.0
 PortGroup               python 1.0
 
 name                    py-pygmt
-version                 0.10.0
+version                 0.12.0
 revision                0
 categories-append       science
 platforms               {darwin any}
@@ -20,9 +20,9 @@ long_description        PyGMT is a library for processing geospatial and geophys
 
 homepage                https://pygmt.org/
 
-checksums               rmd160  1d6f17460f406547b18249e1a8571db1c539b7fb \
-                        sha256  96100c5118e3ef7ce088af12ede3cc4129dcd78aa5e3390d2786c11a4ed14062 \
-                        size    245780
+checksums               rmd160  2c186901896f724be62995a33cb96ba4250bd3dd \
+                        sha256  5ec644c4ee45b5fddc84d7dfe88a449ba230ed75224396321696c00b4357f8f4 \
+                        size    193550
 
 python.versions         39 310 311 312
 

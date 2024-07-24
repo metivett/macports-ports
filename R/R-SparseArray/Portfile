@@ -3,18 +3,17 @@
 PortSystem          1.0
 PortGroup           R 1.0
 
-R.setup             github Bioconductor SparseArray d666a1dd56e988332e0a20eb7c21b1582e79327c
-version             1.3.1
+R.setup             bioconductor Bioconductor SparseArray 1.4.8
 revision            0
-categories-append   devel
+categories-append   bioconductor devel
 maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
 license             Artistic-2
-description         Efficient in-memory representation of multi-dimensional sparse arrays
+description         Efficient in-memory representation \
+                    of multi-dimensional sparse arrays
 long_description    {*}${description}
-homepage            https://bioconductor.org/packages/${R.package}
-checksums           rmd160  40f5735cccfbaab862d2f41fd7af59a1a1a4d077 \
-                    sha256  2f1e61e0113598e01ec339458dd79730ed1e9503aa80320b55b8f716e61c7b1d \
-                    size    141033
+checksums           rmd160  f65b81bdf3099da6b3b6fc534fd35c4a34110706 \
+                    sha256  b5c56eec735d429bafae4b9628818b0dae92e1813c6dc67480009c00a3d91caa \
+                    size    392509
 
 depends_lib-append  port:R-BiocGenerics \
                     port:R-IRanges \
@@ -30,5 +29,4 @@ depends_test-append port:R-BiocStyle \
                     port:R-rmarkdown \
                     port:R-testthat
 
-# Few tests fail on ppc: https://github.com/Bioconductor/SparseArray/issues/2
 test.run            yes

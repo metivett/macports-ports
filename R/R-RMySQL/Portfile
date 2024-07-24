@@ -5,7 +5,7 @@ PortGroup           R 1.0
 
 # GitHub version lags behind.
 R.setup             cran r-dbi RMySQL 0.10.27
-revision            0
+revision            1
 categories-append   databases
 maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
 license             GPL-2
@@ -24,10 +24,8 @@ depends_lib-append  port:mariadb-${mariadb_ver} \
 
 patchfiles          patch-configure.diff
 
-destroot.args-append \
-                    --configure-vars=' \
-                        INCLUDE_DIR=${prefix}/include/mariadb-${mariadb_ver}/mysql \
-                        LIB_DIR=${prefix}/lib/mariadb-${mariadb_ver}/mysql'
+build.args-append   --configure-vars="INCLUDE_DIR=${prefix}/include/mariadb-${mariadb_ver}/mysql \
+                        LIB_DIR=${prefix}/lib/mariadb-${mariadb_ver}/mysql"
 
 depends_test-append port:R-curl \
                     port:R-testthat

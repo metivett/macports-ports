@@ -3,7 +3,7 @@
 PortSystem          1.0
 
 name                dotnet-sdk-8
-version             8.0.101
+version             8.0.301
 revision            0
 categories          dotnet devel
 license             MIT
@@ -20,23 +20,23 @@ long_description    .NET is a free, cross-platform, open source developer platfo
                     to build for web, mobile, desktop, games, and IoT.
 
 homepage            https://dotnet.microsoft.com/
-platforms           darwin
+platforms           {darwin any} {darwin >= 21}
 supported_archs     x86_64 arm64
 
 switch ${build_arch} {
     x86_64 {
         set dotnet_rid osx-x64
         distname            dotnet-sdk-${version}-osx-x64
-        checksums           rmd160  d7bc6c1dbc5bc4da48e6eba68bf35c8fb8be1a17 \
-                            sha256  cad53a19dd0ad86c814bbf24f8449e068ffbc3749a285e41b7b6e6004fa3881f \
-                            size    212561634
+        checksums           rmd160  b3f8a25afd67d9d9e35e0c7c9ca0fe4fc24e9152 \
+                            sha256  0bd66f52ddf92efdbed459362fb807b30360a1f854144c84789e12607a35ea75 \
+                            size    220572384
     }
     arm64 {
         set dotnet_rid osx-arm64
         distname            dotnet-sdk-${version}-osx-arm64
-        checksums           rmd160  bfba51a3dc56fbc6ecad4990aefa961a61d1e54c \
-                            sha256  aa56166e43f19ab9a71bf1203a9028920f2f555d985f8f1fe0ed0fe221b109bd \
-                            size    207350517
+        checksums           rmd160  fe086e53bf677c956c029fcbb89f131f955d586b \
+                            sha256  86a5a398a4f9c093a43687b93ac4c3a487b44e4193cc7155620a37dbc4476b87 \
+                            size    215412653
     }
     default {
         known_fail yes
@@ -62,7 +62,7 @@ build {}
 
 destroot {
     set dotnet_home ${prefix}/share/dotnet
-    set dotnet_runtime_version 8.0.1
+    set dotnet_runtime_version 8.0.6
 
     # ASP.NET Core Targeting Pack
     set aspnet_target_dir /packs/Microsoft.AspNetCore.App.Ref

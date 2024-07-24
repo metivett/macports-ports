@@ -6,7 +6,7 @@ PortGroup           python 1.0
 name                py-igraph
 python.rootname     igraph
 python.pep517       yes
-version             0.11.3
+version             0.11.6
 revision            0
 categories-append   math science
 platforms           darwin
@@ -24,9 +24,9 @@ long_description    Python interface to the igraph library for network analysis 
 
 homepage            https://igraph.org/python/
 
-checksums           rmd160  7daedae06c885556c84217c10fb0d44821dfa7e9 \
-                    sha256  e55df60f882a51b8e8c1c5e7e940c5f90685d75634ea6df63bebcc983397adfa \
-                    size    4483128
+checksums           rmd160  355621cc93c148be10926ad0404f7fdc152ae482 \
+                    sha256  837f233256c3319f2a35a6a80d94eafe47b43791ef4c6f9e9871061341ac8e28 \
+                    size    4559252
 
 variant external_igraph description {Use external igraph library} { }
 
@@ -75,18 +75,13 @@ if {${name} ne ${subport}} {
         build.env-append        IGRAPH_CMAKE_EXTRA_ARGS=[join $extra_cmake_args]
     }
 
-    # Some test dependencies are disabled for Python 3.12 until they become available.
-    if {${subport} ne "py312-${python.rootname}"} {
-        # python-igraph optionally makes use of these, and some tests depend on them.
-        # If they are not installed, the corresponding tests will simply be skipped.
-        depends_test-append     port:py${python.version}-matplotlib \
-                                port:py${python.version}-networkx \
-                                port:py${python.version}-numpy \
-                                port:py${python.version}-pandas \
-                                port:py${python.version}-scipy
-    } else {
-        depends_test-append     port:py${python.version}-numpy
-    }
+    # python-igraph optionally makes use of these, and some tests depend on them.
+    # If they are not installed, the corresponding tests will simply be skipped.
+    depends_test-append     port:py${python.version}-matplotlib \
+                            port:py${python.version}-networkx \
+                            port:py${python.version}-numpy \
+                            port:py${python.version}-pandas \
+                            port:py${python.version}-scipy
 
     test.run yes
 }

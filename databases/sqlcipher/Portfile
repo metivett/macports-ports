@@ -30,11 +30,14 @@ long_description    SQLCipher extends the SQLite database library to add \
                     an example of how to use the SQLite3 library.
 
 homepage            https://www.zetetic.net/sqlcipher/
-github.setup        sqlcipher sqlcipher 4.5.5 v
+github.setup        sqlcipher sqlcipher 4.6.0 v
 github.tarball_from archive
-checksums           rmd160  f6eb3064005ed1a5946564eba44202e81310d01f \
-                    sha256  014ef9d4f5b5f4e7af4d93ad399667947bb55e31860e671f0def1b8ae6f05de0 \
-                    size    18816611
+checksums           rmd160  c8f74ff03499f1c6fc77d63692f0ef1badcb4d85 \
+                    sha256  879fb030c36bc5138029af6aa3ae3f36c28c58e920af05ac7ca78a5915b2fa3c \
+                    size    19017463
+
+# https://github.com/sqlcipher/sqlcipher/pull/503
+patchfiles          0001-sqliteInt.h-fix-pointer-size-for-ppc64.patch
 
 openssl.configure   build_flags
 
@@ -42,6 +45,13 @@ openssl.configure   build_flags
 configure.cppflags-prepend  -DSQLITE_HAS_CODEC
 
 build.type          gnu
+
+# Needed for both subports:
+if {${os.major} <= 15} {
+    # https://github.com/sqlcipher/sqlcipher/issues/518
+    configure.cppflags-prepend \
+                    -DSQLCIPHER_OMIT_LOG_DEVICE
+}
 
 if {${subport} eq ${name}} {
     depends_lib-append  port:libedit \

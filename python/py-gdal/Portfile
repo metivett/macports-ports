@@ -5,9 +5,8 @@ PortGroup           python 1.0
 PortGroup           select 1.0
 
 name                py-gdal
-python.rootname     GDAL
 # keep version in sync with gdal; rebuilt after gdal update
-version             3.8.3
+version             3.9.1
 revision            0
 
 categories-append   gis
@@ -20,15 +19,18 @@ long_description    This Python package and extensions are a number of tools for
 
 homepage            https://www.gdal.org
 
-checksums           rmd160  93932cfdc77ab070d0f64060a035aa05d0b3bb26 \
-                    sha256  eae2587c581d6609289e44f30afe30edcc25fbc640b5d6aba2f3c3e81def55be \
-                    size    802458
+checksums           rmd160  8065bda72fc555809d5a1c3cf3be18d6d7fab68d \
+                    sha256  6d8a8f162ed32c5cb58839fa9198def477c68b670eed4cbce9eeef387ac3c8da \
+                    size    840332
 
 python.versions     38 39 310 311 312
 
 if {${name} ne ${subport}} {
     compiler.cxx_standard   2011
     compiler.thread_local_storage yes
+
+    # Setting build.cmd manually may be removed when py-numpy is >= 2
+    build.cmd "${python.bin} -m build --no-isolation --skip-dependency-check"
 
     depends_run-append \
                     port:gdal_select

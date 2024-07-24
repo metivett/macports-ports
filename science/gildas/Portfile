@@ -5,12 +5,10 @@ PortGroup           compilers 1.0
 PortGroup           active_variants 1.1
 
 name                gildas
-version             202311b
+version             202407b
 set my_version      [string tolower [clock format [clock scan 2000-[string range ${version} 4 5]-10] -format %b]][string range ${version} 2 3][string range ${version} 6 end]
-revision            1
 
 supported_archs     arm64 x86_64
-set my_machine      [if {[string match *arm* ${os.arch}]} {list arm64} {list x86_64}]
 categories          science
 platforms           darwin
 maintainers         {iram.fr:bardeau @bardeau}
@@ -34,11 +32,11 @@ master_sites        https://www.iram.fr/~gildas/dist/ \
 distname            ${name}-src-${my_version}
 use_xz              yes
 
-checksums           rmd160  fb4fc67e00c07c3b0740cf8290dc9dda2fd4681e \
-                    sha256  a397c47a175ae4c75b0af2997a0a1bfeb9989bd975283f814aef5952c786072c \
-                    size    46220420
+checksums           rmd160  de0a5c76d36fe0452f6a9c9c84488b14a59857c3 \
+                    sha256  e446f6ff298d4d402c203e1b3d28632ac80e7635f0556bfcdfeb867f8924a6d6 \
+                    size    46338108
 
-patch.pre_args      -p1
+patch.pre_args-replace  -p0 -p1
 patchfiles          patch-admin-Makefile.def.diff \
                     patch-admin-Makefile.python.diff \
                     patch-admin-Makefile.build.diff \
@@ -48,8 +46,8 @@ patchfiles          patch-admin-Makefile.def.diff \
 
 depends_lib         path:lib/pkgconfig/gtk+-2.0.pc:gtk2 \
                     port:libpng \
-                    port:python311 \
-                    port:py311-numpy
+                    port:python312 \
+                    port:py312-numpy
 
 # coreutils needed to use GNU gsort instead of native BSD sort as older version
 # of sort do not support sort -V:
@@ -71,7 +69,7 @@ compilers.add_gcc_rpath_support no
 
 compilers.choose    fc
 compilers.setup     -gcc46 require_fortran
-configure.python    ${prefix}/bin/python3.11
+configure.python    ${prefix}/bin/python3.12
 
 configure {
     set cxxstdlib {}
@@ -92,7 +90,14 @@ configure {
 }
 
 build {
-    system -W ${worksrcpath} "source admin/gildas-env.sh -c ${configure.fc} ${my_build_opts} -s ${prefix}/include:${prefix}/lib:/System/Library/Frameworks/Accelerate.framework/Frameworks/vecLib.framework/Versions/Current/ && export GAG_SLDFLAGS='-shared -o ${prefix}/lib/gildas/${my_machine}-darwin-gfortran/lib/\$(notdir \$@) -install_name ${prefix}/lib/gildas/${my_machine}-darwin-gfortran/lib/\$(notdir \$@)' && export DYLD_LIBRARY_PATH=${worksrcpath}/integ/${my_machine}-darwin-gfortran/lib && export GAG_ADDONS=yes && make -w install"
+    set my_machine   [if {[string match *arm* ${os.arch}]} {list arm64} {list x86_64}]
+    set my_env_vers  [string tolower [exec sw_vers -productName | tr -d " "]]
+    system -W ${worksrcpath} \
+           "source admin/gildas-env.sh -c ${configure.fc} ${my_build_opts} -s ${prefix}/include:${prefix}/lib:/System/Library/Frameworks/Accelerate.framework/Frameworks/vecLib.framework/Versions/Current/ && \
+            export GAG_SLDFLAGS='-shared -o ${prefix}/lib/gildas/${my_machine}-${my_env_vers}-gfortran/lib/\$(notdir \$@) -install_name ${prefix}/lib/gildas/${my_machine}-${my_env_vers}-gfortran/lib/\$(notdir \$@)' && \
+            export DYLD_LIBRARY_PATH=${worksrcpath}/integ/${my_machine}-${my_env_vers}-gfortran/lib && \
+            export GAG_ADDONS=yes && \
+            make -w install"
 }
 
 destroot {
@@ -110,10 +115,14 @@ destroot {
     xinstall ${filespath}/sched-30m.in ${destroot}${prefix}/bin/sched-30m
     xinstall ${filespath}/imager.in ${destroot}${prefix}/bin/imager
 
+    set my_machine   [if {[string match *arm* ${os.arch}]} {list arm64} {list x86_64}]
+    set my_env_vers  [string tolower [exec sw_vers -productName | tr -d " "]]
+
     reinplace -W ${destroot}${prefix}/bin s|@PREFIX@|${prefix}|g astro class clic cube greg mapping mira mrtcal sic sched-30m imager
     reinplace -W ${destroot}${prefix}/bin s|@ARCH@|${my_machine}|g astro class clic cube greg mapping mira mrtcal sic sched-30m imager
+    reinplace -W ${destroot}${prefix}/bin s|@OSNAME@|${my_env_vers}|g astro class clic cube greg mapping mira mrtcal sic sched-30m imager
 
     # delete broken module
-    delete ${destroot}${prefix}/lib/gildas/${my_machine}-darwin-gfortran/python/pyclassfiller
+    delete ${destroot}${prefix}/lib/gildas/${my_machine}-${my_env_vers}-gfortran/python/pyclassfiller
     
 }

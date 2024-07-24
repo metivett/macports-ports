@@ -3,8 +3,9 @@
 PortSystem          1.0
 PortGroup           golang 1.0
 
-go.setup            github.com/tailscale/tailscale 1.58.0 v
+go.setup            github.com/tailscale/tailscale 1.70.0 v
 go.package          tailscale.com
+go.offline_build    no
 github.tarball_from archive
 revision            0
 
@@ -22,16 +23,13 @@ license             BSD
 maintainers         {gmail.com:herby.gillot @herbygillot} \
                     openmaintainer
 
-checksums           rmd160  0651931a07df4882bcd650f6f6b03e63a0e15e6c \
-                    sha256  01d801dbb2df03a4e0c1563786300e8b26bb570b3aba15063943f78f2c26c316 \
-                    size    2359140
+checksums           rmd160  977965d8b9261a014639f9e8869b7d2df6b90819 \
+                    sha256  8429728708f9694534489daa0a30af58be67f25742597940e7613793275c738f \
+                    size    2925859
 
 startupitem.create  yes
 startupitem.executable \
                     ${prefix}/bin/${name}d
-
-# Allow Go to fetch deps at build time
-go.offline_build no
 
 build.pre_args-append \
     -ldflags \" \
@@ -56,3 +54,5 @@ After launching the Tailscale service for the first time using the steps below (
 
     ${name} up
 "
+
+github.livecheck.regex {([0-9.]+)}

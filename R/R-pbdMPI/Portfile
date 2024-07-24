@@ -6,7 +6,7 @@ PortGroup           R 1.0
 
 # GitHub version lags behind.
 R.setup             cran snoweye pbdMPI 0.5-1
-revision            0
+revision            1
 categories-append   parallel
 maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
 license             MPL-2
@@ -34,11 +34,9 @@ depends_lib-append  port:${mpi_port} \
                     port:R-float
 
 # At the moment there is no MPICH4 type. However, it does build against MPICH4.
-destroot.args-append \
-                    --configure-args=" \
-                    --with-mpi=${prefix} \
-                    --with-mpi-include=${prefix}/include/mpich-${mpi_suffix} \
-                    --with-mpi-libpath=${prefix}/lib/mpich-${mpi_suffix} \
-                    --with-mpi-type=MPICH3"
+build.args-append   --configure-args="--with-mpi=${prefix} \
+                        --with-mpi-include=${prefix}/include/mpich-${mpi_suffix} \
+                        --with-mpi-libpath=${prefix}/lib/mpich-${mpi_suffix} \
+                        --with-mpi-type=MPICH3"
 
 test.run            no

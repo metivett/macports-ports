@@ -3,10 +3,10 @@
 PortSystem          1.0
 PortGroup           github 1.0
 
-github.setup        onetrueawk awk 20230909
-checksums           rmd160  01a764ea801c1c46db06b5433484f5f55a925de4 \
-                    sha256  8872d3204cc91a5b521505c3512acb4eb1993769521ab4ac8f5e4ac4a146a594 \
-                    size    1833460
+github.setup        onetrueawk awk 20240422
+checksums           rmd160  a8dbedb74889f346e6999dbffa3595e27c3c80ca \
+                    sha256  205375f92c3e1c03e334a3ba008b5c99a6d1ba19fb778066ec81de9a211be310 \
+                    size    1845190
 
 name                nawk
 categories          lang

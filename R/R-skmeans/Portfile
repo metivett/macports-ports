@@ -4,7 +4,7 @@ PortSystem          1.0
 PortGroup           R 1.0
 
 R.setup             cran r-forge skmeans 0.2-16
-revision            0
+revision            1
 categories-append   math
 maintainers         nomaintainer
 license             GPL-2
@@ -14,6 +14,7 @@ checksums           rmd160  13ce93a435c31715cceaae631b6cc681abc96b08 \
                     sha256  3aab34ab867cf53deafc3f16164bf8fed73ac4543897f1a1903b0682e5742f66 \
                     size    199239
 supported_archs     noarch
+platforms           {darwin any}
 
 depends_lib-append  port:R-clue \
                     port:R-slam

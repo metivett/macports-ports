@@ -12,11 +12,11 @@ boost.version       1.81
 # clock_gettime
 legacysupport.newest_darwin_requires_legacy 16
 
-github.setup        facebook mvfst 2024.01.08.00 v
+github.setup        facebook mvfst 2024.06.03.00 v
 revision            0
-checksums           rmd160  9247704722512dfa2284d053028b2a607976e0b4 \
-                    sha256  cd479fa95041e436f012aae2402b82d62534ac43df72b4e41d47f2ca67092a02 \
-                    size    1869433
+checksums           rmd160  b6744fd5a8b4775e91bd6192e0ea3c73287a9cdb \
+                    sha256  5288dddaf4354a38d5c924d460702e160dfd2576c0b67e890daefed261a644e5 \
+                    size    1961104
 github.tarball_from archive
 
 categories          devel net security

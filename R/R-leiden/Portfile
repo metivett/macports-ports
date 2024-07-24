@@ -4,8 +4,9 @@ PortSystem          1.0
 PortGroup           R 1.0
 
 R.setup             github TomKellyGenetics leiden 0.4.3.1
-revision            0
+revision            1
 categories-append   math
+platforms           {darwin any}
 maintainers         nomaintainer
 license             GPL-3
 description         R implementation of Leiden clustering algorithm
@@ -17,3 +18,25 @@ supported_archs     noarch
 
 depends_lib-append  port:R-igraph \
                     port:R-reticulate
+
+depends_test-append port:R-bipartite \
+                    port:R-covr \
+                    port:R-data.table \
+                    port:R-devtools \
+                    port:R-graphsim \
+                    port:R-knitr \
+                    port:R-markdown \
+                    port:R-multiplex \
+                    port:R-multinet \
+                    port:R-network \
+                    port:R-qpdf \
+                    port:R-RColorBrewer \
+                    port:R-remotes \
+                    port:R-rmarkdown \
+                    port:R-spelling \
+                    port:R-testthat \
+                    port:R-tibble
+
+test.run            yes
+# Running code from vignettes needs files which otherwise are not present:
+test.args-delete    --no-build-vignettes

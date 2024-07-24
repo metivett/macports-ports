@@ -4,12 +4,12 @@ PortSystem  1.0
 PortGroup   compiler_blacklist_versions 1.0
 
 name        xorg-libX11
-version     1.8.7
+version     1.8.9
 revision    0
 
-checksums   rmd160  0dcecfc8cbe853344c47e0f7e5217fbcdd3eb82d \
-            sha256  05f267468e3c851ae2b5c830bcf74251a90f63f04dd7c709ca94dc155b7e99ee \
-            size    1859256
+checksums   rmd160  1ed3e3c08037b3e0f0faafc16199a0af7e91d2b6 \
+            sha256  779d8f111d144ef93e2daa5f23a762ce9555affc99592844e71c4243d3bd3262 \
+            size    1811900
 
 categories  x11 devel
 license     X11

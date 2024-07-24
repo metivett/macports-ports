@@ -4,7 +4,7 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-asteval
-version             0.9.31
+version             1.0.1
 revision            0
 
 categories-append   math
@@ -21,11 +21,11 @@ long_description    ASTEVAL is a safe(ish) evaluator of Python expressions and \
                     expressions, and so many functions from numpy are imported and \
                     used if available.
 
-homepage            https://github.com/newville/asteval
+homepage            https://github.com/lmfit/asteval
 
-checksums           rmd160  9df656d5ca8435b6f92695165038da6fb229cafe \
-                    sha256  a2da066b6696dba9835c5f7dec63e0ffb5bd2b4e3bb5f0b9a604aeafb17d833d \
-                    size    57410
+checksums           rmd160  6ce4b281434d90c38b0edd33516433e1d225ca5e \
+                    sha256  377f4917e5b717bc525b887345231791945fe89c43660b7902a64e69827db87f \
+                    size    50001
 
 python.versions     38 39 310 311 312
 
@@ -38,7 +38,7 @@ if {${subport} ne ${name}} {
     post-destroot {
         set docdir ${prefix}/share/doc/${subport}
         xinstall -d ${destroot}${docdir}
-        xinstall -m 0644 -W ${worksrcpath} README.rst INSTALL \
+        xinstall -m 0644 -W ${worksrcpath} README.rst \
             LICENSE ${destroot}${docdir}
     }
 }

@@ -3,16 +3,17 @@
 PortSystem          1.0
 PortGroup           R 1.0
 
-R.setup             cran azk-r RcmdrPlugin.DCCV 0.1-3
+R.setup             cran azk-r RcmdrPlugin.DCCV 0.1-5
 revision            0
 maintainers         nomaintainer
 license             GPL-2+
 description         R Commander plug-in for dichotomous choice contingent valuation
 long_description    {*}${description}
-checksums           rmd160  1c425a33a9b93486b85de86dbc3537ebc3022f89 \
-                    sha256  91a83f525930fa1258337880355c4a91701a303cd4d617b1b8c28f3c7b3ab48d \
-                    size    6939
+checksums           rmd160  8c607aeeb1ff0b58c12aa7c3dbea76786e97edeb \
+                    sha256  b9dfa8c2d704b1ac26d420afcb11003f27fe7cc9511e98056d19d0d394940d8b \
+                    size    8868
 supported_archs     noarch
+platforms           {darwin any}
 
 depends_lib-append  port:R-DCchoice \
                     port:R-Rcmdr

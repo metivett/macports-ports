@@ -91,6 +91,11 @@ array set crossbinutils.versions_info {
         sha256  ae9a5789e23459e59606e6714723f2d3ffc31c03174191ef0d015bdf06007450 \
         size    26765692
     }}
+    2.42 {xz {
+        rmd160  1aecf0d749c7eb0941f7e1f0be0006d8a8833dd8 \
+        sha256  f6e4d41fd5fc778b06b7891457b3620da5ecea1006c6a4a41ae998109f85a800 \
+        size    27567160
+    }}
 }
 
 proc crossbinutils.setup {target version} {
@@ -98,12 +103,11 @@ proc crossbinutils.setup {target version} {
 
     crossbinutils.target ${target}
 
-    name            ${target}-binutils
-    version         ${version}
-    categories      cross devel
-    platforms       darwin
-    license         GPL-3+
-    maintainers     nomaintainer
+    default name        ${target}-binutils
+    version             ${version}
+    default categories  {cross devel}
+    default license     GPL-3+
+    default maintainers nomaintainer
 
     description     FSF Binutils for ${target} cross development
     long_description \
@@ -169,6 +173,11 @@ proc crossbinutils.setup {target version} {
         --infodir=${prefix}/share/info/${target} \
         --mandir=${prefix}/share/man \
         --datarootdir=${prefix}/share/${crossbinutils.target}
+
+    # Opportunistic links zstd for compression
+    if {[vercmp ${version} >= "2.40"]} {
+        depends_lib-append  port:zstd
+    }
 
     build.dir ${workpath}/build
 

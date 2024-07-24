@@ -5,7 +5,7 @@ PortGroup           legacysupport 1.1
 PortGroup           makefile 1.0
 PortGroup           codeberg 1.0
 
-codeberg.setup      grunfink snac2 2.45
+codeberg.setup      grunfink snac2 2.56
 name                snac
 revision            0
 
@@ -30,9 +30,9 @@ long_description    snac Social Networks Are Crap \
                     - No cookies either \
                     - Not much bullshit
 
-checksums           rmd160  8ba6cc0bd6ff2a5f5edb294d9b2f2d8d0f88b267 \
-                    sha256  f97a30932741391f7eefb410582688cf0d3fd3f1be16ca8d314e5eb1dd50d08d \
-                    size    153106
+checksums           rmd160  47e0b63109e7f3059e39819f54445e04f3bdab89 \
+                    sha256  d20b5224709067d69a6a5a8c656a6c04f8bb97f55cb03e346d8a35a672109cfa \
+                    size    177774
 depends_lib         path:lib/libssl.dylib:openssl \
                     port:curl
 
@@ -44,6 +44,10 @@ platform darwin {
     configure.cflags-append \
                     -Dst_mtim=st_mtimespec -Dst_ctim=st_ctimespec
 }
+
+# data.c: error: ‘for’ loop initial declaration used outside C99 mode
+configure.cflags-append \
+                    -std=c99
 
 variant nomastodon description {omit Mastodon API support} {
 configure.cflags-append \

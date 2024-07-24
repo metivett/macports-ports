@@ -3,23 +3,21 @@
 PortSystem          1.0
 PortGroup           R 1.0
 
-R.setup             github Bioconductor IRanges 5acb46b3f2805f7f74fe4cb746780e75f8257a83
-version             2.37.0
+R.setup             bioconductor Bioconductor IRanges 2.38.1
 revision            0
-categories-append   math
+categories-append   bioconductor math
 maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
 license             Artistic-2
 description         Foundation of integer range manipulation
 long_description    {*}${description}
-homepage            https://bioconductor.org/packages/${R.package}
-checksums           rmd160  e6e3869539553223e723c5684a1e7799b2439549 \
-                    sha256  b2c1dc2b852464058c155588c0d9ae09f15d540ea5a2b3684f372345df8ff052 \
-                    size    261286
+checksums           rmd160  3ca07a21f555ace1841443340393d9ff5f368af5 \
+                    sha256  9b4c833c5ab674e9020ff466a51de9ee019912eb36802b50d9abbd9d0190091f \
+                    size    481399
 
 depends_lib-append  port:R-BiocGenerics \
                     port:R-S4Vectors
 
-patchfiles          patch-remove-unavailable-suggests.diff
+patchfiles-append   patch-remove-unavailable-suggests.diff
 
 depends_test-append port:R-BiocStyle \
                     port:R-GenomicAlignments \

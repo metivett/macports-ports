@@ -10,11 +10,11 @@ legacysupport.use_mp_libcxx yes
 # src/third_party/blake3/CMakeLists.txt checks CMAKE_SIZEOF_VOID_P
 PortGroup           muniversal 1.0
 
-github.setup        ccache ccache 4.9 v
+github.setup        ccache ccache 4.10.1 v
 revision            0
-checksums           rmd160  d9c5ccf3279278156d9d57e4bab853fb0ddc7d8c \
-                    sha256  1ebc72324e3ab52af0b562bf54189d108e85eef6478d6304a345a3c2dc4018e0 \
-                    size    583744
+checksums           rmd160  1a6b7c34a0ca59faf5ad0c15db0146dbfec1e555 \
+                    sha256  3a43442ce3916ea48bb6ccf6f850891cbff01d1feddff7cd4bbd49c5cf1188f6 \
+                    size    485228
 
 categories          devel
 platforms           darwin freebsd

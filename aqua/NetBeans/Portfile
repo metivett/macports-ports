@@ -5,7 +5,8 @@ PortGroup           java 1.0
 
 name                NetBeans
 set name_lower      [string tolower ${name}]
-version             20
+version             22
+revision            0
 categories          aqua devel java
 license             Apache-2
 maintainers         openmaintainer {amake @amake}
@@ -26,16 +27,16 @@ platforms           {darwin any}
 distname            ${name_lower}-${version}-bin
 master_sites        apache:${name_lower}/${name_lower}/${version}
 
-checksums           rmd160  13d14d1150dbc3600d4a72003fcf859a36ea22a2 \
-                    sha256  86c792bac26252a767848c8e06d10b3eba1e323ac674a6b6da1d1591b30bf341 \
-                    size    498235431
+checksums           rmd160  82916fde1d66b66243a99701a77210cf9d21e7b0 \
+                    sha256  baecc2da28934a7ddccd6a1ddda05b361f2654ce5b0af9a3294974a6d35d9b73 \
+                    size    501293680
 
 worksrcdir          ${name_lower}
 
 use_zip             yes
 use_configure       no
 
-java.version        1.11+
+java.version        11+
 
 build {}
 
@@ -68,12 +69,10 @@ destroot {
     # For some reason removing all architectures but x86_64 fixes the issue.
     #
     # TODO: When arm64 support is added to these files, see if this hack is still helpful
-    if {${build_arch} eq "arm64"} {
-        system -W ${destroot}${prefix}/share/java/netbeans/profiler/lib/deployed/jdk15/mac/ \
-            "lipo -thin x86_64 libprofilerinterface.jnilib -o libprofilerinterface.jnilib"
-        system -W ${destroot}${prefix}/share/java/netbeans/profiler/lib/deployed/jdk16/mac/ \
-            "lipo -thin x86_64 libprofilerinterface.jnilib -o libprofilerinterface.jnilib"
-    }
+    system -W ${destroot}${prefix}/share/java/netbeans/profiler/lib/deployed/jdk15/mac/ \
+        "lipo -thin x86_64 libprofilerinterface.jnilib -o libprofilerinterface.jnilib"
+    system -W ${destroot}${prefix}/share/java/netbeans/profiler/lib/deployed/jdk16/mac/ \
+        "lipo -thin x86_64 libprofilerinterface.jnilib -o libprofilerinterface.jnilib"
 }
 
 universal_variant   no

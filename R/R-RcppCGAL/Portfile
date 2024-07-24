@@ -3,18 +3,19 @@
 PortSystem          1.0
 PortGroup           R 1.0
 
-R.setup             cran ericdunipace RcppCGAL 5.6.1
+R.setup             cran ericdunipace RcppCGAL 5.6.4
 revision            0
-categories-append   math
+categories-append   math geometry
+platforms           {darwin any}
 maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
-license             GPL-3+
+license             GPL-3
 description         Rcpp Integration for CGAL
 long_description    Creates a header only package to link to the CGAL (Computational Geometry Algorithms Library) header files in Rcpp. \
                     There are a variety of potential uses for the software such as Hilbert sorting, KDtree nearest neighbors, and convex hull algorithms.
 homepage            https://github.com/ericdunipace/RcppCGAL
-checksums           rmd160  a10781a84df909940a31fe830f0d1f926182965e \
-                    sha256  a1cfeef49b931eb85d95ef6e12498487e004225c2811c9729cc5baf8f80be755 \
-                    size    4839346
+checksums           rmd160  26a4135c64572f330878eddaca648604fa9e7127 \
+                    sha256  fd387f04a31eac0c7e6c6e8510b86cf3333f59d7414af91b7c9b7aad90369436 \
+                    size    4845581
 supported_archs     noarch
 
 depends_lib-append  port:R-Rcpp

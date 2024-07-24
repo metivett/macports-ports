@@ -10,7 +10,9 @@ name                legacy-support
 categories          devel
 platforms           darwin
 
-maintainers         {jonesc @cjones051073} openmaintainer
+maintainers         {mascguy @mascguy} \
+                    {fwright.net:fw @fhgwright} \
+                    openmaintainer
 license             MIT BSD APSL-2
 
 description         Installs wrapper headers to add missing functionality to legacy OSX versions.
@@ -20,7 +22,7 @@ long_description    {*}${description}
 epoch               1
 
 # Primary release version
-set release_ver     1.1.1
+set release_ver     1.2.4
 
 # Binary compatibility version
 set compat_ver      1.0.0
@@ -29,37 +31,54 @@ subport ${name} {
     conflicts           ${name}-devel
     github.setup        macports macports-legacy-support ${release_ver} v
     revision            0
-    checksums           rmd160  e4b78b21c8bfd7fbb3aa8003da90932e83d53dc4 \
-                        sha256  cbd73bdd6261368a521c24f73fbd20e2f96ff3d49b3d1e1291a9de77e4914ba8 \
-                        size    72245
+    checksums           rmd160  91ac38ae5a7ac40eaae84163a3bc658c24fd976b \
+                        sha256  1f59de824f9769fde0f154173ed0296390288b6b0a79eb073d21e35aa8b0a1f6 \
+                        size    77763
 
-    # Remove this once the above release_ver works on 10.4
-    if {${os.platform} eq "darwin" && ${os.major} < 9} {
-        set release_ver     1.0.13
-        github.setup        macports macports-legacy-support ${release_ver} v
-        revision            0
-        checksums           rmd160  1afccf82bccb721d31ed63c1dfddbb36436af004 \
-                        sha256  56dfbbca8b82f941856cdac38354b4fd504d4b7bed2c7b9b6b14a784cc59c6aa \
-                        size    65296
+    # install Tiger-specific fixes
+    platform darwin 8 {
+        # there is no system copyfile.h, so find local copy
+        configure.cflags-append -isystem${worksrcpath}/tiger_only/include
+        post-destroot {
+            # use Tiger version of copyfile.h
+            delete ${destroot}${prefix}/include/LegacySupport/copyfile.h
+            # Copy all tiger specific 'binaries' and includes
+            tiger_copy ${worksrcpath}/tiger_only/bin  ${destroot}${prefix}/bin/
+            tiger_copy ${worksrcpath}/tiger_only/include  ${destroot}${prefix}/include/LegacySupport/
+        }
     }
 }
 
 subport ${name}-devel {
     conflicts           ${name}
-    github.setup        macports macports-legacy-support 707aab751ce95cb394dc09593a5027e97473740e
-    version             20230915
+    github.setup        macports macports-legacy-support e7ff5e479c43e5aa3b8b9e97bf049706d0b23837
+    version             20240721
     revision            0
     livecheck.type      none
-    checksums           rmd160  e4b78b21c8bfd7fbb3aa8003da90932e83d53dc4 \
-                        sha256  cbd73bdd6261368a521c24f73fbd20e2f96ff3d49b3d1e1291a9de77e4914ba8 \
-                        size    72245
+    checksums           rmd160  97abe6acb3eac693af9efa9caf4c17df5444fdc5 \
+                        sha256  60b413f0b91d98e2405b912ed47e012e65d11841b9ee49f2aaef5a5a63e7e488 \
+                        size    93322
     set v_split         [split ${release_ver} .]
     set release_ver     [lindex ${v_split} 0].[lindex ${v_split} 1].99
+
+    # Install Tiger-specific additions
+    platform darwin 8 {
+        build.target-append     tiger-bins
+        destroot.target-append  install-tiger
+    }
 }
 
 # Until this can be fixed disable parallel builds...
 # https://build.macports.org/builders/ports-10.10_x86_64-builder/builds/141962/steps/install-port/logs/stdio
 use_parallel_build  no
+
+# This port doesn't use C++ at all, except for a couple of tests which may
+# fail to build with a non-OS-default stdlib setting.  Since the cxx_stdlib
+# selection is unimportant for the tests (which are actually only testing
+# the C-only interface to the library), we disable the cxx_stlib setting.
+# This also avoids depending on a MacPorts compiler in some OS versions.
+
+configure.cxx_stdlib
 
 post-extract {
     # until upstream can be fixed, do not include atexit symbols
@@ -67,28 +86,11 @@ post-extract {
     delete ${worksrcpath}/src/macports_legacy_atexit.c
 }
 
-set max_darwin_reexport 19
-set max_darwin_optool   20
-
 build.env-append    LD=ld \
                     "LIPO=/usr/bin/lipo" \
                     PLATFORM=${os.major} \
-                    MAX_DARWIN_REEXPORT=${max_darwin_reexport} \
                     SOCURVERSION=${release_ver} \
                     SOCOMPATVERSION=${compat_ver}
-
-# install Tiger-specific fixes
-platform darwin 8 {
-    # there is no system copyfile.h, so find local copy
-    configure.cflags-append -isystem${worksrcpath}/tiger_only/include
-    post-destroot {
-        # use Tiger version of copyfile.h
-        delete ${destroot}${prefix}/include/LegacySupport/copyfile.h
-        # Copy all tiger specific 'binaries' and includes
-        tiger_copy ${worksrcpath}/tiger_only/bin      ${destroot}${prefix}/bin/
-        tiger_copy ${worksrcpath}/tiger_only/include  ${destroot}${prefix}/include/LegacySupport/
-    }
-}
 
 foreach arch ${muniversal.architectures} {
     build.env.${arch}-append    FORCE_ARCH=${arch}
@@ -107,24 +109,6 @@ proc tiger_copy {from to} {
         } else {
             ui_debug "Copying ${f} to ${to}"
             copy ${f} ${to}
-        }
-    }
-}
-
-# The legacy-support build cannot create the LegacySupportSystem library directly
-# on newer systems as the reexport link option to /usr/lib/libSystem.B.dylib
-# does not work, due to the file system library cache added in macOS11.
-# Fallback to using optool here. Optool also currently not working on arm.
-if { ${build_arch} ne "arm64" && ${os.major} > ${max_darwin_reexport} && ${os.major} <= ${max_darwin_optool} } {
-    depends_build-append port:optool
-    post-destroot {
-        set legSupp   ${prefix}/lib/libMacportsLegacySupport.dylib
-        set legSystem ${prefix}/lib/libMacportsLegacySystem.B.dylib
-        if {![file exists ${destroot}${legSystem}]} {
-            copy ${destroot}${legSupp} ${destroot}${legSystem}
-            system "${prefix}/bin/optool install -c reexport -p /usr/lib/libSystem.B.dylib -t ${destroot}${legSystem}"
-        } else {
-            ui_warn "${destroot}${legSystem} already exists."
         }
     }
 }

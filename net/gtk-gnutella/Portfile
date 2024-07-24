@@ -4,8 +4,8 @@ PortSystem      1.0
 PortGroup       conflicts_build 1.0
 PortGroup       github 1.0
 
-github.setup    gtk-gnutella gtk-gnutella a028284d5367bec414afdf238c108bb557356b2f
-version         2023.10.25
+github.setup    gtk-gnutella gtk-gnutella 0cbba2f8ba18e93c27e2863827ac6db9744cf1de
+version         2024.03.05
 revision        0
 categories      net p2p www
 license         GPL-2+
@@ -17,9 +17,9 @@ long_description \
                 and some basic statistics.
 homepage        https://gtk-gnutella.sourceforge.net
 
-checksums       rmd160  9395d1fbc9791d0e1e3c16a5fcb96129377bb9c3 \
-                sha256  c34784ffc6715b1c761f726851e820121f86bf1fb7e07f899a7011f95bbf20ef \
-                size    26721323
+checksums       rmd160  c4d0834990d2abde195731385d0abbfaaf0e36b6 \
+                sha256  b4ea75fffb04f9bf36e1d28fc5e825d5273da8d08df2596cd0dcec202043a184 \
+                size    28349798
 github.tarball_from archive
 
 depends_lib-append \

@@ -3,16 +3,16 @@
 PortSystem          1.0
 PortGroup           R 1.0
 
-R.setup             cran rhirk mvord 1.2.1
+R.setup             cran laura.vana mvord 1.2.4
 revision            0
 categories-append   math
 maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
 license             GPL-3
 description         Multivariate Ordinal regression models
 long_description    {*}${description}
-checksums           rmd160  3bf5b2cb586ed9f614aa4e91fbaf71399e5f7ff6 \
-                    sha256  98f9331662d846381338bf6e7be1e5a65d61c6a3d9b8cfddb59daf989d17b5bb \
-                    size    2567564
+checksums           rmd160  550af33415c050440df2d23942489b8a9c258f6d \
+                    sha256  c7807ccf7ac82248ebb7218918c56893af6915e38917e7657357ed2c5ff9af43 \
+                    size    2568661
 
 depends_lib-append  port:R-BB \
                     port:R-dfoptim \

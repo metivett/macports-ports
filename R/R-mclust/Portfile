@@ -3,16 +3,18 @@
 PortSystem          1.0
 PortGroup           R 1.0
 
-R.setup             cran mclust-org mclust 6.0.1
+R.setup             cran mclust-org mclust 6.1.1
 revision            0
+categories-append   math
 maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
 license             GPL-2+
-description         Gaussian mixture modelling for model-based clustering, classification and density estimation
+description         Gaussian mixture modelling for model-based clustering, \
+                    classification and density estimation
 long_description    {*}${description}
 homepage            https://mclust-org.github.io/mclust
-checksums           rmd160  844bb561261cb198a88fac70f3b5520bf15c57ea \
-                    sha256  0e92de6fd1bd2a13de2c94eae84fba0d3762099a2505e05b887f1c2a7242537f \
-                    size    2763121
+checksums           rmd160  465230463fb1eba0158293888c8d0b6f59b00f69 \
+                    sha256  ddd7018e5e6ea7f92c7fc9872b391491b7e91c2cd89ef1dcaf4408afb5116775 \
+                    size    2753243
 
 compilers.setup     require_fortran
 

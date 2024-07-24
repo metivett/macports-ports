@@ -4,12 +4,13 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                barman
-version             3.9.0
-revision            1
+version             3.10.1
+revision            0
 categories          databases
-platforms           darwin
+platforms           {darwin any}
+supported_archs     noarch
 license             GPL-3
-maintainers         {outlook.com:mohd.akram @mohd-akram} openmaintainer
+maintainers         {makr @mohd-akram} openmaintainer
 
 description         Backup and Recovery Manager for PostgreSQL
 
@@ -22,9 +23,9 @@ long_description    Barman (Backup and Recovery Manager) is an open-source \
 
 homepage            https://www.pgbarman.org
 
-checksums           rmd160  027d350fdb5dedab43eefb18148d3df83f886ae1 \
-                    sha256  c3d2cf12543741fb5b5bcbc52f1dd7cfc2bc7e0977890c1e8770adcddfbcd6ea \
-                    size    1589918
+checksums           rmd160  d7508907aab9ef5d0ec09153d3e27f1b22656462 \
+                    sha256  1f543657b0eb70eaf5200c78724093356d6b2f291488c4950c0fa1fa6f2b5777 \
+                    size    1607614
 
 python.default_version 312
 

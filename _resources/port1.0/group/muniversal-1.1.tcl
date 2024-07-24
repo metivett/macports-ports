@@ -74,6 +74,10 @@ default muniversal.arch_flag {yes}
 options muniversal.arch_compiler
 default muniversal.arch_compiler {no}
 
+# if yes, append architecture flag to build compiler name
+options muniversal.arch_build_compiler
+default muniversal.arch_build_compiler  {${muniversal.arch_compiler}}
+
 ##########################################################################################
 # MacPorts options for different architectures
 ##########################################################################################
@@ -138,7 +142,7 @@ default muniversal.is_cross.ppc64   {[expr { ${os.arch} ne "powerpc" || !${os.cp
 # see https://wiki.osdev.org/Target_Triplet
 ##########################################################################################
 options triplet.vendor
-default triplet.vendor      {apple}
+default triplet.vendor      {[expr {${os.platform} eq "darwin" ? "apple" : "unknown"}]}
 
 options triplet.os
 default triplet.os          {${os.platform}${os.major}}
@@ -724,7 +728,7 @@ proc parse_environment {command} {
         append_to_environment_value     ${command}  CXXCPP_FOR_BUILD    {*}"[portconfigure::configure_get_compiler cpp]"
         append_to_environment_value     ${command}  CPPFLAGS_FOR_BUILD  {*}[option configure.cppflags_for_build]
 
-        if { [option muniversal.arch_compiler] } {
+        if { [option muniversal.arch_build_compiler] } {
             if { [option configure.append_build_flags_to_compiler] } {
                 append_to_environment_value ${command}  CC_FOR_BUILD    {*}"[portconfigure::configure_get_compiler cc]  [portconfigure::configure_get_archflags cc] [option configure.cflags_for_build]"
                 append_to_environment_value ${command}  CXX_FOR_BUILD   {*}"[portconfigure::configure_get_compiler cxx] [portconfigure::configure_get_archflags cxx] [option configure.cxxflags_for_build]"
@@ -1079,6 +1083,7 @@ proc muniversal::add_compiler_flags {} {
 
     if {[option universal_possible] && [variant_isset universal]} {
         if { [option os.platform] eq "darwin" && [option os.major] >= 22 } {
+            depends_build-delete port:diffutils-for-muniversal
             depends_build-append port:diffutils-for-muniversal
         }
     }

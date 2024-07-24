@@ -4,7 +4,9 @@ PortSystem          1.0
 PortGroup           boost 1.0
 PortGroup           R 1.0
 
-R.setup             cran eddelbuettel RQuantLib 0.4.20
+boost.version       1.81
+
+R.setup             cran eddelbuettel RQuantLib 0.4.22
 revision            0
 categories-append   finance
 maintainers         nomaintainer
@@ -12,9 +14,9 @@ license             GPL-2+
 description         R interface to the QuantLib library
 long_description    {*}${description}
 homepage            https://dirk.eddelbuettel.com/code/rquantlib.html
-checksums           rmd160  f6be34c9b56d79d58d0beb54f3d10d32c6676438 \
-                    sha256  565b55a0d7e8543b0b42a14966ee28b7b9934aab44969180c93fb704f27b845e \
-                    size    194779
+checksums           rmd160  61b1b2bd2f431f444395c6a296bba742abcb5bd7 \
+                    sha256  d3c618168d499197e7c82009f964069f7090f329446efa99c910c1e054a3487f \
+                    size    195468
 
 depends_lib-append  port:QuantLib \
                     port:R-Rcpp \

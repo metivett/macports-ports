@@ -6,7 +6,7 @@ PortGroup           python 1.0
 PortGroup           compiler_blacklist_versions 1.0
 
 name                py-pikepdf
-github.setup        pikepdf pikepdf 8.11.2 v
+github.setup        pikepdf pikepdf 9.1.0 v
 revision            0
 categories-append   graphics
 license             MPL-2
@@ -17,9 +17,9 @@ long_description    {*}${description}
 
 python.versions     38 39 310 311 312
 
-checksums           rmd160  0e2d9c14a9753c911c2429b06faa10c77e48caea \
-                    sha256  0b60240539b7c8ab628261c75e0d5372c6500a6a3b531626d6e1f9d28f67939f \
-                    size    2925311
+checksums           rmd160  cb71480acaa3022ce8894fcb237e65a1c0ea3fc0 \
+                    sha256  e3ee819f9b18b2b74162a63105b9bdf9926cb2fdf9e92a45449cbd3861564164 \
+                    size    2924595
 
 if {${name} ne ${subport}} {
     depends_build-append \
@@ -29,7 +29,7 @@ if {${name} ne ${subport}} {
                     port:py${python.version}-wheel
 
     depends_lib-append  \
-                    port:py${python.version}-deprecation \
+                    port:py${python.version}-deprecated \
                     port:py${python.version}-lxml \
                     port:py${python.version}-packaging \
                     port:py${python.version}-Pillow \

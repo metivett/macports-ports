@@ -4,7 +4,7 @@ PortSystem          1.0
 PortGroup           R 1.0
 
 R.setup             cran JWiley extraoperators 0.3.0
-revision            0
+revision            1
 categories-append   math
 maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
 license             GPL-3
@@ -15,6 +15,7 @@ checksums           rmd160  15954f10d4c81ed078f11bd5de641ee7ece2cd64 \
                     sha256  70cca07b44b908daea691fd0d9d801104a7d4da59764a134b93e2ae68a1667cf \
                     size    25125
 supported_archs     noarch
+platforms           {darwin any}
 
 depends_test-append port:R-covr \
                     port:R-knitr \

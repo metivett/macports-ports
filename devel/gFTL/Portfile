@@ -5,7 +5,7 @@ PortGroup           cmake 1.1
 PortGroup           compilers 1.0
 PortGroup           github 1.0
 
-github.setup        Goddard-Fortran-Ecosystem gFTL 1.11.0 v
+github.setup        Goddard-Fortran-Ecosystem gFTL 1.14.0 v
 revision            0
 categories          devel fortran
 license             Apache-2
@@ -14,9 +14,9 @@ supported_archs     noarch
 maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
 description         Software containers for Fortran
 long_description    {*}${description}
-checksums           rmd160  f5e012e00af0ab897a9448ae7c79129a1f19483d \
-                    sha256  b28935bc077749823b1505ad8c1208360a5ba7e961d7593c17a33b11455a32a4 \
-                    size    168803
+checksums           rmd160  fea2f615d4db6d08e72175dc00ee36ebddfb83a6 \
+                    sha256  bf8e3ba3f708ea327c7eb1a5bd1afdce41358c6df1a323aba0f73575c25d5fc8 \
+                    size    170347
 github.tarball_from archive
 
 depends_build-append \

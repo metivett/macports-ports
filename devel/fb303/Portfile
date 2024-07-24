@@ -10,12 +10,12 @@ PortGroup           openssl 1.0
 
 boost.version       1.81
 
-github.setup        facebook fb303 2024.01.08.00 v
+github.setup        facebook fb303 2024.06.03.00 v
 epoch               1
 revision            0
-checksums           rmd160  f42d9df12e451e5a7b1e85edb770142d7c0792dd \
-                    sha256  b0b70695da62e3df1d2afd8b0d5ef58547960b92110dc3accb06e98c006d7704 \
-                    size    242585
+checksums           rmd160  97aa489c1b4ceb3372946e589dc1058c788133ec \
+                    sha256  a77a002183576d7255fc6e6f3a55df4eaf7ae0ea5a4065a241e20f30d3708fcd \
+                    size    283872
 
 categories          devel
 license             Apache-2
@@ -67,16 +67,20 @@ if {[string match *clang* ${configure.compiler}]} {
     legacysupport.use_mp_libcxx yes
 }
 
-platform darwin {
-    if {[string match *gcc* ${configure.compiler}]} {
-        configure.ldflags-append \
-                            -latomic
-    }
+# platform darwin {
+    # The following does not seem to be needed anymore.
+    # Possibly, has been fixed in GCC. Yet, retain the block for now.
     # Fixes alignment-related static assert failures on PPC:
-    if {${build_arch} in [list ppc ppc64]} {
-        configure.cflags-append \
-                            -malign-natural
-        configure.cxxflags-append \
-                            -malign-natural
-    }
+    #   if {${build_arch} in [list ppc ppc64]} {
+    #       configure.cflags-append \
+    #                       -malign-natural
+    #       configure.cxxflags-append \
+    #                       -malign-natural
+    #   }
+# }
+
+if {[string match *gcc* ${configure.compiler}] \
+    && (${configure.build_arch} in [list i386 ppc])} {
+    configure.ldflags-append \
+                            -latomic
 }

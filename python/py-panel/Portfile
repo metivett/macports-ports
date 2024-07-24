@@ -2,9 +2,10 @@
 
 PortSystem          1.0
 PortGroup           python 1.0
+PortGroup           select 1.0
 
 name                py-panel
-version             1.3.7
+version             1.4.4
 revision            0
 categories-append   graphics devel
 license             BSD
@@ -19,9 +20,9 @@ homepage            https://panel.holoviz.org
 
 python.versions     39 310 311 312
 
-checksums           rmd160  4436e6d214e60130f705bc2ebf86d373c3c4fe42 \
-                    sha256  f572ceb6cb37982c3aaec63f2078860eeab93a3c757ebdcc9800bf1f06bcec2e \
-                    size    28196217
+checksums           rmd160  b43837b7f77eed64bbcf6174247aab5f30305dd8 \
+                    sha256  659e9fc5b495e6519c5d07e8148fa5eeed9bc648356ec83fc299381ba5a726ef \
+                    size    38429637
 
 if {${name} ne ${subport}} {
     python.pep517   yes
@@ -30,7 +31,8 @@ if {${name} ne ${subport}} {
                     port:npm10
 
     depends_run-append \
-                    path:bin/node:nodejs20 \
+                    path:bin/node:nodejs22 \
+                    port:panel_select \
                     port:py${python.version}-bleach \
                     port:py${python.version}-bokeh \
                     port:py${python.version}-linkify-it-py \
@@ -45,7 +47,11 @@ if {${name} ne ${subport}} {
                     port:py${python.version}-requests \
                     port:py${python.version}-tqdm \
                     port:py${python.version}-typing_extensions \
+                    port:py${python.version}-tzdata \
                     port:py${python.version}-xyzservices
+
+    select.group    panel
+    select.file     ${filespath}/py${python.version}-panel
 
     platform darwin {
         if {${os.major} < 13} {
@@ -54,7 +60,7 @@ if {${name} ne ${subport}} {
                     port:npm8
 
             depends_run-replace \
-                    path:bin/node:nodejs20 \
+                    path:bin/node:nodejs22 \
                     path:bin/node:nodejs14
         }
 
@@ -64,7 +70,7 @@ if {${name} ne ${subport}} {
                     port:npm9
 
             depends_run-replace \
-                    path:bin/node:nodejs20 \
+                    path:bin/node:nodejs22 \
                     path:bin/node:nodejs18
         }
     }

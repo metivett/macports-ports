@@ -4,7 +4,7 @@ PortSystem          1.0
 PortGroup           R 1.0
 
 R.setup             cran christian.hennig prabclus 2.3-3
-revision            0
+revision            1
 maintainers         nomaintainer
 license             GPL
 description         Functions for clustering and testing of presence/absence, abundance and multilocus genetic data
@@ -13,6 +13,7 @@ checksums           rmd160  85d96cdd6e863dc805d56406936887dacc70e712 \
                     sha256  005d000a9ac357e670de26e5b8fc4ddb1617351275fa43bf6d2e88b8774358c1 \
                     size    191824
 supported_archs     noarch
+platforms           {darwin any}
 
 depends_lib-append  port:R-mclust
 

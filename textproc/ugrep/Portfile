@@ -5,7 +5,7 @@ PortGroup           github 1.0
 PortGroup           compiler_blacklist_versions 1.0
 PortGroup           legacysupport 1.1
 
-github.setup        Genivia ugrep 4.5.2 v
+github.setup        Genivia ugrep 6.2.0 v
 github.tarball_from archive
 revision            0
 
@@ -18,9 +18,9 @@ long_description    {*}${description}: search file systems, source code, text, \
                     binary files, archives (cpio/tar/pax/zip), compressed files \
                     (gz/Z/bz2/lzma/xz/lz4/zstd), documents and more.
 
-checksums           rmd160  8fdbf586409389a018f02da67d8d0f484bcc3cb7 \
-                    sha256  01fabb1d65775aa90d60d37a484675d81f3d688b0a29a2ec732c7843bc2b2f32 \
-                    size    6205239
+checksums           rmd160  1efa08302b515a88200edb365b67adabb6216dbb \
+                    sha256  e7b54e8e7d2d9058167269673fd783651071ba1ace547cf6c926b833607d2e1b \
+                    size    7024025
 
 compiler.cxx_standard 2011
 
@@ -47,13 +47,15 @@ configure.args      --disable-silent-rules \
                     --with-lzma=${prefix} \
                     --with-lz4=${prefix} \
                     --with-zstd=${prefix} \
-                    --disable-avx \
+                    --without-brotli \
+                    --without-bzip3 \
+                    --disable-avx2 \
                     --disable-sse2 \
                     --disable-neon
 
 variant native description {Enable CPU-specific optimizations} {
     configure.args-delete \
-                    --disable-avx \
+                    --disable-avx2 \
                     --disable-sse2 \
                     --disable-neon
 }

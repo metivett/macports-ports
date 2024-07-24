@@ -3,20 +3,23 @@
 PortSystem          1.0
 PortGroup           R 1.0
 
-R.setup             cran TileDB-Inc tiledb 0.23.0
+R.setup             cran TileDB-Inc tiledb 0.28.0
 revision            0
 categories-append   databases
 maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
 license             MIT
 description         Universal storage engine for sparse and dense multidimensional arrays
 long_description    {*}${description}
-checksums           rmd160  8f518850b2ce8500161fc4b58a726d95673031de \
-                    sha256  da614a88b3f97f8ac4586dbccad103313647d188c5a4df8e08113f6bc21db42d \
-                    size    523486
+homepage            https://tiledb-inc.github.io/TileDB-R
+checksums           rmd160  ea0a7d720b7e67d379d51279e0f7710fb585f72e \
+                    sha256  dd95da0572ccd49aec2abb8d2de05939910fdcbe487d389008519b367a5694d4 \
+                    size    539014
 
 depends_build-append \
-                    port:pkgconfig
+                    path:bin/pkg-config:pkgconfig
+
 depends_lib-append  port:tiledb \
+                    port:R-nanoarrow \
                     port:R-nanotime \
                     port:R-Rcpp \
                     port:R-RcppInt64 \

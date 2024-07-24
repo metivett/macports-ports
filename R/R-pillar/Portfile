@@ -3,17 +3,19 @@
 PortSystem          1.0
 PortGroup           R 1.0
 
-R.setup             github r-lib pillar 1.9.0.9003 v
+R.setup             github r-lib pillar 1.9.0.9015 v
 revision            0
+platforms           {darwin any}
 maintainers         nomaintainer
 license             MIT
 description         Format columns with color
-long_description    ${name} provides tools for styling columns of data, artfully using color \
-                    and unicode characters to guide the eye.
+long_description    ${name} provides tools for styling columns of data, \
+                    artfully using color and unicode characters to guide the eye.
 homepage            https://pillar.r-lib.org
-checksums           rmd160  8a76d24373a57f9818fc4c698747e63523af7122 \
-                    sha256  5e92c668a4fb848f292726a2d60e0069b7608555da936e91e56d5e029eb36fc1 \
-                    size    200321
+checksums           rmd160  4070a90247fd4945af3450adb83fd04117b10ac4 \
+                    sha256  4c817416f3670eeeb6c005954bd063d8b0df49a76f8c93769408612fd5749a9f \
+                    size    163654
+github.tarball_from archive
 supported_archs     noarch
 
 depends_lib-append  port:R-cli \

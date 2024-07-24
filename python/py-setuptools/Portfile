@@ -4,7 +4,7 @@ PortSystem          1.0
 PortGroup           python 1.0
 
 name                py-setuptools
-version             68.2.2
+version             70.2.0
 categories-append   devel
 # License status is murky. The current maintainer decided to relicense as
 # MIT, but he doesn't appear to have obtained the permission of previous
@@ -24,26 +24,24 @@ platforms           {darwin any}
 
 homepage            https://pypi.org/project/setuptools/
 
-checksums           md5 d967ca2ba7f46db887daee2d5c9bd6a2 \
-                    rmd160 bf736a936c4ae85b9dd546f39fd0c627c8c17675 \
-                    sha256 4ac1475276d2f1c48684874089fefcd83bd7162ddaafb81fac866ba0db282a87
+checksums           md5 751479e596bc420ec9f4167238ca9e8a \
+                    rmd160 5845fc53717878195f20fe82f03c0114fd3e12a7 \
+                    sha256 bd63e505105011b25c3c11f753f7e3b8465ea739efddaccef8f0efac2137bac1
 
 python.versions     26 27 32 33 34 35 36 37 38 39 310 311 312
 python.link_binaries no
 
 if {$subport ne $name} {
 
-    if {${python.version} >= 36} {
-        python.pep517   yes
+    if {${python.version} >= 37} {
         python.add_dependencies no
-        depends_build   port:py-bootstrap-modules
+        depends_build   port:py-bootstrap-modules \
+                        port:py${python.version}-installer
         depends_lib     port:python${python.version}
         build.env-append    PYTHONPATH=${prefix}/share/py-bootstrap-modules
         build.args      --skip-dependency-check
-        if {${python.version} >= 37} {
-            depends_build-append    port:py${python.version}-installer
-        }
-    } else {
+    }
+    if {${python.version} <= 35} {
         use_zip     yes
         post-destroot {
             ln -s ${python.prefix}/bin/easy_install-${python.branch} ${destroot}${prefix}/bin
@@ -63,7 +61,6 @@ if {$subport ne $name} {
             checksums   md5 7d9cdfb85e905390a1d820fa5e9b01a2 \
                         rmd160 0604aed7827ac8631a07cf5ed8b12d7c7a4b5f3d \
                         sha256 22c7348c6d2976a52632c67f7ab0cdf40147db7789f9aed18734643fe9cf3373
-            destroot.env-append PYTHONPATH=${prefix}/share/py-bootstrap-modules
         }
         35 {
             version     50.3.1

@@ -4,16 +4,16 @@ PortSystem          1.0
 PortGroup           R 1.0
 
 # GitHub version is outdated.
-R.setup             cran hhoeflin hdf5r 1.3.9
+R.setup             cran hhoeflin hdf5r 1.3.11
 revision            0
 maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
 license             Apache-2
 description         Interface to the HDF5 binary data format
 long_description    {*}${description}
 homepage            https://hhoeflin.github.io/hdf5r
-checksums           rmd160  8319fc616cac3641fed9411af8c951e7f9671a10 \
-                    sha256  ef8e3f833131518afd027f40c4902bac3636f9c331e8c4ade2c439b79cba63ab \
-                    size    1919204
+checksums           rmd160  bc9a4d3f67328eda6781e817494b69b739af57a9 \
+                    sha256  9795d667bc72acfabece1e3ece1aa4e60e8194cb4eb8b46985efccd19a55a8c4 \
+                    size    1919705
 
 depends_build-append \
                     port:grep

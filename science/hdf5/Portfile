@@ -5,17 +5,20 @@ PortGroup           muniversal 1.0
 PortGroup           mpi 1.0
 PortGroup           legacysupport 1.1
 PortGroup           compiler_blacklist_versions 1.0
+PortGroup           github 1.0
 
-name                hdf5
-version             1.14.3
-set mainversion     [lrange [split ${version} -] 0 0]
-revision            2
-set shortversion    [join [lrange [split ${mainversion} .] 0 1] .]
+github.setup        HDFGroup hdf5 1.14.4.3 hdf5_
+set distversion     1.14.4-3
+revision            0
+#set mainversion     [lindex [split ${distversion} -] 0]
+#set shortversion    [join [lrange [split ${mainversion} .] 0 1] .]
+
 categories          science
 maintainers         {eborisch @eborisch} openmaintainer
 
 description         HDF5 general purpose library and file format for storing\
                     scientific data
+
 long_description    HDF5 is a data model, library, and file format for storing\
                     and managing data. It supports an unlimited variety of\
                     datatypes, and is designed for flexible and efficient I/O\
@@ -24,19 +27,18 @@ long_description    HDF5 is a data model, library, and file format for storing\
                     of HDF5. The HDF5 Technology suite includes tools and\
                     applications for managing, manipulating, viewing, and\
                     analyzing data in the HDF5 format.
-homepage            https://www.hdfgroup.org/solutions/hdf5/
-platforms           darwin
 
-distfiles           ${name}-${version}.tar.bz2
-master_sites \
-    https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${shortversion}/hdf5-${mainversion}/src
+homepage            https://www.hdfgroup.org/solutions/hdf5/
+github.tarball_from releases
+distname            ${name}-${distversion}
+
 checksums \
-    rmd160  4038e67868ffa4d5bde3ed02a5cd03f24056b072 \
-    sha256  9425f224ed75d1280bb46d6f26923dd938f9040e7eaebf57e66ec7357c08f917 \
-    size    16320137
+    rmd160  1a4cf82ec7753a280aff9d2e239030a7565b616f \
+    sha256  019ac451d9e1cf89c0482ba2a06f07a46166caf23f60fea5ef3c37724a318e03 \
+    size    37007795
+
 mpi.setup           -gcc44 -gcc45
 
-use_bzip2           yes
 depends_lib         port:zlib port:libaec
 use_parallel_build  yes
 
@@ -60,6 +62,8 @@ compiler.c_standard 1999
 # Avoid duplicate LC_RPATH's in dylibs, satisfy Xcode 15 linker.
 compilers.add_gcc_rpath_support no
 
+# Disabling float16 for now: https://github.com/HDFGroup/hdf5/issues/4310,
+# MacPorts #69861
 # Use lib/hdf5 rather than hdf5/lib plugin directory
 configure.args \
                     --disable-cxx \
@@ -73,7 +77,8 @@ configure.args \
                     --enable-static \
                     --with-default-plugindir=${prefix}/lib/hdf5 \
                     --with-szlib=${prefix}/lib/libaec \
-                    --with-zlib=yes
+                    --with-zlib=yes \
+                    --disable-nonstandard-feature-float16
 
 # Actively checks how to get clang to warn on implicit functions with this.
 configure.checks.implicit_function_declaration.whitelist-append strchr
@@ -114,14 +119,12 @@ post-destroot {
 
     # ensure libraries are found and that they are from MacPorts
     # see https://trac.macports.org/ticket/67507
-    if {[ mpi_variant_isset ]} {
-        # see https://github.com/macports/macports-ports/commit/1e09f24922857968ec9e4429085a4d06b636baf2#commitcomment-115333262
-        set bins    {h5c++ h5pcc}
-    } else {
-        set bins    {h5c++ h5cc}
-    }
-    reinplace   -W ${destroot}${prefix}/bin "s|-lsz|${prefix}/lib/libaec/lib/libsz.dylib|g" {*}${bins}
-    reinplace   -W ${destroot}${prefix}/bin "s|-lz|${prefix}/lib/libz.dylib|g"              {*}${bins}
+    # Depending on build config, a number of different files need to be patched
+    # just let the system find which ones need it for this build.
+    system -W ${destroot}${prefix}/bin \
+        "grep -Il --null -- '-lsz -lz' * | xargs -0 sed -i '' \
+          -e 's^-lsz^${prefix}/lib/libaec/lib/libsz.dylib^' \
+          -e 's^-lz^${prefix}/lib/libz.dylib^'"
 }
 
 test.run            yes
@@ -212,6 +215,7 @@ Otherwise errors such as "unable to open file" or "HDF5 error" may be\
 encountered.
 }
 
-livecheck.type      regex
-livecheck.url       https://www.hdfgroup.org/downloads/hdf5
-livecheck.regex     hdf5-(\[0-9.-\]+)-Std
+# Now attempting livecheck via github portgroup.
+#livecheck.type      regex
+#livecheck.url       https://www.hdfgroup.org/downloads/hdf5
+#livecheck.regex     hdf5-(\[0-9.-\]+)-Std

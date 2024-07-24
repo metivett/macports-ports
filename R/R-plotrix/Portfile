@@ -4,7 +4,7 @@ PortSystem          1.0
 PortGroup           R 1.0
 
 R.setup             cran dmurdoch plotrix 3.8-4
-revision            0
+revision            1
 maintainers         nomaintainer
 license             GPL-2+
 description         Various plotting functions
@@ -14,5 +14,6 @@ checksums           rmd160  35ca54374c7222f032a6051fa470f02871c16382 \
                     sha256  e6a22d93ab61c67af21cbbe1fe333c06934cf576a44745bf2beee59bceaae8d6 \
                     size    318991
 supported_archs     noarch
+platforms           {darwin any}
 
 test.run            yes

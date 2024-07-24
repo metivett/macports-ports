@@ -43,12 +43,17 @@ compilers.allow_arguments_mismatch yes
 # 1.2.3 is quite old, no guarantees that any of this works,
 # and there is no point in pushing it upstream, really.
 patchfiles-append patch-xcode12-fixes.27.diff
-patch.pre_args -p1
+patch.pre_args-replace  -p0 -p1
 
 depends_lib-append      port:py${python.version}-numpy \
                         port:py${python.version}-pybind11
 
-depends_build-append    port:swig-python
+depends_build-append    port:swig-python \
+                        port:py${python.version}-cython-compat
+
+set compat_path [string replace ${python.pkgd} 0 [string length ${python.prefix}]-1 ${prefix}/lib/py${python.version}-cython-compat]
+build.env-append        PYTHONPATH=${compat_path}
+destroot.env-append     PYTHONPATH=${compat_path}
 
 worksrcdir              ${distname}
 build.env-append        "CCFLAGS=-I${prefix}/include -L${prefix}/lib"

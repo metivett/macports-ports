@@ -7,15 +7,14 @@ PortGroup           compilers 1.0
 PortGroup           github 1.0
 PortGroup           legacysupport 1.1
 PortGroup           linear_algebra 1.0
-PortGroup           qt4 1.0
 
 # _strnlen, getline
 legacysupport.newest_darwin_requires_legacy 10
 
 # Remember to keep qt4 as a fallback until qt5 is available on old systems.
 
-github.setup        ElmerCSC elmerfem c444a42e9cc0a2173e8e019271f8f4be87619e44
-version             2023.12.13
+github.setup        ElmerCSC elmerfem a21b1be9009d210c8839bea8f8724bc5fb529f3b
+version             2024.07.04
 revision            0
 categories          science
 license             GPL-2
@@ -25,17 +24,15 @@ long_description    {*}${description} making it an ideal tool for multiphysical 
                     It includes models for structural mechanics, fluid dynamics, heat transfer, \
                     electromagnetics and beyond. Elmer can also be used on massively parallel HPC platforms.
 homepage            https://www.elmerfem.org
-checksums           rmd160  f459f3edf56c135f2ed81a1f0559cf621a7d5679 \
-                    sha256  791df3a2e8ca132a9e86ebe0fd466457f0060655842365e785f59ba3f11329de \
-                    size    72087455
+checksums           rmd160  32c56bb0b88c8a1c960f59947ab517f2444431a3 \
+                    sha256  6a12ba531ff95cd10ae8e1832f2faff0048226962b22eccfbea3fbe9d8296de0 \
+                    size    72787611
 github.tarball_from archive
-
-depends_lib-append  port:qwt61
 
 compilers.choose    fc f90
 compilers.setup     require_fortran
 compiler.blacklist-append \
-                    {*gcc-[34].*} {macports-gcc-[56]} {clang < 500}
+                    {*gcc-[34].*} {macports-gcc-[56]} {clang < 700}
 
 if {${os.platform} eq "darwin" && ${os.major} > 9} {
     # CMakeLists check for a version of CXX compiler, assuming a coherent build with GCC.
@@ -45,6 +42,11 @@ if {${os.platform} eq "darwin" && ${os.major} > 9} {
     patchfiles-append \
                     patch-fix-gfortran-with-clang.diff
 }
+
+# https://github.com/ElmerCSC/elmerfem/issues/471
+patchfiles-append   patch-umf4_f77wrapper.c.diff
+
+depends_lib-append  port:SuiteSparse_UMFPACK
 
 post-patch {
     reinplace "s,@CC@,${configure.cc}," ${worksrcpath}/CMakeLists.txt
@@ -71,13 +73,34 @@ pre-configure {
 
 set qt4_dir         ${prefix}/libexec/qt4
 
-# TODO: add variant to support MPICH, Hypre and Mumps.
-configure.args-append \
-                    -DCMAKE_Fortran_COMPILER=${configure.fc} \
-                    -DGLX_INCLUDE_DIR=${prefix}/include \
+if {${os.platform} eq "darwin" && ${os.major} < 13} {
+    PortGroup       qt4 1.0
+
+    configure.args-append \
                     -DQt4_LIBRARIES=${qt4_dir}/lib \
                     -DQWT_INCLUDE_DIR=${qt4_dir}/include/qwt \
                     -DQWT_LIBRARY=${qt4_dir}/lib/libqwt.dylib \
+                    -DWITH_QT5=OFF
+
+    depends_lib-append  port:qwt61
+} else {
+    PortGroup       qt5 1.0
+
+    qt5.depends_component   qtscript qtsvg qttools
+
+    configure.args-append \
+                    -DQWT_INCLUDE_DIR=${qt_dir}/lib/qwt.framework/Versions/6/Headers \
+                    -DQWT_LIBRARY=${qt_dir}/lib/qwt.framework/qwt \
+                    -DWITH_QT5=ON
+
+    depends_lib-append  port:qwt-qt5
+}
+
+# TODO: add variant to support MPICH, Hypre and Mumps.
+configure.args-append \
+                    -DCMAKE_Fortran_COMPILER=${configure.fc} \
+                    -DEXTERNAL_UMFPACK=ON \
+                    -DGLX_INCLUDE_DIR=${prefix}/include \
                     -DUSE_CONTIGUOUS=OFF \
                     -DWITH_CONTRIB=OFF \
                     -DWITH_ELMERGUI=ON \
@@ -95,7 +118,6 @@ configure.args-append \
                     -DWITH_NETCDF=OFF \
                     -DWITH_OCC=OFF \
                     -DWITH_OpenMP=OFF \
-                    -DWITH_QT5=OFF \
                     -DWITH_QWT=ON \
                     -DWITH_Trilinos=OFF \
                     -DWITH_XIOS=OFF \
@@ -104,6 +126,9 @@ configure.args-append \
 if {[string match macports-gcc* ${configure.compiler}]} {
     configure.args-replace \
                     -DWITH_OpenMP=OFF -DWITH_OpenMP=ON
+
+    configure.cflags-append \
+                    -Wno-error=incompatible-pointer-types
 }
 
 if {[string match *clang* ${configure.compiler}]} {

@@ -5,7 +5,7 @@ PortSystem 1.0
 name                python312
 
 # Remember to keep py312-tkinter and py312-gdbm's versions sync'd with this
-version             3.12.1
+version             3.12.4
 
 set branch          [join [lrange [split ${version} .] 0 1] .]
 categories          lang
@@ -21,9 +21,9 @@ master_sites        ${homepage}ftp/python/${version}/
 
 distname            Python-${version}
 use_xz              yes
-checksums           md5 50f827c800483776c8ef86e6a53831fa \
-                    rmd160 a2097b26a24c443cc35eabac280cee520631be8e \
-                    sha256 8dfb8f426fcd226657f9e2bd5f1e96e53264965176fa17d32658e873591aeb21
+checksums           md5 d68f25193eec491eb54bc2ea664a05bd \
+                    rmd160 ed914e4b4b0f6e5d94ef845edeb079e2bf1b470f \
+                    sha256 f6d419a6d8743ab26700801b4908d26d97e8b986e14f95de31b32de2b0e79554
 
 patchfiles          patch-Lib-cgi.py.diff \
                     patch-configure.diff \

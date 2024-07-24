@@ -3,16 +3,18 @@
 PortSystem          1.0
 PortGroup           R 1.0
 
-R.setup             github IndrajeetPatil statsExpressions 1.5.3
+R.setup             github IndrajeetPatil statsExpressions 1.5.5
 revision            0
+platforms           {darwin any}
 maintainers         nomaintainer
 license             GPL-3
 description         Tidy dataframes and expressions with statistical details
 long_description    {*}${description}
 homepage            https://indrajeetpatil.github.io/statsExpressions
-checksums           rmd160  305467003b860bf6190549de3b82df539a6ddf86 \
-                    sha256  a6ae9f4ccac739a6e10d5146ba1e82ebfeaaa42309879e7c0abad0497c9882fa \
-                    size    12396163
+checksums           rmd160  3d4425916aa7481ed62808aba2431b074a14179c \
+                    sha256  65bae6c40258209538e631780b9e60418282c40d8401f8e06ab384dbffb7f218 \
+                    size    12443308
+github.tarball_from archive
 supported_archs     noarch
 
 depends_lib-append  port:R-afex \

@@ -3,6 +3,7 @@
 PortSystem          1.0
 PortGroup           boost 1.0
 PortGroup           cmake 1.1
+PortGroup           compiler_blacklist_versions 1.0
 PortGroup           github 1.0
 PortGroup           legacysupport 1.1
 PortGroup           mpi 1.0
@@ -12,7 +13,7 @@ PortGroup           mpi 1.0
 legacysupport.use_mp_libcxx                 yes
 legacysupport.newest_darwin_requires_legacy 18
 
-github.setup        pika-org pika 0.21.0
+github.setup        pika-org pika 0.26.0
 revision            0
 categories          devel parallel
 license             Boost-1
@@ -20,9 +21,9 @@ maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
 description         C++ library for concurrency and parallelism
 long_description    pika is a C++ library for concurrency and parallelism. \
                     It implements senders/receivers for CPU thread pools, MPI and CUDA.
-checksums           rmd160  5d7deaad09cd1ab705bea10e77b56e024262e0c2 \
-                    sha256  0ab24966e6ae026b355147f02354af4bd2117c342915fe844addf8e493735a33 \
-                    size    1054361
+checksums           rmd160  9506c14f09611d2d8d966b504756b2f8020f30c2 \
+                    sha256  bbec5472c71006c1f55e7946c8dc517dae76c41cacb36fa98195312c74a1bb9a \
+                    size    1041736
 github.tarball_from archive
 
 # Prefer a version with libcontext working across all archs (ppc64 is still not fixed):
@@ -33,7 +34,13 @@ cmake.module_path-append \
                     ${prefix}/lib/${port_libfmt}/cmake
 
 depends_lib-append  port:hwloc \
-                    port:${port_libfmt}
+                    port:${port_libfmt} \
+                    port:spdlog
+
+# This is a temporary fix due to missing MPICH subports.
+# Should be dropped whenever MPICH is fixed.
+compiler.blacklist-append \
+                    macports-gcc-14 macports-clang-18
 
 if {${os.platform} eq "darwin" && ${os.arch} eq "powerpc"} {
     mpi.setup       require -gcc6 -gcc7 -gcc8 -clang -fortran
@@ -82,6 +89,14 @@ platform powerpc {
     }
 }
 
+if {${os.platform} eq "darwin" && ${os.major} < 19} {
+    if {[string match macports-clang* ${configure.compiler}]} {
+        configure.cxxflags-append \
+                    -fno-aligned-allocation \
+                    -Wno-error=unused-command-line-argument
+    }
+}
+
 # https://github.com/pika-org/pika/issues/584
 if {${cxx_stdlib} eq "libstdc++" && [string match macports-gcc* ${configure.compiler}]} {
     set gcc_v [
@@ -96,7 +111,7 @@ if {${cxx_stdlib} eq "libstdc++" && [string match macports-gcc* ${configure.comp
 
 variant jemalloc conflicts tbb description "Use jemalloc instead of system malloc" {
     depends_lib-append \
-                    port:jemalloc
+                    path:lib/pkgconfig/jemalloc.pc:jemalloc
     configure.args-append \
                     -DPIKA_WITH_MALLOC=jemalloc
 }

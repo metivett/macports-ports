@@ -7,7 +7,7 @@ PortGroup           legacysupport 1.0
 legacysupport.newest_darwin_requires_legacy 15
 
 name                rpki-client
-version             8.8
+version             9.1
 revision            0
 
 categories          net
@@ -26,9 +26,9 @@ homepage            https://www.rpki-client.org/index.html
 master_sites        https://cdn.openbsd.org/pub/OpenBSD/rpki-client/ \
                     https://ftp.openbsd.org/pub/OpenBSD/rpki-client/
 
-checksums           rmd160 76442bad0927b87e53c0fd84b1cd7439b910c598 \
-                    sha256 c784b929c68ea57f674f3e0371c410c35d75da7397d654dd83af66c7072ee667 \
-                    size   541743
+checksums           rmd160 4f7f9b81e02b911a2373645d1d9614e37ab472fb \
+                    sha256 0e8248d079401df6f18b41de13694452a147dff252db6b9a76bdc3cdc5ca2b0b \
+                    size   564296
 
 depends_lib         port:expat
 

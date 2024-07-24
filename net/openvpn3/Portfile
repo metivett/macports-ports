@@ -5,8 +5,8 @@ PortGroup           github 1.0
 PortGroup           cmake 1.1
 PortGroup           legacysupport 1.1
 
-github.setup        OpenVPN openvpn3 3.8.3 release/
-revision            5
+github.setup        OpenVPN openvpn3 3.9 release/
+revision            0
 categories          net security
 maintainers         {i0ntempest @i0ntempest} openmaintainer
 license             AGPL-3
@@ -19,9 +19,9 @@ long_description    \
 
 homepage            https://openvpn.net
 
-checksums           rmd160  b125cfcfa43f6775bc67f045ec36582f5651e285 \
-                    sha256  efb2c09c88221f29529543a335e1d154b1e849d21a830fc3e1d9e85a88266206 \
-                    size    2159384
+checksums           rmd160  0d0b5a44c214c855d094a5d4d2ef3d6026afa229 \
+                    sha256  3c68daf102dad677c1ed5595281a302c7159827f8f4f768e719f04d423ffad49 \
+                    size    2231662
 
 depends_build-append \
                     port:asio \

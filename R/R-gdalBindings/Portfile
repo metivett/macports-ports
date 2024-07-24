@@ -4,7 +4,7 @@ PortSystem          1.0
 PortGroup           R 1.0
 
 R.setup             cran caiohamamura gdalBindings 0.1.17
-revision            0
+revision            2
 categories-append   gis
 maintainers         nomaintainer
 license             GPL-3
@@ -20,5 +20,4 @@ depends_lib-append  port:gdal \
                     port:R-R6 \
                     port:R-Rcpp
 
-destroot.pre_args-append \
-                    --configure-args='--with-gdal=${prefix}/bin/gdal-config'
+build.args-append   --configure-args="--with-gdal=${prefix}/bin/gdal-config"

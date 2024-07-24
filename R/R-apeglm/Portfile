@@ -3,15 +3,16 @@
 PortSystem          1.0
 PortGroup           R 1.0
 
-R.setup             bioconductor Bioconductor apeglm 1.24.0
+R.setup             bioconductor Bioconductor apeglm 1.26.1
 revision            0
+categories-append   bioconductor
 maintainers         nomaintainer
 license             GPL-2+
 description         Approximate posterior estimation for GLM coefficients
 long_description    {*}${description}
-checksums           rmd160  e5625333e1d6cc8c2d16775ae771379b7864d685 \
-                    sha256  a4ff49d510b9021328c9f56bfbd3af55905c8a2c53ccdaf3986ef004ebf74932 \
-                    size    1111327
+checksums           rmd160  a47bb5698f58604cfe949b9005be3084608eae73 \
+                    sha256  7af71782e0a75a27f23c40cfe2b82a053322e11d1c240e4aae62826d0ef2350d \
+                    size    1111398
 
 depends_lib-append  port:R-emdbook \
                     port:R-GenomicRanges \

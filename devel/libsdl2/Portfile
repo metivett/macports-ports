@@ -5,7 +5,7 @@ PortGroup       compiler_blacklist_versions 1.0
 PortGroup       github 1.0
 
 name            libsdl2
-github.setup    libsdl-org SDL 2.28.5 release-
+github.setup    libsdl-org SDL 2.30.5 release-
 categories      devel multimedia
 platforms       macosx freebsd
 license         zlib
@@ -21,8 +21,10 @@ homepage        https://www.libsdl.org/
 
 github.tarball_from releases
 distname        SDL2-${version}
-checksums       rmd160 e6035fed80a1b290f902b04314eeab3b57c1a73b \
-                sha256 332cb37d0be20cb9541739c61f79bae5a477427d79ae85e352089afdaf6666e4
+checksums       rmd160 285d39449812028f37d13fcdda733e1ddcef3b69 \
+                sha256 f374f3fa29c37dfcc20822d4a7d7dc57e58924d1a5f2ad511bfab4c8193de63b
+
+depends_lib     port:libiconv
 
 configure.args  --without-x \
                 --disable-jack \
@@ -33,7 +35,11 @@ configure.args  --without-x \
 build.args      V=1
 
 if {${os.subplatform} eq "macosx" && ${os.major} <= 10} {
-    depends_lib   port:libsdl2-snowleopard
+    if {${configure.build_arch} in [list ppc ppc64]} {
+        depends_lib port:libsdl2-powerpc
+    } else {
+        depends_lib port:libsdl2-snowleopard
+    }
     distfiles
     patchfiles
     use_configure no
@@ -43,7 +49,7 @@ if {${os.subplatform} eq "macosx" && ${os.major} <= 10} {
         system "echo $name is a stub port > ${destroot}${prefix}/share/doc/${name}/README"
     }
 } else {
-    conflicts libsdl2-snowleopard
+    conflicts libsdl2-powerpc libsdl2-snowleopard
 
 platform macosx {
     if {${os.major} <= 12} {

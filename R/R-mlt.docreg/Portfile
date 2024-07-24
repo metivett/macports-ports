@@ -3,16 +3,19 @@
 PortSystem          1.0
 PortGroup           R 1.0
 
-R.setup             cran cran mlt.docreg 1.1-6
+R.setup             cran r-project mlt.docreg 1.1-8
 revision            0
 categories-append   math
 maintainers         nomaintainer
 license             GPL-2
-description         Additional documentation, a package vignette and regression tests for R-mlt
+description         Additional documentation, a package vignette \
+                    and regression tests for R-mlt
 long_description    {*}${description}
-checksums           rmd160  e48acf9d60139b4dd83b0efb48ece098c9846fbc \
-                    sha256  66de4ec0e1052333f503937ab186e29d754d6289fe1a521e2065fec8e9d84ec6 \
-                    size    768929
+checksums           rmd160  8bde4d9064d89f8fecdd9cf565f8f45a499c552f \
+                    sha256  d4b693f681b18942e96a4ac6d788b411365738282fadf4b75ac41ea1c577dfc3 \
+                    size    739611
+supported_archs     noarch
+platforms           {darwin any}
 
 depends_lib-append  port:R-eha \
                     port:R-flexsurv \
@@ -20,3 +23,22 @@ depends_lib-append  port:R-eha \
                     port:R-multcomp \
                     port:R-numDeriv \
                     port:R-truncreg
+
+depends_test-append port:R-AER \
+                    port:R-basefun \
+                    port:R-coin \
+                    port:R-colorspace \
+                    port:R-gamlss.data \
+                    port:R-gridExtra \
+                    port:R-HSAUR3 \
+                    port:R-knitr \
+                    port:R-latticeExtra \
+                    port:R-mlbench \
+                    port:R-prodlim \
+                    port:R-rms \
+                    port:R-sandwich \
+                    port:R-TH.data \
+                    port:R-tram \
+                    port:R-variables
+
+test.run            yes

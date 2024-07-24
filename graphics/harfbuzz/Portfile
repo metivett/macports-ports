@@ -7,14 +7,14 @@ PortGroup           gobject_introspection 1.0
 
 # Please keep the harfbuzz and harfbuzz-devel ports as similar as possible.
 
-github.setup        harfbuzz harfbuzz 8.3.0
+github.setup        harfbuzz harfbuzz 8.5.0
+checksums           rmd160  f9078722b07904b370675ea9705846575dfe42a7 \
+                    sha256  77e4f7f98f3d86bf8788b53e6832fb96279956e1c3961988ea3d4b7ca41ddc27 \
+                    size    19468172
+
 name                harfbuzz
 conflicts           harfbuzz-devel
 set my_name         harfbuzz
-checksums           rmd160  9b1e19b379777eec47e28545c50038a7454d6314 \
-                    sha256  109501eaeb8bde3eadb25fab4164e993fbace29c3d775bcaa1c1e58e2f15f847 \
-                    size    19002808
-
 categories          graphics
 maintainers         {ryandesign @ryandesign} {mascguy @mascguy} openmaintainer
 license             MIT
@@ -103,7 +103,7 @@ if {${name} eq ${subport}} {
 }
 
 subport harfbuzz-icu {
-    revision        1
+    revision        0
 
     conflicts       harfbuzz-icu-devel
 

@@ -14,7 +14,7 @@ universal_variant no
 # https://docs.microsoft.com/en-us/java/openjdk/download#openjdk-11
 supported_archs  x86_64 arm64
 
-version      11.0.21
+version      11.0.23
 set build    9
 revision     0
 
@@ -26,14 +26,14 @@ master_sites https://aka.ms/download-jdk/
 
 if {${configure.build_arch} eq "x86_64"} {
     distname     microsoft-jdk-${version}-macOS-x64
-    checksums    rmd160  fb0f2a6203312afadf14c1787a483e7f1b570a4e \
-                 sha256  f9dfe40bcb2bad3d55861122cb05951b5f369e67a674eb0f395d287340e8f72e \
-                 size    187832581
+    checksums    rmd160  1bf7bfa7bc550ec3b6c93725ec14c33e00b0176b \
+                 sha256  2234a37249f4235c9096a9c18b85d5bb80a052295e9b4f068f866692dc8249eb \
+                 size    191462906
 } elseif {${configure.build_arch} eq "arm64"} {
     distname     microsoft-jdk-${version}-macOS-aarch64
-    checksums    rmd160  477be288d50e361d072e31e306e74a843b6e25d3 \
-                 sha256  6c9aa53777f7033fa4230917ab2ee6ee2805b9ea1754dad2eb47c2e9ca1d0904 \
-                 size    185391194
+    checksums    rmd160  e934be126cd8d58cfb567c0f13b46507339f4ca4 \
+                 sha256  a0d6bceeee9f99eba1756c34da321769ea05df54db101178986bfb2ab452bf34 \
+                 size    185546235
 }
 
 worksrcdir   jdk-${version}+${build}

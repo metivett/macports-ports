@@ -14,8 +14,8 @@ universal_variant no
 # https://docs.microsoft.com/en-us/java/openjdk/download#openjdk-21
 supported_archs  x86_64 arm64
 
-version      21.0.1
-set build    12
+version      21.0.3
+set build    9
 revision     0
 
 description  Microsoft Build of OpenJDK 21 (Long Term Support)
@@ -26,14 +26,14 @@ master_sites https://aka.ms/download-jdk/
 
 if {${configure.build_arch} eq "x86_64"} {
     distname     microsoft-jdk-${version}-macOS-x64
-    checksums    rmd160  74b100ca28bcc314b99ac8db93acc47486a878cf \
-                 sha256  1853c84eb8bc3b4f3077eaaa88b51b005232b151c662ba29429eb7b2984cf43c \
-                 size    202563953
+    checksums    rmd160  dd2ced70234146bd64b39ee8da5a1e5ae3a92b3c \
+                 sha256  cf7d2c967088ac71b29cf28ad791a071bbf2c1dab333dd73dc0e791cb974c1f6 \
+                 size    202947464
 } elseif {${configure.build_arch} eq "arm64"} {
     distname     microsoft-jdk-${version}-macOS-aarch64
-    checksums    rmd160  a16814940bbf2d6a61714defa57341d670b3fdb4 \
-                 sha256  e44086601c580bb7b2c5b77f14c0512f1715f6f90cb11ddb43c046322294f12b \
-                 size    191796793
+    checksums    rmd160  eb3e320efb4635dbe4c89fee5c0d3ea5ca035e82 \
+                 sha256  489c96c8a4d3592811d1907346c05b75c12642729f83576982b9f62d0aafc672 \
+                 size    200438427
 }
 
 worksrcdir   jdk-${version}+${build}

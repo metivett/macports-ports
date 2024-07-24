@@ -19,7 +19,7 @@ universal_variant no
 # https://github.com/corretto/corretto-17/releases
 supported_archs  x86_64 arm64
 
-version      17.0.10.7.1
+version      17.0.12.7.1
 revision     0
 
 description  Amazon Corretto OpenJDK 17 (Long Term Support)
@@ -29,14 +29,14 @@ master_sites https://corretto.aws/downloads/resources/${version}/
 
 if {${configure.build_arch} eq "x86_64"} {
     distname     amazon-corretto-${version}-macosx-x64
-    checksums    rmd160  77a3b7b6e190dd80ed3f2214852f1fc10eef2413 \
-                 sha256  03b56d0cc1d0d62f4cf6f1eb365380cad19fc35bc7a42051c6735183b78e3323 \
-                 size    188439197
+    checksums    rmd160  c350f80ae93a83263e83fe633092b0a484273b7f \
+                 sha256  11d8732af8a184db085411cd8153a73b6e535324ff115c175504a7233b858961 \
+                 size    188713291
 } elseif {${configure.build_arch} eq "arm64"} {
     distname     amazon-corretto-${version}-macosx-aarch64
-    checksums    rmd160  d34a7592e9db95d28ff39e5ecc2dc78f1ef81e5e \
-                 sha256  8bea3c09966e0d44c56f61d31d28c12a8df8d8ec0ef18ed2f6146c303abae754 \
-                 size    186538073
+    checksums    rmd160  e9cb4c8c868666060d2b7ac3e023c447ed023c75 \
+                 sha256  0c0b2b7dabc2b55bd9c1a71d18f375c3570d507613633e861daea3958bd1bf75 \
+                 size    186817195
 }
 
 worksrcdir   amazon-corretto-17.jdk

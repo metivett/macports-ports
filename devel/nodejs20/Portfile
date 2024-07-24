@@ -11,7 +11,7 @@ configure.cxx_stdlib    libc++
 compiler.cxx_standard   2014
 
 name                    nodejs20
-version                 20.11.0
+version                 20.15.1
 revision                0
 
 categories              devel net
@@ -26,15 +26,15 @@ long_description        Node's goal is to provide an easy way to build scalable 
                         Machine or Python's Twisted. Node takes the event model a bit further-it \
                         presents the event loop as a language construct instead of as a library.
 
-conflicts               nodejs8 nodejs10 nodejs12 nodejs13 nodejs14 nodejs15 nodejs16 nodejs17 nodejs18 nodejs19 nodejs21
+conflicts               nodejs8 nodejs10 nodejs12 nodejs13 nodejs14 nodejs15 nodejs16 nodejs17 nodejs18 nodejs19 nodejs21 nodejs22
 
 homepage                https://nodejs.org/
 master_sites            ${homepage}dist/v${version}
 use_xz                  yes
 
-checksums               rmd160  c648ac98f6cbf17eb861c1a3325f7c6411f5b4bc \
-                        sha256  31807ebeeeb049c53f1765e4a95aed69476a4b696dd100cb539ab668d7950b40 \
-                        size    42162348
+checksums               rmd160  fbc6467fb61ff4bde0ba89085aabeeb99719fa4a \
+                        sha256  fdd53a5729d936691a2a1151046fb4897721cb8b0fca2af957823a9b40fe0c34 \
+                        size    41880412
 
 distname                node-v${version}
 
@@ -164,6 +164,7 @@ destroot {
     xinstall -d ${libndir}
     xinstall -d ${libddir}
     xinstall -d ${incdir}
+    xinstall -d ${incdir}/uv
     xinstall -d ${docdir}
 
     # install binaries
@@ -175,6 +176,7 @@ destroot {
     xinstall -m 644 {*}[glob ${worksrcpath}/src/*.h]                ${incdir}
     xinstall -m 644 {*}[glob ${worksrcpath}/deps/v8/include/*.h]    ${incdir}
     xinstall -m 644 {*}[glob ${worksrcpath}/deps/uv/include/*.h]    ${incdir}
+    xinstall -m 644 {*}[glob ${worksrcpath}/deps/uv/include/uv/*.h] ${incdir}/uv
     xinstall -m 644 {*}[glob ${worksrcpath}/deps/cares/include/*.h] ${incdir}
 
     # install manpage

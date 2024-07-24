@@ -7,6 +7,7 @@ if { ${os.platform} eq "darwin" && ${os.major} >= 20 && ${build_arch} eq "x86_64
     universal_variant no
 } else {
     PortGroup       muniversal 1.0
+
 }
 
 PortGroup           gitlab 1.0
@@ -35,13 +36,12 @@ homepage            https://cmake.org
 platforms           darwin freebsd
 gitlab.instance     https://gitlab.kitware.com
 
-gitlab.setup        cmake   cmake 0b6c6bb1ea67e2f84b6dc06cdad93350b312a0a6
-version             20231015-3.28.0-rc5-[string range ${gitlab.version} 0 7]
-checksums           rmd160  37f9d2767a8766bd4358826701ea74ecf5b60778 \
-                    sha256  e4f0c9f288333936658037c0024a7ae891f2d3ad12b805935ed0603e891914a5 \
-                    size    8461764
+gitlab.setup        cmake   cmake facfba088f3487a44cadf8288af47ca3383c03a0
+version             20240611-3.29.5-[string range ${gitlab.version} 0 7]
+checksums           rmd160  d4558f31dc1cffabe91b3fd1d14b11fe432fd784 \
+                    sha256  bcfe494d244d6d8fb7fc8830a012f931cdb1f48ca4d682548b015c41dd7ca395 \
+                    size    8605994
 revision            0
-
 epoch               1
 
 dist_subdir         ${my_name}
@@ -75,9 +75,14 @@ patchfiles-append \
     patch-fix-clock_gettime-test.diff \
     patch-qt5gui.diff \
     patch-cmake-cmInstallRuntime-initializer-fix.diff \
-    patch-uv_spawn.diff \
+    patch-libuv-legacy-systems.diff \
     patch-cmakeroot-with-app.diff \
     patch-remove-homebrew-references.diff
+
+platform darwin 8 {
+    # Tiger doesn't have _DARWIN_C_SOURCE macro so have to disable _POSIX_C_SOURCE instead
+    patchfiles-append patch-cmake-3290-posixcsource.diff
+}
 
 depends_lib-append \
     port:curl \
@@ -85,8 +90,7 @@ depends_lib-append \
     port:zlib \
     port:bzip2 \
     port:libarchive \
-    port:ncurses \
-    port:libuv
+    port:ncurses
 
 # configure is just a shell script that passes directly to bootstrap
 configure.cmd ./bootstrap
@@ -134,6 +138,12 @@ platform darwin {
         configure.cxxflags-append \
             -D_DARWIN_C_SOURCE
     }
+
+    if { ${os.major} == 8 } {
+        # prevent conflicting opentransport header from being pulled in
+        configure.cxxflags-append -D__OPENTRANSPORTPROVIDERS__
+    }
+
 }
 
 # https://trac.macports.org/ticket/67943
@@ -157,6 +167,7 @@ configure.args-append \
     --no-qt-gui \
     --no-system-jsoncpp \
     --no-system-librhash \
+    --no-system-libuv \
     --no-system-cppdap
 
 configure.universal_args
@@ -272,7 +283,7 @@ subport ${subport_docs} {
     }
 
     # Supported pythons
-    set python_versions {38 39 310 311}
+    set python_versions {38 39 310 311 312}
 
     # declare all +python* variants, with conflicts
     foreach pyver ${python_versions} {
@@ -306,7 +317,7 @@ subport ${subport_docs} {
     # set default +python* variant if none were already selected
     if {!${python_isset}} {
         set python_isset true
-        default_variants +python311
+        default_variants +python312
     }
 
     # make sure one of the +python* variants is set
@@ -358,6 +369,10 @@ subport ${subport_docs} {
             ui_info "${subport}: deleting dir: ${d}"
             delete ${d}
         }
+
+        # installed by the cmake-gui port
+        delete ${destroot}${prefix}/share/doc/cmake
+
     }
 }
 

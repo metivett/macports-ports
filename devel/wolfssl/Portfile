@@ -3,7 +3,7 @@
 PortSystem          1.0
 
 name                wolfssl
-version             5.6.6
+version             5.7.2
 revision            0
 categories          devel security
 platforms           darwin
@@ -25,9 +25,9 @@ long_description    \
 master_sites        https://www.wolfssl.com/
 use_zip             yes
 
-checksums           rmd160  58f1f6a184c0d218dcb3006de5d22b4d1c8a02b2 \
-                    sha256  5a24b01f16957f0bec38e494e35617c0396928641aa897233e68c41268737f1b \
-                    size    24310150
+checksums           rmd160  ed7c0a3d1699bcaaabe8652af1ea3bcce87d10e6 \
+                    sha256  07d580eb452aed737f1ce71aecc4f076276508f9454d70c8083772f6143ca160 \
+                    size    25112699
 
 configure.args      --enable-all \
                     --disable-jobserver \

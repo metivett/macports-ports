@@ -3,21 +3,29 @@
 PortSystem          1.0
 PortGroup           R 1.0
 
-R.setup             cran RAPLER dst 1.5.2
+R.setup             cran RAPLER dst 1.7.0
 revision            0
 categories-append   economics
+platforms           {darwin any}
 maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
 license             GPL-2+
-description         Use the Theory of Belief Functions for evidence calculus
+description         Use the theory of belief Functions for evidence calculus
 long_description    {*}${description}
-checksums           rmd160  8e1a894f1d105560220e3fc842c816e413e08104 \
-                    sha256  1337e49d093d414d690f872de3be6ae7ff97f1f4bd351fd88c875a3fa6616bc7 \
-                    size    348625
+homepage            https://github.com/RAPLER/dst-1
+checksums           rmd160  65e04ac6a46d4739f24f1facb59023f97dd68993 \
+                    sha256  29cdb25557b782c0288daa0e992e61000976ccf6b2b6101c575c2460af606bd0 \
+                    size    547572
 supported_archs     noarch
+
+depends_lib-append  port:R-dplyr \
+                    port:R-ggplot2 \
+                    port:R-rlang \
+                    port:R-tidyr
 
 depends_test-append port:R-igraph \
                     port:R-knitr \
                     port:R-rmarkdown \
-                    port:R-testthat
+                    port:R-testthat \
+                    port:R-tidyverse
 
 test.run            yes

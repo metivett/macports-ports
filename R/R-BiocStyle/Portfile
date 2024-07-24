@@ -3,17 +3,18 @@
 PortSystem          1.0
 PortGroup           R 1.0
 
-R.setup             github Bioconductor BiocStyle 18ce82ef90b5ab7cbdfa45dc0ab16dac0997111e
-version             2.31.0
+R.setup             bioconductor Bioconductor BiocStyle 2.32.1
 revision            0
+categories-append   bioconductor
+platforms           {darwin any}
 maintainers         nomaintainer
 license             Artistic-2
-description         Provides standard formatting styles for Bioconductor PDF and HTML documents
+description         Provides standard formatting styles for Bioconductor \
+                    PDF and HTML documents
 long_description    {*}${description}
-homepage            https://bioconductor.org/packages/${R.package}
-checksums           rmd160  6d74f557ec271815e11bfa5a5c9434c8f38548e2 \
-                    sha256  9c82a19782a2c8d5fad47d6285bd4eab16bd697ea90900bccd5bd04601926079 \
-                    size    67411
+checksums           rmd160  b589efa46c6f8caabcddae28eaec1143258afcfc \
+                    sha256  79ceb7377b7fa27ad4f9c7de99034682c89e44afa857730a37e22052aab016d4 \
+                    size    787732
 supported_archs     noarch
 
 depends_lib-append  port:R-BiocManager \

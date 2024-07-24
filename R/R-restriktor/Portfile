@@ -3,27 +3,35 @@
 PortSystem          1.0
 PortGroup           R 1.0
 
-R.setup             cran cran restriktor 0.5-30
+R.setup             cran restriktor.org restriktor 0.5-80
 revision            0
 categories-append   math
+platforms           {darwin any}
 maintainers         nomaintainer
 license             GPL-2+
-description         Restricted statistical estimation and inference for linear models
+description         Restricted statistical estimation and inference \
+                    for linear models
 long_description    {*}${description}
-checksums           rmd160  c11bb629a44aa6db6f0be7dc59334f9269558c9a \
-                    sha256  2f91995e1248280a4068017fa418431211a480a8add0166915248a9e45428be2 \
-                    size    195166
+checksums           rmd160  2f4ba1da53227b7d0e779471105afdeec56d4c0c \
+                    sha256  04e4026b61ef47359bb6643d183d75908115307ae7749c4fc93705ce27e7f3b6 \
+                    size    212070
 supported_archs     noarch
 
 depends_lib-append  port:R-ggplot2 \
+                    port:R-glue \
+                    port:R-gridExtra \
                     port:R-ic.infer \
                     port:R-lavaan \
                     port:R-mvtnorm \
                     port:R-norm \
-                    port:R-quadprog
+                    port:R-pbapply \
+                    port:R-quadprog \
+                    port:R-scales \
+                    port:R-tmvtnorm
 
 depends_test-append port:R-bain \
                     port:R-knitr \
-                    port:R-rmarkdown
+                    port:R-rmarkdown \
+                    port:R-testthat
 
 test.run            yes

@@ -4,16 +4,16 @@ PortSystem          1.0
 PortGroup           R 1.0
 
 # Revert to GitHub once updated there.
-R.setup             cran dbosak01 fmtr 1.6.3
+R.setup             cran dbosak01 fmtr 1.6.5
 revision            0
 maintainers         nomaintainer
 license             public-domain
 description         Easily apply formats to data
 long_description    {*}${description}
 homepage            https://fmtr.r-sassy.org
-checksums           rmd160  8b4e1139cefade58479bba86a3082f8ee0051556 \
-                    sha256  e0d999c55ef21ad8ed0156037f4d28d02e90eeb48c814bd11ddc4cf5667afe75 \
-                    size    588002
+checksums           rmd160  d1b10527a62a9d3dd08f96012950247c05acf0fd \
+                    sha256  74f78d8d319e360203db5943200413504b019adb72ea12e9571f222ced2ca6e0 \
+                    size    588445
 
 depends_lib-append  port:R-common \
                     port:R-crayon \

@@ -214,7 +214,7 @@ array set modules {
         {"Qt Core" "Qt GUI" "Qt Network" "Qt SQL" "Qt Test" "Qt Widgets" "Qt Concurrent" "Qt D-Bus" "Qt OpenGL" "Qt Platform Headers" "Qt Print Support" "Qt XML"}
         ""
         "variant overrides: "
-        "revision 0"
+        "revision 1"
         "License: "
     }
     qtcharts {
@@ -675,7 +675,7 @@ array set modules {
         {"Qt WebEngine"}
         "very large and relatively new"
         "variant overrides: "
-        "revision 1"
+        "revision 2"
         "License: "
     }
     qtwebglplugin {
@@ -957,14 +957,6 @@ array set sql_plugins {
             ""
         }
         {
-            "mysql81"
-            "port:mysql81"
-            "${prefix}/include/mysql81/mysql"
-            "${prefix}/lib/mysql81/mysql"
-            "-lmysqlclient"
-            ""
-        }
-        {
             "mysql8"
             "port:mysql8"
             "${prefix}/include/mysql8/mysql"
@@ -1099,6 +1091,7 @@ foreach {module module_info} [array get modules] {
                 CVE-2023-37369-qtbase-5.15.diff
                 CVE-2023-38197-qtbase-5.15.diff
                 CVE-2023-51714-qtbase-5.15.diff
+                CVE-2024-25580-qtbase-5.15.diff
             }
 
             # see https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=270715

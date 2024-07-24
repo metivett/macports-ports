@@ -3,16 +3,18 @@
 PortSystem          1.0
 PortGroup           R 1.0
 
-R.setup             github trevorld gridpattern 1.1.1 v
+R.setup             github trevorld gridpattern 1.2.2 v
 revision            0
+platforms           {darwin any}
 maintainers         nomaintainer
 license             MIT
 description         Grid pattern grobs
 long_description    {*}${description}
 homepage            https://trevorldavis.com/R/gridpattern
-checksums           rmd160  fba6b53ed5442bb86fae5d9eb27ffb90dfe049ef \
-                    sha256  3b71f490f12b850672ee555dec249df20bdabb537769d6b7e862434d2728b1d1 \
-                    size    1618962
+checksums           rmd160  6ec86201bfbbd98f217dc6690ee80f810d81f6df \
+                    sha256  20870abca3bef0cbc1b8832915aa4f35696bb3b2f70f563bb2ba617bd64aead6 \
+                    size    1896482
+github.tarball_from archive
 supported_archs     noarch
 
 depends_lib-append  port:R-glue \
@@ -22,10 +24,12 @@ depends_lib-append  port:R-glue \
                     port:R-sf
 
 depends_test-append port:R-ambient \
+                    port:R-ggplot2 \
                     port:R-knitr \
                     port:R-magick \
                     port:R-ragg \
                     port:R-rmarkdown \
+                    port:R-scales \
                     port:R-svglite \
                     port:R-testthat \
                     port:R-vdiffr

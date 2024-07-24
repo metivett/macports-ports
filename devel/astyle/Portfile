@@ -5,7 +5,7 @@ PortGroup           cmake 1.1
 PortGroup           java 1.0
 
 name                astyle
-version             3.4.10
+version             3.5.2
 set branch          [join [lrange [split ${version} .] 0 1] .]
 revision            0
 categories          devel
@@ -21,13 +21,13 @@ long_description    Artistic Style is a source code indenter, source code format
 homepage            https://astyle.sourceforge.net
 master_sites        sourceforge:project/astyle/astyle/astyle%20${branch}
 use_bzip2           yes
-checksums           rmd160  453d07857e8e6f0c69d9fcc5339998aae76511e9 \
-                    sha256  6f67ec872b437bd3c51e0f75e112e4dbfdb26d5fb7bd9cf8a480f10af5557063 \
-                    size    229951
+checksums           rmd160  f89c052f7cf5c6a93a89d85301f1cc5fde907238 \
+                    sha256  db0c0a72d40e640c201e39e64678b6fe316f37e7ef05f67ce2b22d555c0a6d12 \
+                    size    231399
 
 patchfiles          dont-force-stdlib.diff
 
-compiler.cxx_standard   2011
+compiler.cxx_standard   2017
 
 # This build system can only build one thing at a time. Since we want several
 # things, we have to do each one separately.

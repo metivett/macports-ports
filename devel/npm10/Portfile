@@ -3,7 +3,7 @@
 PortSystem          1.0
 
 name                npm10
-version             10.3.0
+version             10.8.2
 revision            0
 categories          devel
 platforms           any
@@ -27,18 +27,18 @@ extract.suffix      .tgz
 
 # Please keep the sha1 - users can use it to validate sha values
 # published on npmjs.org for the package
-checksums           rmd160  65ccea715dcb86b253295eeaf36000f01faedc26 \
-                    sha1    554e1f13e4c09d581ad27cdc4a92f085ab74ce1a \
-                    sha256  ec92e7332e3f7aef6feb2b3c9585fde534cd56905cf26e77debc69e4e2b44892 \
-                    size    2463603
+checksums           rmd160  5d795f9fc5d6a1486d3f6740a023c64ddf1311ba \
+                    sha1    3c123c7f14409dc0395478e7269fdbc32ae179d8 \
+                    sha256  c8c61ba0fa0ab3b5120efd5ba97fdaf0e0b495eef647a97c4413919eda0a878b \
+                    size    2502534
 
 worksrcdir          "package"
 
-depends_lib         path:bin/node:nodejs20
+depends_lib         path:bin/node:nodejs22
 
 platform darwin {
     if {${os.major} < 13} {
-        depends_lib-replace path:bin/node:nodejs18 path:bin/node:nodejs14
+        depends_lib-replace path:bin/node:nodejs22 path:bin/node:nodejs14
     }
 }
 
@@ -49,15 +49,18 @@ patchfiles          patch-lib-commands-update.js.diff \
 
 post-patch {
     foreach f [concat ${worksrcpath}/bin/npm-cli.js \
+                   ${worksrcpath}/bin/npm-prefix.js \
                    ${worksrcpath}/bin/npx-cli.js \
                    ${worksrcpath}/node_modules/@npmcli/arborist/bin/index.js \
-                   ${worksrcpath}/node_modules/color-support/bin.js \
+                   ${worksrcpath}/node_modules/@npmcli/installed-package-contents/bin/index.js \
                    ${worksrcpath}/node_modules/cross-spawn/node_modules/which/bin/node-which \
                    ${worksrcpath}/node_modules/cssesc/bin/cssesc \
+                   ${worksrcpath}/node_modules/glob/dist/esm/bin.d.mts \
+                   ${worksrcpath}/node_modules/glob/dist/esm/bin.mjs \
                    ${worksrcpath}/node_modules/mkdirp/bin/cmd.js \
                    ${worksrcpath}/node_modules/node-gyp/bin/node-gyp.js \
                    ${worksrcpath}/node_modules/nopt/bin/nopt.js \
-                   ${worksrcpath}/node_modules/pacote/lib/bin.js \
+                   ${worksrcpath}/node_modules/pacote/bin/index.js \
                    ${worksrcpath}/node_modules/qrcode-terminal/bin/qrcode-terminal.js \
                    ${worksrcpath}/node_modules/semver/bin/semver.js \
                    ${worksrcpath}/node_modules/which/bin/which.js] {

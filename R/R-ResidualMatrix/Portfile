@@ -3,16 +3,18 @@
 PortSystem          1.0
 PortGroup           R 1.0
 
-R.setup             bioconductor LTLA ResidualMatrix 1.12.0
+R.setup             bioconductor LTLA ResidualMatrix 1.14.1
 revision            0
+categories-append   bioconductor
+platforms           {darwin any}
 maintainers         {@barracuda156 gmail.com:vital.had} openmaintainer
 license             GPL-3
 description         Creating a DelayedMatrix of regression residuals
 long_description    {*}${description}
 homepage            https://github.com/LTLA/ResidualMatrix
-checksums           rmd160  1a7bba283e2e2357013ca86cce5c34147edf48c8 \
-                    sha256  bbb066105053c04b4d2d5fdbda6b2d2eb708c8e80272354bc1dc3dbf7a38fe1a \
-                    size    340952
+checksums           rmd160  81c982d65d8880e7c2586b506a68259cce4c917a \
+                    sha256  ec7c418384abcf22f3805b62eb8f304fe50e67e170fd14a07d14ec09442c07ff \
+                    size    340839
 supported_archs     noarch
 
 depends_lib-append  port:R-DelayedArray \
